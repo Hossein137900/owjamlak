@@ -9,42 +9,123 @@ import Link from "next/link";
 import { BiHeadphone, BiLeftArrowAlt } from "react-icons/bi";
 
 export default function OurApproachPage() {
+  const heroContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+        delayChildren: 0.2,
+        duration: 0.8,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const heroTitleVariants = {
+    hidden: {
+      y: 60,
+      opacity: 0,
+      scale: 0.9,
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        duration: 0.8,
+      },
+    },
+  };
+
+  const heroDescriptionVariants = {
+    hidden: {
+      y: 40,
+      opacity: 0,
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        delay: 0.2,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const heroButtonVariants = {
+    hidden: {
+      y: 30,
+      opacity: 0,
+      scale: 0.8,
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 150,
+        damping: 15,
+        delay: 0.4,
+        duration: 0.6,
+      },
+    },
+  };
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-[#66308d]/90 to-[#01ae9b]/90 text-white">
         <div className="container mx-auto px-4 py-20 md:py-32">
-          <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            className="max-w-3xl mx-auto text-center"
+            variants={heroContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{
+              once: true,
+              amount: 0.3,
+              margin: "0px 0px -50px 0px",
+            }}
+          >
             <motion.h1
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={heroTitleVariants}
               className="text-4xl md:text-5xl font-bold mb-6"
             >
               خدمات حرفه‌ای املاک با رویکردی متفاوت
             </motion.h1>
+
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              variants={heroDescriptionVariants}
               className="text-lg md:text-xl mb-8 text-white/90"
             >
               ما با تکیه بر تخصص و تجربه، خدمات جامع املاک را با بالاترین کیفیت
               ارائه می‌دهیم
             </motion.p>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <a
+
+            <motion.div variants={heroButtonVariants}>
+              <motion.a
                 href="#our-works"
                 className="bg-white text-[#66308d] px-8 py-3 rounded-lg font-medium hover:bg-white/90 transition-colors inline-block"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 10px 25px rgba(255, 255, 255, 0.2)",
+                  y: -2,
+                  transition: { duration: 0.2 },
+                }}
+                whileTap={{
+                  scale: 0.95,
+                  transition: { duration: 0.1 },
+                }}
               >
                 مشاهده نمونه کارها
-              </a>
+              </motion.a>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
@@ -106,7 +187,7 @@ export default function OurApproachPage() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-white text-[#66308d] px-8 py-4 rounded-xl font-medium hover:bg-gray-50 transition-colors shadow-lg flex items-center justify-center gap-2 w-full sm:w-auto"
+                    className="bg-white text-[#66308d] cursor-pointer px-8 py-4 rounded-xl font-medium hover:bg-gray-50 transition-colors shadow-lg flex items-center justify-center gap-2 w-full sm:w-auto"
                   >
                     <span>تماس با ما</span>
                     <BiHeadphone size={20} />
@@ -117,7 +198,7 @@ export default function OurApproachPage() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="bg-transparent text-white border-2 border-white/70 px-8 py-4 rounded-xl font-medium hover:bg-white/10 transition-all shadow-lg flex items-center justify-center gap-2 w-full sm:w-auto backdrop-blur-sm"
+                    className="bg-transparent text-white cursor-pointer border-2 border-white/70 px-8 py-4 rounded-xl font-medium hover:bg-white/10 transition-all shadow-lg flex items-center justify-center gap-2 w-full sm:w-auto backdrop-blur-sm"
                   >
                     <span>مشاهده خدمات</span>
                     <BiLeftArrowAlt size={20} />

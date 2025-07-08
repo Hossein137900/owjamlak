@@ -1,13 +1,22 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
+// Import icons from react-icons
+
+import {
+  HiOutlineSearch,
+  HiOutlineChat,
+  HiOutlineUsers,
+  HiOutlinePhone,
+  HiOutlineDocumentText,
+  HiOutlineUserCircle,
+} from "react-icons/hi";
 
 interface CategoryBox {
   id: string;
   title: string;
-  imagePath: string;
+  icon: React.ReactNode;
   description: string;
   link: string;
 }
@@ -25,72 +34,110 @@ export default function CategoryBoxes() {
   const categories: CategoryBox[] = [
     {
       id: "rent",
-      title: "اجاره",
-      imagePath: "/assets/images/categories/rent.png",
+      title: "مشاوره",
+      icon: <HiOutlineChat className="w-8 h-8" />,
       description: "اجاره آپارتمان، ویلا و سوئیت در سراسر ایران",
-      link: "/poster",
+      link: "/services/realEstateConsultation",
     },
     {
       id: "buy",
-      title: "خرید",
-      imagePath: "/assets/images/categories/buy.png",
+      title: "ثبت آگهی",
+      icon: <HiOutlineDocumentText className="w-8 h-8" />,
       description: "خرید انواع ملک با بهترین قیمت‌ها",
-      link: "/poster",
+      link: "/admin",
     },
     {
       id: "sell",
-      title: "فروش",
-      imagePath: "/assets/images/categories/sale.png",
+      title: "پروفایل من",
+      icon: <HiOutlineUserCircle className="w-8 h-8" />,
       description: "فروش ملک خود در کوتاه‌ترین زمان ممکن",
-      link: "/poster",
+      link: "/admin",
     },
     {
       id: "mortgage",
-      title: "رهن",
-      imagePath: "/assets/images/categories/consult.png",
+      title: "تماس",
+      icon: <HiOutlinePhone className="w-8 h-8" />,
       description: "رهن کامل انواع واحدهای مسکونی و تجاری",
-      link: "/poster",
+      link: "/contactUs",
     },
     {
       id: "search",
-      title: "جستجوی ملک",
-      imagePath: "/assets/images/categories/rent.png",
+      title: "آگهی ها",
+      icon: <HiOutlineSearch className="w-8 h-8" />,
       description: "جستجوی هوشمند ملک بر اساس نیاز شما",
       link: "/poster",
     },
     {
       id: "consult",
-      title: "مشاوره",
-      imagePath: "/assets/images/categories/rent.png",
+      title: "استخدام",
+      icon: <HiOutlineUsers className="w-8 h-8" />,
       description: "مشاوره تخصصی خرید، فروش و اجاره ملک",
-      link: "/services",
+      link: "/services/Collaboration",
     },
   ];
 
-  // Animation variants
+  // Enhanced animation variants for better UX
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: {
+      opacity: 0,
+    },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.15, // Slightly increased for better visual flow
+        delayChildren: 0.1,
+        duration: 0.6,
+        ease: "easeOut",
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: {
+      y: 60, // Increased from 20 for more dramatic effect
+      opacity: 0,
+      scale: 0.8, // Added scale for more dynamic entrance
+    },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 100 },
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15,
+        mass: 1,
+        duration: 0.8,
+      },
+    },
+  };
+
+  // Header animation variants
+  const headerVariants = {
+    hidden: {
+      y: -30,
+      opacity: 0,
+    },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut",
+      },
     },
   };
 
   return (
     <div className="py-12 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="text-center mb-10">
+      {/* Animated Header */}
+      <motion.div
+        className="text-center mb-10"
+        variants={headerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
           خدمات <span style={{ color: primaryColor }}>اوج</span>
         </h2>
@@ -98,14 +145,19 @@ export default function CategoryBoxes() {
           ما در اوج، خدمات متنوعی در زمینه املاک ارائه می‌دهیم تا شما بتوانید با
           خیال راحت معاملات ملکی خود را انجام دهید.
         </p>
-      </div>
+      </motion.div>
 
+      {/* Animated Category Grid */}
       <motion.div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6"
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{
+          once: true,
+          amount: 0.1, // Reduced for better performance
+          margin: "0px 0px -100px 0px", // Trigger animation earlier
+        }}
       >
         {categories.map((category, index) => {
           // Alternate between primary and secondary colors
@@ -120,7 +172,18 @@ export default function CategoryBoxes() {
               variants={itemVariants}
               onMouseEnter={() => setHoveredBox(category.id)}
               onMouseLeave={() => setHoveredBox(null)}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              whileHover={{
+                y: -8, // Increased hover lift
+                scale: 1.02, // Added subtle scale on hover
+                transition: {
+                  duration: 0.3,
+                  ease: "easeOut",
+                },
+              }}
+              whileTap={{
+                scale: 0.98,
+                transition: { duration: 0.1 },
+              }}
             >
               <Link href={category.link}>
                 <div
@@ -131,17 +194,24 @@ export default function CategoryBoxes() {
                     color: hoveredBox === category.id ? "white" : "#1A1A1A",
                   }}
                 >
-                  {/* Decorative circle */}
-                  <div
-                    className="absolute top-0 right-0 w-32 h-32 rounded-full -mt-10 -mr-10 transition-all duration-500 opacity-10"
+                  {/* Enhanced decorative circle with better animation */}
+                  <motion.div
+                    className="absolute top-0 right-0 w-32 h-32 rounded-full -mt-10 -mr-10 opacity-10"
                     style={{
                       backgroundColor: color,
-                      transform:
-                        hoveredBox === category.id ? "scale(1.5)" : "scale(1)",
+                    }}
+                    animate={{
+                      scale: hoveredBox === category.id ? 1.8 : 1,
+                      rotate: hoveredBox === category.id ? 45 : 0,
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      ease: "easeInOut",
                     }}
                   />
 
-                  <div
+                  {/* Icon container with enhanced animation */}
+                  <motion.div
                     className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-all duration-300 relative`}
                     style={{
                       backgroundColor:
@@ -149,24 +219,21 @@ export default function CategoryBoxes() {
                           ? "rgba(255, 255, 255, 0.2)"
                           : `${color}15`,
                     }}
+                    whileHover={{
+                      rotate: 360,
+                      transition: { duration: 0.6 },
+                    }}
                   >
-                    {/* Using Next.js Image component for the PNG vectors */}
-                    <div className="relative w-8 h-8">
-                      <Image
-                        src={category.imagePath}
-                        alt={category.title}
-                        fill
-                        sizes="32px"
-                        style={{
-                          objectFit: "contain",
-                          filter:
-                            hoveredBox === category.id
-                              ? "brightness(0) invert(1)"
-                              : "none",
-                        }}
-                      />
+                    {/* Icon with color transition */}
+                    <div
+                      className="transition-all duration-300"
+                      style={{
+                        color: hoveredBox === category.id ? "white" : color,
+                      }}
+                    >
+                      {category.icon}
                     </div>
-                  </div>
+                  </motion.div>
 
                   <h3 className="text-xl font-bold mb-2">{category.title}</h3>
 
@@ -180,21 +247,33 @@ export default function CategoryBoxes() {
                     {category.description}
                   </p>
 
+                  {/* Enhanced "مشاهده بیشتر" button */}
                   <motion.div
                     className="mt-4 inline-flex items-center bg-white/10 backdrop-blur-sm p-3 rounded-xl text-sm font-medium text-white"
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
                     animate={{
                       opacity: hoveredBox === category.id ? 1 : 0,
                       y: hoveredBox === category.id ? 0 : 10,
+                      scale: hoveredBox === category.id ? 1 : 0.8,
                     }}
-                    transition={{ duration: 0.2 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeOut",
+                    }}
                   >
-                    <svg
-                      className="mr-2 w-4 h-4 transform "
+                    <motion.svg
+                      className="mr-2 w-4 h-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
                       xmlns="http://www.w3.org/2000/svg"
+                      animate={{
+                        x: hoveredBox === category.id ? -3 : 0,
+                      }}
+                      transition={{
+                        duration: 0.3,
+                        ease: "easeInOut",
+                      }}
                     >
                       <path
                         strokeLinecap="round"
@@ -202,7 +281,7 @@ export default function CategoryBoxes() {
                         strokeWidth="2"
                         d="M15 19l-7-7 7-7"
                       ></path>
-                    </svg>
+                    </motion.svg>
                     مشاهده بیشتر
                   </motion.div>
                 </div>

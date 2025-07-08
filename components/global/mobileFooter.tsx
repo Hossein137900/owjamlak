@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   FiHome,
@@ -14,7 +14,8 @@ interface MenuItem {
   icon: React.ReactNode;
   activeIcon: React.ReactNode;
   label: string;
-  href: string;
+  href?: string;
+  adminSection?: string;
   badge?: number;
 }
 
@@ -23,48 +24,135 @@ const menuItems: MenuItem[] = [
     icon: <FiHome size={22} />,
     activeIcon: <FiHome size={22} fill="currentColor" />,
     label: "خانه",
-    href: "/",
+    adminSection: "dashboard",
   },
   {
     icon: <FiSearch size={22} />,
     activeIcon: <FiSearch size={22} fill="currentColor" />,
     label: "جستجو",
-    href: "/search",
+    adminSection: "properties",
   },
   {
     icon: <FiPlusCircle size={26} />,
     activeIcon: <FiPlusCircle size={26} fill="currentColor" />,
     label: "افزودن ملک",
-    href: "/add-property",
+    adminSection: "Addposter",
   },
   {
     icon: <FiMessageCircle size={22} />,
     activeIcon: <FiMessageCircle size={22} fill="currentColor" />,
     label: "پیام‌ها",
-    href: "/messages",
+    adminSection: "real-estate-requests",
   },
   {
     icon: <FiUser size={22} />,
     activeIcon: <FiUser size={22} fill="currentColor" />,
     label: "پروفایل",
-    href: "/profile",
+    adminSection: "users",
   },
 ];
 
 const FooterMobile = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
+  const [currentAdminSection, setCurrentAdminSection] = useState<string | null>(
+    null
+  );
 
-  const handleNavigation = (href: string) => {
-    router.push(href);
-  };
+  // Ensure we're on the client side and track admin section changes
+  useEffect(() => {
+    setIsClient(true);
 
-  const isActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
+    // If we're on admin page, get the current active section
+    if (pathname === "/admin") {
+      const activeSection = sessionStorage.getItem("activeAdminSection");
+      setCurrentAdminSection(activeSection);
+
+      // Listen for changes in sessionStorage (when admin section changes)
+      const handleStorageChange = () => {
+        const newActiveSection = sessionStorage.getItem("activeAdminSection");
+        setCurrentAdminSection(newActiveSection);
+      };
+
+      // Check for changes periodically (since sessionStorage doesn't fire storage event in same tab)
+      const interval = setInterval(() => {
+        const activeSection = sessionStorage.getItem("activeAdminSection");
+        if (activeSection !== currentAdminSection) {
+          setCurrentAdminSection(activeSection);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
     }
-    return pathname.startsWith(href);
+  }, [pathname, currentAdminSection]);
+
+  const handleNavigation = (item: MenuItem) => {
+    if (item.href) {
+      router.push(item.href);
+    } else if (item.adminSection && isClient) {
+      // Store the selected admin section in sessionStorage
+      sessionStorage.setItem("activeAdminSection", item.adminSection);
+      setCurrentAdminSection(item.adminSection);
+
+      // If we're already on admin page, we need to trigger a re-render or state change
+      if (pathname === "/admin") {
+        // Dispatch a custom event to notify admin layout of section change
+        window.dispatchEvent(
+          new CustomEvent("adminSectionChange", {
+            detail: { section: item.adminSection },
+          })
+        );
+      } else {
+        router.push("/admin");
+      }
+    }
   };
+
+  const isActive = (item: MenuItem) => {
+    if (item.href) {
+      if (item.href === "/") {
+        return pathname === "/";
+      }
+      return pathname.startsWith(item.href);
+    } else if (item.adminSection && isClient) {
+      // Check if we're on admin page and this section is active
+      if (pathname === "/admin") {
+        return currentAdminSection === item.adminSection;
+      }
+    }
+    return false;
+  };
+
+  // Don't render until we're on the client side to avoid hydration issues
+  if (!isClient) {
+    return (
+      <>
+        <div className="h-[20px]" />
+        <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200/80 shadow-lg z-50">
+          <nav className="max-w-full mx-auto" dir="rtl">
+            <div className="flex justify-around items-center px-2 py-2">
+              {/* Render placeholder buttons during SSR */}
+              {menuItems.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="relative flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 text-gray-600"
+                >
+                  <div className="flex items-center justify-center mb-1 w-6 h-6">
+                    {item.icon}
+                  </div>
+                  <span className="text-xs font-medium leading-tight text-center max-w-full truncate">
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </nav>
+          <div className="h-safe-area-inset-bottom bg-white/95" />
+        </footer>
+      </>
+    );
+  }
 
   return (
     <>
@@ -74,14 +162,14 @@ const FooterMobile = () => {
       <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200/80 shadow-lg z-50">
         <nav className="max-w-full mx-auto" dir="rtl">
           <div className="flex justify-around items-center px-2 py-2">
-            {menuItems.map(({ icon, activeIcon, label, href, badge }, idx) => {
-              const active = isActive(href);
+            {menuItems.map((item, idx) => {
+              const active = isActive(item);
               const isMainAction = idx === 2; // "افزودن ملک" button
 
               return (
                 <button
                   key={idx}
-                  onClick={() => handleNavigation(href)}
+                  onClick={() => handleNavigation(item)}
                   className={`
                     relative flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1
                     transition-all duration-300 ease-in-out
@@ -96,7 +184,7 @@ const FooterMobile = () => {
                         : ""
                     }
                   `}
-                  aria-label={label}
+                  aria-label={item.label}
                   role="tab"
                   aria-selected={active}
                 >
@@ -115,7 +203,7 @@ const FooterMobile = () => {
                     }
                   `}
                   >
-                    {active ? activeIcon : icon}
+                    {active ? item.activeIcon : item.icon}
                   </div>
 
                   {/* Label */}
@@ -126,7 +214,7 @@ const FooterMobile = () => {
                     ${isMainAction ? "text-[10px]" : ""}
                   `}
                   >
-                    {label}
+                    {item.label}
                   </span>
 
                   {/* Active indicator */}

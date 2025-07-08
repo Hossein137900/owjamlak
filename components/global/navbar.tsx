@@ -27,6 +27,8 @@ import {
   FiSettings,
 } from "react-icons/fi";
 import { User } from "@/types/type";
+import TopBar from "../static/ui/topBar";
+import MapModal from "../static/ui/mapModal";
 
 // JWT decode function
 const decodeJWT = (token: string) => {
@@ -46,6 +48,8 @@ const decodeJWT = (token: string) => {
   }
 };
 const Navbar = () => {
+  const mapButtonRef = useRef<HTMLButtonElement>(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDrop, setIsOpenDrop] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -59,8 +63,15 @@ const Navbar = () => {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
-  console.log(isVisible);
+  const handleMapClick = () => {
+    setIsMapModalOpen(true);
+  };
+
+  const closeMapModal = () => {
+    setIsMapModalOpen(false);
+  };
 
   // Scroll progress
   const { scrollYProgress } = useScroll();
@@ -189,67 +200,12 @@ const Navbar = () => {
   return (
     <>
       {/* Top Contact Bar - Now responsive for all devices */}
-      <motion.div
-        initial={{ y: -40, opacity: 0 }}
-        animate={{ y: scrolled ? -40 : 0, opacity: scrolled ? 0 : 1 }}
-        transition={{ duration: 0.3 }}
-        className="bg-[#01ae9b] text-white py-2 text-sm"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Desktop Layout */}
-          <div className="hidden md:flex justify-between items-center">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <FiPhone className="w-4 h-4" />
-                <span>021-88776655</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FiMapPin className="w-4 h-4" />
-                <span>تهران، میدان نارمک، پلاک 123</span>
-              </div>
-            </div>
-            <div className="text-xs">
-              ساعات کاری: شنبه تا پنج‌شنبه 9:00 - 18:00
-            </div>
-          </div>
-
-          {/* Mobile Layout */}
-          <div className="md:hidden">
-            {/* First Row - Phone and Address */}
-            <div className="flex items-center gap-2 justify-between text-[10px]">
-              <div className="flex items-center gap-2">
-                <FiPhone className="w-3 h-3" />
-                <span>021-88776655</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FiMapPin className="w-3 h-3" />
-                <span className="truncate">تهران، ولیعصر</span>
-              </div>
-              <div className="text-center text-[10px] opacity-90">
-                ساعات کاری: شنبه تا پنج‌شنبه 9:00 - 18:00
-              </div>
-
-              {/* Second Row - Working Hours */}
-            </div>
-          </div>
-
-          {/* Tablet Layout */}
-          <div className="hidden sm:flex md:hidden justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <FiPhone className="w-4 h-4" />
-                <span className="text-sm">021-88776655</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <FiMapPin className="w-4 h-4" />
-                <span className="text-sm">تهران، ولیعصر</span>
-              </div>
-            </div>
-            <div className="text-xs">9:00 - 18:00</div>
-          </div>
-        </div>
-      </motion.div>
-
+      <TopBar scrolled={scrolled} />
+      <MapModal
+        isOpen={isMapModalOpen}
+        onClose={closeMapModal}
+        triggerRef={mapButtonRef as React.RefObject<HTMLElement>}
+      />
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#01ae9b] to-[#66308d] origin-left z-[60]"
@@ -602,7 +558,7 @@ const Navbar = () => {
 
             {/* Mobile Menu */}
             <motion.nav
-              className="fixed top-0 right-0 h-full min-w-screen bg-white shadow-2xl z-50 lg:hidden flex flex-col"
+              className="fixed top-0 right-0 h-full w-screen bg-white shadow-2xl z-50 lg:hidden flex flex-col overflow-hidden"
               variants={mobileMenuVariants}
               initial="closed"
               animate="open"
@@ -613,8 +569,9 @@ const Navbar = () => {
               }}
               dir="rtl"
             >
-              {/* Mobile Header - Compact */}
-              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#01ae9b] to-[#66308d] shadow-lg">
+              {/* Mobile Header - Fixed at top */}
+              <div className="flex-shrink-0 flex items-center justify-center p-4 bg-gradient-to-r from-[#01ae9b] to-[#66308d] shadow-lg relative">
+                {/* Centered Logo and Brand */}
                 <div className="flex items-center gap-2">
                   <div className="relative h-8 w-8 overflow-hidden rounded-lg">
                     <Image
@@ -632,228 +589,234 @@ const Navbar = () => {
                     <p className="text-xs text-white/80">مشاور املاک</p>
                   </div>
                 </div>
+
+                {/* Close Button - Positioned Absolutely */}
                 <motion.button
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setIsOpen(false)}
-                  className="p-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors"
+                  className="absolute left-4 p-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-colors"
                 >
                   <FiX size={18} />
                 </motion.button>
               </div>
 
-              {/* User Section - If logged in */}
-              {user && (
-                <div className="p-3 bg-gray-50 border-b border-gray-100">
-                  <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                    <div className="w-10 h-10 bg-gradient-to-r from-[#01ae9b] to-[#66308d] rounded-full flex items-center justify-center">
-                      <FiUser className="text-white" size={16} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-gray-800">
-                        {user.name}
-                      </p>
-                      <p className="text-xs text-gray-500">کاربر سایت</p>
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-auto">
+                {/* User Section - If logged in */}
+                {user && (
+                  <div className="flex-shrink-0 p-3 bg-gray-50 border-b border-gray-100">
+                    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
+                      <div className="w-10 h-10 bg-gradient-to-r from-[#01ae9b] to-[#66308d] rounded-full flex items-center justify-center">
+                        <FiUser className="text-white" size={16} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-gray-500">کاربر سایت</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Contact Info - Compact */}
-              <div className="p-3 bg-gray-50 border-b border-gray-100">
-                <div className="grid grid-cols-2 gap-2">
-                  <motion.a
-                    href="tel:02188776655"
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <FiPhone className="w-3 h-3 text-[#01ae9b]" />
-                    <span className="text-xs text-gray-600">تماس</span>
-                  </motion.a>
-                  <motion.a
-                    href="/contactUs"
-                    whileTap={{ scale: 0.95 }}
-                    className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <FiMapPin className="w-3 h-3 text-[#01ae9b]" />
-                    <span className="text-xs text-gray-600">آدرس</span>
-                  </motion.a>
-                </div>
-              </div>
-
-              {/* Scrollable Menu Items */}
-              <div className="flex-1 overflow-y-auto py-2">
-                <motion.div className="px-3 space-y-1">
-                  {navItems.map((item, index) => (
-                    <motion.div
-                      key={item.href}
-                      variants={itemVariants}
-                      custom={index}
+                {/* Contact Info - Compact */}
+                <div className="flex-shrink-0 p-3 bg-gray-50 border-b border-gray-100">
+                  <div className="grid grid-cols-2 gap-2">
+                    <motion.a
+                      href="tel:02188776655"
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
                     >
-                      {item.hasDropdown ? (
-                        <div>
-                          <motion.button
-                            onClick={() => {
-                              toggleDropdown(item.href);
-                              setIsOpenDrop(!isOpenDrop);
-                            }}
-                            className={`flex items-center justify-between w-full text-sm py-3 px-4 rounded-xl transition-all duration-200 ${
-                              activeItem.startsWith(item.href) ||
-                              openDropdown === item.href
-                                ? "text-[#01ae9b] bg-[#01ae9b]/10 font-semibold shadow-sm"
-                                : "text-gray-700 hover:bg-gray-50"
-                            }`}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <span className="font-medium">{item.name}</span>
-                            <motion.div
-                              animate={{
-                                rotate: openDropdown === item.href ? 180 : 0,
-                              }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <FiChevronDown size={16} />
-                            </motion.div>
-                          </motion.button>
+                      <FiPhone className="w-3 h-3 text-[#01ae9b]" />
+                      <span className="text-xs text-gray-600">تماس</span>
+                    </motion.a>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                      onClick={handleMapClick}
+                      
+                    >
+                      <FiMapPin className="w-3 h-3 text-[#01ae9b]" />
+                      <span className="text-xs text-gray-600">آدرس</span>
+                    </motion.button>
+                  </div>
+                </div>
 
-                          <AnimatePresence>
-                            {openDropdown === item.href && (
+                {/* Scrollable Menu Items */}
+                <div className="py-2">
+                  <motion.div className="px-3 space-y-1 flex flex-col justify-center">
+                    {navItems.map((item, index) => (
+                      <motion.div
+                        key={item.href}
+                        variants={itemVariants}
+                        custom={index}
+                      >
+                        {item.hasDropdown ? (
+                          <div>
+                            <motion.button
+                              onClick={() => {
+                                toggleDropdown(item.href);
+                                setIsOpenDrop(!isOpenDrop);
+                              }}
+                              className={`flex items-center justify-between w-full text-sm py-3 px-4 rounded-xl transition-all duration-200 ${
+                                activeItem.startsWith(item.href) ||
+                                openDropdown === item.href
+                                  ? "text-[#01ae9b] bg-[#01ae9b]/10 font-semibold shadow-sm"
+                                  : "text-gray-700 hover:bg-gray-50"
+                              }`}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <span className="font-medium">{item.name}</span>
                               <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
+                                animate={{
+                                  rotate: openDropdown === item.href ? 180 : 0,
+                                }}
                                 transition={{ duration: 0.2 }}
-                                className="overflow-hidden"
                               >
-                                <div className="mt-1 mr-2 space-y-1">
-                                  {item.dropdownItems?.map(
-                                    (dropdownItem, subIndex) => (
-                                      <motion.div
-                                        key={dropdownItem.href}
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{
-                                          delay: subIndex * 0.05,
-                                          duration: 0.2,
-                                        }}
-                                      >
-                                        <Link
-                                          href={dropdownItem.href}
-                                          className="flex items-center gap-3 py-2 px-3 text-gray-600 hover:text-[#01ae9b] hover:bg-[#01ae9b]/5 transition-all duration-150 rounded-lg text-sm"
-                                          onClick={() => {
-                                            setOpenDropdown(null);
-                                            setIsOpen(false);
+                                <FiChevronDown size={16} />
+                              </motion.div>
+                            </motion.button>
+
+                            <AnimatePresence>
+                              {openDropdown === item.href && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: "auto", opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden"
+                                >
+                                  <div className="mt-1 mr-2 space-y-1">
+                                    {item.dropdownItems?.map(
+                                      (dropdownItem, subIndex) => (
+                                        <motion.div
+                                          key={dropdownItem.href}
+                                          initial={{ opacity: 0, x: -10 }}
+                                          animate={{ opacity: 1, x: 0 }}
+                                          transition={{
+                                            delay: subIndex * 0.05,
+                                            duration: 0.2,
                                           }}
                                         >
-                                          <span className="text-[#01ae9b]">
-                                            {dropdownItem.icon && (
-                                              <dropdownItem.icon size={14} />
-                                            )}
-                                          </span>
-                                          <span className="font-medium">
-                                            {dropdownItem.name}
-                                          </span>
-                                        </Link>
-                                      </motion.div>
-                                    )
-                                  )}
+                                          <Link
+                                            href={dropdownItem.href}
+                                            className="flex items-center gap-3 py-2 px-3 text-gray-600 hover:text-[#01ae9b] hover:bg-[#01ae9b]/5 transition-all duration-150 rounded-lg text-sm"
+                                            onClick={() => {
+                                              setOpenDropdown(null);
+                                              setIsOpen(false);
+                                            }}
+                                          >
+                                            <span className="text-[#01ae9b]">
+                                              {dropdownItem.icon && (
+                                                <dropdownItem.icon size={14} />
+                                              )}
+                                            </span>
+                                            <span className="font-medium">
+                                              {dropdownItem.name}
+                                            </span>
+                                          </Link>
+                                        </motion.div>
+                                      )
+                                    )}
 
-                                  <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="pt-1"
-                                  >
-                                    <Link
-                                      href="/services"
-                                      className="block text-center py-2 px-3 text-xs text-[#01ae9b] hover:text-[#66308d] font-medium bg-[#01ae9b]/5 hover:bg-[#01ae9b]/10 rounded-lg transition-all duration-150"
-                                      onClick={() => {
-                                        setOpenDropdown(null);
-                                        setIsOpen(false);
-                                      }}
+                                    <motion.div
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: 1 }}
+                                      transition={{ delay: 0.2 }}
+                                      className="pt-1"
                                     >
-                                      مشاهده همه →
-                                    </Link>
-                                  </motion.div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      ) : (
-                        <Link
-                          href={item.href}
-                          className={`block text-sm py-3 px-4 rounded-xl transition-all duration-200 font-medium ${
-                            activeItem === item.href
-                              ? "text-[#01ae9b] bg-[#01ae9b]/10 font-semibold shadow-sm"
-                              : "text-gray-700 hover:bg-gray-50 hover:text-[#01ae9b]"
-                          }`}
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <motion.span
-                            whileTap={{ x: 3 }}
-                            transition={{ duration: 0.1 }}
-                          >
-                            {item.name}
-                          </motion.span>
-                        </Link>
-                      )}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </div>
-
-              {/* Bottom Action Section */}
-              <div className="p-3 border-t border-gray-100 bg-white">
-                <motion.div variants={itemVariants} className="space-y-2">
-                  {isLoadingUser ? (
-                    <div className="flex justify-center py-4">
-                      <div className="w-6 h-6 border-2 border-[#01ae9b] border-t-transparent rounded-full animate-spin"></div>
-                    </div>
-                  ) : user ? (
-                    <div className="space-y-2">
-                      {(user.role === "admin" ||
-                        user.role === "superadmin") && (
-                        <Link href="/admin">
-                          <motion.button
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full bg-[#01ae9b] hover:bg-[#01ae9b]/80 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                                      <Link
+                                        href="/services"
+                                        className="block text-center py-2 px-3 text-xs text-[#01ae9b] hover:text-[#66308d] font-medium bg-[#01ae9b]/5 hover:bg-[#01ae9b]/10 rounded-lg transition-all duration-150"
+                                        onClick={() => {
+                                          setOpenDropdown(null);
+                                          setIsOpen(false);
+                                        }}
+                                      >
+                                        مشاهده همه →
+                                      </Link>
+                                    </motion.div>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            className={`block text-sm py-3 px-4 rounded-xl transition-all duration-200 font-medium ${
+                              activeItem === item.href
+                                ? "text-[#01ae9b] bg-[#01ae9b]/10 font-semibold shadow-sm"
+                                : "text-gray-700 hover:bg-gray-50 hover:text-[#01ae9b]"
+                            }`}
                             onClick={() => setIsOpen(false)}
                           >
-                            <FiSettings size={16} />
-                            پنل مدیریت
-                          </motion.button>
-                        </Link>
-                      )}
+                            <motion.span
+                              whileTap={{ x: 3 }}
+                              transition={{ duration: 0.1 }}
+                            >
+                              {item.name}
+                            </motion.span>
+                          </Link>
+                        )}
+                      </motion.div>
+                    ))}
+                    {/* Bottom Action Section - Fixed at bottom */}
+                    <div className="flex-shrink-0 p-3 border-t border-gray-100 bg-white">
+                      <motion.div variants={itemVariants} className="space-y-2">
+                        {isLoadingUser ? (
+                          <div className="flex justify-center py-4">
+                            <div className="w-6 h-6 border-2 border-[#01ae9b] border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        ) : user ? (
+                          <div className="space-y-2">
+                            
+                              <Link href="/admin">
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  className="w-full bg-[#01ae9b] hover:bg-[#01ae9b]/80 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                                  onClick={() => setIsOpen(false)}
+                                >
+                                  <FiSettings size={16} />
+                                  پنل مدیریت
+                                </motion.button>
+                              </Link>
+                           
 
-                      <motion.button
-                        onClick={handleLogout}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full bg-red-500 mt-2 hover:bg-red-600 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
-                      >
-                        <FiLogOut size={16} />
-                        خروج از حساب
-                      </motion.button>
+                            <motion.button
+                              onClick={handleLogout}
+                              whileTap={{ scale: 0.98 }}
+                              className="w-full bg-red-500 mt-2 hover:bg-red-600 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                            >
+                              <FiLogOut size={16} />
+                              خروج از حساب
+                            </motion.button>
+                          </div>
+                        ) : (
+                          <Link href="/auth">
+                            <motion.button
+                              whileTap={{ scale: 0.98 }}
+                              className="w-full bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#01ae9b]/90 hover:to-[#66308d]/90 text-white py-3 rounded-xl font-bold shadow-lg text-sm transition-all"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              ورود / ثبت نام
+                            </motion.button>
+                          </Link>
+                        )}
+                      </motion.div>
                     </div>
-                  ) : (
-                    <Link href="/auth">
-                      <motion.button
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#01ae9b]/90 hover:to-[#66308d]/90 text-white py-3 rounded-xl font-bold shadow-lg text-sm transition-all"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        ورود / ثبت نام
-                      </motion.button>
-                    </Link>
-                  )}
-                </motion.div>
-              </div>
 
-              {/* Compact Footer */}
-              <div className="p-3 bg-gray-50 text-center border-t border-gray-100">
-                <p className="text-xs text-gray-500">
-                  © 2024 املاک - تمامی حقوق محفوظ است
-                </p>
+                    {/* Compact Footer - Fixed at bottom */}
+                    <div className="flex-shrink-0 py-3 mb-20  text-center border-t border-gray-100">
+                      <p className="text-xs text-gray-500">
+                        © 2024 املاک - تمامی حقوق محفوظ است
+                      </p>
+                    </div>
+                  </motion.div>
+
+                  {/* Content spacer for better scrolling */}
+                  <div className="h-6"></div>
+                </div>
               </div>
             </motion.nav>
           </>

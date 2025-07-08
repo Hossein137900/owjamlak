@@ -38,6 +38,39 @@ const AdminLayout: React.FC = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+
+  useEffect(() => {
+    // Check if there's a stored active section when component mounts
+    const storedSection = sessionStorage.getItem("activeAdminSection");
+    if (storedSection) {
+      setActiveSection(storedSection);
+    }
+
+    // Listen for admin section changes from mobile footer
+    const handleAdminSectionChange = (event: CustomEvent) => {
+      setActiveSection(event.detail.section);
+    };
+
+    window.addEventListener(
+      "adminSectionChange",
+      handleAdminSectionChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "adminSectionChange",
+        handleAdminSectionChange as EventListener
+      );
+    };
+  }, []);
+
+  // Also add this useEffect to keep sessionStorage in sync with current active section
+  useEffect(() => {
+    if (activeSection) {
+      sessionStorage.setItem("activeAdminSection", activeSection);
+    }
+  }, [activeSection]);
+
   // Check for user's preferred color scheme
   useEffect(() => {
     if (typeof window !== "undefined") {

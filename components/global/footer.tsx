@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,6 +15,7 @@ import {
 import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
 import IranFlag from "../static/ui/iranFlag";
 import toast from "react-hot-toast";
+import MapModal from "../static/ui/mapModal";
 
 // Pre-generate window positions to avoid hydration mismatch
 const windowPositions = [
@@ -118,16 +119,6 @@ const socialLinks = [
   { icon: FaWhatsapp, href: "https://whatsapp.com", label: "WhatsApp" },
 ];
 
-const contactInfo = [
-  { icon: FiPhone, text: "۰۲۱-۱۲۳۴۵۶۷۸", href: "tel:+982112345678" },
-  { icon: FiMail, text: "info@amalak.com", href: "mailto:info@amalak.com" },
-  {
-    icon: FiMapPin,
-    text: "تهران، خیابان ولیعصر، پلاک ۱۲۳",
-    href: "https://maps.google.com",
-  },
-];
-
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -171,6 +162,17 @@ const Footer = () => {
     text: string;
   } | null>(null);
 
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const mapButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleMapClick = () => {
+    setIsMapModalOpen(true);
+  };
+
+  const closeMapModal = () => {
+    setIsMapModalOpen(false);
+  };
+
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -208,6 +210,7 @@ const Footer = () => {
       setIsSubmitting(false);
     }
   };
+
   useEffect(() => {
     setIsMounted(true);
 
@@ -226,271 +229,327 @@ const Footer = () => {
     });
   };
 
+  // Contact information with updated map item
+  const contactInfo = [
+    {
+      icon: FiPhone,
+      text: "۰۲۱-۱۲۳۴۵۶۷۸",
+      href: "tel:+982112345678",
+      isClickable: true,
+      onClick: null,
+    },
+    {
+      icon: FiMail,
+      text: "info@amalak.com",
+      href: "mailto:info@amalak.com",
+      isClickable: true,
+      onClick: null,
+    },
+    {
+      icon: FiMapPin,
+      text: "تهران، خیابان ولیعصر، پلاک ۱۲۳",
+      href: "#",
+      isClickable: true,
+      onClick: handleMapClick,
+    },
+  ];
+
   // Only render the full component after client-side hydration
   if (!isMounted) {
     return <footer className="relative pt-20 pb-10 overflow-hidden"></footer>;
   }
 
   return (
-    <footer dir="rtl" className="relative pt-20 pb-10 overflow-hidden">
-      {/* SVG Building Silhouette Background */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-        <svg
-          viewBox="0 0 1440 320"
-          className="absolute bottom-0 left-0 w-full h-full"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <path
-            fill="#01ae9b"
-            d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          ></path>
+    <>
+      <footer dir="rtl" className="relative pt-20 pb-10 overflow-hidden">
+        {/* SVG Building Silhouette Background */}
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
+          <svg
+            viewBox="0 0 1440 320"
+            className="absolute bottom-0 left-0 w-full h-full"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <path
+              fill="#01ae9b"
+              d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            ></path>
 
-          {/* Buildings */}
-          <rect x="100" y="180" width="40" height="140" fill="#01ae9b" />
-          <rect x="150" y="150" width="50" height="170" fill="#01ae9b" />
-          <rect x="210" y="200" width="30" height="120" fill="#01ae9b" />
-          <rect x="250" y="120" width="60" height="200" fill="#01ae9b" />
-          <rect x="320" y="160" width="45" height="160" fill="#01ae9b" />
-          <rect x="375" y="100" width="70" height="220" fill="#01ae9b" />
-          <rect x="455" y="180" width="35" height="140" fill="#01ae9b" />
-          <rect x="500" y="140" width="55" height="180" fill="#01ae9b" />
-          <rect x="565" y="190" width="40" height="130" fill="#01ae9b" />
-          <rect x="615" y="80" width="65" height="240" fill="#01ae9b" />
-          <rect x="690" y="170" width="50" height="150" fill="#01ae9b" />
-          <rect x="750" y="130" width="60" height="190" fill="#01ae9b" />
-          <rect x="820" y="200" width="30" height="120" fill="#01ae9b" />
-          <rect x="860" y="110" width="70" height="210" fill="#01ae9b" />
-          <rect x="940" y="160" width="45" height="160" fill="#01ae9b" />
-          <rect x="995" y="190" width="35" height="130" fill="#01ae9b" />
-          <rect x="1040" y="140" width="55" height="180" fill="#01ae9b" />
-          <rect x="1105" y="90" width="65" height="230" fill="#01ae9b" />
-          <rect x="1180" y="170" width="50" height="150" fill="#01ae9b" />
-          <rect x="1240" y="120" width="60" height="200" fill="#01ae9b" />
-          <rect x="1310" y="180" width="40" height="140" fill="#01ae9b" />
-          <rect x="1360" y="150" width="50" height="170" fill="#01ae9b" />
+            {/* Buildings */}
+            <rect x="100" y="180" width="40" height="140" fill="#01ae9b" />
+            <rect x="150" y="150" width="50" height="170" fill="#01ae9b" />
+            <rect x="210" y="200" width="30" height="120" fill="#01ae9b" />
+            <rect x="250" y="120" width="60" height="200" fill="#01ae9b" />
+            <rect x="320" y="160" width="45" height="160" fill="#01ae9b" />
+            <rect x="375" y="100" width="70" height="220" fill="#01ae9b" />
+            <rect x="455" y="180" width="35" height="140" fill="#01ae9b" />
+            <rect x="500" y="140" width="55" height="180" fill="#01ae9b" />
+            <rect x="565" y="190" width="40" height="130" fill="#01ae9b" />
+            <rect x="615" y="80" width="65" height="240" fill="#01ae9b" />
+            <rect x="690" y="170" width="50" height="150" fill="#01ae9b" />
+            <rect x="750" y="130" width="60" height="190" fill="#01ae9b" />
+            <rect x="820" y="200" width="30" height="120" fill="#01ae9b" />
+            <rect x="860" y="110" width="70" height="210" fill="#01ae9b" />
+            <rect x="940" y="160" width="45" height="160" fill="#01ae9b" />
+            <rect x="995" y="190" width="35" height="130" fill="#01ae9b" />
+            <rect x="1040" y="140" width="55" height="180" fill="#01ae9b" />
+            <rect x="1105" y="90" width="65" height="230" fill="#01ae9b" />
+            <rect x="1180" y="170" width="50" height="150" fill="#01ae9b" />
+            <rect x="1240" y="120" width="60" height="200" fill="#01ae9b" />
+            <rect x="1310" y="180" width="40" height="140" fill="#01ae9b" />
+            <rect x="1360" y="150" width="50" height="170" fill="#01ae9b" />
 
-          {/* Windows - using pre-generated positions */}
-          {windowPositions.map((pos, i) => (
-            <rect
-              key={`window-${i}`}
-              x={pos.x}
-              y={pos.y}
-              width="10"
-              height="10"
-              fill="#ffffff"
-              opacity="0.7"
-            />
-          ))}
+            {/* Windows - using pre-generated positions */}
+            {windowPositions.map((pos, i) => (
+              <rect
+                key={`window-${i}`}
+                x={pos.x}
+                y={pos.y}
+                width="10"
+                height="10"
+                fill="#ffffff"
+                opacity="0.7"
+              />
+            ))}
 
-          {smallWindowPositions.map((pos, i) => (
-            <rect
-              key={`small-window-${i}`}
-              x={pos.x}
-              y={pos.y}
-              width="8"
-              height="8"
-              fill="#ffffff"
-              opacity="0.7"
-            />
-          ))}
-        </svg>
-      </div>
+            {smallWindowPositions.map((pos, i) => (
+              <rect
+                key={`small-window-${i}`}
+                x={pos.x}
+                y={pos.y}
+                width="8"
+                height="8"
+                fill="#ffffff"
+                opacity="0.7"
+              />
+            ))}
+          </svg>
+        </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#01ae9b]/20 to-white/5 z-0"></div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#01ae9b]/20 to-white/5 z-0"></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
-        >
-          {/* Company Info */}
-          <motion.div variants={itemVariants} className="space-y-6">
-            <div className="flex items-center gap-2 rounded-full px-3 py-2 w-fit">
-              <div className="relative h-10 w-10 overflow-hidden">
-                <Image
-                  src="/assets/images/logo (2).png"
-                  alt="املاک لوگو"
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                />
-              </div>
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="flex items-center"
-              >
-                <IranFlag className="w-12 h-12" />
-              </motion.div>
-              {/* <span className="text-xl font-bold text-gray-800">املاک</span> */}
-            </div>
-
-            <p className="text-sm text-gray-600 leading-relaxed">
-              املاک، پیشرو در ارائه خدمات مشاوره املاک با بیش از ۱۰ سال تجربه در
-              زمینه خرید، فروش و اجاره املاک مسکونی، تجاری و اداری در سراسر
-              کشور.
-            </p>
-
-            <div className="flex items-center gap-4">
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={index}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  whileHover={{ y: -5, color: "#01ae9b" }}
-                  className="text-gray-600 hover:text-[#01ae9b] transition-colors"
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
+          >
+            {/* Company Info */}
+            <motion.div variants={itemVariants} className="space-y-6">
+              <div className="flex items-center gap-2 rounded-full px-3 py-2 w-fit">
+                <div className="relative h-10 w-10 overflow-hidden">
+                  <Image
+                    src="/assets/images/logo (2).png"
+                    alt="املاک لوگو"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  className="flex items-center"
                 >
-                  <social.icon size={20} />
-                </motion.a>
-              ))}
+                  <IranFlag className="w-12 h-12" />
+                </motion.div>
+                {/* <span className="text-xl font-bold text-gray-800">املاک</span> */}
+              </div>
+
+              <p className="text-sm text-gray-600 leading-relaxed">
+                املاک، پیشرو در ارائه خدمات مشاوره املاک با بیش از ۱۰ سال تجربه
+                در زمینه خرید، فروش و اجاره املاک مسکونی، تجاری و اداری در سراسر
+                کشور.
+              </p>
+
+              <div className="flex items-center gap-4">
+                {socialLinks.map((social, index) => (
+                  <motion.a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    whileHover={{ y: -5, color: "#01ae9b" }}
+                    className="text-gray-600 hover:text-[#01ae9b] transition-colors"
+                  >
+                    <social.icon size={20} />
+                  </motion.a>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Footer Links */}
+            {footerLinks.map((section, index) => (
+              <motion.div
+                key={index}
+                variants={itemVariants}
+                className="space-y-4"
+              >
+                <h3 className="text-lg font-bold text-gray-800 border-b border-[#01ae9b]/30 pb-2">
+                  {section.title}
+                </h3>
+                <ul className="space-y-2">
+                  {section.links.map((link, linkIndex) => (
+                    <motion.li
+                      key={linkIndex}
+                      whileHover={{ x: 5 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <Link
+                        href={link.href}
+                        className="text-gray-600 hover:text-[#01ae9b] text-sm transition-colors flex items-center gap-1"
+                      >
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#01ae9b]/70"></span>
+                        {link.name}
+                      </Link>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Contact Information */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="mt-12 bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {contactInfo.map((info, index) => {
+                // Check if this is the map item (index 2) to handle click differently
+                const isMapItem = index === 2;
+
+                if (isMapItem) {
+                  return (
+                    <motion.button
+                      key={index}
+                      ref={mapButtonRef}
+                      onClick={handleMapClick}
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center gap-3 text-gray-700 hover:text-[#01ae9b] transition-colors cursor-pointer bg-transparent border-none p-0 text-left w-full"
+                    >
+                      <div className="p-3 bg-[#01ae9b]/10 rounded-full text-[#01ae9b]">
+                        <info.icon size={20} />
+                      </div>
+                      <span className="text-sm">{info.text}</span>
+                    </motion.button>
+                  );
+                }
+
+                return (
+                  <motion.a
+                    key={index}
+                    href={info.href}
+                    variants={itemVariants}
+                    whileHover={{ scale: 1.03 }}
+                    className="flex items-center gap-3 text-gray-700 hover:text-[#01ae9b] transition-colors"
+                  >
+                    <div className="p-3 bg-[#01ae9b]/10 rounded-full text-[#01ae9b]">
+                      <info.icon size={20} />
+                    </div>
+                    <span className="text-sm">{info.text}</span>
+                  </motion.a>
+                );
+              })}
             </div>
           </motion.div>
 
-          {/* Footer Links */}
-          {footerLinks.map((section, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="space-y-4"
-            >
-              <h3 className="text-lg font-bold text-gray-800 border-b border-[#01ae9b]/30 pb-2">
-                {section.title}
-              </h3>
-              <ul className="space-y-2">
-                {section.links.map((link, linkIndex) => (
-                  <motion.li
-                    key={linkIndex}
-                    whileHover={{ x: 5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <Link
-                      href={link.href}
-                      className="text-gray-600 hover:text-[#01ae9b] text-sm transition-colors flex items-center gap-1"
-                    >
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#01ae9b]/70"></span>
-                      {link.name}
-                    </Link>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Contact Information */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mt-12 bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-100"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {contactInfo.map((info, index) => (
-              <motion.a
-                key={index}
-                href={info.href}
-                variants={itemVariants}
-                whileHover={{ scale: 1.03 }}
-                className="flex items-center gap-3 text-gray-700 hover:text-[#01ae9b] transition-colors"
-              >
-                <div className="p-3 bg-[#01ae9b]/10 rounded-full text-[#01ae9b]">
-                  <info.icon size={20} />
-                </div>
-                <span className="text-sm">{info.text}</span>
-              </motion.a>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Newsletter Subscription */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          viewport={{ once: true }}
-          className="mt-12 bg-gradient-to-r from-[#01ae9b]/90 to-[#01ae9b]/70 rounded-xl p-6 shadow-lg"
-        >
-          <form onSubmit={handleNewsletterSubmit} className="w-full">
-            <div className="flex flex-col justify-center sm:flex-row gap-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ایمیل خود را وارد کنید"
-                disabled={isSubmitting}
-                className="px-4 py-3 text-left rounded-lg outline-1 placeholder:text-gray-300 text-white outline-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 sm:min-w-[700px] disabled:opacity-50"
-              />
-              <motion.button
-                type="submit"
-                disabled={isSubmitting}
-                whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
-                className="px-6 py-3 bg-white text-[#01ae9b] rounded-lg font-medium shadow-md hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-[#01ae9b] border-t-transparent rounded-full animate-spin" />
-                    در حال ارسال...
-                  </>
-                ) : (
-                  "عضویت"
-                )}
-              </motion.button>
-            </div>
-
-            {message && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`mt-3 text-center text-sm ${
-                  message.type === "success" ? "text-white" : "text-red-300"
-                }`}
-              >
-                {message.text}
-              </motion.div>
-            )}
-          </form>
-        </motion.div>
-
-        {/* Copyright */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          viewport={{ once: true }}
-          className="mt-12 pt-6 border-t border-gray-200 text-center"
-        >
-          <p className="text-sm text-gray-600">
-            © {new Date().getFullYear()} املاک - تمامی حقوق محفوظ است
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Scroll to Top Button */}
-      <AnimatePresence>
-        {showScrollButton && (
-          <motion.button
-            onClick={scrollToTop}
-            className="fixed bottom-8 left-8 z-50 p-3 rounded-full  hover:bg-[#01ae9b] bg-[#01ae9b]/50 text-white shadow-lg"
-            variants={scrollButtonVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            whileHover="hover"
-            whileTap="tap"
-            aria-label="بازگشت به بالا"
+          {/* Newsletter Subscription */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            viewport={{ once: true }}
+            className="mt-12 bg-gradient-to-r from-[#01ae9b]/90 to-[#01ae9b]/70 rounded-xl p-6 shadow-lg"
           >
-            <FiArrowUp size={24} />
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </footer>
+            <form onSubmit={handleNewsletterSubmit} className="w-full">
+              <div className="flex flex-col justify-center sm:flex-row gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ایمیل خود را وارد کنید"
+                  disabled={isSubmitting}
+                  className="px-4 py-3 text-left rounded-lg outline-1 placeholder:text-gray-300 text-white outline-white/40 focus:outline-none focus:ring-2 focus:ring-white/50 sm:min-w-[700px] disabled:opacity-50"
+                />
+                <motion.button
+                  type="submit"
+                  disabled={isSubmitting}
+                  whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+                  whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                  className="px-6 py-3 bg-white text-[#01ae9b] rounded-lg font-medium shadow-md hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-[#01ae9b] border-t-transparent rounded-full animate-spin" />
+                      در حال ارسال...
+                    </>
+                  ) : (
+                    "عضویت"
+                  )}
+                </motion.button>
+              </div>
+
+              {message && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`mt-3 text-center text-sm ${
+                    message.type === "success" ? "text-white" : "text-red-300"
+                  }`}
+                >
+                  {message.text}
+                </motion.div>
+              )}
+            </form>
+          </motion.div>
+
+          {/* Copyright */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            viewport={{ once: true }}
+            className="mt-12 pt-6 border-t border-gray-200 text-center"
+          >
+            <p className="text-sm text-gray-600">
+              © {new Date().getFullYear()} املاک - تمامی حقوق محفوظ است
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Scroll to Top Button */}
+        <AnimatePresence>
+          {showScrollButton && (
+            <motion.button
+              onClick={scrollToTop}
+              className="fixed bottom-8 left-8 z-50 p-3 rounded-full  hover:bg-[#01ae9b] bg-[#01ae9b]/50 text-white shadow-lg"
+              variants={scrollButtonVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              whileHover="hover"
+              whileTap="tap"
+              aria-label="بازگشت به بالا"
+            >
+              <FiArrowUp size={24} />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </footer>
+      <MapModal
+        isOpen={isMapModalOpen}
+        onClose={closeMapModal}
+        triggerRef={mapButtonRef as React.RefObject<HTMLElement>}
+      />
+    </>
   );
 };
 
