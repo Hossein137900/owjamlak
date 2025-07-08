@@ -25,3 +25,6 @@
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
+
+// primary color: #66308d
+// secondary color: #01ae9b
