@@ -98,6 +98,15 @@ const posterSchema = new mongoose.Schema(
       required: true,
       enum: ["active", "pending", "sold", "rented"],
     },
+    views: {
+      type: Number,
+      default: 0,
+    },
+    // Track unique viewers to prevent duplicate views
+    viewedBy: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );

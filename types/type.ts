@@ -24,6 +24,7 @@ export interface Offer {
 
 export interface Poster {
   _id: string;
+  views: number;
   title: string;
   description: string;
   images: Array<{

@@ -5,6 +5,7 @@ import OurApproachPage from "@/components/static/home/works";
 import SEODescription from "@/components/static/ui/seoDesc";
 
 export default function Home() {
+
   return (
     <div className="">
       <RealEstateSearch />
@@ -12,7 +13,6 @@ export default function Home() {
       <WhyChooseUs />
       <OurApproachPage />
       <SEODescription />
-      
     </div>
   );
 }

@@ -13,7 +13,7 @@ import {
   FiLinkedin,
 } from "react-icons/fi";
 import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
-import IranFlag from "../static/ui/iranFlag";
+// import IranFlag from "../static/ui/iranFlag";
 import toast from "react-hot-toast";
 import MapModal from "../static/ui/mapModal";
 
@@ -339,21 +339,30 @@ const Footer = () => {
             {/* Company Info */}
             <motion.div variants={itemVariants} className="space-y-6">
               <div className="flex items-center gap-2 rounded-full px-3 py-2 w-fit">
-                <div className="relative h-10 w-10 overflow-hidden">
+                <div className="relative h-20 w-20 overflow-hidden">
                   <Image
                     src="/assets/images/logo (2).png"
                     alt="املاک لوگو"
-                    width={40}
-                    height={40}
+                    width={70}
+                    height={70}
                     className="object-contain"
                   />
                 </div>
-                <motion.div
+                <div className="relative h-20 w-20 overflow-hidden">
+                  <Image
+                    src="/assets/etehadiye.png"
+                    alt="اتحادیه"
+                    width={70}
+                    height={70}
+                    className="object-contain"
+                  />
+                </div>
+                {/* <motion.div
                   whileHover={{ scale: 1.1 }}
                   className="flex items-center"
                 >
                   <IranFlag className="w-12 h-12" />
-                </motion.div>
+                </motion.div> */}
                 {/* <span className="text-xl font-bold text-gray-800">املاک</span> */}
               </div>
 

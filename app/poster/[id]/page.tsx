@@ -19,6 +19,7 @@ import {
   FaImages,
   FaUser,
   FaClock,
+  FaEye, // Add eye icon for views
 } from "react-icons/fa";
 import GalleryModal from "@/components/static/poster/galleryModal";
 import { Poster } from "@/types/type";
@@ -65,6 +66,58 @@ export default function PropertyDetail() {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
+  // Function to generate a unique viewer identifier
+  const generateViewerIdentifier = () => {
+    // Use a combination of browser fingerprint and timestamp
+    const browserInfo =
+      navigator.userAgent + navigator.language + screen.width + screen.height;
+    const hash = btoa(browserInfo).slice(0, 16);
+    return hash;
+  };
+
+  // Function to increment view count
+  const incrementView = async (posterId: string) => {
+    try {
+      const viewerIdentifier = generateViewerIdentifier();
+
+      // Check if already viewed in this session
+      const sessionKey = `viewed_poster_${posterId}`;
+      if (sessionStorage.getItem(sessionKey)) {
+        return; // Already viewed in this session
+      }
+
+      const response = await fetch("/api/poster?action=view", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          posterId: posterId,
+          viewerIdentifier: viewerIdentifier,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Mark as viewed in this session
+        sessionStorage.setItem(sessionKey, "true");
+
+        // Update local state with the view count from the API response
+        setPosterData((prev) =>
+          prev ? { ...prev, views: data.views } : null
+        );
+      } else if (!data.success && data.message === "Already viewed.") {
+        // Already viewed, do nothing further.
+        // Optionally, you could ensure the local state is correct.
+        setPosterData((prev) =>
+          prev ? { ...prev, views: data.views } : null
+        );
+      }
+    } catch (error) {
+      console.error("Error incrementing view:", error);
+    }
+  };
   const fetchPosterData = async () => {
     if (!id) {
       setError("شناسه آگهی معتبر نیست");
@@ -93,6 +146,8 @@ export default function PropertyDetail() {
       const data = await response.json();
       console.log(data, "dddddddddddddddd");
       setPosterData(data);
+      // Increment view count after successfully fetching poster data
+      await incrementView(id);
     } catch (err) {
       console.error("Error fetching poster:", err);
       setError(err instanceof Error ? err.message : "خطا در بارگذاری آگهی");
@@ -114,6 +169,17 @@ export default function PropertyDetail() {
       return `${(amount / 1000000).toFixed(1)} میلیون`;
     }
     return amount.toLocaleString("fa-IR");
+  };
+
+  // Format view count
+  const formatViews = (count: number) => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toLocaleString("fa-IR");
   };
 
   const getPropertyTypeLabel = (type: string) => {
@@ -243,8 +309,6 @@ export default function PropertyDetail() {
     );
   }
 
-
-
   const safeUser = {
     _id: posterData.user?._id || "",
     name: posterData.user?.name || "نامشخص",
@@ -254,11 +318,12 @@ export default function PropertyDetail() {
   const isRentType =
     posterData.tradeType === "rent" || posterData.tradeType === "fullRent";
 
-
   // Map image objects to their URLs
   const images =
     posterData.images && posterData.images.length > 0
-      ? posterData.images.map(img => typeof img === 'string' ? img : img.url)
+      ? posterData.images.map((img) =>
+          typeof img === "string" ? img : img.url
+        )
       : ["/assets/images/hero.jpg"];
 
   return (
@@ -356,11 +421,15 @@ export default function PropertyDetail() {
                 <FaUser />
                 <span>{safeUser.name}</span>
               </div>
+              {/* Add Views Display */}
+              <div className="flex items-center gap-1">
+                <FaEye className="text-gray-500" />
+                <span>{formatViews(posterData.views || 0)} بازدید</span>
+              </div>
             </div>
           </div>
 
           <div className="flex gap-3 mt-2 md:mt-0">
-          
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}

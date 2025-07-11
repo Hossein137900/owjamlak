@@ -49,8 +49,6 @@ export const getAllPosters = async (req?: Request) => {
     );
   }
 };
-
-
 export const getPosterById = async (id: string) => {
   try {
     const poster = await Poster.findById(id).populate("user");
