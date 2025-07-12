@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import Consultant from "@/models/consultant";
+import ConsultantChampion from "@/models/consultantChampion";
 
 export const createConsultant = async (request: NextRequest) => {
   try {
     const body = await request.json();
 
-    const consultant = new Consultant({
+    const consultant = new ConsultantChampion({
       name: body.name,
       title: body.title,
       description: body.description,
@@ -40,7 +40,7 @@ export const getAllConsultants = async (request: NextRequest) => {
     const consultantId = request.headers.get("id");
 
     if (consultantId) {
-      const consultant = await Consultant.findById(consultantId);
+      const consultant = await ConsultantChampion.findById(consultantId);
 
       if (!consultant) {
         return NextResponse.json(
@@ -68,7 +68,9 @@ export const getAllConsultants = async (request: NextRequest) => {
       query.isTopConsultant = isTopConsultant === "true";
     }
 
-    let consultantsQuery = Consultant.find(query).sort({ createdAt: -1 });
+    let consultantsQuery = ConsultantChampion.find(query).sort({
+      createdAt: -1,
+    });
 
     // Handle pagination
     if (limit) {
@@ -80,14 +82,12 @@ export const getAllConsultants = async (request: NextRequest) => {
     }
 
     const consultants = await consultantsQuery;
-    const total = await Consultant.countDocuments(query);
+    const total = await ConsultantChampion.countDocuments(query);
 
     return NextResponse.json(
       {
         consultants,
         total,
-        page: page ? parseInt(page) : 1,
-        limit: limit ? parseInt(limit) : total,
       },
       { status: 200 }
     );
@@ -112,7 +112,7 @@ export const updateConsultant = async (request: NextRequest) => {
       );
     }
 
-    const consultant = await Consultant.findByIdAndUpdate(id, body, {
+    const consultant = await ConsultantChampion.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -148,7 +148,7 @@ export const deleteConsultant = async (request: NextRequest) => {
       );
     }
 
-    const consultant = await Consultant.findByIdAndDelete(id);
+    const consultant = await ConsultantChampion.findByIdAndDelete(id);
 
     if (!consultant) {
       return NextResponse.json(

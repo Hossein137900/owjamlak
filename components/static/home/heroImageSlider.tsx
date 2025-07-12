@@ -85,8 +85,8 @@ const HeroImageSlider = () => {
 
   if (loading || !currentPoster) {
     return (
-      <div className="col-span-8 row-span-6 flex items-center justify-center bg-gray-100 rounded-tr-3xl rounded-br-3xl">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-500"></div>
+      <div className="col-span-8 row-span-6 flex items-center justify-center bg-[#01ae9b]/10 rounded-tr-3xl rounded-br-3xl">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#01ae9b]"></div>
       </div>
     );
   }

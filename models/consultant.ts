@@ -4,51 +4,67 @@ const ConsultantSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Name is required"],
+      required: [true, "نام مشاور الزامی است"],
+      trim: true,
+      maxlength: [100, "نام نمی‌تواند بیش از 100 کاراکتر باشد"],
     },
-    title: {
-      type: String,
-      required: [true, "Title is required"],
-    },
-    description: {
-      type: String,
-      required: [true, "Description is required"],
-    },
-    avatar: {
-      type: String,
-      required: [true, "Avatar is required"],
-    },
-    rating: {
-      type: Number,
-      required: [true, "Rating is required"],
-      min: [0, "Rating cannot be less than 0"],
-      max: [5, "Rating cannot exceed 5"],
-    },
-    totalSales: {
-      type: Number,
-      required: [true, "Total sales is required"],
-      min: [0, "Total sales cannot be negative"],
-    },
-    experience: {
-      type: Number,
-      required: [true, "Experience is required"],
-      min: [0, "Experience cannot be negative"],
-    },
-
     phone: {
       type: String,
-      required: [false, "Phone is required"],
+      required: [true, "شماره تلفن الزامی است"],
+      match: [/^09\d{9}$/, "شماره تلفن معتبر نیست"],
+    },
+    whatsapp: {
+      type: String,
+      required: [true, "شماره واتساپ الزامی است"],
+      match: [/^09\d{9}$/, "شماره واتساپ معتبر نیست"],
     },
     email: {
       type: String,
-      required: false,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "ایمیل معتبر نیست",
+      ],
     },
-
-    isTopConsultant: {
-      type: Boolean,
+    image: {
+      type: String,
+      required: [true, "تصویر مشاور الزامی است"],
+    },
+    experienceYears: {
+      type: Number,
+      required: [true, "سال‌های تجربه الزامی است"],
+      min: [0, "سال‌های تجربه نمی‌تواند منفی باشد"],
+      max: [50, "سال‌های تجربه نمی‌تواند بیش از 50 سال باشد"],
+    },
+    posterCount: {
+      type: Number,
+      default: 0,
+      min: [0, "تعداد آگهی نمی‌تواند منفی باشد"],
+    },
+    workAreas: [
+      {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    ],
+    specialties: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
+    rating: {
+      type: Number,
+      min: [1, "امتیاز نمی‌تواند کمتر از 1 باشد"],
+      max: [5, "امتیاز نمی‌تواند بیشتر از 5 باشد"],
+    },
+    description: {
+      type: String,
+      maxlength: [500, "توضیحات نمی‌تواند بیش از 500 کاراکتر باشد"],
     },
     isActive: {
       type: Boolean,
+      default: true,
     },
   },
   {

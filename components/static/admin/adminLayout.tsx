@@ -27,9 +27,10 @@ import PropertyListings from "./propertyListings";
 import NewsletterManagement from "./newsletter/newsletterManagement";
 import VideoManagement from "./video/videoManagement";
 import PosterForm from "./posters/posterForm";
-import CreateConsultantForm from "./consultant/addTopConsultant";
+import CreateConsultantForm from "./consultant-champion/addTopConsultant";
 import BlogManagement from "./blogs/blogManagement";
 import CategoryManager from "./category/categoriesPage";
+import ConsultantManager from "./consultant/consultantManager";
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -117,7 +118,8 @@ const AdminLayout: React.FC = () => {
     },
     { id: "newsletter", icon: <FiMail />, label: "خبرنامه" },
     { id: "category", icon: <FiMail />, label: "ساخت دسته‌بندی" },
-    { id: "Consultant", icon: <FiUser />, label: "مشاور برتر" },
+    { id: "ConsultantChampion", icon: <FiUser />, label: "مشاور برتر" },
+    { id: "Consultant", icon: <FiUser />, label: "مشاورین" },
     { id: "users", icon: <FiUsers />, label: "کاربران" },
     { id: "video", icon: <FiVideo />, label: "ویدیو ها" },
     { id: "settings", icon: <FiSettings />, label: "تنظیمات" },
@@ -142,12 +144,14 @@ const AdminLayout: React.FC = () => {
         return <NewsletterManagement />;
       case "category":
         return <CategoryManager />;
+      case "Consultant":
+        return <ConsultantManager />;
 
       case "video":
         return <VideoManagement />;
       case "Addposter":
         return <PosterForm />;
-      case "Consultant":
+      case "ConsultantChampion":
         return <CreateConsultantForm />;
       case "blogs":
         return <BlogManagement />;

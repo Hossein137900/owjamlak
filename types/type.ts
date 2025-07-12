@@ -78,7 +78,7 @@ export interface Filters {
   location: string;
 }
 
-export interface Consultant {
+export interface ConsultantChampion {
   _id: string;
   name: string;
   title: string;
@@ -103,4 +103,21 @@ export interface User {
   role: "admin" | "user" | "superadmin" | "consultant";
   createdAt?: Date;
   updatedAt?: Date;
+}
+export interface Consultant {
+  name: string;
+  _id: string;
+  phone: string;
+  whatsapp: string;
+  email?: string;
+  image: string;
+  experienceYears: number;
+  posterCount: number;
+  workAreas: string[];
+  specialties: string[];
+  rating?: number;
+  description?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }

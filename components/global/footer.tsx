@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  FiArrowUp,
   FiMail,
   FiPhone,
   FiMapPin,
@@ -533,25 +532,6 @@ const Footer = () => {
             </p>
           </motion.div>
         </div>
-
-        {/* Scroll to Top Button */}
-        <AnimatePresence>
-          {showScrollButton && (
-            <motion.button
-              onClick={scrollToTop}
-              className="fixed bottom-8 left-8 z-50 p-3 rounded-full  hover:bg-[#01ae9b] bg-[#01ae9b]/50 text-white shadow-lg"
-              variants={scrollButtonVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              whileHover="hover"
-              whileTap="tap"
-              aria-label="بازگشت به بالا"
-            >
-              <FiArrowUp size={24} />
-            </motion.button>
-          )}
-        </AnimatePresence>
       </footer>
       <MapModal
         isOpen={isMapModalOpen}

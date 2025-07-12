@@ -12,7 +12,7 @@ export default function OurWorks({ works }: OurWorksProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedWork, setSelectedWork] = useState<WorkItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-console.log(works)
+  console.log(works);
   const categories = [
     { id: "all", label: "همه" },
     { id: "residential", label: "مسکونی" },
@@ -166,7 +166,7 @@ console.log(works)
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", damping: 25 }}
-            className="bg-white rounded-xl overflow-hidden max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-xl overflow-hidden max-w-7xl w-full max-h-[70vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             dir="rtl"
           >

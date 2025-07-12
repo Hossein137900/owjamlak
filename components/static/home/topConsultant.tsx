@@ -13,7 +13,7 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import { BsHCircle } from "react-icons/bs";
-import { Consultant } from "@/types/type";
+import { ConsultantChampion } from "@/types/type";
 import useConsultants from "@/hooks/useConsultants";
 
 const TopConsultant: React.FC = () => {
@@ -24,7 +24,7 @@ const TopConsultant: React.FC = () => {
   const topConsultant =
     consultants && consultants.length > 0
       ? consultants.find(
-          (consultant: Consultant) => consultant.isTopConsultant
+          (consultant: ConsultantChampion) => consultant.isTopConsultant
         ) || consultants[0]
       : null;
 

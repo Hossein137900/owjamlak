@@ -24,7 +24,7 @@ const fetcher = async (url: string) => {
 
 const useConsultants = () => {
   const { data, error, isLoading, mutate } = useSWR(
-    "/api/consultant",
+    "/api/consultant-champion",
     fetcher,
     {
       revalidateOnFocus: false,
