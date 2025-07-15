@@ -67,13 +67,7 @@ const FooterMobile = () => {
     // If we're on admin page, get the current active section
     if (pathname === "/admin") {
       const activeSection = sessionStorage.getItem("activeAdminSection");
-      setCurrentAdminSection(activeSection);
-
-      // Listen for changes in sessionStorage (when admin section changes)
-      const handleStorageChange = () => {
-        const newActiveSection = sessionStorage.getItem("activeAdminSection");
-        setCurrentAdminSection(newActiveSection);
-      };
+      setCurrentAdminSection(activeSection);    
 
       // Check for changes periodically (since sessionStorage doesn't fire storage event in same tab)
       const interval = setInterval(() => {

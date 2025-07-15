@@ -1,60 +1,57 @@
-import { GetServerSideProps } from "next";
-import Head from "next/head";
-import { Consultant } from "@/types/type";
-import connect from "@/lib/data";
-import ConsultantModel from "@/models/consultant";
 import ConsultantsList from "@/components/static/consultants/consultantsList";
+import { Metadata } from "next";
 
-interface ConsultantsPageProps {
-  consultants: Consultant[];
-  error?: string;
-}
-
-const ConsultantsPage: React.FC<ConsultantsPageProps> = ({
-  consultants,
-  error,
-}) => {
-  return (
-    <>
-      <div className="min-h-screen bg-gray-50">
-        {error ? (
-          <div className="container mx-auto px-4 py-8">
-            <div className="text-center">
-              <p className="text-red-600 text-lg">
-                خطا در بارگذاری مشاوران: {error}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <ConsultantsList initialConsultants={consultants} />
-        )}
-      </div>
-    </>
-  );
+export const metadata: Metadata = {
+  title: "مشاوران املاک اوج تهران | اوج املاک",
+  description:
+    "لیست کامل مشاوران املاک حرفه‌ای در تهران با تجربه بالا، مناطق فعالیت متنوع و تخصص‌های مختلف. بهترین مشاوران برای خرید و فروش ملک در تهران را اینجا پیدا کنید.",
+  keywords: [
+    "مشاور املاک",
+    "مشاوران املاک تهران",
+    "خرید خانه",
+    "فروش آپارتمان",
+    "مشاور املاک نارمک",
+    "مشاور املاک سبلان",
+    "مشاور املاک شرق تهران",
+    "لیست مشاوران املاک",
+    "اوج املاک",
+    "املاکی شرق تهران",
+  ],
+  openGraph: {
+    title: "لیست بهترین مشاوران املاک تهران | اوج املاک",
+    description:
+      "مشاوران حرفه‌ای و متخصص برای خرید و فروش خانه در مناطق مختلف تهران مخصوصا شرق تهران. از تخصص و تجربه‌ی آن‌ها برای معاملات مطمئن استفاده کنید.",
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/consultants`,
+    type: "website",
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/consultants-cover.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "مشاوران املاک تهران",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "مشاوران املاک تهران | اوج املاک",
+    description:
+      "لیست بهترین مشاوران املاک در تهران برای خرید، فروش و اجاره ملک. با اطمینان انتخاب کنید.",
+    images: [
+      `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/consultants-cover.jpg`,
+    ],
+  },
+  alternates: {
+    canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/consultants`,
+  },
 };
 
-// export const getServerSideProps: GetServerSideProps = async () => {
-//   try {
-//     await connect();
-
-//     const consultants = await ConsultantModel.find({ isActive: true })
-//       .sort({ experienceYears: -1, posterCount: -1 })
-//       .lean();
-
-//     return {
-//       props: {
-//         consultants: JSON.parse(JSON.stringify(consultants)),
-//       },
-//     };
-//   } catch (error: any) {
-//     console.error("Error fetching consultants:", error);
-//     return {
-//       props: {
-//         consultants: [],
-//         error: "خطا در بارگذاری مشاوران",
-//       },
-//     };
-//   }
-// };
+const ConsultantsPage = () => {
+  return (
+    <div className="">
+      <ConsultantsList />
+    </div>
+  );
+};
 
 export default ConsultantsPage;

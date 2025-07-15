@@ -121,3 +121,40 @@ export interface Consultant {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface RealStateRequest {
+  _id: string;
+  name: string;
+  lastName: string;
+  phone: string;
+  email: string | null;
+  description: string;
+  type: "Apartment" | "Villa" | "EmptyEarth" | "Commercial" | "Other";
+  serviceType: "Buy" | "Sell" | "Rent" | "Mortgage" | "Pricing";
+  budget: number | null;
+  status?: "pending" | "processed" | "rejected";
+  createdAt?: string;
+  __v?: number;
+}
+export interface EmployRequest {
+  _id: string;
+  name: string;
+  lastName: string;
+  phone: string;
+  email: string | null;
+  description: string;
+  file: string;
+  type: "Consultation" | "LegalConsultation" | "Investor" | "Others";
+  education: "Diploma" | "Bachelor" | "Master" | "Phd";
+  status: "pending" | "processed" | "rejected";
+  createdAt: string;
+}
+export interface LegalRequest {
+  _id: string;
+  name: string;
+  lastName: string;
+  phone: string;
+  email?: string;
+  description: string;
+  type: "Contract" | "Solve" | "DocumentReview" | "Other";
+}

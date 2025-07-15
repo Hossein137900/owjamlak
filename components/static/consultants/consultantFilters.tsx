@@ -25,7 +25,7 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
     search: "",
     workArea: "",
     minExperience: "",
-    sortBy: "experience",
+    sortBy: "",
   });
   const [showFilters, setShowFilters] = useState(false);
 
@@ -92,7 +92,10 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
     filters.search || filters.workArea || filters.minExperience;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6" dir="rtl">
+    <div
+      className="bg-white rounded-lg max-w-2xl mx-auto shadow-md p-6 mb-6"
+      dir="rtl"
+    >
       {/* Search Bar */}
       <div className="relative mb-4">
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -103,7 +106,7 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
           placeholder="جستجو در نام مشاور، منطقه یا تخصص..."
           value={filters.search}
           onChange={(e) => handleFilterChange("search", e.target.value)}
-          className="block w-full pr-10 pl-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+          className="block w-full pr-10 placeholder:text-gray-300 text-black pl-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
         />
       </div>
 
@@ -153,7 +156,7 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
             <select
               value={filters.workArea}
               onChange={(e) => handleFilterChange("workArea", e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+              className="w-full p-2 border border-gray-300 text-black rounded-lg "
             >
               <option value="">همه مناطق</option>
               {workAreas.map((area) => (
@@ -175,7 +178,7 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
               onChange={(e) =>
                 handleFilterChange("minExperience", e.target.value)
               }
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+              className="w-full p-2 border border-gray-300 text-black rounded-lg "
             >
               {experienceOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -193,7 +196,7 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
             <select
               value={filters.sortBy}
               onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+              className="w-full p-2 border border-gray-300 text-black rounded-lg "
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>

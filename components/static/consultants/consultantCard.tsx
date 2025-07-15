@@ -22,6 +22,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
 }) => {
   const handleWhatsAppClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     window.open(
       `https://wa.me/98${consultant.whatsapp.substring(1)}`,
       "_blank"
@@ -30,6 +31,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
 
   const handlePhoneClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     window.open(`tel:${consultant.phone}`, "_self");
   };
 
@@ -40,7 +42,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
       transition={{ delay: index * 0.1 }}
       className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
     >
-      <Link href={`/consultants/${consultant._id}`}>
+      <Link href={`/consultant/${consultant._id}`} target="_blank" className="block">
         {/* Consultant Image */}
         <div className="relative h-48">
           <Image

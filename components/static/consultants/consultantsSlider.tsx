@@ -24,7 +24,7 @@ const ConsultantsSlider = () => {
   useEffect(() => {
     const fetchConsultants = async () => {
       try {
-        const res = await fetch("/api/consultants?limit=6");
+        const res = await fetch("/api/consultants");
         if (!res.ok) throw new Error("Failed to fetch consultants");
         const data = await res.json();
         setConsultants(data.consultants);
@@ -105,8 +105,8 @@ const ConsultantsSlider = () => {
 
   if (error || consultants.length === 0) {
     return (
-      <div className="col-span-8 row-span-6 flex items-center justify-center bg-red-100 text-red-700 rounded-tr-3xl rounded-br-3xl">
-        <p>خطا در بارگذاری مشاوران</p>
+      <div className="col-span-8 h-50 row-span-6 flex items-center justify-center bg-red-800 text-red-700 rounded-tr-3xl rounded-br-3xl">
+        <p >خطا در بارگذاری مشاوران</p>
       </div>
     );
   }
@@ -115,10 +115,10 @@ const ConsultantsSlider = () => {
 
   return (
     <motion.div
-      className="col-span-8 row-span-6 relative rounded-tr-3xl rounded-br-3xl shadow-2xl bg-gradient-to-br from-[#01ae9b] to-[#019688]"
+      className="relative rounded-tr-3xl rounded-br-3xl mt-20 min-h-screen shadow-2xl bg-gradient-to-br from-[#01ae9b] to-[#019688]"
       dir="rtl"
     >
-      <div className="relative w-full h-full overflow-hidden rounded-tr-3xl rounded-br-3xl">
+      <div className=" w-full h-full overflow-hidden rounded-tr-3xl rounded-br-3xl">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={currentIndex}
@@ -140,7 +140,6 @@ const ConsultantsSlider = () => {
                   alt={currentConsultant.name}
                   fill
                   className="object-cover rounded-tr-3xl"
-                  priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/20 rounded-tr-3xl" />
 
@@ -314,10 +313,7 @@ const ConsultantsSlider = () => {
         </>
       )}
 
-      {/* Header */}
-      <div className="absolute top-4 left-6 z-20">
-        <h3 className="text-white text-lg font-semibold">مشاوران املاک</h3>
-      </div>
+  
     </motion.div>
   );
 };

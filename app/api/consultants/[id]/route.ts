@@ -5,14 +5,18 @@ import mongoose from "mongoose";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  await connect();
-
   try {
-    const { id } = params;
+    await connect();
+
+    // Await params in Next.js 15+
+    const { id } = await params;
+
+    console.log("Fetching consultant with ID:", id); // Debug log
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.log("Invalid ObjectId:", id); // Debug log
       return NextResponse.json(
         {
           success: false,
@@ -23,6 +27,7 @@ export async function GET(
     }
 
     const consultant = await Consultant.findById(id).lean();
+    console.log("Found consultant:", consultant ? "Yes" : "No"); // Debug log
 
     if (!consultant) {
       return NextResponse.json(
@@ -39,6 +44,7 @@ export async function GET(
       consultant,
     });
   } catch (error: any) {
+    console.error("API Error:", error); // Debug log
     return NextResponse.json(
       {
         success: false,
@@ -171,8 +177,6 @@ export async function DELETE(
 
   try {
     const { id } = params;
-
-   
 
     const consultant = await Consultant.findByIdAndDelete(id);
 

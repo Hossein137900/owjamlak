@@ -6,22 +6,11 @@ import { FaUsers } from "react-icons/fa";
 import ConsultantFilters, { FilterState } from "./consultantFilters";
 import ConsultantCard from "./consultantCard";
 
-interface ConsultantsListProps {
-  initialConsultants: Consultant[];
-}
-
-const ConsultantsList: React.FC<ConsultantsListProps> = ({
-  initialConsultants,
-}) => {
-  const [consultants, setConsultants] =
-    useState<Consultant[]>(initialConsultants);
+const ConsultantsList = () => {
+  const [consultants, setConsultants] = useState<Consultant[]>([]);
+  const [allConsultants, setAllConsultants] = useState<Consultant[]>([]); // Store all consultants
   const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 12,
-    total: initialConsultants.length,
-    pages: Math.ceil(initialConsultants.length / 12),
-  });
+
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     workArea: "",
@@ -29,73 +18,101 @@ const ConsultantsList: React.FC<ConsultantsListProps> = ({
     sortBy: "experience",
   });
 
-  const fetchConsultants = useCallback(
-    async (newFilters: FilterState, page: number = 1) => {
-      setLoading(true);
-      try {
-        const queryParams = new URLSearchParams({
-          page: page.toString(),
-          limit: pagination.limit.toString(),
-          ...(newFilters.search && { search: newFilters.search }),
-          ...(newFilters.workArea && { workArea: newFilters.workArea }),
-          ...(newFilters.minExperience && {
-            minExperience: newFilters.minExperience,
-          }),
-        });
+  const fetchConsultants = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/consultants`);
+      const data = await res.json();
+      console.log(data);
 
-        const res = await fetch(`/api/consultants?${queryParams}`);
-        const data = await res.json();
-
-        if (data.success) {
-          // Apply client-side sorting
-          let sortedConsultants = [...data.consultants];
-          switch (newFilters.sortBy) {
-            case "rating":
-              sortedConsultants.sort(
-                (a, b) => (b.rating || 0) - (a.rating || 0)
-              );
-              break;
-            case "posters":
-              sortedConsultants.sort((a, b) => b.posterCount - a.posterCount);
-              break;
-            case "name":
-              sortedConsultants.sort((a, b) =>
-                a.name.localeCompare(b.name, "fa")
-              );
-              break;
-            case "experience":
-            default:
-              sortedConsultants.sort(
-                (a, b) => b.experienceYears - a.experienceYears
-              );
-              break;
-          }
-
-          setConsultants(sortedConsultants);
-          setPagination(data.pagination);
-        }
-      } catch (error) {
-        console.error("Error fetching consultants:", error);
-      } finally {
-        setLoading(false);
+      if (data.success) {
+        setAllConsultants(data.consultants); // Store all consultants
+        applyFiltersAndSort(data.consultants, filters); // Apply initial filters
       }
+    } catch (error) {
+      console.log("Error fetching consultants:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const applyFiltersAndSort = useCallback(
+    (consultantsList: Consultant[], currentFilters: FilterState) => {
+      let filteredConsultants = [...consultantsList];
+
+      // Apply search filter
+      if (currentFilters.search.trim()) {
+        const searchTerm = currentFilters.search.toLowerCase().trim();
+        filteredConsultants = filteredConsultants.filter(
+          (consultant) =>
+            consultant.name.toLowerCase().includes(searchTerm) ||
+            consultant.specialties?.some((specialty) =>
+              specialty.toLowerCase().includes(searchTerm)
+            )
+        );
+      }
+
+      // Apply work area filter
+      if (currentFilters.workArea) {
+        filteredConsultants = filteredConsultants.filter((consultant) =>
+          consultant.workAreas?.includes(currentFilters.workArea)
+        );
+      }
+
+      // Apply minimum experience filter
+      if (currentFilters.minExperience) {
+        const minExp = parseInt(currentFilters.minExperience);
+        filteredConsultants = filteredConsultants.filter(
+          (consultant) => consultant.experienceYears >= minExp
+        );
+      }
+
+      // Apply sorting
+      switch (currentFilters.sortBy) {
+        case "rating":
+          filteredConsultants.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+          break;
+        case "posters":
+          filteredConsultants.sort((a, b) => b.posterCount - a.posterCount);
+          break;
+        case "name":
+          filteredConsultants.sort((a, b) =>
+            a.name.localeCompare(b.name, "fa")
+          );
+          break;
+        case "experience":
+        default:
+          filteredConsultants.sort(
+            (a, b) => b.experienceYears - a.experienceYears
+          );
+          break;
+      }
+
+      setConsultants(filteredConsultants);
     },
-    [pagination.limit]
+    []
   );
+
+  // Fetch consultants on component mount
+  useEffect(() => {
+    fetchConsultants();
+  }, [fetchConsultants]);
+
+  // Apply filters when filters change
+  useEffect(() => {
+    if (allConsultants.length > 0) {
+      applyFiltersAndSort(allConsultants, filters);
+    }
+  }, [filters, allConsultants, applyFiltersAndSort]);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
-    fetchConsultants(newFilters, 1);
   };
 
-  const handlePageChange = (page: number) => {
-    fetchConsultants(filters, page);
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+
 
   return (
-    <div className="container mx-auto px-4 py-8" dir="rtl">
+    <div className="container mx-auto mt-20 px-4 py-8" dir="rtl">
       {/* Header */}
       <div className="text-center mb-8">
         <motion.div
@@ -104,7 +121,9 @@ const ConsultantsList: React.FC<ConsultantsListProps> = ({
           className="flex items-center justify-center gap-3 mb-4"
         >
           <FaUsers className="text-3xl text-[#01ae9b]" />
-          <h1 className="text-3xl font-bold text-gray-800">مشاوران املاک</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            مشاوران املاک اوج
+          </h1>
         </motion.div>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -130,13 +149,10 @@ const ConsultantsList: React.FC<ConsultantsListProps> = ({
             <span>در حال جستجو...</span>
           ) : (
             <span>
-              {pagination.total} مشاور یافت شد
+              {consultants.length} مشاور یافت شد
               {filters.search && ` برای "${filters.search}"`}
             </span>
           )}
-        </div>
-        <div className="text-sm text-gray-500">
-          صفحه {pagination.page} از {pagination.pages}
         </div>
       </div>
 
@@ -179,48 +195,6 @@ const ConsultantsList: React.FC<ConsultantsListProps> = ({
             مشاهده همه مشاوران
           </button>
         </motion.div>
-      )}
-
-      {/* Pagination */}
-      {pagination.pages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-8">
-          <button
-            onClick={() => handlePageChange(pagination.page - 1)}
-            disabled={pagination.page === 1 || loading}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            قبلی
-          </button>
-
-          {/* Page Numbers */}
-          {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
-            const pageNum = Math.max(1, pagination.page - 2) + i;
-            if (pageNum > pagination.pages) return null;
-
-            return (
-              <button
-                key={pageNum}
-                onClick={() => handlePageChange(pageNum)}
-                disabled={loading}
-                className={`px-4 py-2 rounded-lg transition-colors ${
-                  pageNum === pagination.page
-                    ? "bg-[#01ae9b] text-white"
-                    : "border border-gray-300 hover:bg-gray-50"
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                {pageNum}
-              </button>
-            );
-          })}
-
-          <button
-            onClick={() => handlePageChange(pagination.page + 1)}
-            disabled={pagination.page === pagination.pages || loading}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            بعدی
-          </button>
-        </div>
       )}
     </div>
   );

@@ -216,6 +216,7 @@ const ConsultantManager = () => {
           className="flex items-center gap-2 bg-[#01ae9b] text-white px-4 py-2 rounded-lg hover:bg-[#019688] transition-colors"
         >
           <FaPlus />
+          
           <span>افزودن مشاور جدید</span>
         </button>
       </div>

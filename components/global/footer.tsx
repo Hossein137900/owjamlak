@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -139,21 +139,7 @@ const itemVariants = {
   },
 };
 
-const scrollButtonVariants = {
-  initial: { scale: 0, opacity: 0 },
-  animate: {
-    scale: 1,
-    opacity: 1,
-    transition: { type: "spring", stiffness: 200 },
-  },
-  hover: { scale: 1.1, boxShadow: "0px 5px 15px rgba(1, 174, 155, 0.4)" },
-  tap: { scale: 0.9 },
-  exit: { scale: 0, opacity: 0 },
-};
-
 const Footer = () => {
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{
@@ -210,24 +196,6 @@ const Footer = () => {
     }
   };
 
-  useEffect(() => {
-    setIsMounted(true);
-
-    const handleScroll = () => {
-      setShowScrollButton(window.scrollY > 300);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
   // Contact information with updated map item
   const contactInfo = [
     {
@@ -252,11 +220,6 @@ const Footer = () => {
       onClick: handleMapClick,
     },
   ];
-
-  // Only render the full component after client-side hydration
-  if (!isMounted) {
-    return <footer className="relative pt-20 pb-10 overflow-hidden"></footer>;
-  }
 
   return (
     <>

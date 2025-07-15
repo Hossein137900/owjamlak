@@ -663,29 +663,7 @@ export default function LegalConsultationPage() {
                   ],
                   required: true,
                 },
-                {
-                  name: "urgency",
-                  label: "اولویت پرونده",
-                  type: "select",
-                  icon: <FaInfoCircle />,
-                  options: [
-                    { value: "Low", label: "عادی" },
-                    { value: "Medium", label: "متوسط" },
-                    { value: "High", label: "فوری" },
-                  ],
-                  required: false,
-                },
-                {
-                  name: "budget",
-                  label: "بودجه تقریبی (تومان)",
-                  type: "number",
-                  icon: <FaFileAlt />,
-                  required: false,
-                  placeholder: "مثال: 5000000",
-                  validation: {
-                    min: 0,
-                  },
-                },
+
                 {
                   name: "description",
                   label: "توضیحات کامل پرونده",
@@ -699,43 +677,7 @@ export default function LegalConsultationPage() {
                     maxLength: 1000,
                   },
                 },
-                {
-                  name: "caseDetails",
-                  label: "جزئیات اضافی پرونده",
-                  type: "textarea",
-                  icon: <FaInfoCircle />,
-                  required: false,
-                  placeholder:
-                    "در صورت نیاز، جزئیات بیشتری از پرونده خود ارائه دهید...",
-                  validation: {
-                    maxLength: 500,
-                  },
-                },
-                {
-                  name: "preferredContactTime",
-                  label: "زمان مناسب تماس",
-                  type: "select",
-                  icon: <FaPhone />,
-                  options: [
-                    { value: "morning", label: "صبح (8-12)" },
-                    { value: "afternoon", label: "بعدازظهر (12-17)" },
-                    { value: "evening", label: "عصر (17-20)" },
-                    { value: "anytime", label: "هر زمان" },
-                  ],
-                  required: false,
-                },
-                {
-                  name: "hasDocuments",
-                  label: "آیا مدارک مربوطه را دارید؟",
-                  type: "select",
-                  icon: <FaFileAlt />,
-                  options: [
-                    { value: "yes", label: "بله، مدارک را دارم" },
-                    { value: "no", label: "خیر، مدارک را ندارم" },
-                    { value: "partial", label: "بخشی از مدارک را دارم" },
-                  ],
-                  required: false,
-                },
+
                 {
                   name: "previousLegalAction",
                   label: "آیا قبلاً اقدام حقوقی انجام داده‌اید؟",
@@ -746,14 +688,6 @@ export default function LegalConsultationPage() {
                     { value: "no", label: "خیر" },
                   ],
                   required: false,
-                },
-                {
-                  name: "courtLocation",
-                  label: "محل دادگاه (در صورت وجود پرونده قضایی)",
-                  type: "text",
-                  icon: <FaInfoCircle />,
-                  required: false,
-                  placeholder: "مثال: دادگاه عمومی تهران",
                 },
               ]}
             />
