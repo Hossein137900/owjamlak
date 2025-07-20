@@ -10,6 +10,7 @@ import {
   FiCalendar,
   FiCheckCircle,
   FiAlertCircle,
+  FiLoader,
 } from "react-icons/fi";
 
 interface NewsletterSubscriber {
@@ -43,9 +44,7 @@ const NewsletterManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus] = useState<
-    "all" | "active" | "unsubscribed"
-  >("all");
+  const [filterStatus] = useState<"all" | "active" | "unsubscribed">("all");
   const [selectedSubscribers, setSelectedSubscribers] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -85,7 +84,7 @@ const NewsletterManagement: React.FC = () => {
           throw new Error(data.message || "Failed to fetch subscribers");
         }
       } catch (error) {
-        console.error("Error fetching subscribers:", error);
+        console.log("Error fetching subscribers:", error);
         setError("خطا در دریافت اطلاعات مشترکین");
         setSubscribers([]);
       } finally {
@@ -153,7 +152,7 @@ const NewsletterManagement: React.FC = () => {
         throw new Error(data.message || "Failed to delete subscribers");
       }
     } catch (error) {
-      console.error("Error deleting subscribers:", error);
+      console.log("Error deleting subscribers:", error);
       setError("خطا در حذف مشترکین");
     }
   };
@@ -196,12 +195,11 @@ const NewsletterManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-[#66308d] border-t-transparent rounded-full"
-        />
+      <div className="h-64 bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری خبرنامه ها...</p>
+        </div>
       </div>
     );
   }

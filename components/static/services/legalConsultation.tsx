@@ -256,7 +256,7 @@ export default function LegalConsultationPage() {
         };
       }
     } catch (error) {
-      console.error("Error submitting legal consultation form:", error);
+      console.log("Error submitting legal consultation form:", error);
 
       // Show user-friendly error message
       const errorMessage =

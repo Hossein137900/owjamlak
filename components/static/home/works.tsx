@@ -138,7 +138,7 @@ export default function OurApproachPage() {
       </div>
 
       {/* Testimonials Section */}
-      <Testimonials testimonials={testimonialsData} />
+      <Testimonials />
 
       {/* Call to Action */}
       <section className="py-20 bg-white">

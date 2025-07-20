@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSearch,
@@ -13,59 +13,58 @@ import {
 } from "react-icons/fi";
 import ReportageBox from "./posterBox";
 import { Filters, Poster } from "@/types/type";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const PosterListPage = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [posters, setPosters] = useState<Poster[]>([]);
   const [filteredPosters, setFilteredPosters] = useState<Poster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(false);
-
+  const [page, setPage] = useState<number>(
+    parseInt(searchParams.get("page") || "1")
+  );
+  const [limit, setLimit] = useState<number>(
+    parseInt(searchParams.get("limit") || "8")
+  );
   const [filters, setFilters] = useState<Filters>({
     search: "",
-    propertyType: "",
-    tradeType: "",
+    parentType: searchParams.get("parentType") || "",
+    tradeType: searchParams.get("tradeType") || "",
     minPrice: "",
     maxPrice: "",
     minArea: "",
     maxArea: "",
     rooms: "",
     location: "",
+    // parentType: "",
   });
 
-  // Fetch all posters
-  useEffect(() => {
-    const fetchPosters = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch("/api/poster");
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-        if (!response.ok) {
-          throw new Error("خطا در دریافت آگهی‌ها");
-        }
-
-        const data = await response.json();
-        console.log(data);
-        setPosters(data.posters);
-        setFilteredPosters(data.posters);
-      } catch (err) {
-        console.log(err)
-        // setError(err.message || "خطا در دریافت اطلاعات");
-        console.error("Error fetching posters:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosters();
-  }, []);
+  const updateURL = (
+    p = page,
+    l = limit,
+    parent = filters.parentType,
+    trade = filters.tradeType
+  ) => {
+    const params = new URLSearchParams();
+    if (parent) params.set("parentType", parent);
+    if (trade) params.set("tradeType", trade);
+    if (p) params.set("page", String(p));
+    if (l) params.set("limit", String(l));
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   // Apply filters
-  useEffect(() => {
+  const filteredPos = useMemo(() => {
     let filtered = [...posters];
 
-    // Search filter
     if (filters.search) {
       filtered = filtered.filter(
         (poster) =>
@@ -79,69 +78,110 @@ const PosterListPage = () => {
       );
     }
 
-    // Property type filter
-    if (filters.propertyType) {
-      filtered = filtered.filter(
-        (poster) => poster.propertyType === filters.propertyType
-      );
+    if (filters.parentType) {
+      filtered = filtered.filter((p) => p.parentType === filters.parentType);
     }
-
-    // Trade type filter
     if (filters.tradeType) {
-      filtered = filtered.filter(
-        (poster) => poster.tradeType === filters.tradeType
-      );
+      filtered = filtered.filter((p) => p.tradeType === filters.tradeType);
     }
-
-    // Price range filter
     if (filters.minPrice) {
-      filtered = filtered.filter(
-        (poster) => poster.totalPrice >= parseInt(filters.minPrice)
-      );
+      filtered = filtered.filter((p) => p.totalPrice >= +filters.minPrice);
     }
     if (filters.maxPrice) {
-      filtered = filtered.filter(
-        (poster) => poster.totalPrice <= parseInt(filters.maxPrice)
-      );
+      filtered = filtered.filter((p) => p.totalPrice <= +filters.maxPrice);
     }
-
-    // Area range filter
     if (filters.minArea) {
-      filtered = filtered.filter(
-        (poster) => poster.area >= parseInt(filters.minArea)
-      );
+      filtered = filtered.filter((p) => p.area >= +filters.minArea);
     }
     if (filters.maxArea) {
-      filtered = filtered.filter(
-        (poster) => poster.area <= parseInt(filters.maxArea)
-      );
+      filtered = filtered.filter((p) => p.area <= +filters.maxArea);
     }
-
-    // Rooms filter
     if (filters.rooms) {
-      filtered = filtered.filter(
-        (poster) => poster.rooms === parseInt(filters.rooms)
-      );
+      filtered = filtered.filter((p) => p.rooms === +filters.rooms);
     }
-
-    // Location filter
     if (filters.location) {
-      filtered = filtered.filter((poster) =>
-        poster.location.toLowerCase().includes(filters.location.toLowerCase())
+      filtered = filtered.filter((p) =>
+        p.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
-    setFilteredPosters(filtered);
-  }, [filters, posters]);
+    return filtered;
+  }, [posters, filters]);
+
+  useEffect(() => {
+    const uniqueById = (items: Poster[]) => {
+      const map = new Map();
+      items.forEach((item) => map.set(item._id, item));
+      return Array.from(map.values());
+    };
+
+    const fetchData = async () => {
+      setLoading(page === 1);
+      setIsFetchingMore(page > 1);
+
+      try {
+        const query = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+          ...(filters.parentType && { parentType: filters.parentType }),
+          ...(filters.tradeType && { tradeType: filters.tradeType }),
+        });
+
+        const res = await fetch(`/api/poster?${query.toString()}`);
+        const data = await res.json();
+
+        setHasNextPage(data.pagination.hasNextPage);
+
+        if (page === 1) {
+          setPosters(data.posters);
+        } else {
+          setPosters((prev) => uniqueById([...prev, ...data.posters]));
+        }
+      } catch (err) {
+        console.error("❌ Fetch error:", err);
+      } finally {
+        setLoading(false);
+        setIsFetchingMore(false);
+      }
+    };
+
+    fetchData();
+  }, [page, limit, filters.parentType, filters.tradeType]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (isFetchingMore || loading || !hasNextPage) return;
+
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+
+      // اگر کاربر به 300px مونده به آخر صفحه رسید
+      if (scrollTop + windowHeight >= fullHeight - 300) {
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFetchingMore, loading, hasNextPage]);
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    const updated = { ...filters, [key]: value };
+    setFilters(updated);
+    setPage(1); // فیلتر جدید = برگرد به صفحه ۱
+    updateURL(
+      1,
+      limit,
+      key === "parentType" ? value : filters.parentType,
+      key === "tradeType" ? value : filters.tradeType
+    );
   };
 
   const clearFilters = () => {
     setFilters({
       search: "",
-      propertyType: "",
+      parentType: "",
       tradeType: "",
       minPrice: "",
       maxPrice: "",
@@ -168,18 +208,18 @@ const PosterListPage = () => {
       },
       features: {
         area: poster.area,
-        bedrooms: poster.rooms,
-        bathrooms: Math.ceil(poster.rooms / 2), // Estimate bathrooms
-        yearBuilt: new Date(poster.buildingDate).getFullYear(),
+        rooms: poster.rooms,
+        floor: poster.floor,
+        buildingDate: poster.buildingDate,
       },
       imagePath: mainImage?.url || "/assets/images/default-property.jpg",
       isNew:
         new Date(poster.createdAt) >
-        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
       isSpecialOffer: poster.tag === "ویژه" || poster.tag === "فوری",
       isInvestment: poster.type === "investment",
       posterType: poster.type,
-      propertyType: poster.propertyType,
+      parentType: poster.parentType,
       tradeType: poster.tradeType,
       convertible: poster.convertible || false,
     };
@@ -229,7 +269,7 @@ const PosterListPage = () => {
                 آگهی‌های املاک
               </h1>
               <p className="text-gray-600 mt-1">
-                {filteredPosters.length} آگهی از {posters.length} آگهی موجود
+                {filteredPos.length} آگهی از {posters.length} آگهی موجود
               </p>
             </div>
 
@@ -322,18 +362,21 @@ const PosterListPage = () => {
                       نوع ملک
                     </label>
                     <select
-                      value={filters.propertyType}
+                      value={filters.parentType}
                       onChange={(e) =>
-                        handleFilterChange("propertyType", e.target.value)
+                        handleFilterChange("parentType", e.target.value)
                       }
                       className="w-full p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                     >
                       <option value="">همه انواع</option>
-                      <option value="residential">مسکونی</option>
-                      <option value="commercial">تجاری</option>
-                      <option value="administrative">اداری</option>
-                      <option value="industrial">صنعتی</option>
-                      <option value="old">کلنگی</option>
+                      <option value="residentialRent">مسکونی اجاره</option>
+                      <option value="residentialSale">مسکونی فروش</option>
+                      <option value="commercialRent">تجاری اجاره</option>
+                      <option value="commercialSale">تجاری فروش</option>
+                      <option value="shortTermRent">اجاره کوتاه مدت</option>
+                      <option value="ConstructionProject">
+                        پروژه ساختمانی
+                      </option>
                     </select>
                   </div>
 
@@ -350,11 +393,14 @@ const PosterListPage = () => {
                       className="w-full p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                     >
                       <option value="">همه انواع</option>
-                      <option value="buy">خرید</option>
-                      <option value="sell">فروش</option>
-                      <option value="rent">اجاره</option>
-                      <option value="fullRent">اجاره کامل</option>
-                      <option value="mortgage">رهن</option>
+                      <option value="House">خانه</option>
+                      <option value="Villa">ویلا</option>
+                      <option value="Old">کلنگی</option>
+                      <option value="Office">اداری</option>
+                      <option value="Shop">مغازه</option>
+                      <option value="industrial">صنعتی</option>
+                      <option value="partnerShip">مشارکت</option>
+                      <option value="preSale">پیش‌فروش</option>
                     </select>
                   </div>
 
@@ -464,7 +510,7 @@ const PosterListPage = () => {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-gray-600">
                     <FiHome size={18} />
-                    <span>{filteredPosters.length} آگهی یافت شد</span>
+                    <span>{filteredPos.length} آگهی یافت شد</span>
                   </div>
                   {filters.search && (
                     <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -486,7 +532,7 @@ const PosterListPage = () => {
             </div>
 
             {/* Posters Grid/List */}
-            {filteredPosters.length === 0 ? (
+            {filteredPos.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -519,9 +565,9 @@ const PosterListPage = () => {
                 }
               >
                 <AnimatePresence>
-                  {filteredPosters.map((poster, index) => (
+                  {filteredPos.map((poster, index) => (
                     <motion.div
-                      key={poster._id}
+                      key={`${poster._id}-${index}`}
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -538,9 +584,17 @@ const PosterListPage = () => {
                 </AnimatePresence>
               </motion.div>
             )}
+            {isFetchingMore && (
+              <div className="flex justify-center py-6">
+                <FiLoader className="w-6 h-6 text-[#01ae9b] animate-spin" />
+                <span className="ml-2 text-gray-600">
+                  در حال بارگذاری بیشتر...
+                </span>
+              </div>
+            )}
 
             {/* Load More Button (if needed for pagination) */}
-            {filteredPosters.length > 0 && filteredPosters.length >= 20 && (
+            {filteredPos.length > 0 && filteredPos.length >= 20 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

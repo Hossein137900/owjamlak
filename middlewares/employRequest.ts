@@ -6,7 +6,7 @@ export const getAllRequests = async () => {
     const requests = await Employ.find();
     return NextResponse.json(requests);
   } catch (error) {
-    console.error("Error fetching requests:", error);
+    console.log("Error fetching requests:", error);
     return NextResponse.json(
       { message: "Error fetching requests" },
       { status: 500 }
@@ -19,7 +19,7 @@ export const getRequestById = async (id: string) => {
     const request = await Employ.findById(id);
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error fetching request:", error);
+    console.log("Error fetching request:", error);
     return NextResponse.json(
       { message: "Error fetching request" },
       { status: 500 }
@@ -44,7 +44,7 @@ export const createRequest = async (req: Request) => {
     await request.save();
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error creating request:", error);
+    console.log("Error creating request:", error);
     return NextResponse.json(
       { message: "Error creating request" },
       { status: 500 }
@@ -81,7 +81,7 @@ export const updateRequest = async (req: Request) => {
     );
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error updating request:", error);
+    console.log("Error updating request:", error);
     return NextResponse.json(
       { message: "Error updating request" },
       { status: 500 }
@@ -95,7 +95,7 @@ export const deleteRequest = async (req: Request) => {
     const request = await Employ.findByIdAndDelete(id);
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error deleting request:", error);
+    console.log("Error deleting request:", error);
     return NextResponse.json(
       { message: "Error deleting request" },
       { status: 500 }

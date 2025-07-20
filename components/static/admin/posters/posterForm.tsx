@@ -1,8 +1,20 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FiUpload, FiX, FiCheck, FiAlertCircle } from "react-icons/fi";
+import {
+  FiUpload,
+  FiX,
+  FiCheck,
+  FiAlertCircle,
+  FiMapPin,
+} from "react-icons/fi";
 import toast from "react-hot-toast";
+import dynamic from "next/dynamic";
+
+// Dynamically import LocationPicker to avoid SSR issues
+const LocationPicker = dynamic(() => import("../../ui/locationPicker"), {
+  ssr: false,
+});
 
 const PosterForm = ({}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -11,33 +23,43 @@ const PosterForm = ({}) => {
   const [images, setImages] = useState<
     { alt: string; url: string; mainImage: boolean }[]
   >([]);
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
 
-  // Form state - Updated to match models/poster.ts
+  // Form state - Updated to match new model structure
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     buildingDate: "",
     area: "",
     rooms: "",
-    propertyType: "",
+    parentType: "", // Changed from propertyType
     tradeType: "",
     totalPrice: "",
     pricePerMeter: "",
-    depositRent: "", // For rent deposits
-    rentPrice: "", // For monthly rent
-    convertible: false, // For convertible deposits
+    depositRent: "",
+    rentPrice: "",
+    convertible: false,
     location: "",
+    coordinates: {
+      lat: 0,
+      lng: 0,
+    },
+    locationDetails: {
+      province: "",
+      city: "",
+      district: "",
+      neighborhood: "",
+      fullAddress: "",
+    },
     contact: "",
     storage: false,
     floor: "",
     parking: false,
     lift: false,
-    tag: "",
+    // tag: "",
     type: "normal",
-    user: "", // Will be set from auth context
+    user: "",
   });
-
-  // Load data if in edit mode
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -54,12 +76,80 @@ const PosterForm = ({}) => {
     }
   };
 
+  // Enhanced location handler with address parsing
+  const handleLocationSelect = (location: {
+    lat: number;
+    lng: number;
+    address: string;
+  }) => {
+    // Parse address to extract location details
+    const parseAddress = (address: string) => {
+      const parts = address.split(",").map((part) => part.trim());
+
+      // Try to extract meaningful parts from the address
+      let province = "";
+      let city = "";
+      let district = "";
+      let neighborhood = "";
+
+      // Look for common patterns in Persian addresses
+      parts.forEach((part) => {
+        if (
+          part.includes("استان") ||
+          part.includes("تهران") ||
+          part.includes("اصفهان") ||
+          part.includes("شیراز")
+        ) {
+          province = part;
+        } else if (part.includes("منطقه") || part.includes("ناحیه")) {
+          district = part;
+        } else if (part.includes("محله") || part.includes("خیابان")) {
+          neighborhood = part;
+        }
+      });
+
+      // If we can't parse specific parts, use the first few parts
+      if (!province && parts.length > 0) {
+        province = parts[0];
+      }
+      if (!city && parts.length > 1) {
+        city = parts[1];
+      }
+      if (!district && parts.length > 2) {
+        district = parts[2];
+      }
+      if (!neighborhood && parts.length > 3) {
+        neighborhood = parts[3];
+      }
+
+      return {
+        province,
+        city,
+        district,
+        neighborhood,
+        fullAddress: address,
+      };
+    };
+
+    const locationDetails = parseAddress(location.address);
+
+    setFormData((prev) => ({
+      ...prev,
+      location: location.address,
+      coordinates: {
+        lat: location.lat,
+        lng: location.lng,
+      },
+      locationDetails,
+    }));
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const newImages = Array.from(e.target.files).map((file, index) => ({
         alt: `تصویر ${images.length + index + 1}`,
         url: URL.createObjectURL(file),
-        mainImage: images.length === 0 && index === 0, // First image is main by default
+        mainImage: images.length === 0 && index === 0,
       }));
       setImages((prev) => [...prev, ...newImages]);
     }
@@ -68,7 +158,6 @@ const PosterForm = ({}) => {
   const removeImage = (index: number) => {
     setImages((prev) => {
       const newImages = prev.filter((_, i) => i !== index);
-      // If we removed the main image, make the first remaining image main
       if (prev[index].mainImage && newImages.length > 0) {
         newImages[0].mainImage = true;
       }
@@ -99,11 +188,11 @@ const PosterForm = ({}) => {
         "buildingDate",
         "area",
         "rooms",
-        "propertyType",
+        "parentType", // Changed from propertyType
         "tradeType",
         "location",
         "contact",
-        "tag",
+        // "tag",
       ];
 
       for (const field of requiredFields) {
@@ -112,8 +201,17 @@ const PosterForm = ({}) => {
         }
       }
 
+      // Validate location coordinates
+      if (!formData.coordinates.lat || !formData.coordinates.lng) {
+        throw new Error("انتخاب موقعیت جغرافیایی الزامی است");
+      }
+
       // Validate rent-specific fields
-      if (formData.tradeType === "rent" || formData.tradeType === "fullRent") {
+      const isRentType =
+        formData.parentType.includes("Rent") ||
+        formData.parentType === "shortTermRent";
+
+      if (isRentType) {
         if (!formData.depositRent) {
           throw new Error("مبلغ ودیعه برای اجاره الزامی است");
         }
@@ -121,7 +219,6 @@ const PosterForm = ({}) => {
           throw new Error("مبلغ اجاره ماهانه الزامی است");
         }
       } else {
-        // For buy/sell, totalPrice is required
         if (!formData.totalPrice) {
           throw new Error("قیمت کل برای خرید/فروش الزامی است");
         }
@@ -144,13 +241,14 @@ const PosterForm = ({}) => {
           ? Number(formData.depositRent)
           : undefined,
         rentPrice: formData.rentPrice ? Number(formData.rentPrice) : undefined,
-        buildingDate: new Date(formData.buildingDate),
+        buildingDate: Number(formData.buildingDate),
         user: "683838a637d65797392334f5",
+        status: "pending",
       };
+
       console.log(submitData);
       const token = localStorage.getItem("token");
 
-      // Here you would send the data to your API
       const response = await fetch("/api/poster", {
         method: "POST",
         headers: {
@@ -165,21 +263,55 @@ const PosterForm = ({}) => {
       if (response.ok) {
         setSuccess("آگهی با موفقیت ایجاد شد");
         toast.success("آگهی با موفقیت ایجاد شد");
+        // Reset form
+        setFormData({
+          title: "",
+          description: "",
+          buildingDate: "",
+          area: "",
+          rooms: "",
+          parentType: "", // Changed from propertyType
+          tradeType: "",
+          totalPrice: "",
+          pricePerMeter: "",
+          depositRent: "",
+          rentPrice: "",
+          convertible: false,
+          location: "",
+          coordinates: { lat: 0, lng: 0 },
+          locationDetails: {
+            province: "",
+            city: "",
+            district: "",
+            neighborhood: "",
+            fullAddress: "",
+          },
+          contact: "",
+          storage: false,
+          floor: "",
+          parking: false,
+          lift: false,
+          // tag: "",
+          type: "normal",
+          user: "",
+        });
+        setImages([]);
       } else {
         toast.error("آگهی با موفقیت ایجاد نشد");
         throw new Error(result.message || "خطا در ثبت آگهی");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
-      // setError(err.message || "خطا در ثبت آگهی. لطفا دوباره تلاش کنید.");
+      setError(err.message || "خطا در ثبت آگهی. لطفا دوباره تلاش کنید.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Check if trade type is rent-related
+  // Check if parent type is rent-related
   const isRentType =
-    formData.tradeType === "rent" || formData.tradeType === "fullRent";
+    formData.parentType.includes("Rent") ||
+    formData.parentType === "shortTermRent";
 
   return (
     <motion.div
@@ -203,19 +335,22 @@ const PosterForm = ({}) => {
           <span>{success}</span>
         </div>
       )}
+
       {/* Form Validation Info */}
-      <div className="my-6 bg-green-50 border border-gray-200 rounded-lg p-4">
+      <div className="my-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="text-sm font-medium text-gray-800 mb-2">
           راهنمای تکمیل فرم:
         </h4>
         <ul className="text-xs text-gray-600 space-y-1">
           <li>• فیلدهای دارای علامت (*) الزامی هستند</li>
+          <li>• انتخاب موقعیت جغرافیایی روی نقشه الزامی است</li>
           <li>• برای آگهی‌های اجاره، مبلغ ودیعه و اجاره ماهانه الزامی است</li>
           <li>• برای آگهی‌های خرید/فروش، قیمت کل الزامی است</li>
           <li>• حداقل یک تصویر برای آگهی آپلود کنید</li>
           <li>• تصویر اول به عنوان تصویر اصلی انتخاب می‌شود</li>
         </ul>
       </div>
+
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Title */}
@@ -295,7 +430,7 @@ const PosterForm = ({}) => {
                       onClick={() => removeImage(index)}
                       className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <FiX className="w-4 h-4" />
+                      <FiX size={12} />
                     </button>
                     <button
                       type="button"
@@ -303,7 +438,7 @@ const PosterForm = ({}) => {
                       className={`absolute bottom-1 left-1 px-2 py-1 text-xs rounded ${
                         image.mainImage
                           ? "bg-blue-500 text-white"
-                          : "bg-gray-500 text-white opacity-0 group-hover:opacity-100"
+                          : "bg-gray-200 text-gray-700 opacity-0 group-hover:opacity-100"
                       } transition-opacity`}
                     >
                       {image.mainImage ? "اصلی" : "انتخاب"}
@@ -314,33 +449,34 @@ const PosterForm = ({}) => {
             )}
           </div>
 
-          {/* Property Type */}
-          <div>
+          {/* Parent Type (Property Type) */}
+          <div className="col-span-2 md:col-span-1">
             <label
-              htmlFor="propertyType"
+              htmlFor="parentType"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
               نوع ملک *
             </label>
             <select
-              id="propertyType"
-              name="propertyType"
-              value={formData.propertyType}
+              id="parentType"
+              name="parentType"
+              value={formData.parentType}
               onChange={handleChange}
               required
               className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">انتخاب کنید</option>
-              <option value="residential">مسکونی</option>
-              <option value="commercial">تجاری</option>
-              <option value="administrative">اداری</option>
-              <option value="industrial">صنعتی</option>
-              <option value="old">قدیمی</option>
+              <option value="residentialRent">اجاره مسکونی</option>
+              <option value="residentialSale">فروش مسکونی</option>
+              <option value="commercialRent">اجاره تجاری</option>
+              <option value="commercialSale">فروش تجاری</option>
+              <option value="shortTermRent">اجاره کوتاه مدت</option>
+              <option value="ConstructionProject">پروژه ساختمانی</option>
             </select>
           </div>
 
           {/* Trade Type */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label
               htmlFor="tradeType"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -356,16 +492,19 @@ const PosterForm = ({}) => {
               className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">انتخاب کنید</option>
-              <option value="buy">خرید</option>
-              <option value="sell">فروش</option>
-              <option value="rent">اجاره</option>
-              <option value="fullRent">اجاره کامل</option>
-              <option value="mortgage">رهن</option>
+              <option value="House">خانه</option>
+              <option value="Villa">ویلا</option>
+              <option value="Old">کلنگی</option>
+              <option value="Office">دفتر کار</option>
+              <option value="Shop">مغازه</option>
+              <option value="industrial">صنعتی</option>
+              <option value="partnerShip">مشارکت</option>
+              <option value="preSale">پیش فروش</option>
             </select>
           </div>
 
           {/* Building Date */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label
               htmlFor="buildingDate"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -373,7 +512,7 @@ const PosterForm = ({}) => {
               تاریخ ساخت *
             </label>
             <input
-              type="date"
+              type="number"
               id="buildingDate"
               name="buildingDate"
               value={formData.buildingDate}
@@ -384,7 +523,7 @@ const PosterForm = ({}) => {
           </div>
 
           {/* Area */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label
               htmlFor="area"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -404,7 +543,7 @@ const PosterForm = ({}) => {
           </div>
 
           {/* Rooms */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label
               htmlFor="rooms"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -424,7 +563,7 @@ const PosterForm = ({}) => {
           </div>
 
           {/* Floor */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <label
               htmlFor="floor"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -441,11 +580,11 @@ const PosterForm = ({}) => {
             />
           </div>
 
-          {/* Conditional Price Fields based on Trade Type */}
+          {/* Conditional Price Fields based on Parent Type */}
           {!isRentType ? (
             <>
               {/* Total Price for Buy/Sell */}
-              <div>
+          <div className="col-span-2 md:col-span-1">
                 <label
                   htmlFor="totalPrice"
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -465,7 +604,7 @@ const PosterForm = ({}) => {
               </div>
 
               {/* Price Per Meter */}
-              <div>
+          <div className="col-span-2 md:col-span-1">
                 <label
                   htmlFor="pricePerMeter"
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -545,7 +684,7 @@ const PosterForm = ({}) => {
             </>
           )}
 
-          {/* Location */}
+          {/* Location with Enhanced Details */}
           <div className="col-span-2">
             <label
               htmlFor="location"
@@ -553,15 +692,198 @@ const PosterForm = ({}) => {
             >
               آدرس *
             </label>
-            <textarea
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              required
-              rows={2}
-              className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="flex gap-2">
+              <textarea
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                required
+                rows={2}
+                className="flex-1 px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="آدرس کامل ملک را وارد کنید..."
+              />
+              <button
+                type="button"
+                onClick={() => setIsLocationPickerOpen(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent flex items-center gap-2 whitespace-nowrap"
+              >
+                <FiMapPin className="w-4 h-4" />
+                انتخاب از نقشه
+              </button>
+            </div>
+
+            {/* Location Details Display */}
+            {formData.coordinates.lat !== 0 &&
+              formData.coordinates.lng !== 0 && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                    جزئیات موقعیت:
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                    {formData.locationDetails.province && (
+                      <div>
+                        <span className="font-medium">استان:</span>{" "}
+                        {formData.locationDetails.province}
+                      </div>
+                    )}
+                    {formData.locationDetails.city && (
+                      <div>
+                        <span className="font-medium">شهر:</span>{" "}
+                        {formData.locationDetails.city}
+                      </div>
+                    )}
+                    {formData.locationDetails.district && (
+                      <div>
+                        <span className="font-medium">منطقه:</span>{" "}
+                        {formData.locationDetails.district}
+                      </div>
+                    )}
+                    {formData.locationDetails.neighborhood && (
+                      <div>
+                        <span className="font-medium">محله:</span>{" "}
+                        {formData.locationDetails.neighborhood}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500 bg-white p-2 rounded">
+                    <span className="flex items-center gap-1">
+                      <FiMapPin className="w-3 h-3" />
+                      مختصات: {formData.coordinates.lat.toFixed(6)},{" "}
+                      {formData.coordinates.lng.toFixed(6)}
+                    </span>
+                  </div>
+                </div>
+              )}
+          </div>
+
+          {/* Manual Location Details (Optional) */}
+          <div className="col-span-2">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">
+              جزئیات موقعیت (اختیاری)
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label
+                  htmlFor="province"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  استان
+                </label>
+                <input
+                  type="text"
+                  id="province"
+                  value={formData.locationDetails.province}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationDetails: {
+                        ...prev.locationDetails,
+                        province: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="تهران"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="city"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  شهر
+                </label>
+                <input
+                  type="text"
+                  id="city"
+                  value={formData.locationDetails.city}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationDetails: {
+                        ...prev.locationDetails,
+                        city: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="تهران"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="district"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  منطقه
+                </label>
+                <input
+                  type="text"
+                  id="district"
+                  value={formData.locationDetails.district}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationDetails: {
+                        ...prev.locationDetails,
+                        district: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="منطقه 5"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="neighborhood"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  محله
+                </label>
+                <input
+                  type="text"
+                  id="neighborhood"
+                  value={formData.locationDetails.neighborhood}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationDetails: {
+                        ...prev.locationDetails,
+                        neighborhood: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="سعادت آباد"
+                />
+              </div>
+            </div>
+            <div className="mt-4">
+              <label
+                htmlFor="fullAddress"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                آدرس کامل
+              </label>
+              <textarea
+                id="fullAddress"
+                value={formData.locationDetails.fullAddress}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    locationDetails: {
+                      ...prev.locationDetails,
+                      fullAddress: e.target.value,
+                    },
+                  }))
+                }
+                rows={2}
+                className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="تهران، سعادت آباد، میدان کاج، برج تجاری پارسیان، طبقه 8"
+              />
+            </div>
           </div>
 
           {/* Contact */}
@@ -586,29 +908,6 @@ const PosterForm = ({}) => {
           </div>
 
           {/* Tag */}
-          <div>
-            <label
-              htmlFor="tag"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              برچسب *
-            </label>
-            <select
-              id="tag"
-              name="tag"
-              value={formData.tag}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">انتخاب کنید</option>
-              <option value="فروش">فروش</option>
-              <option value="اجاره">اجاره</option>
-              <option value="رهن">رهن</option>
-              <option value="ویژه">ویژه</option>
-              <option value="فوری">فوری</option>
-            </select>
-          </div>
 
           {/* Type */}
           <div>
@@ -689,38 +988,37 @@ const PosterForm = ({}) => {
               </div>
             </div>
           </div>
-
-          {/* Investment Information */}
-          {formData.type === "investment" && (
-            <div className="col-span-2 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="text-md font-medium text-yellow-800 mb-2">
-                اطلاعات سرمایه‌گذاری
-              </h4>
-              <p className="text-sm text-yellow-700">
-                این آگهی به عنوان فرصت سرمایه‌گذاری ثبت خواهد شد و با نشان ویژه
-                نمایش داده می‌شود.
-              </p>
-            </div>
-          )}
         </div>
 
-        {/* Submit Buttons */}
-        <div className="mt-8 flex justify-start gap-2">
-          <button
-            type="button"
-            disabled={isSubmitting}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            انصراف
-          </button>
+        {/* Submit Button */}
+        <div className="mt-8 flex justify-start">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {isSubmitting ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2"></div>
+                <svg
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
                 در حال ثبت...
               </>
             ) : (
@@ -729,6 +1027,22 @@ const PosterForm = ({}) => {
           </button>
         </div>
       </form>
+
+      {/* Location Picker Modal */}
+      <LocationPicker
+        isOpen={isLocationPickerOpen}
+        onClose={() => setIsLocationPickerOpen(false)}
+        onLocationSelect={handleLocationSelect}
+        initialLocation={
+          formData.coordinates.lat !== 0 && formData.coordinates.lng !== 0
+            ? {
+                lat: formData.coordinates.lat,
+                lng: formData.coordinates.lng,
+                address: formData.location,
+              }
+            : undefined
+        }
+      />
     </motion.div>
   );
 };

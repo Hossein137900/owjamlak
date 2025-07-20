@@ -48,7 +48,7 @@ export default function BlogManagement() {
         toast.error("خطا در دریافت بلاگ‌ها");
       }
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      console.log("Error fetching blogs:", error);
       toast.error("خطا در دریافت بلاگ‌ها");
     } finally {
       setLoading(false);
@@ -83,7 +83,7 @@ export default function BlogManagement() {
         toast.error(result.message || "خطا در حذف بلاگ");
       }
     } catch (error) {
-      console.error("Error deleting blog:", error);
+      console.log("Error deleting blog:", error);
       toast.error("خطا در حذف بلاگ");
     }
   };

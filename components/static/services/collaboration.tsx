@@ -321,7 +321,7 @@ export default function CollaborationPage() {
         };
       }
     } catch (error) {
-      console.error("Error submitting collaboration form:", error);
+      console.log("Error submitting collaboration form:", error);
 
       // Show user-friendly error message
       const errorMessage =

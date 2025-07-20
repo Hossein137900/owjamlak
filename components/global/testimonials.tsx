@@ -1,100 +1,172 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaStar } from "react-icons/fa";
 
 interface Testimonial {
-  id: string;
+  _id: string;
   name: string;
-  role: string;
-  content: string;
-  avatar: string;
+  email: string;
+  message: string;
+  formType: string;
   rating: number;
-  project: string;
+  createdAt: string;
+  propertyType?: string;
 }
 
-interface TestimonialsProps {
-  testimonials: Testimonial[];
-}
-
-const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
+const Testimonials = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-rotate testimonials
+  // ✅ Drag Controls
+  const dragControls = useDragControls();
+
+  // ⭐ Fetch testimonials
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDirection(1);
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-    }, 5000);
+    const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/contact?testimonials=true");
+        const data = await res.json();
+        if (data.success) {
+          setTestimonials(data.data || []);
+        } else {
+          setError(data.message || "خطا در دریافت نظرات");
+        }
+      } catch (err) {
+        console.error(err);
+        setError("مشکلی در بارگیری نظرات رخ داد.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [testimonials.length]);
+  // ⭐ Auto-rotate
+  const startAutoSlide = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (testimonials.length > 1) {
+      intervalRef.current = setInterval(() => {
+        handleNext();
+      }, 5000);
+    }
+  }, [testimonials]);
+
+  useEffect(() => {
+    startAutoSlide();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [testimonials, startAutoSlide]);
 
   const handlePrev = () => {
     setDirection(-1);
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+    setCurrentIndex((prev) =>
+      prev === 0 ? testimonials.length - 1 : prev - 1
     );
+    startAutoSlide();
   };
 
   const handleNext = () => {
     setDirection(1);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    startAutoSlide();
+  };
+
+  // ⭐ Drag End Handler
+  const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
+    const swipe = info.offset.x;
+    if (swipe < -50) {
+      // Swiped left
+      handleNext();
+    } else if (swipe > 50) {
+      // Swiped right
+      handlePrev();
+    }
   };
 
   const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
+    enter: (dir: number) => ({
+      x: dir > 0 ? 200 : -200,
       opacity: 0,
+      scale: 0.95,
     }),
     center: {
       x: 0,
       opacity: 1,
+      scale: 1,
+      transition: { duration: 0.4, ease: "easeOut" },
     },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 1000 : -1000,
+    exit: (dir: number) => ({
+      x: dir < 0 ? 200 : -200,
       opacity: 0,
+      scale: 0.95,
+      transition: { duration: 0.3 },
     }),
   };
 
-  // Generate stars based on rating
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }).map((_, index) => (
-      <i
-        key={index}
-        className={`fas fa-star ${
-          index < rating ? "text-yellow-400" : "text-gray-300"
-        }`}
-      ></i>
+  const renderStars = (rating: number) =>
+    Array.from({ length: 5 }).map((_, i) => (
+      <FaStar
+        key={i}
+        className={`${
+          i < rating ? "text-yellow-400" : "text-gray-300"
+        } transition-colors`}
+      />
     ));
-  };
+
+  if (loading) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">در حال بارگذاری نظرات...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || testimonials.length === 0) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="text-center">
+          <FaUserCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-600">{error || "هنوز نظری ثبت نشده است"}</p>
+        </div>
+      </section>
+    );
+  }
+
+  const current = testimonials[currentIndex];
 
   return (
-    <section className="py-16 bg-gray-50 overflow-hidden" dir="rtl">
+    <section
+      className="py-20 bg-gradient-to-br from-gray-50 to-white overflow-hidden"
+      dir="rtl"
+    >
       <div className="container mx-auto px-4">
-        {/* Section Header */}
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-3xl font-bold mb-4">
-            <span className="text-[#66308d]">نظرات </span>
-            <span className="text-gray-800">مشتریان ما</span>
+          <h2 className="text-3xl font-extrabold text-gray-700">
+            <span className="text-[#66308d]">نظرات </span>مشتریان
           </h2>
-          <div className="w-20 h-1 bg-[#01ae9b] mx-auto mb-6"></div>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            آنچه مشتریان ما درباره خدمات و همکاری با تیم ما می‌گویند
-          </p>
+          <div className="w-16 h-1 bg-[#01ae9b] mx-auto my-3 rounded-full"></div>
+          <p className="text-gray-600">تجربه مشتریان ما با خدمات حرفه‌ای</p>
         </motion.div>
 
-        {/* Testimonial Carousel */}
-        <div className="relative max-w-4xl mx-auto">
+        {/* Carousel */}
+        <div className="relative max-w-4xl mx-auto touch-pan-y">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={currentIndex}
@@ -102,92 +174,79 @@ const Testimonials: React.FC<TestimonialsProps> = ({ testimonials }) => {
               variants={variants}
               initial="enter"
               animate="center"
-              // exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 200, damping: 30 },
-                opacity: { duration: 0.2 },
-              }}
-              className="bg-white rounded-2xl shadow-md overflow-hidden"
+              exit="exit"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={handleDragEnd}
+              dragControls={dragControls}
+              className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden select-none cursor-grab active:cursor-grabbing"
             >
-              <div className="grid grid-cols-1 md:grid-cols-5">
-                {/* Left side - Image and info */}
-                <div className="md:col-span-2 bg-gradient-to-br from-[#66308d] to-[#01ae9b] p-8 flex flex-col justify-center items-center text-white">
-                  <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 mb-4">
-                    {testimonials[currentIndex].avatar ? (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <FaUserCircle className="text-gray-400" size={70} />
-                      </div>
-                    ) : (
-                      <Image
-                        src={testimonials[currentIndex].avatar}
-                        alt={testimonials[currentIndex].name}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
+              <div className="grid md:grid-cols-5">
+                {/* Left */}
+                <div className="md:col-span-2 bg-gradient-to-br from-[#66308d] to-[#01ae9b] p-6 flex flex-col items-center justify-center text-white">
+                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white/40 mb-3 flex items-center justify-center">
+                    <FaUserCircle size={60} className="text-white/80" />
                   </div>
-
-                  <h3 className="text-xl font-bold mb-1">
-                    {testimonials[currentIndex].name}
-                  </h3>
-                  <p className="text-white/80 mb-4">
-                    {testimonials[currentIndex].role}
-                  </p>
-                  <div className="flex space-x-1 mb-4">
-                    {renderStars(testimonials[currentIndex].rating)}
-                  </div>
-                  <p className="text-white/90 text-sm text-center">
-                    پروژه: {testimonials[currentIndex].project}
+                  <h3 className="text-lg font-bold">{current.name}</h3>
+                  <div className="flex my-2">{renderStars(current.rating)}</div>
+                  <p className="text-white/70 text-sm">
+                    {new Date(current.createdAt).toLocaleDateString("fa-IR", {
+                      year: "numeric",
+                      month: "long",
+                    })}
                   </p>
                 </div>
-
-                {/* Right side - Testimonial content */}
-                <div className="md:col-span-3 p-8 flex flex-col justify-center">
-                  <div className="text-4xl text-[#66308d]/20 mb-4">
-                    <i className="fas fa-quote-right"></i>
-                  </div>
-                  <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                    {testimonials[currentIndex].content}
+                {/* Right */}
+                <div className="md:col-span-3 p-8">
+                  <p className="text-gray-700 text-lg min-h-[200px] md:h-auto leading-relaxed mb-6 relative">
+                    <span className="absolute -top-4 -right-3 text-6xl text-[#66308d]/10">
+                      “
+                    </span>
+                    {current.message}
                   </p>
                 </div>
               </div>
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Buttons */}
-          <button
-            onClick={handleNext}
-            className="absolute top-1/2 -translate-y-1/2 -left-4 md:-left-6 bg-white w-12 h-12 rounded-full shadow-md flex items-center justify-center text-[#66308d] hover:bg-[#66308d] hover:text-white transition-colors z-10"
-            aria-label="Previous testimonial"
-          >
-            <MdChevronLeft size={20} />
-          </button>
-          <button
-            onClick={handlePrev}
-            className="absolute top-1/2 -translate-y-1/2 -right-4 md:-right-6 bg-white w-12 h-12 rounded-full shadow-md flex items-center justify-center text-[#66308d] hover:bg-[#66308d] hover:text-white transition-colors z-10"
-            aria-label="Next testimonial"
-          >
-            <MdChevronRight size={20} />
-          </button>
+          {/* Navigation */}
+          {testimonials.length > 1 && (
+            <>
+              <button
+                onClick={handlePrev}
+                className="absolute top-1/2 right-3 -translate-y-1/2 bg-white/70  backdrop-blur-sm text-[#66308d] hover:bg-[#66308d] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+              >
+                <MdChevronRight size={28} />
+              </button>
+              <button
+                onClick={handleNext}
+                className="absolute top-1/2 left-3 -translate-y-1/2 bg-white/20 backdrop-blur-sm text-[#66308d] hover:bg-[#66308d] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+              >
+                <MdChevronLeft size={28} />
+              </button>
+            </>
+          )}
         </div>
 
         {/* Indicators */}
-        <div className="flex justify-center mt-8 space-x-2">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setDirection(index > currentIndex ? 1 : -1);
-                setCurrentIndex(index);
-              }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? "bg-[#66308d] w-6"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-            />
-          ))}
-        </div>
+        {testimonials.length > 1 && (
+          <div className="flex justify-center mt-6 gap-2">
+            {testimonials.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  setDirection(i > currentIndex ? 1 : -1);
+                  setCurrentIndex(i);
+                  startAutoSlide();
+                }}
+                className={`h-3 rounded-full transition-all ${
+                  currentIndex === i ? "bg-[#66308d] w-6" : "bg-gray-300 w-3"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

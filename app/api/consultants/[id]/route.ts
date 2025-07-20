@@ -44,7 +44,7 @@ export async function GET(
       consultant,
     });
   } catch (error: any) {
-    console.error("API Error:", error); // Debug log
+    console.log("API Error:", error); // Debug log
     return NextResponse.json(
       {
         success: false,

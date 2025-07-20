@@ -6,7 +6,7 @@ export const getAllLegalRequests = async () => {
     const requests = await LegalRequest.find();
     return NextResponse.json(requests);
   } catch (error) {
-    console.error("Error fetching legal requests:", error);
+    console.log("Error fetching legal requests:", error);
     return NextResponse.json(
       { message: "Error fetching legal requests" },
       { status: 500 }
@@ -20,7 +20,7 @@ export const getLegalRequestById = async (id: string) => {
     console.log(request)
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error fetching legal request:", error);
+    console.log("Error fetching legal request:", error);
     return NextResponse.json(
       { message: "Error fetching legal request" },
       { status: 500 }
@@ -43,7 +43,7 @@ export const createLegalRequest = async (req: Request) => {
     await request.save();
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error creating legal request:", error);
+    console.log("Error creating legal request:", error);
     return NextResponse.json(
       { message: "Error creating legal request" },
       { status: 500 }
@@ -89,7 +89,7 @@ export const deleteLegalRequest = async (req: Request) => {
     const request = await LegalRequest.findByIdAndDelete(_id);
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error deleting legal request:", error);
+    console.log("Error deleting legal request:", error);
     return NextResponse.json(
       { message: "Error deleting legal request" },
       { status: 500 }

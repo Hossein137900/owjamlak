@@ -146,7 +146,7 @@ const UsersManagement: React.FC = () => {
         throw new Error(data.message || "No users data received");
       }
     } catch (err) {
-      console.error("Error fetching users:", err);
+      console.log("Error fetching users:", err);
       setError(
         err instanceof Error ? err.message : "خطا در دریافت اطلاعات کاربران"
       );
@@ -189,7 +189,7 @@ const UsersManagement: React.FC = () => {
         throw new Error(data.message || "Failed to delete user");
       }
     } catch (err) {
-      console.error("Error deleting user:", err);
+      console.log("Error deleting user:", err);
       setError(err instanceof Error ? err.message : "خطا در حذف کاربر");
     }
   };
@@ -375,22 +375,12 @@ const UsersManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center justify-center min-h-[400px] bg-white rounded-lg shadow-md"
-      >
+      <div className="h-64 bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="inline-block mb-4"
-          >
-            <FiLoader className="text-4xl text-[#66308d]" />
-          </motion.div>
-          <p className="text-gray-600">در حال بارگذاری کاربران...</p>
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری آگهی‌ها...</p>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -487,11 +477,7 @@ const UsersManagement: React.FC = () => {
             <span className="hidden sm:inline">بروزرسانی</span>
           </motion.button>
 
-          {/* Add User Button */}
-          <button className="flex items-center justify-center gap-2 bg-[#66308d] hover:bg-[#4a1f5f] text-white px-4 py-2 rounded-lg transition-colors duration-200">
-            <FiUserPlus />
-            <span>کاربر جدید</span>
-          </button>
+       
         </div>
       </div>
 
@@ -769,7 +755,7 @@ const UsersManagement: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowUserModal(false)}
         >
           <motion.div
@@ -877,7 +863,6 @@ const UsersManagement: React.FC = () => {
               >
                 بستن
               </button>
-            
             </div>
           </motion.div>
         </motion.div>
@@ -889,7 +874,7 @@ const UsersManagement: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => setShowDeleteModal(false)}
         >
           <motion.div
@@ -937,7 +922,7 @@ const UsersManagement: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={handleCloseEditModal}
         >
           <motion.div

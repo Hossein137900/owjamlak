@@ -9,6 +9,7 @@ import {
   FiRefreshCw,
   FiAlertTriangle,
   FiX,
+  FiLoader,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { LegalRequest } from "@/types/type";
@@ -98,7 +99,7 @@ const LegalRequests: React.FC = () => {
 
         resolve(data);
       } catch (err: any) {
-        console.error("❌ خطا در حذف:", err);
+        console.log("❌ خطا در حذف:", err);
         fetchRequests(); // برگردوندن دیتا
         reject(err);
       } finally {
@@ -126,12 +127,10 @@ const LegalRequests: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2 space-x-reverse">
-            <FiRefreshCw className="animate-spin w-5 h-5 text-blue-600" />
-            <span className="text-gray-500">در حال بارگذاری...</span>
-          </div>
+      <div className="h-64 bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری مشاوره های حقوقی...</p>
         </div>
       </div>
     );

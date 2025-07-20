@@ -18,7 +18,7 @@ const posterSchema = new mongoose.Schema(
       },
     ],
     buildingDate: {
-      type: Date,
+      type: Number,
       required: true,
     },
     area: {
@@ -29,21 +29,31 @@ const posterSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    propertyType: {
+    parentType: {
       type: String,
       required: true,
       enum: [
-        "residential",
-        "administrative",
-        "commercial",
-        "industrial",
-        "old",
+        "residentialRent",
+        "residentialSale",
+        "commercialRent",
+        "commercialSale",
+        "shortTermRent",
+        "ConstructionProject",
       ],
     },
     tradeType: {
       type: String,
       required: true,
-      enum: ["rent", "fullRent", "buy", "sell"],
+      enum: [
+        "House",
+        "Villa",
+        "Old",
+        "Office",
+        "Shop",
+        "industrial",
+        "partnerShip",
+        "preSale",
+      ],
     },
     totalPrice: {
       type: Number,
@@ -98,17 +108,33 @@ const posterSchema = new mongoose.Schema(
       required: true,
       enum: ["active", "pending", "sold", "rented"],
     },
+    // Add location coordinates
+    coordinates: {
+      lat: {
+        type: Number,
+        required: true,
+      },
+      lng: {
+        type: Number,
+        required: true,
+      },
+    },
+    // Add address components for better search
+    locationDetails: {
+      province: String,
+      city: String,
+      district: String,
+      neighborhood: String,
+      fullAddress: String,
+    },
     views: {
       type: Number,
       default: 0,
     },
-    // Track unique viewers to prevent duplicate views
-    viewedBy: {
-      type: [String],
-      default: [],
-    },
   },
   { timestamps: true }
 );
+// Add geospatial index for location-based queries
+posterSchema.index({ coordinates: "2dsphere" });
 
 export default mongoose.models.Poster || mongoose.model("Poster", posterSchema);

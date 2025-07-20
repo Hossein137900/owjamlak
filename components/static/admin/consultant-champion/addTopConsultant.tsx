@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FiUserPlus } from "react-icons/fi";
 
 interface ConsultantFormData {
   name: string;
@@ -79,22 +78,21 @@ const CreateConsultantForm: React.FC = () => {
       });
     } catch (err) {
       setMessage("❌ ایجاد مشاور ناموفق بود.");
-      console.log(err)
+      console.log(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="max-w-4xl mx-auto py-16 px-4">
+    <section className="max-w-full mx-auto pb-16 px-4">
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-3xl font-bold text-center mb-12 text-purple-700"
+        className="text-3xl font-bold text-right mb-12 text-gray-500"
       >
-        <FiUserPlus className="inline-block mr-2" />
-        ثبت مشاور جدید
+        ثبت مشاور برتر
       </motion.h2>
 
       <form
@@ -104,7 +102,9 @@ const CreateConsultantForm: React.FC = () => {
         {/* Personal Info */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-1">نام</label>
+            <label className="block text-sm text-black font-medium mb-1">
+              نام
+            </label>
             <input
               type="text"
               name="name"
@@ -112,12 +112,14 @@ const CreateConsultantForm: React.FC = () => {
               onChange={handleChange}
               required
               placeholder="مثلاً محمد رضایی"
-              className="w-full text-black p-3 border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">عنوان شغلی</label>
+            <label className="block text-sm text-black font-medium mb-1">
+              عنوان شغلی
+            </label>
             <input
               type="text"
               name="title"
@@ -125,12 +127,12 @@ const CreateConsultantForm: React.FC = () => {
               onChange={handleChange}
               required
               placeholder="مثلاً مشاور املاک  "
-              className="w-full p-3 text-black border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm text-black font-medium mb-1">
               تلفن تماس (اختیاری)
             </label>
             <input
@@ -139,12 +141,12 @@ const CreateConsultantForm: React.FC = () => {
               value={formData.phone}
               onChange={handleChange}
               placeholder="مثلاً 09121234567"
-              className="w-full text-black  p-3 border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm text-black font-medium mb-1">
               ایمیل (اختیاری)
             </label>
             <input
@@ -153,7 +155,7 @@ const CreateConsultantForm: React.FC = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="your@email.com"
-              className="w-full text-black p-3 border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
         </div>
@@ -161,7 +163,9 @@ const CreateConsultantForm: React.FC = () => {
         {/* Professional Info */}
         <div className="grid md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-1">امتیاز</label>
+            <label className="block text-sm text-black font-medium mb-1">
+              امتیاز
+            </label>
             <input
               type="number"
               name="rating"
@@ -171,12 +175,14 @@ const CreateConsultantForm: React.FC = () => {
               max={5}
               step={0.1}
               required
-              className="w-full text-black p-3 border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">فروش ماه</label>
+            <label className="block text-sm text-black font-medium mb-1">
+              فروش ماه
+            </label>
             <input
               type="number"
               name="totalSales"
@@ -184,12 +190,12 @@ const CreateConsultantForm: React.FC = () => {
               onChange={handleChange}
               min={0}
               required
-              className="w-full text-black  p-3 border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm text-black font-medium mb-1">
               سابقه (سال)
             </label>
             <input
@@ -199,14 +205,16 @@ const CreateConsultantForm: React.FC = () => {
               onChange={handleChange}
               min={0}
               placeholder="مثلاً 5"
-              className="w-full p-3 text-black border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium mb-1">توضیحات</label>
+          <label className="block text-sm text-black font-medium mb-1">
+            توضیحات
+          </label>
           <textarea
             name="description"
             rows={4}
@@ -214,14 +222,14 @@ const CreateConsultantForm: React.FC = () => {
             onChange={handleChange}
             required
             placeholder="توضیح کوتاهی درباره مشاور بنویسید..."
-            className="w-full p-3 text-black border rounded-xl"
+            className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
           />
         </div>
 
         {/* Avatar + Top Consultant */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm text-black font-medium mb-1">
               لینک تصویر آواتار
             </label>
             <input
@@ -230,7 +238,7 @@ const CreateConsultantForm: React.FC = () => {
               value={formData.avatar}
               onChange={handleChange}
               placeholder="https://..."
-              className="w-full text-black p-3 border rounded-xl"
+              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
             />
           </div>
 
@@ -242,7 +250,7 @@ const CreateConsultantForm: React.FC = () => {
               onChange={handleChange}
               className="w-5 h-5"
             />
-            <label className="text-sm">مشاور برتر است؟</label>
+            <label className="text-sm text-black">مشاور برتر است؟</label>
           </div>
         </div>
 

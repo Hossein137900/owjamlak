@@ -11,11 +11,11 @@ import {
   FiBriefcase,
   FiMessageSquare,
   FiLayers,
-  FiChevronDown,
   FiMail,
   FiVideo,
   FiUser,
   FiBook,
+  FiHeart,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import Dashboard from "./dashboard";
@@ -23,7 +23,6 @@ import LegalRequests from "./legalConsultationRequests/legalRequests";
 import UsersManagement from "./users/usersManagement";
 import EmployRequests from "./employRequest/employRequests";
 import RealStateRequests from "./realEstateConsultation/realStateRequests";
-import PropertyListings from "./propertyListings";
 import NewsletterManagement from "./newsletter/newsletterManagement";
 import VideoManagement from "./video/videoManagement";
 import PosterForm from "./posters/posterForm";
@@ -31,14 +30,15 @@ import CreateConsultantForm from "./consultant-champion/addTopConsultant";
 import BlogManagement from "./blogs/blogManagement";
 import CategoryManager from "./category/categoriesPage";
 import ConsultantManager from "./consultant/consultantManager";
+import PropertyListings from "./posters/propertyListings";
+import AdminFavoritesPage from "./favorites/page";
+import MessagesPage from "./contactForm/messagesPage";
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-
 
   useEffect(() => {
     // Check if there's a stored active section when component mounts
@@ -112,12 +112,21 @@ const AdminLayout: React.FC = () => {
       label: "درخواست‌های همکاری",
     },
     {
+      id: "favorite",
+      icon: <FiHeart />,
+      label: "علاقه مندی ها",
+    },
+    {
+      id: "contact",
+      icon: <FiBook />,
+      label: "پیام های ارتباط",
+    },
+    {
       id: "blogs",
       icon: <FiBook />,
       label: "وبلاگ",
     },
     { id: "newsletter", icon: <FiMail />, label: "خبرنامه" },
-    { id: "category", icon: <FiMail />, label: "ساخت دسته‌بندی" },
     { id: "ConsultantChampion", icon: <FiUser />, label: "مشاور برتر" },
     { id: "Consultant", icon: <FiUser />, label: "مشاورین" },
     { id: "users", icon: <FiUsers />, label: "کاربران" },
@@ -142,10 +151,13 @@ const AdminLayout: React.FC = () => {
         return <UsersManagement />;
       case "newsletter":
         return <NewsletterManagement />;
-      case "category":
-        return <CategoryManager />;
+    
       case "Consultant":
         return <ConsultantManager />;
+      case "favorite":
+        return <AdminFavoritesPage />;
+      case "contact":
+        return <MessagesPage />;
 
       case "video":
         return <VideoManagement />;
@@ -188,7 +200,6 @@ const AdminLayout: React.FC = () => {
     },
   };
 
-  const bgClass = isDarkMode ? "bg-gray-900" : "bg-white";
   const textClass = isDarkMode ? "text-gray-200" : "text-gray-800";
   const borderClass = isDarkMode ? "border-gray-700" : "border-gray-200";
   const headerBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
@@ -306,89 +317,6 @@ const AdminLayout: React.FC = () => {
                   )}
                 </motion.svg>
               </button>
-
-              {/* User profile */}
-              <div className="relative ">
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-3 space-x-reverse focus:outline-none"
-                  aria-label="User menu"
-                >
-                  <div className="flex items-center ">
-                    <div className="flex-shrink-0">
-                      <div className="relative">
-                        <div className="h-8 w-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
-                          <svg
-                            className="h-full w-full text-gray-300 dark:text-gray-600"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                          </svg>
-                        </div>
-                        <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-2 ring-white dark:ring-gray-800"></span>
-                      </div>
-                    </div>
-                    <div className="mr-3 hidden md:block">
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className={`text-sm font-medium ${textClass} transition-colors duration-300`}
-                      >
-                        مدیر سیستم
-                      </motion.div>
-                    </div>
-                  </div>
-                  <motion.div
-                    animate={{ rotate: isProfileOpen ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FiChevronDown
-                      className={`h-4 w-4 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    />
-                  </motion.div>
-                </button>
-
-                <AnimatePresence>
-                  {isProfileOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute left-0 top-full mt-2 w-48 origin-top-right rounded-md shadow-lg"
-                    >
-                      <div
-                        className={`rounded-md ${bgClass} shadow-xs ${borderClass} border`}
-                      >
-                        <div className="py-1">
-                          <a
-                            href="#profile"
-                            className={`block px-4 py-2 text-sm ${textClass} ${hoverBgClass} transition-colors duration-200`}
-                          >
-                            پروفایل
-                          </a>
-                          <a
-                            href="#settings"
-                            className={`block px-4 py-2 text-sm ${textClass} ${hoverBgClass} transition-colors duration-200`}
-                          >
-                            تنظیمات
-                          </a>
-                          <div className="border-t border-gray-200 dark:border-gray-700"></div>
-                          <a
-                            href="#logout"
-                            className={`block px-4 py-2 text-sm text-red-600 dark:text-red-400 ${hoverBgClass} transition-colors duration-200`}
-                          >
-                            خروج
-                          </a>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
             </div>
           </div>
         </div>
@@ -516,14 +444,6 @@ const AdminLayout: React.FC = () => {
         >
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
             <div className="flex items-center flex-shrink-0 px-4 mb-5">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-md"
-              >
-                <span className="text-white font-bold text-lg">A</span>
-              </motion.div>
               <AnimatePresence>
                 {isSidebarOpen && (
                   <motion.h2
@@ -533,7 +453,7 @@ const AdminLayout: React.FC = () => {
                     exit="closed"
                     className={`mr-3 text-xl font-semibold ${textClass} tracking-wide`}
                   >
-                    املاک
+                    املاک اوج
                   </motion.h2>
                 )}
               </AnimatePresence>

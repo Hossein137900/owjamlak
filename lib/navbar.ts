@@ -3,7 +3,6 @@ import { MdOutlineAssessment } from "react-icons/md";
 import { GiScales } from "react-icons/gi";
 
 export const navItems = [
-  { name: "خانه", href: "/" },
   { name: "آگهی ها", href: "/poster" },
   {
     name: "خدمات",

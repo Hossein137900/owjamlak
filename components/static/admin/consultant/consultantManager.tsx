@@ -2,16 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import {
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaSave,
-  FaTimes,
-  FaEye,
-} from "react-icons/fa";
+import { FaPlus, FaSave, FaTimes, FaExclamationTriangle } from "react-icons/fa";
 import { Consultant } from "@/types/type";
 import toast from "react-hot-toast";
+import { FiEdit2, FiEye, FiLoader, FiTrash2 } from "react-icons/fi";
 
 const ConsultantManager = () => {
   const [consultants, setConsultants] = useState<Consultant[]>([]);
@@ -20,6 +14,10 @@ const ConsultantManager = () => {
   const [editingConsultant, setEditingConsultant] = useState<Consultant | null>(
     null
   );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [consultantToDelete, setConsultantToDelete] =
+    useState<Consultant | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -44,7 +42,7 @@ const ConsultantManager = () => {
       const data = await res.json();
       setConsultants(data.consultants);
     } catch (error) {
-      console.error("Error fetching consultants:", error);
+      console.log("Error fetching consultants:", error);
     } finally {
       setLoading(false);
     }
@@ -98,22 +96,39 @@ const ConsultantManager = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (consultant: Consultant) => {
+    setConsultantToDelete(consultant);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!consultantToDelete) return;
+
+    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/consultants/${id}`, {
+      const res = await fetch(`/api/consultants/${consultantToDelete._id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
         toast.success("مشاور با موفقیت حذف شد");
         await fetchConsultants();
+        setShowDeleteModal(false);
+        setConsultantToDelete(null);
       } else {
         toast.error("خطا در حذف مشاور");
       }
     } catch (error) {
       console.log("Error deleting consultant:", error);
       toast.error("خطا در حذف مشاور");
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setConsultantToDelete(null);
   };
 
   const handleEdit = (consultant: Consultant) => {
@@ -197,8 +212,11 @@ const ConsultantManager = () => {
 
   if (loading && consultants.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#01ae9b]"></div>
+      <div className="h-64 bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری مشاوران...</p>
+        </div>
       </div>
     );
   }
@@ -207,7 +225,14 @@ const ConsultantManager = () => {
     <div className="p-6" dir="rtl">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">مدیریت مشاوران</h1>
+        <div>
+          {" "}
+          <h1 className="text-2xl font-bold text-gray-500">مدیریت مشاوران</h1>
+          <p className="text-gray-600">
+            {consultants.length} عدد در لیست مشاورین
+          </p>
+        </div>
+
         <button
           onClick={() => {
             resetForm();
@@ -216,10 +241,64 @@ const ConsultantManager = () => {
           className="flex items-center gap-2 bg-[#01ae9b] text-white px-4 py-2 rounded-lg hover:bg-[#019688] transition-colors"
         >
           <FaPlus />
-          
           <span>افزودن مشاور جدید</span>
         </button>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && consultantToDelete && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+            >
+              <div className="text-center">
+                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                  <FaExclamationTriangle className="h-6 w-6 text-red-600" />
+                </div>
+
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  حذف مشاور
+                </h3>
+
+                <p className="text-sm text-gray-500 mb-6">
+                  آیا از حذف مشاور "{consultantToDelete.name}" اطمینان دارید؟
+                  <br />
+                  این عمل قابل بازگشت نیست.
+                </p>
+
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={handleDeleteConfirm}
+                    disabled={isDeleting}
+                    className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <FiTrash2 className="text-sm" />
+                    <span>{isDeleting ? "در حال حذف..." : "حذف"}</span>
+                  </button>
+
+                  <button
+                    onClick={handleDeleteCancel}
+                    disabled={isDeleting}
+                    className="flex items-center gap-2 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50"
+                  >
+                    <FaTimes className="text-sm" />
+                    <span>انصراف</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Form Modal */}
       <AnimatePresence>
@@ -228,7 +307,7 @@ const ConsultantManager = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -274,7 +353,7 @@ const ConsultantManager = () => {
                       شماره تلفن *
                     </label>
                     <input
-                      type="tel"
+                      type="number"
                       required
                       value={formData.phone}
                       onChange={(e) =>
@@ -615,29 +694,26 @@ const ConsultantManager = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() =>
-                          window.open(
-                            `/consultants/${consultant._id}`,
-                            "_blank"
-                          )
+                          window.open(`/consultant/${consultant._id}`, "_blank")
                         }
                         className="text-blue-600 hover:text-blue-900"
                         title="مشاهده"
                       >
-                        <FaEye />
+                        <FiEye className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleEdit(consultant)}
                         className="text-indigo-600 hover:text-indigo-900"
                         title="ویرایش"
                       >
-                        <FaEdit />
+                        <FiEdit2 className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleDelete(consultant._id)}
+                        onClick={() => handleDeleteClick(consultant)}
                         className="text-red-600 hover:text-red-900"
                         title="حذف"
                       >
-                        <FaTrash />
+                        <FiTrash2 className="w-5 h-5" />
                       </button>
                     </div>
                   </td>

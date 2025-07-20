@@ -44,7 +44,7 @@ export default function BlogPage() {
         toast.error("خطا در دریافت بلاگ‌ها");
       }
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      console.log("Error fetching blogs:", error);
       toast.error("خطا در دریافت بلاگ‌ها");
     } finally {
       setLoading(false);

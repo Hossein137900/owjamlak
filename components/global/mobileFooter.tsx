@@ -67,7 +67,7 @@ const FooterMobile = () => {
     // If we're on admin page, get the current active section
     if (pathname === "/admin") {
       const activeSection = sessionStorage.getItem("activeAdminSection");
-      setCurrentAdminSection(activeSection);    
+      setCurrentAdminSection(activeSection);
 
       // Check for changes periodically (since sessionStorage doesn't fire storage event in same tab)
       const interval = setInterval(() => {
@@ -155,7 +155,7 @@ const FooterMobile = () => {
 
       <footer className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-gray-200/80 shadow-lg z-50">
         <nav className="max-w-full mx-auto" dir="rtl">
-          <div className="flex justify-around items-center px-2 py-2">
+          <div className="flex justify-around items-center px-2 py-2 md:py-1">
             {menuItems.map((item, idx) => {
               const active = isActive(item);
               const isMainAction = idx === 2; // "افزودن ملک" button
@@ -165,19 +165,16 @@ const FooterMobile = () => {
                   key={idx}
                   onClick={() => handleNavigation(item)}
                   className={`
-                    relative flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1
-                    transition-all duration-300 ease-in-out
-                    ${
-                      active
-                        ? "text-[#01ae9b] scale-105"
-                        : "text-gray-600 hover:text-[#01ae9b] active:scale-95"
-                    }
-                    ${
-                      isMainAction
-                        ? "transform hover:scale-110 active:scale-100"
-                        : ""
-                    }
-                  `}
+            relative flex flex-col items-center justify-center min-w-0 flex-1
+            py-2 md:py-1 px-1
+            transition-all duration-300 ease-in-out
+            ${
+              active
+                ? "text-[#01ae9b] scale-105"
+                : "text-gray-600 hover:text-[#01ae9b] active:scale-95"
+            }
+            ${isMainAction ? "transform hover:scale-110 active:scale-100" : ""}
+          `}
                   aria-label={item.label}
                   role="tab"
                   aria-selected={active}
@@ -185,17 +182,17 @@ const FooterMobile = () => {
                   {/* Icon with special styling for main action */}
                   <div
                     className={`
-                    flex items-center justify-center mb-1
-                    ${
-                      isMainAction
-                        ? `w-12 h-12 rounded-full shadow-lg transition-all duration-300 ${
-                            active
-                              ? "bg-blue-600 text-white shadow-blue-200"
-                              : "bg-[#01ae9b] text-white hover:from-green-600 hover:to-green-700"
-                          }`
-                        : "w-6 h-6"
-                    }
-                  `}
+            flex items-center justify-center mb-1 cursor-pointer
+            ${
+              isMainAction
+                ? `w-12 h-12 md:w-10 md:h-10 rounded-full shadow-lg transition-all duration-300 ${
+                    active
+                      ? "bg-blue-600 text-white shadow-blue-200"
+                      : "bg-[#01ae9b] text-white hover:from-green-600 hover:to-green-700"
+                  }`
+                : "w-6 h-6 md:w-5 md:h-5"
+            }
+          `}
                   >
                     {active ? item.activeIcon : item.icon}
                   </div>
@@ -203,7 +200,7 @@ const FooterMobile = () => {
                   {/* Label */}
                   <span
                     className={`
-                    text-xs font-medium leading-tight text-center max-w-full truncate
+                    text-xs font-medium leading-tight text-center max-w-full truncate cursor-pointer
                     ${active ? "font-semibold" : ""}
                     ${isMainAction ? "text-[10px]" : ""}
                   `}

@@ -22,7 +22,7 @@ export async function generateMetadata({
   );
   const data = await res.json();
 
-  if (!data.success || !data.consultant) {
+  if ( !data.consultant) {
     return {
       title: "مشاور یافت نشد",
       description: "اطلاعاتی برای این مشاور در دسترس نیست.",

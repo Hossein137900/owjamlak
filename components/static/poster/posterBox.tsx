@@ -2,15 +2,8 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  FiMaximize,
-  FiCalendar,
-  FiMapPin,
-  FiTrendingUp,
-  FiHome,
-  FiTag,
-} from "react-icons/fi";
-import { FaBed, FaChevronLeft, FaSitemap } from "react-icons/fa";
+import { FiMapPin, FiTrendingUp, FiHome, FiTag } from "react-icons/fi";
+import { FaChevronLeft } from "react-icons/fa";
 
 interface ReportageBoxProps {
   id: string;
@@ -24,18 +17,22 @@ interface ReportageBoxProps {
   };
   features: {
     area: number;
-    bedrooms: number;
-    bathrooms: number;
-    yearBuilt: number;
+    rooms: number; // Changed from bedrooms to rooms to match model
+    floor?: number; // Added floor from model
+    buildingDate: number | string; // Changed from yearBuilt to buildingDate
   };
-  imagePath?: string; // Add this prop
+  imagePath?: string;
   isNew?: boolean;
   isSpecialOffer?: boolean;
-  isInvestment?: boolean;
-  posterType?: string;
-  propertyType?: string;
-  tradeType?: string;
+  parentType: string; // Added parentType from model
+  tradeType: string; // Updated tradeType to match model
   convertible?: boolean;
+  type?: "normal" | "investment"; // Added type from model
+  status?: "active" | "pending" | "sold" | "rented"; // Added status from model
+  views?: number; // Added views from model
+  storage?: boolean; // Added storage from model
+  parking?: boolean; // Added parking from model
+  lift?: boolean; // Added lift from model
   className?: string;
 }
 
@@ -44,14 +41,11 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
   title,
   location,
   price,
-  features,
-  // imagePath = "/assets/images/hero.jpg", // Default image
-  // isNew = false,
-  // isSpecialOffer = false,
-  isInvestment = false,
-  propertyType = "residential",
-  tradeType = "sell",
+  parentType,
+  tradeType,
   convertible = false,
+  type = "normal",
+  status = "active",
   className = "",
 }) => {
   const formatPrice = (amount: number) => {
@@ -60,53 +54,87 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
       return `${(amount / 1000000000).toFixed(1)} میلیارد`;
     }
     if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)}  میلیون`;
+      return `${(amount / 1000000).toFixed(1)} میلیون`;
     }
     return amount.toLocaleString("fa-IR");
   };
 
-  // Helper function to get property type label in Persian
-  const getPropertyTypeLabel = (type: string) => {
+  // Helper function to get parent type label in Persian
+  const getParentTypeLabel = (parentType: string) => {
     const typeLabels: { [key: string]: string } = {
-      residential: "مسکونی",
-      commercial: "تجاری",
-      administrative: "اداری",
-      industrial: "صنعتی",
-      old: "کلنگی",
+      residentialRent: "اجاره مسکونی",
+      residentialSale: "فروش مسکونی",
+      commercialRent: "اجاره تجاری",
+      commercialSale: "فروش تجاری",
+      shortTermRent: "اجاره کوتاه مدت",
+      ConstructionProject: "پروژه ساختمانی",
     };
-    return typeLabels[type] || type;
+    return typeLabels[parentType] || parentType;
   };
 
   // Helper function to get trade type label in Persian
-  const getTradeTypeLabel = (type: string) => {
+  const getTradeTypeLabel = (tradeType: string) => {
     const typeLabels: { [key: string]: string } = {
-      buy: "خرید",
-      sell: "فروش",
-      rent: "اجاره",
-      fullRent: "اجاره کامل",
-      mortgage: "رهن",
+      House: "خانه",
+      Villa: "ویلا",
+      Old: "کلنگی",
+      Office: "دفتر",
+      Shop: "مغازه",
+      industrial: "صنعتی",
+      partnerShip: "مشارکت",
+      preSale: "پیش فروش",
     };
-    return typeLabels[type] || type;
+    return typeLabels[tradeType] || tradeType;
   };
 
   // Check if it's a rent-type property
-  const isRentType = tradeType === "rent" || tradeType === "fullRent";
+  const isRentType =
+    parentType === "residentialRent" ||
+    parentType === "commercialRent" ||
+    parentType === "shortTermRent";
 
-  // Get the appropriate badge color based on trade type
-  const getTradeTypeBadgeColor = (type: string) => {
-    switch (type) {
-      case "rent":
-      case "fullRent":
-        return "bg-blue-500/30  backdrop-blur-xl text-center border-white/30 border";
-      case "sell":
+  // Get the appropriate badge color based on parent type
+  const getParentTypeBadgeColor = (parentType: string) => {
+    switch (parentType) {
+      case "residentialRent":
+      case "commercialRent":
+      case "shortTermRent":
+        return "bg-blue-500/30 backdrop-blur-xl text-center border-white/30 border";
+      case "residentialSale":
+      case "commercialSale":
         return "bg-green-500/30 backdrop-blur-xl text-center border-white/30 border";
-      case "buy":
-        return "bg-purple-500/30  backdrop-blur-xl text-center border-white/30 border";
-      case "mortgage":
-        return "bg-orange-500/30 backdrop-blur-xl text-center border-white/30 border";
+      case "ConstructionProject":
+        return "bg-purple-500/30 backdrop-blur-xl text-center border-white/30 border";
       default:
         return "bg-gray-500/30 backdrop-blur-xl text-center border-white/30 border";
     }
+  };
+
+  // Get status badge color
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case "active":
+        return "bg-green-500/30 backdrop-blur-xl text-center border-white/30 border";
+      case "pending":
+        return "bg-yellow-500/30 backdrop-blur-xl text-center border-white/30 border";
+      case "sold":
+        return "bg-red-500/30 backdrop-blur-xl text-center border-white/30 border";
+      case "rented":
+        return "bg-blue-500/30 backdrop-blur-xl text-center border-white/30 border";
+      default:
+        return "bg-gray-500/30 backdrop-blur-xl text-center border-white/30 border";
+    }
+  };
+
+  // Get status label in Persian
+  const getStatusLabel = (status: string) => {
+    const statusLabels: { [key: string]: string } = {
+      active: "فعال",
+      pending: "در انتظار",
+      sold: "فروخته شده",
+      rented: "اجاره داده شده",
+    };
+    return statusLabels[status] || status;
   };
 
   return (
@@ -131,28 +159,34 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
 
           {/* Badges */}
           <div className="absolute top-3 right-3 flex flex-col gap-2">
-            {/* New Badge */}
-       
-
-       
-
-            {/* Trade Type Badge */}
+            {/* Status Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className={`${getTradeTypeBadgeColor(
-                tradeType
+              className={`${getStatusBadgeColor(
+                status
               )} text-white px-2 py-1 rounded-md text-xs font-medium`}
             >
-              {getTradeTypeLabel(tradeType)}
+              {getStatusLabel(status)}
+            </motion.div>
+
+            {/* Parent Type Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className={`${getParentTypeBadgeColor(
+                parentType
+              )} text-white px-2 py-1 rounded-md text-xs font-medium`}
+            >
+              {getParentTypeLabel(parentType)}
             </motion.div>
 
             {/* Investment Badge */}
-            {isInvestment && (
+            {type === "investment" && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className=" text-white px-2 bg-orange-500/30 backdrop-blur-xl text-center border-white/30 border py-1 rounded-md text-xs font-medium flex items-center gap-1"
+                className="text-white px-2 bg-orange-500/30 backdrop-blur-xl text-center border-white/30 border py-1 rounded-md text-xs font-medium flex items-center gap-1"
               >
                 <FiTrendingUp size={12} />
                 سرمایه‌گذاری
@@ -230,7 +264,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
                     </motion.div>
                   )}
 
-                  {tradeType === "fullRent" && (
+                  {parentType === "shortTermRent" && (
                     <motion.div
                       className="flex items-center justify-center mt-2 pt-2 border-t border-gray-200"
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -238,7 +272,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
                       transition={{ duration: 0.3, delay: 0.5 }}
                     >
                       <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                        اجاره کامل
+                        اجاره کوتاه مدت
                       </div>
                     </motion.div>
                   )}
@@ -255,7 +289,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-[#01ae9b] rounded-full"></div>
                       <span className="text-xs text-gray-600 font-medium">
-                        {tradeType === "buy" ? "قیمت خرید" : "قیمت فروش"}
+                        قیمت فروش
                       </span>
                     </div>
                     <div className="text-right">
@@ -316,26 +350,8 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
           {/* Features grid */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="flex items-center gap-2 text-gray-600">
-              <FiMaximize size={16} />
-              <span className="text-sm">{features.area} متر</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <FaBed size={16} />
-              <span className="text-sm">{features.bedrooms} خواب</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <FaSitemap size={16} />
-              <span className="text-sm">طبقه {features.bathrooms} </span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <FiCalendar size={16} />
-              <span className="text-sm">{features.yearBuilt}</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
               <FiHome size={16} />
-              <span className="text-sm">
-                {getPropertyTypeLabel(propertyType)}
-              </span>
+              <span className="text-sm">{getParentTypeLabel(parentType)}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-600">
               <FiTag size={16} />

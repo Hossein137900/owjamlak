@@ -5,7 +5,7 @@ import { getPosterById } from "@/middlewares/poster";
 export async function GET(req: NextRequest) {
   await connect();
   try {
-    const { id } = await req.json();
+    const  id  = await req.headers.get("id");
     if (!id) {
       return NextResponse.json(
         { message: "Poster ID is required" },
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     }
     return await getPosterById(id);
   } catch (error) {
-    console.error("Error fetching poster:", error);
+    console.log("Error fetching poster:", error);
     return NextResponse.json(
       { message: "Error fetching poster" },
       { status: 500 }

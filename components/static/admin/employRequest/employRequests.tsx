@@ -10,11 +10,10 @@ import {
   FiDownload,
   FiRefreshCw,
   FiAlertTriangle,
+  FiLoader,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { EmployRequest } from "@/types/type";
-
-
 
 const EmployRequests: React.FC = () => {
   // State
@@ -82,7 +81,7 @@ const EmployRequests: React.FC = () => {
         selectedType === "all" || request.type === selectedType;
       const matchesEducation =
         selectedEducation === "all" || request.education === selectedEducation;
-   
+
       return matchesSearch && matchesType && matchesEducation;
     });
     setFilteredRequests(filtered);
@@ -136,7 +135,7 @@ const EmployRequests: React.FC = () => {
 
         resolve(data);
       } catch (error: unknown) {
-        console.error("❌ Error deleting request:", error);
+        console.log("❌ Error deleting request:", error);
         fetchRequests();
         reject(error);
       } finally {
@@ -160,12 +159,10 @@ const EmployRequests: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2 space-x-reverse">
-            <FiRefreshCw className="animate-spin w-5 h-5 text-blue-600" />
-            <span className="text-gray-500">در حال بارگذاری...</span>
-          </div>
+      <div className="h-64 bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری همکاری ها...</p>
         </div>
       </div>
     );

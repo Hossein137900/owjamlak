@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       blog,
     });
   } catch (error) {
-    console.error("Error fetching blog:", error);
+    console.log("Error fetching blog:", error);
     return NextResponse.json(
       { success: false, message: "Error fetching blog" },
       { status: 500 }
@@ -83,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       blog,
     });
   } catch (error) {
-    console.error("Error updating blog:", error);
+    console.log("Error updating blog:", error);
     return NextResponse.json(
       { success: false, message: "Error updating blog" },
       { status: 500 }
@@ -113,7 +113,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       message: "Blog deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting blog:", error);
+    console.log("Error deleting blog:", error);
     return NextResponse.json(
       { success: false, message: "Error deleting blog" },
       { status: 500 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 // import { Vazirmatn as VazirmatnFont } from "next/font/google";
+// import "../styles/leaflet-custom.css";
 import "./globals.css";
 import Navbar from "@/components/global/navbar";
 import Footer from "@/components/global/footer";
@@ -10,6 +11,7 @@ import { EdgeStoreProvider } from "@/lib/edgestore";
 import { Toaster } from "react-hot-toast";
 import ChatWidget from "@/components/global/chatWidget";
 import FooterMobile from "@/components/global/mobileFooter";
+import SmoothScrollProvider from "@/components/global/smoothScrollProvider";
 
 // const vazirmatn = VazirmatnFont({
 //   variable: "--font-geist-mono",
@@ -30,6 +32,7 @@ export default function RootLayout({
     <html lang="fa">
       <body className={ray.className}>
         <Navbar />
+        {/* <SmoothScrollProvider /> */}
         <ChatWidget position="bottom-right" primaryColor="#66308d" />
         <Toaster position="top-center" />
         {/* <Breadcrumb /> */}

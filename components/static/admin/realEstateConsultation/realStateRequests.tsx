@@ -9,6 +9,7 @@ import {
   FiX,
   FiRefreshCw,
   FiAlertTriangle,
+  FiLoader,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { RealStateRequest } from "@/types/type";
@@ -49,7 +50,7 @@ const RealStateRequests: React.FC = () => {
 
       setRequests(processedRequests);
     } catch (error) {
-      console.error("Error fetching requests:", error);
+      console.log("Error fetching requests:", error);
       setError("خطا در دریافت درخواست‌ها");
     } finally {
       setLoading(false);
@@ -108,7 +109,7 @@ const RealStateRequests: React.FC = () => {
 
         resolve(data);
       } catch (error) {
-        console.error("Error deleting request:", error);
+        console.log("Error deleting request:", error);
         // Revert the change if API call fails
         fetchRequests();
         reject(error);
@@ -160,12 +161,10 @@ const RealStateRequests: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2 space-x-reverse">
-            <FiRefreshCw className="animate-spin w-5 h-5 text-blue-600" />
-            <span className="text-gray-600">در حال بارگذاری...</span>
-          </div>
+      <div className="h-64 bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری مشتوره های املاک...</p>
         </div>
       </div>
     );

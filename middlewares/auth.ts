@@ -82,7 +82,7 @@ export const login = async (request: NextRequest) => {
     console.log("Login successful");
     return NextResponse.json({ token });
   } catch (error) {
-    console.error("Login error:", error);
+    console.log("Login error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -120,7 +120,7 @@ export const checkAdminAccess = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.log("Error fetching users:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -216,7 +216,7 @@ export const getAllUsers = async (request: Request) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.log("Error fetching users:", error);
     return NextResponse.json(
       { success: false, message: "Error fetching users" },
       { status: 500 }
@@ -242,7 +242,7 @@ export const updateUserRole = async (request: Request) => {
     }
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    console.error("Error updating user:", error);
+    console.log("Error updating user:", error);
     return NextResponse.json(
       { message: "Error updating user" },
       { status: 500 }
@@ -278,9 +278,10 @@ export const getUserByToken = async (request: NextRequest) => {
       phoneNumber: user.phone,
       id: user._id,
       role: user.role,
+      favorite: user.favorite || [], // ✅ اضافه کن
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.log("Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -332,7 +333,7 @@ export const updateUserByToken = async (request: NextRequest) => {
     }
     return NextResponse.json({ user });
   } catch (error) {
-    console.error("Error:", error);
+    console.log("Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -396,7 +397,7 @@ export const deleteUser = async (request: Request) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting user:", error);
+    console.log("Error deleting user:", error);
 
     return NextResponse.json(
       { success: false, message: "خطای داخلی سرور در حذف کاربر" },
@@ -490,7 +491,7 @@ export const editUser = async (request: Request) => {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Error editing user:", error);
+    console.log("Error editing user:", error);
 
     // Handle validation errors
     if (error.name === "ValidationError") {

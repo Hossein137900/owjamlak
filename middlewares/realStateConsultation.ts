@@ -6,7 +6,7 @@ export const getAllRealStateRequests = async () => {
     const requests = await RealStateRequest.find();
     return NextResponse.json(requests);
   } catch (error) {
-    console.error("Error fetching real state requests:", error);
+    console.log("Error fetching real state requests:", error);
     return NextResponse.json(
       { message: "Error fetching real state requests" },
       { status: 500 }
@@ -19,7 +19,7 @@ export const getRealStateRequestById = async (id: string) => {
     const request = await RealStateRequest.findById(id);
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error fetching real state request:", error);
+    console.log("Error fetching real state request:", error);
     return NextResponse.json(
       { message: "Error fetching real state request" },
       { status: 500 }
@@ -43,7 +43,7 @@ export const createRealStateRequest = async (req: Request) => {
     await request.save();
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error creating real state request:", error);
+    console.log("Error creating real state request:", error);
     return NextResponse.json(
       { message: "Error creating real state request" },
       { status: 500 }
@@ -70,7 +70,7 @@ export const updateRealStateRequest = async (req: Request) => {
     );
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error updating real state request:", error);
+    console.log("Error updating real state request:", error);
     return NextResponse.json(
       { message: "Error updating real state request" },
       { status: 500 }
@@ -84,7 +84,7 @@ export const deleteRealStateRequest = async (req: Request) => {
     const request = await RealStateRequest.findByIdAndDelete(id);
     return NextResponse.json(request);
   } catch (error) {
-    console.error("Error deleting real state request:", error);
+    console.log("Error deleting real state request:", error);
     return NextResponse.json(
       { message: "Error deleting real state request" },
       { status: 500 }

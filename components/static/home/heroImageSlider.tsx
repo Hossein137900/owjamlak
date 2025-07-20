@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { HiOutlineLocationMarker } from "react-icons/hi";
+import { HiOutlineEye, HiOutlineLocationMarker } from "react-icons/hi";
 import { BiArea } from "react-icons/bi";
 import { IoBedOutline } from "react-icons/io5";
 import { Poster } from "@/types/type";
@@ -22,7 +22,7 @@ const HeroImageSlider = () => {
         const res = await fetch("/api/poster");
         if (!res.ok) throw new Error("Failed to fetch posters");
         const data = await res.json();
-        setPosters(data.posters.slice(0, 3));
+        setPosters(data.posters.slice(0, 5));
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -100,12 +100,9 @@ const HeroImageSlider = () => {
   }
 
   return (
-    <motion.div
-      className="col-span-8 row-span-6 relative rounded-tr-3xl rounded-br-3xl shadow-2xl"
-      dir="rtl"
-    >
+    <motion.div className="col-span-8 row-span-6 relative " dir="rtl">
       {/* Base background to prevent flashing */}
-      <div className="absolute inset-0 bg-white z-0" />
+      <div className="absolute inset-0 bg-transparent z-0" />
 
       {/* Slide container */}
       <div className="relative w-full rounded-r-2xl h-full overflow-hidden z-10">
@@ -119,70 +116,76 @@ const HeroImageSlider = () => {
             exit="exit"
             className="absolute  inset-0 w-full h-full"
           >
-            <Link
-              href={`/poster/${currentPoster._id}`}
-              className="block w-full h-full"
-            >
-              <Image
-                src={"/assets/images/hero4.jpg"}
-                alt={currentPoster.images[0]?.alt || currentPoster.title}
-                fill
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
-              <div className="absolute bottom-0 right-0 p-6 text-white w-full z-20">
-                {/* Content as before */}
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
-              <div className="absolute bottom-0 right-0 p-6 text-white w-full">
-                <motion.h2
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                  className="text-2xl font-bold mb-2"
+            <Image
+              src={"/assets/images/hero4.jpg"}
+              alt={currentPoster.images[0]?.alt || currentPoster.title}
+              fill
+              className="object-cover  rounded-tr-3xl rounded-br-3xl"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+            <div className="absolute bottom-0 right-0 p-6 text-white w-full z-20">
+              {/* Content as before */}
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+            <div className="absolute bottom-0 right-0 p-6 text-white w-full">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                className="text-2xl font-bold mb-2"
+              >
+                {currentPoster.title}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="text-sm text-gray-200 mb-4 line-clamp-2"
+              >
+                {currentPoster.description}
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+                className="flex items-center gap-4 text-xs"
+              >
+                {/* Location badge */}
+                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md">
+                  <HiOutlineLocationMarker className="text-white text-base" />
+                  <span>{currentPoster.location}</span>
+                </div>
+
+                {/* View button */}
+                <Link
+                  href={`/poster/${currentPoster._id}`}
+                  className="
+      flex items-center gap-2
+      bg-white/20 backdrop-blur-sm
+      text-white font-medium
+      px-3 py-1.5 rounded-md
+      shadow-md
+      hover:from-[#02c2ad] hover:to-[#7c3aed]
+      transition-all duration-300
+      text-sm
+    "
                 >
-                  {currentPoster.title}
-                </motion.h2>
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                  className="text-sm text-gray-200 mb-4 line-clamp-2"
-                >
-                  {currentPoster.description}
-                </motion.p>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="flex items-center gap-4 text-xs"
-                >
-                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md">
-                    <HiOutlineLocationMarker />
-                    <span>{currentPoster.location}</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md">
-                    <BiArea />
-                    <span>{currentPoster.area} متر</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md">
-                    <IoBedOutline />
-                    <span>{currentPoster.rooms} خواب</span>
-                  </div>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                  className="mt-4 text-lg font-semibold"
-                >
-                  {/* <span>
+                  <HiOutlineEye className="text-lg" />
+                  <span>مشاهده</span>
+                </Link>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+                className="mt-4 text-lg font-semibold"
+              >
+                {/* <span>
                     {currentPoster.totalPrice.toLocaleString("fa-IR")} تومان
                   </span> */}
-                </motion.div>
-              </div>
-            </Link>
+              </motion.div>
+            </div>
           </motion.div>
         </AnimatePresence>
       </div>

@@ -217,7 +217,7 @@ export default function RealEstateConsultationPage() {
         };
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.log("Error submitting form:", error);
       
       // Show user-friendly error message
       const errorMessage = error instanceof Error 

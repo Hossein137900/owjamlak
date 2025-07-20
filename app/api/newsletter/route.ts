@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching newsletters:", error);
+    console.log("Error fetching newsletters:", error);
     return NextResponse.json(
       {
         success: false,
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: unknown) {
-    console.error("Error subscribing to newsletter:", error);
+    console.log("Error subscribing to newsletter:", error);
 
     // Handle duplicate key error (MongoDB)
     if (
@@ -251,7 +251,7 @@ export async function DELETE(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error bulk deleting newsletter subscriptions:", error);
+    console.log("Error bulk deleting newsletter subscriptions:", error);
     return NextResponse.json(
       {
         success: false,

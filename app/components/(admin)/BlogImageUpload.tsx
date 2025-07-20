@@ -157,7 +157,7 @@ export default function BlogImageUpload({
                     
                     onImageUpload(res.url, imageType);
                   } catch (err) {
-                    console.error("Upload error:", err);
+                    console.log("Upload error:", err);
                     updateFileProgress(addedFileState.key, "ERROR");
                   }
                 })

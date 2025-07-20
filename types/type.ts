@@ -32,22 +32,45 @@ export interface Poster {
     url: string;
     mainImage: boolean;
   }>;
-  buildingDate: string; // Date as string from API
+  buildingDate: string | number; // Date as string from API
   area: number;
   rooms: number;
-  propertyType:
-    | "residential"
-    | "administrative"
-    | "commercial"
+  parentType:
+    | "residentialRent"
+    | "residentialSale"
+    | "commercialRent"
+    | "commercialSale"
+    | "shortTermRent"
+    | "ConstructionProject";
+  tradeType:
+    | "House"
+    | "Villa"
+    | "Old"
+    | "Office"
+    | "Shop"
     | "industrial"
-    | "old";
-  tradeType: "rent" | "fullRent" | "buy" | "sell";
+    | "partnerShip"
+    | "preSale";
   totalPrice: number;
   pricePerMeter: number;
   depositRent?: number; // Optional - only for rent types
   convertible?: boolean; // Optional - for convertible deposits
   rentPrice?: number; // Optional - only for rent types
   location: string;
+  favoritesCount?: number;
+  // Add coordinates for map functionality
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  // Add detailed location information
+  locationDetails?: {
+    province?: string;
+    city?: string;
+    district?: string;
+    neighborhood?: string;
+    fullAddress?: string;
+  };
   contact: string;
   storage: boolean;
   floor?: number; // Optional
@@ -68,7 +91,7 @@ export interface Poster {
 
 export interface Filters {
   search: string;
-  propertyType: string;
+  // propertyType: string;
   tradeType: string;
   minPrice: string;
   maxPrice: string;
@@ -76,6 +99,7 @@ export interface Filters {
   maxArea: string;
   rooms: string;
   location: string;
+  parentType: string;
 }
 
 export interface ConsultantChampion {
@@ -99,6 +123,7 @@ export interface User {
   _id?: string;
   name: string;
   password: string;
+  favorites?: string[];
   phone: string;
   role: "admin" | "user" | "superadmin" | "consultant";
   createdAt?: Date;

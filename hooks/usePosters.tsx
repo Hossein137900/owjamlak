@@ -95,6 +95,8 @@ export const usePoster = (id: string) => {
 };
 // Hook for poster mutations (create, update, delete)
 export const usePosterMutations = () => {
+
+
   const createPoster = async (posterData: Partial<Poster>): Promise<Poster> => {
     const response = await fetch("/api/poster", {
       method: "POST",
@@ -111,28 +113,29 @@ export const usePosterMutations = () => {
     return response.json();
   };
 
-  const updatePoster = async (
-    id: string,
-    posterData: Partial<Poster>
-  ): Promise<Poster> => {
-    const response = await fetch(`/api/poster/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(posterData),
-    });
+  // const updatePoster = async (
+  //   // id: string,
+  //   posterData: Partial<Poster>
+  // ): Promise<Poster> => {
+  //   const response = await fetch(`/api/poster`, {
+  //     method: "PUT",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(posterData),
+  //   });
 
-    if (!response.ok) {
-      throw new Error("Failed to update poster");
-    }
+  //   if (!response.ok) {
+  //     throw new Error("Failed to update poster");
+  //   }
 
-    return response.json();
-  };
+  //   return response.json();
+  // };
 
   const deletePoster = async (id: string): Promise<void> => {
-    const response = await fetch(`/api/poster/${id}`, {
+    const response = await fetch(`/api/poster`, {
       method: "DELETE",
+      body: JSON.stringify({ id }),
     });
 
     if (!response.ok) {
@@ -142,7 +145,7 @@ export const usePosterMutations = () => {
 
   return {
     createPoster,
-    updatePoster,
+    // updatePoster,
     deletePoster,
   };
 };

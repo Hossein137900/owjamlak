@@ -18,6 +18,12 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "user", "superadmin", "consultant"],
       default: "user",
     },
+    favorite: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Poster",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -28,12 +28,14 @@ export default function RealEstateSearch() {
 
   return (
     <motion.div
-      className="relative p-6 md:p-10 md:rounded-2xl overflow-hidden h-screen "
+      className="relative p-6 md:p-10 md:rounded-2xl overflow-hidden h-screen 
+             bg-gradient-to-br from-[#01ae9b] via-[#cd90f8] to-[#fff]"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
       dir="rtl"
     >
+  
       {/* Mobile background image - only visible on small screens */}
       <div className="absolute inset-0 sm:hidden">
         <div className="w-full h-full rounded-2xl overflow-hidden">
@@ -53,8 +55,10 @@ export default function RealEstateSearch() {
         {/* Text Section - Left side on desktop, top on mobile */}
         <motion.div className="md:w-2/5 z-10" variants={itemVariants}>
           <h1 className="text-xl md:text-4xl lg:text-4xl font-bold text-right text-white sm:text-[#1A1A1A] mb-6">
-            <span className="md:text-[#01ae9b] text-[#cd90f8]  font-bold">اوج،</span> مسیر امن
-            خرید و فروش ملک
+            <span className="md:text-[#01ae9b] text-[#cd90f8]  font-bold">
+              اوج،
+            </span>{" "}
+            مسیر امن خرید و فروش ملک
           </h1>
           <p className="text-right text-white sm:text-gray-600 mb-6 text-sm">
             با اوج، خرید و فروش ملک را آسان‌تر از همیشه تجربه کنید. ما به شما

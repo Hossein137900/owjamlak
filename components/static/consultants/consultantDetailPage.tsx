@@ -56,7 +56,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
 
       setConsultant(data.consultant);
     } catch (error: any) {
-      console.error("Error fetching consultant:", error);
+      console.log("Error fetching consultant:", error);
       setError(error.message);
     } finally {
       setLoading(false);

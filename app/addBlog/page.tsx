@@ -157,7 +157,7 @@ const ImageUploadModal = ({
           
           toast.success('تصویر با موفقیت آپلود شد');
         } catch (err) {
-          console.error("Upload error:", err);
+          console.log("Upload error:", err);
           updateFileProgress(addedFileState.key, "ERROR");
           toast.error('خطا در آپلود تصویر');
         }
@@ -430,7 +430,7 @@ export default function AddBlogPage() {
         toast.error(result.message || "خطا در ایجاد بلاگ");
       }
     } catch (error) {
-      console.error("Error creating blog:", error);
+      console.log("Error creating blog:", error);
       toast.error("خطا در ایجاد بلاگ");
     } 
   };

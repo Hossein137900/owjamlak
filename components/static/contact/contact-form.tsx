@@ -1,17 +1,14 @@
 "use client";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   FiUser,
   FiMail,
   FiPhone,
   FiMessageSquare,
   FiSend,
-  FiHome,
-  FiDollarSign,
-  FiHelpCircle,
-  FiMapPin,
 } from "react-icons/fi";
+import toast from "react-hot-toast";
 
 type FormType = "general" | "property" | "support";
 
@@ -23,12 +20,6 @@ interface FormField {
   icon: React.ElementType;
   required?: boolean;
 }
-
-const formTypes = [
-  { id: "general", label: "تماس عمومی", icon: FiMessageSquare },
-  { id: "property", label: "درخواست ملک", icon: FiHome },
-  { id: "support", label: "پشتیبانی", icon: FiHelpCircle },
-];
 
 const generalFields: FormField[] = [
   {
@@ -53,106 +44,6 @@ const generalFields: FormField[] = [
     type: "tel",
     placeholder: "شماره تماس خود را وارد کنید",
     icon: FiPhone,
-  },
-  {
-    id: "message",
-    label: "پیام",
-    type: "textarea",
-    placeholder: "پیام خود را بنویسید",
-    icon: FiMessageSquare,
-    required: true,
-  },
-];
-
-const propertyFields: FormField[] = [
-  {
-    id: "name",
-    label: "نام و نام خانوادگی",
-    type: "text",
-    placeholder: "نام خود را وارد کنید",
-    icon: FiUser,
-    required: true,
-  },
-  {
-    id: "email",
-    label: "ایمیل",
-    type: "email",
-    placeholder: "ایمیل خود را وارد کنید",
-    icon: FiMail,
-    required: true,
-  },
-  {
-    id: "phone",
-    label: "شماره تماس",
-    type: "tel",
-    placeholder: "شماره تماس خود را وارد کنید",
-    icon: FiPhone,
-    required: true,
-  },
-  {
-    id: "propertyType",
-    label: "نوع ملک",
-    type: "select",
-    placeholder: "نوع ملک مورد نظر را انتخاب کنید",
-    icon: FiHome,
-    required: true,
-  },
-  {
-    id: "budget",
-    label: "بودجه (تومان)",
-    type: "number",
-    placeholder: "بودجه مورد نظر خود را وارد کنید",
-    icon: FiDollarSign,
-    required: true,
-  },
-  {
-    id: "location",
-    label: "منطقه مورد نظر",
-    type: "text",
-    placeholder: "منطقه مورد نظر خود را وارد کنید",
-    icon: FiMapPin,
-  },
-  {
-    id: "requirements",
-    label: "توضیحات و نیازمندی‌ها",
-    type: "textarea",
-    placeholder: "توضیحات و نیازمندی‌های خود را بنویسید",
-    icon: FiMessageSquare,
-  },
-];
-
-const supportFields: FormField[] = [
-  {
-    id: "name",
-    label: "نام و نام خانوادگی",
-    type: "text",
-    placeholder: "نام خود را وارد کنید",
-    icon: FiUser,
-    required: true,
-  },
-  {
-    id: "email",
-    label: "ایمیل",
-    type: "email",
-    placeholder: "ایمیل خود را وارد کنید",
-    icon: FiMail,
-    required: true,
-  },
-  {
-    id: "phone",
-    label: "شماره تماس",
-    type: "tel",
-    placeholder: "شماره تماس خود را وارد کنید",
-    icon: FiPhone,
-    required: true,
-  },
-  {
-    id: "subject",
-    label: "موضوع",
-    type: "text",
-    placeholder: "موضوع پیام خود را وارد کنید",
-    icon: FiHelpCircle,
-    required: true,
   },
   {
     id: "message",
@@ -195,19 +86,31 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ formType, ...formData }),
+      });
 
-      console.log("Form submitted:", { formType, ...formData });
+      if (!res.ok) {
+        throw new Error("مشکلی در ارسال فرم رخ داد");
+      }
+
+      const data = await res.json();
+      toast.success("فرم با موفقیت ارسال شد");
+
       setIsSuccess(true);
       setFormData({});
+      // پاک کردن فرم
+      const inputs = document.querySelectorAll<
+        HTMLInputElement | HTMLTextAreaElement
+      >("input, textarea, select");
+      inputs.forEach((input) => (input.value = ""));
 
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 5000);
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      setTimeout(() => setIsSuccess(false), 5000);
+    } catch (err) {
+      toast.error("مشکلی در ارسال فرم رخ داد");
+      console.log("❌ Error submitting form:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -215,10 +118,6 @@ const ContactForm = () => {
 
   const getCurrentFields = () => {
     switch (formType) {
-      case "property":
-        return propertyFields;
-      case "support":
-        return supportFields;
       default:
         return generalFields;
     }
@@ -233,59 +132,6 @@ const ContactForm = () => {
         className="bg-white rounded-2xl shadow-lg p-6"
       >
         <h2 className="text-2xl font-bold text-gray-800 mb-6">ارسال پیام</h2>
-
-        {/* Form Type Selector */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-3">
-            {formTypes.map((type) => (
-              <motion.button
-                key={type.id}
-                type="button"
-                onClick={() => setFormType(type.id as FormType)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                  formType === type.id
-                    ? "bg-[#01ae9b] text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <type.icon size={18} />
-                <span>{type.label}</span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        {/* Success Message */}
-        <AnimatePresence>
-          {isSuccess && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg"
-            >
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-medium">
-                  پیام شما با موفقیت ارسال شد. کارشناسان ما در اسرع وقت با شما
-                  تماس خواهند گرفت.
-                </span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Form */}
         <form onSubmit={handleSubmit}>

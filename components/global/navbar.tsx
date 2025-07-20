@@ -43,7 +43,7 @@ const decodeJWT = (token: string) => {
     );
     return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error("Error decoding JWT:", error);
+    console.log("Error decoding JWT:", error);
     return null;
   }
 };
@@ -111,7 +111,7 @@ const Navbar = () => {
           setUser(null);
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.log("Auth check failed:", error);
         localStorage.removeItem("token");
         setUser(null);
       } finally {
@@ -405,19 +405,25 @@ const Navbar = () => {
                   <div className="relative">
                     <motion.button
                       onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex items-center gap-3 bg-gradient-to-r from-[#01ae9b] to-[#66308d] text-white px-4 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-white/20"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center justify-between gap-2 rounded-full border border-[#01ae9b]/20 bg-white text-gray-800 px-2 py-2 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-[#01ae9b]/10 focus:outline-none focus:ring-2 focus:ring-[#01ae9b]/50 "
                     >
-                      <FiUser size={16} />
-                      <span>{user.name}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="bg-[#01ae9b]/10 p-2 rounded-full">
+                          <FiUser size={18} className="text-[#01ae9b]" />
+                        </div>
+                        <span className="font-medium text-sm truncate max-w-[60px]">
+                          {user.name.slice(0, 5)}
+                        </span>
+                      </div>
+
                       <motion.div
-                        animate={{
-                          rotate: isUserDropdownOpen ? 180 : 0,
-                        }}
+                        animate={{ rotate: isUserDropdownOpen ? 180 : 0 }}
                         transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="text-gray-500"
                       >
-                        <FiChevronDown size={14} />
+                        <FiChevronDown size={16} />
                       </motion.div>
                     </motion.button>
 
@@ -634,7 +640,6 @@ const Navbar = () => {
                       whileTap={{ scale: 0.95 }}
                       className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
                       onClick={handleMapClick}
-                      
                     >
                       <FiMapPin className="w-3 h-3 text-[#01ae9b]" />
                       <span className="text-xs text-gray-600">آدرس</span>
@@ -770,18 +775,16 @@ const Navbar = () => {
                           </div>
                         ) : user ? (
                           <div className="space-y-2">
-                            
-                              <Link href="/admin">
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  className="w-full bg-[#01ae9b] hover:bg-[#01ae9b]/80 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
-                                  onClick={() => setIsOpen(false)}
-                                >
-                                  <FiSettings size={16} />
-                                  پنل مدیریت
-                                </motion.button>
-                              </Link>
-                           
+                            <Link href="/admin">
+                              <motion.button
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full bg-[#01ae9b] hover:bg-[#01ae9b]/80 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                                onClick={() => setIsOpen(false)}
+                              >
+                                <FiSettings size={16} />
+                                پنل مدیریت
+                              </motion.button>
+                            </Link>
 
                             <motion.button
                               onClick={handleLogout}

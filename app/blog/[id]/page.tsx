@@ -40,7 +40,7 @@ export default function SingleBlogPage({ params }: PageProps) {
         const resolvedParams = await params;
         setBlogId(resolvedParams.id);
       } catch (error) {
-        console.error("Error resolving params:", error);
+        console.log("Error resolving params:", error);
         toast.error("خطا در دریافت شناسه بلاگ");
       }
     };
@@ -69,7 +69,7 @@ export default function SingleBlogPage({ params }: PageProps) {
         toast.error("بلاگ یافت نشد");
       }
     } catch (error) {
-      console.error("Error fetching blog:", error);
+      console.log("Error fetching blog:", error);
       toast.error("خطا در دریافت بلاگ");
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ export default function SingleBlogPage({ params }: PageProps) {
         setRelatedBlogs(shuffled.slice(0, 3));
       }
     } catch (error) {
-      console.error("Error fetching related blogs:", error);
+      console.log("Error fetching related blogs:", error);
     }
   };
 

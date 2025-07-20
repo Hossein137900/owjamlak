@@ -198,7 +198,7 @@ export default function AuthPageContainer() {
         setErrorMessage(data.message || "خطا در ورود");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.log("Login error:", error);
       setErrorMessage("خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsLoading(false);
@@ -254,7 +254,7 @@ export default function AuthPageContainer() {
         setErrorMessage(data.message || "خطا در ثبت نام");
       }
     } catch (error) {
-      console.error("Signup error:", error);
+      console.log("Signup error:", error);
       setErrorMessage("خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsLoading(false);

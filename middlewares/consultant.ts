@@ -26,7 +26,7 @@ export const createConsultant = async (request: NextRequest) => {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating consultant:", error);
+    console.log("Error creating consultant:", error);
     return NextResponse.json(
       { message: "Error creating consultant", error },
       { status: 500 }
@@ -92,7 +92,7 @@ export const getAllConsultants = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching consultants:", error);
+    console.log("Error fetching consultants:", error);
     return NextResponse.json(
       { message: "Error fetching consultants", error },
       { status: 500 }
@@ -129,7 +129,7 @@ export const updateConsultant = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating consultant:", error);
+    console.log("Error updating consultant:", error);
     return NextResponse.json(
       { message: "Error updating consultant", error },
       { status: 500 }
@@ -162,7 +162,7 @@ export const deleteConsultant = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting consultant:", error);
+    console.log("Error deleting consultant:", error);
     return NextResponse.json(
       { message: "Error deleting consultant", error },
       { status: 500 }

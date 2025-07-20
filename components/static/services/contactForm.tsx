@@ -212,7 +212,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
         errorElement?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.log("Error submitting form:", error);
       setSuccessMessage(null);
       // Handle submission error
       setErrors({
@@ -270,7 +270,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
           setUploadedFileUrl(res.url);
           setFormData((prev) => ({ ...prev, file: res.url }));
         } catch (error) {
-          console.error("Upload error:", error);
+          console.log("Upload error:", error);
           setFileStates((prev) =>
             prev.map((fileState) =>
               fileState.key === addedFiles[0].key
