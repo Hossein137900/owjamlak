@@ -58,6 +58,9 @@ export interface Poster {
   rentPrice?: number; // Optional - only for rent types
   location: string;
   favoritesCount?: number;
+  consultant?: {
+    _id: string;
+  };
   // Add coordinates for map functionality
   coordinates: {
     lat: number;

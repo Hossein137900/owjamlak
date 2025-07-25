@@ -11,7 +11,6 @@ import { EdgeStoreProvider } from "@/lib/edgestore";
 import { Toaster } from "react-hot-toast";
 import ChatWidget from "@/components/global/chatWidget";
 import FooterMobile from "@/components/global/mobileFooter";
-import SmoothScrollProvider from "@/components/global/smoothScrollProvider";
 
 // const vazirmatn = VazirmatnFont({
 //   variable: "--font-geist-mono",

@@ -20,7 +20,6 @@ const PosterListPage = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [posters, setPosters] = useState<Poster[]>([]);
-  const [filteredPosters, setFilteredPosters] = useState<Poster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -29,7 +28,7 @@ const PosterListPage = () => {
     parseInt(searchParams.get("page") || "1")
   );
   const [limit, setLimit] = useState<number>(
-    parseInt(searchParams.get("limit") || "8")
+    parseInt(searchParams.get("limit") || "9")
   );
   const [filters, setFilters] = useState<Filters>({
     search: "",
@@ -46,6 +45,8 @@ const PosterListPage = () => {
 
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
+
+  const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
   const updateURL = (
     p = page,
@@ -157,7 +158,7 @@ const PosterListPage = () => {
       const fullHeight = document.documentElement.scrollHeight;
 
       // اگر کاربر به 300px مونده به آخر صفحه رسید
-      if (scrollTop + windowHeight >= fullHeight - 300) {
+      if (scrollTop + windowHeight >= fullHeight - 500) {
         setPage((prev) => prev + 1);
       }
     };
@@ -301,7 +302,7 @@ const PosterListPage = () => {
               {/* Filter Toggle */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                className={` hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                   showFilters
                     ? "bg-[#01ae9b] text-white border-[#01ae9b]"
                     : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
@@ -315,16 +316,16 @@ const PosterListPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 ">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar */}
           <AnimatePresence>
-            {showFilters && (
+            {!showFilters && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="lg:w-80 bg-white rounded-xl shadow-sm p-6 h-fit"
+                className="lg:w-80 bg-white rounded-xl shadow-sm p-6 h-fit hidden md:flex "
               >
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-bold text-gray-800">فیلترها</h3>
@@ -560,7 +561,7 @@ const PosterListPage = () => {
                 layout
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+                    ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
                     : "space-y-4"
                 }
               >
@@ -609,15 +610,218 @@ const PosterListPage = () => {
         </div>
       </div>
 
-      {/* Floating Action Button for Mobile */}
-      <div className="fixed bottom-6 left-6 md:hidden">
+      {/* دکمه‌ی شناور موبایل */}
+      <div className="absolute top-40 left-6 md:hidden">
         <button
-          onClick={() => setShowFilters(!showFilters)}
+          onClick={() => setShowFiltersMobile(true)}
           className="w-14 h-14 bg-[#01ae9b] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#018a7a] transition-colors"
         >
           <FiFilter size={24} />
         </button>
       </div>
+
+      {/* پنل فیلتر موبایل */}
+      <AnimatePresence>
+        {showFiltersMobile && (
+          <>
+            {/* بک‌دراپ تار */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black z-40"
+              onClick={() => setShowFiltersMobile(false)}
+            />
+
+            {/* پنل پایین */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl max-h-[80vh] overflow-y-auto pt-6 mb-20 px-6"
+            >
+              {/* هدر فیلتر موبایل */}
+              <div className="flex items-center relative justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-800">فیلترها</h3>
+
+                <div className="w-10 absolute -top-3 left-1/2 -translate-1/2  h-[2px] rounded-xl bg-gray-500" />
+                <button
+                  onClick={() => setShowFiltersMobile(false)}
+                  className="text-gray-500 hover:text-gray-700 text-xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* محتوا */}
+              <div className="space-y-6">
+                {/* Search */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    جستجو
+                  </label>
+                  <div className="relative">
+                    <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="جستجو..."
+                      value={filters.search}
+                      onChange={(e) =>
+                        handleFilterChange("search", e.target.value)
+                      }
+                      className="w-full pr-10 text-black pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                {/* Property Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    نوع ملک
+                  </label>
+                  <select
+                    value={filters.parentType}
+                    onChange={(e) =>
+                      handleFilterChange("parentType", e.target.value)
+                    }
+                    className="w-full p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                  >
+                    <option value="">همه انواع</option>
+                    <option value="residentialRent">مسکونی اجاره</option>
+                    <option value="residentialSale">مسکونی فروش</option>
+                    <option value="commercialRent">تجاری اجاره</option>
+                    <option value="commercialSale">تجاری فروش</option>
+                    <option value="shortTermRent">اجاره کوتاه مدت</option>
+                    <option value="ConstructionProject">پروژه ساختمانی</option>
+                  </select>
+                </div>
+                {/* Trade Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    نوع معامله
+                  </label>
+                  <select
+                    value={filters.tradeType}
+                    onChange={(e) =>
+                      handleFilterChange("tradeType", e.target.value)
+                    }
+                    className="w-full p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                  >
+                    <option value="">همه انواع</option>
+                    <option value="House">خانه</option>
+                    <option value="Villa">ویلا</option>
+                    <option value="Old">کلنگی</option>
+                    <option value="Office">اداری</option>
+                    <option value="Shop">مغازه</option>
+                    <option value="industrial">صنعتی</option>
+                    <option value="partnerShip">مشارکت</option>
+                    <option value="preSale">پیش‌فروش</option>
+                  </select>
+                </div>
+                {/* Price Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    محدوده قیمت (تومان)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      placeholder="حداقل"
+                      value={filters.minPrice}
+                      onChange={(e) =>
+                        handleFilterChange("minPrice", e.target.value)
+                      }
+                      className="p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                    />
+                    <input
+                      type="number"
+                      placeholder="حداکثر"
+                      value={filters.maxPrice}
+                      onChange={(e) =>
+                        handleFilterChange("maxPrice", e.target.value)
+                      }
+                      className="p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                {/* Area Range */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    محدوده متراژ (متر مربع)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      placeholder="حداقل"
+                      value={filters.minArea}
+                      onChange={(e) =>
+                        handleFilterChange("minArea", e.target.value)
+                      }
+                      className="p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                    />
+                    <input
+                      type="number"
+                      placeholder="حداکثر"
+                      value={filters.maxArea}
+                      onChange={(e) =>
+                        handleFilterChange("maxArea", e.target.value)
+                      }
+                      className="p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                {/* Rooms */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    تعداد اتاق
+                  </label>
+                  <select
+                    value={filters.rooms}
+                    onChange={(e) =>
+                      handleFilterChange("rooms", e.target.value)
+                    }
+                    className="w-full p-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                  >
+                    <option value="">همه</option>
+                    <option value="1">1 اتاق</option>
+                    <option value="2">2 اتاق</option>
+                    <option value="3">3 اتاق</option>
+                    <option value="4">4 اتاق</option>
+                    <option value="5">5+ اتاق</option>
+                  </select>
+                </div>
+                {/* Location */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    منطقه
+                  </label>
+                  <div className="relative">
+                    <FiMapPin className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="نام منطقه یا محله..."
+                      value={filters.location}
+                      onChange={(e) =>
+                        handleFilterChange("location", e.target.value)
+                      }
+                      className="w-full text-black pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                    />
+                  </div>
+                </div>+
+                <div className="flex items-center justify-center mb-6">
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm text-[#01ae9b] hover:text-[#018a7a] transition-colors"
+                  >
+                    پاک کردن همه
+                  </button>
+                </div>
+                <div className="h-20" />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

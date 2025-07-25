@@ -1,41 +1,36 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Poster from "@/models/poster";
 import User from "@/models/user";
+import Consultant from "@/models/consultant";
+import jwt from "jsonwebtoken";
 
-export const getAllPosters = async (req?: Request) => {
+export const getAllPosters = async (req: NextRequest) => {
   try {
-    // 🔥 گرفتن مقادیر از هدر
-    const headers = req?.headers;
-    const page = parseInt(headers?.get("page") || "1");
-    const limit = parseInt(headers?.get("limit") || "8");
-    const parentType = headers?.get("parentType");
-    const tradeType = headers?.get("tradeType");
+    // ✅ گرفتن پارامترها از URL
+    const searchParams = req.nextUrl.searchParams;
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "8");
+    const parentType = searchParams.get("parentType") || "";
+    const tradeType = searchParams.get("tradeType") || "";
 
     const skip = (page - 1) * limit;
 
-    // 🔥 ساخت query بر اساس parentType و tradeType
+    // ✅ ساخت query
     const query: any = {};
-    if (parentType) {
-      query.parentType = parentType;
-    }
-    if (tradeType) {
-      query.tradeType = tradeType;
-    }
+    if (parentType) query.parentType = parentType;
+    if (tradeType) query.tradeType = tradeType;
 
-    // 🔥 گرفتن تعداد کل
+    // ✅ تعداد کل
     const totalPosters = await Poster.countDocuments(query);
 
-    // 🔥 دریافت آگهی‌ها
+    // ✅ دریافت آگهی‌ها
     const posters = await Poster.find(query)
-      .populate({
-        path: "user",
-        model: User,
-      })
+      .populate({ path: "user", model: User })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
-    console.log(posters);
 
+    // ✅ محاسبه Pagination
     const totalPages = Math.ceil(totalPosters / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
@@ -51,9 +46,10 @@ export const getAllPosters = async (req?: Request) => {
         limit,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("❌ Error fetching posters:", error);
     return NextResponse.json(
-      { message: "Error fetching posters", error },
+      { message: "Error fetching posters", error: error.message },
       { status: 500 }
     );
   }
@@ -158,33 +154,58 @@ export const deletePoster = async (req: Request) => {
   }
 };
 
-export const getPostersByCategory = async (categoryId: string) => {
+export const getPostersByUser = async (req: Request) => {
   try {
-    const posters = await Poster.find({ category: categoryId })
-      .populate("category")
-      .populate("user");
-    return NextResponse.json(posters);
-  } catch (error) {
-    console.log("Error fetching posters by category:", error);
-    return NextResponse.json(
-      { message: "Error fetching posters by category" },
-      { status: 500 }
-    );
-  }
-};
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { message: "Authorization header is missing or invalid" },
+        { status: 401 }
+      );
+    }
 
-export const getPostersByUser = async (userId: string) => {
-  try {
-    const posters = await Poster.find({ user: userId })
-      .populate("category")
-      .populate("user");
-    return NextResponse.json(posters);
-  } catch (error) {
-    console.log("Error fetching posters by user:", error);
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return NextResponse.json(
+        { message: "Token is missing" },
+        { status: 401 }
+      );
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not defined");
+    }
+
+    const decoded = jwt.verify(token, secret) as { id: string }; // 👈 تایپ اختیاری
+    const userId = decoded.id; // 👈 بسته به اینکه توکن رو چطور ساختی
+    console.log(userId, "hhhhhhhhhhhhhhhhhhhhh");
+    if (!userId) {
+      return NextResponse.json(
+        { message: "User ID not found in token" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ گرفتن تعداد آگهی‌ها
+    const count = await Poster.countDocuments({ user: userId });
+
+    // ✅ گرفتن لیست آگهی‌ها
+    // const posters = await Poster.find({ user: userId })
+    //   .populate("user", "_id name phone")
+    //   .sort({ createdAt: -1 })
+    //   .lean();
+
     return NextResponse.json(
-      { message: "Error fetching posters by user" },
-      { status: 500 }
+      {
+        total: count,
+        // posters: posters,
+      },
+      { status: 200 }
     );
+  } catch (err) {
+    console.log("Error fetching posters by user:", err);
+    return NextResponse.json({ message: "Server Error" }, { status: 500 });
   }
 };
 
@@ -227,3 +248,14 @@ export const getPostersNearLocation = async (req: Request) => {
     );
   }
 };
+
+// export const getConsultantPosterCount = async (consultantId: string) => {
+//   const consultant = await Consultant.findById(consultantId).lean();
+//   if (!consultant) throw new Error("مشاور پیدا نشد");
+
+//   // یوزری که این مشاور بهش وصله
+//   const userId = consultant.user;
+
+//   const count = await Poster.countDocuments({ user: userId });
+//   return count;
+// };

@@ -138,7 +138,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
   };
 
   return (
-    <Link href={`/poster/${id}`} className="block">
+    <Link href={`/poster/${id}`} target="_blank" className="block">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

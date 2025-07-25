@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
   FiSearch,
-  FiFilter,
   FiEdit,
   FiTrash2,
   FiEye,
@@ -14,39 +13,91 @@ import {
   FiSave,
 } from "react-icons/fi";
 import Image from "next/image";
-import { usePosters } from "../../../../hooks/usePosters";
 import { Poster } from "@/types/type";
 import LocationPicker from "../../ui/locationPicker";
 
 const PropertyListings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [selectedPropertyType, setSelectedPropertyType] =
-    useState<string>("all");
   const [selectedProperty, setSelectedProperty] = useState<Poster | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
-
   // Edit form state
   const [editFormData, setEditFormData] = useState<Partial<Poster>>({});
+  const [posters, setPosters] = useState<Poster[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  // filters
+  const [parentType, setParentType] = useState<string>("");
+  const [tradeType, setTradeType] = useState<string>("");
 
-  // Use SWR hook to fetch posters
-  const { posters, total, page, limit, isLoading, error, mutate } = usePosters({
-    page: currentPage,
-    limit: 10,
-    type: selectedType,
-    category: selectedCategory,
-    propertyType: selectedPropertyType,
-    status: selectedStatus,
-    search: searchTerm,
-  });
+  // helper: remove duplicate posters by _id
+  const uniqueById = (items: Poster[]) => {
+    const map = new Map<string, Poster>();
+    items.forEach((item) => map.set(item._id, item));
+    return Array.from(map.values());
+  };
+
+  const fetchData = async () => {
+    if (!hasNextPage && page > 1) return;
+
+    if (page === 1) setLoading(true);
+    else setIsFetchingMore(true);
+
+    try {
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...(parentType ? { parentType } : {}),
+        ...(tradeType ? { tradeType } : {}),
+      });
+
+      const res = await fetch(`/api/poster?${query.toString()}`);
+      const data = await res.json();
+
+      setHasNextPage(data.pagination.hasNextPage);
+
+      if (page === 1) {
+        setPosters(data.posters);
+      } else {
+        setPosters((prev) => uniqueById([...prev, ...data.posters]));
+      }
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
+    } finally {
+      setLoading(false);
+      setIsFetchingMore(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, [page, parentType, tradeType]);
+
+  // handle infinite scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY;
+      const clientHeight = window.innerHeight;
+
+      if (
+        scrollTop + clientHeight >= scrollHeight - 800 &&
+        !isFetchingMore &&
+        hasNextPage
+      ) {
+        setPage((prev) => prev + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFetchingMore, hasNextPage]);
 
   const handleViewProperty = (property: Poster) => {
     setSelectedProperty(property);
@@ -102,10 +153,10 @@ const PropertyListings: React.FC = () => {
       });
 
       if (response.ok) {
+        fetchData();
         setIsDeleteModalOpen(false);
         setSelectedProperty(null);
         toast.success("آگهی با موفقیت حذف شد");
-        mutate();
       } else {
         const errorData = await response.json();
         console.log("Error deleting poster:", errorData);
@@ -159,10 +210,10 @@ const PropertyListings: React.FC = () => {
 
       if (response.ok) {
         toast.success("آگهی با موفقیت بروزرسانی شد");
+        fetchData();
         setIsEditModalOpen(false);
         setSelectedProperty(null);
         setEditFormData({});
-        mutate(); // Refresh the data
       } else {
         throw new Error(result.message || "خطا در بروزرسانی آگهی");
       }
@@ -272,15 +323,8 @@ const PropertyListings: React.FC = () => {
     return `${coordinates.lat.toFixed(4)}, ${coordinates.lng.toFixed(4)}`;
   };
 
-  const totalPages = Math.ceil(total / limit);
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1);
   };
 
   // Check if trade type is rent-related
@@ -289,7 +333,7 @@ const PropertyListings: React.FC = () => {
     editFormData.parentType === "shortTermRent";
 
   // Loading state
-  if (isLoading) {
+  if (loading) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -300,31 +344,6 @@ const PropertyListings: React.FC = () => {
         <div className="flex items-center justify-center py-12">
           <FiLoader className="animate-spin text-green-600 text-2xl ml-2" />
           <span className="text-gray-600">در حال بارگذاری آگهی‌ها...</span>
-        </div>
-      </motion.div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="bg-white rounded-lg shadow-md p-6"
-      >
-        <div className="flex items-center justify-center py-12 text-red-600">
-          <FiAlertCircle className="text-2xl ml-2" />
-          <span>خطا در بارگذاری آگهی‌ها: {error.message}</span>
-        </div>
-        <div className="text-center mt-4">
-          <button
-            onClick={() => mutate()}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            تلاش مجدد
-          </button>
         </div>
       </motion.div>
     );
@@ -356,14 +375,17 @@ const PropertyListings: React.FC = () => {
           </form>
           <div className="relative">
             <select
-              className="w-full sm:w-40 px-4 py-2 rounded-lg border text-gray-900 placeholder:text-gray-400 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-              value={selectedPropertyType}
+              className="border text-black  rounded-lg px-3 py-2"
+              value={parentType}
               onChange={(e) => {
-                setSelectedPropertyType(e.target.value);
-                setCurrentPage(1);
+                setParentType(e.target.value);
+                setPage(1);
               }}
             >
-              <option value="all">همه انواع</option>
+              <option value="">
+
+                همه‌ نوع آگهی
+              </option>
               <option value="residentialRent">اجاره مسکونی</option>
               <option value="residentialSale">فروش مسکونی</option>
               <option value="commercialRent">اجاره تجاری</option>
@@ -371,19 +393,27 @@ const PropertyListings: React.FC = () => {
               <option value="shortTermRent">اجاره کوتاه مدت</option>
               <option value="ConstructionProject">پروژه ساختمانی</option>
             </select>
-            <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
+            </div>
+          {/* Loading state for first page */}
+          {loading && (
+            <div className="flex items-center justify-center py-10">
+              <FiLoader className="animate-spin text-green-600 text-2xl ml-2" />
+              <span className="text-gray-600">در حال بارگذاری...</span>
+            </div>
+          )}
 
           <div className="relative">
             <select
-              className="w-full sm:w-40 px-4 py-2 rounded-lg text-gray-900 placeholder:text-gray-400 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-              value={selectedCategory}
+              className="border text-black rounded-lg px-3 py-2"
+              value={tradeType}
               onChange={(e) => {
-                setSelectedCategory(e.target.value);
-                setCurrentPage(1);
+                setTradeType(e.target.value);
+                setPage(1);
               }}
             >
-              <option value="all">همه دسته‌ها</option>
+              <option value="">
+                همه‌ نوع معامله
+              </option>
               <option value="House">خانه</option>
               <option value="Villa">ویلا</option>
               <option value="Old">کلنگی</option>
@@ -391,27 +421,8 @@ const PropertyListings: React.FC = () => {
               <option value="Shop">مغازه</option>
               <option value="industrial">صنعتی</option>
               <option value="partnerShip">مشارکت</option>
-              <option value="preSale">پیش فروش</option>
+              <option value="preSale">پیش‌فروش</option>
             </select>
-            <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          </div>
-
-          <div className="relative">
-            <select
-              className="w-full sm:w-40 px-4 py-2 rounded-lg text-gray-900 placeholder:text-gray-400 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-              value={selectedStatus}
-              onChange={(e) => {
-                setSelectedStatus(e.target.value);
-                setCurrentPage(1);
-              }}
-            >
-              <option value="all">همه وضعیت‌ها</option>
-              <option value="active">فعال</option>
-              <option value="pending">در انتظار تایید</option>
-              <option value="sold">فروخته شده</option>
-              <option value="rented">اجاره داده شده</option>
-            </select>
-            <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
         </div>
       </div>
@@ -421,6 +432,12 @@ const PropertyListings: React.FC = () => {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+              <th
+                scope="col"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                ردیف
+              </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -468,7 +485,7 @@ const PropertyListings: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {posters && posters.length > 0 ? (
-              posters.map((property: Poster) => (
+              posters.map((property: Poster, index) => (
                 <motion.tr
                   key={property._id}
                   initial={{ opacity: 0 }}
@@ -476,6 +493,9 @@ const PropertyListings: React.FC = () => {
                   transition={{ duration: 0.3 }}
                   whileHover={{ backgroundColor: "#f9fafb" }}
                 >
+                  <td className="px-6 text-black py-4 whitespace-nowrap">
+                    {index + 1}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-14 w-14 flex-shrink-0 rounded-md overflow-hidden relative">
@@ -502,7 +522,7 @@ const PropertyListings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 max-w-xs truncate">
-                      {property.location || "موقعیت نامشخص"}
+                      {property.location.slice(0,40) || "موقعیت نامشخص"}
                     </div>
                     {property.coordinates?.lat && property.coordinates?.lng && (
                       <div className="text-xs text-gray-400 flex items-center gap-1 mt-1">
@@ -598,68 +618,6 @@ const PropertyListings: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Pagination - Same as before */}
-      {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            نمایش {(page - 1) * limit + 1} تا {Math.min(page * limit, total)} از{" "}
-            {total} آگهی
-          </div>
-          <div className="flex items-center space-x-2 space-x-reverse">
-            <button
-              onClick={() => handlePageChange(page - 1)}
-              disabled={page <= 1}
-              className={`px-3 py-1 border rounded-md text-sm transition-colors ${
-                page <= 1
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              قبلی
-            </button>
-
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (page <= 3) {
-                pageNum = i + 1;
-              } else if (page >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = page - 2 + i;
-              }
-
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`px-3 py-1 rounded-md text-sm transition-colors ${
-                    page === pageNum
-                      ? "bg-blue-600 text-white"
-                      : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-
-            <button
-              onClick={() => handlePageChange(page + 1)}
-              disabled={page >= totalPages}
-              className={`px-3 py-1 border rounded-md text-sm transition-colors ${
-                page >= totalPages
-                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              بعدی
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Edit Modal */}
       {isEditModalOpen && selectedProperty && (
@@ -774,7 +732,7 @@ const PropertyListings: React.FC = () => {
                       تاریخ ساخت *
                     </label>
                     <input
-                      type="date"
+                      type="number"
                       name="buildingDate"
                       value={
                         editFormData.buildingDate
@@ -971,27 +929,6 @@ const PropertyListings: React.FC = () => {
                     />
                   </div>
 
-                  {/* Tag */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      برچسب *
-                    </label>
-                    <select
-                      name="tag"
-                      value={editFormData.tag || ""}
-                      onChange={handleEditFormChange}
-                      required
-                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">انتخاب کنید</option>
-                      <option value="فروش">فروش</option>
-                      <option value="اجاره">اجاره</option>
-                      <option value="رهن">رهن</option>
-                      <option value="ویژه">ویژه</option>
-                      <option value="فوری">فوری</option>
-                    </select>
-                  </div>
-
                   {/* Type */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1120,7 +1057,7 @@ const PropertyListings: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[70vh] overflow-y-auto"
+            className="bg-white rounded-lg text-black shadow-xl max-w-4xl w-full max-h-[70vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">جزئیات آگهی</h3>

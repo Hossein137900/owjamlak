@@ -71,7 +71,7 @@ const SEODescription: React.FC = () => {
           <div className="flex justify-start mt-4">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-2 text-sm md:text-base font-medium text-teal-600 hover:text-teal-800 transition-colors"
+              className="flex items-center gap-2 text-sm md:text-base cursor-pointer font-medium text-teal-600 hover:text-teal-800 transition-colors"
             >
               <motion.span
                 animate={{ rotate: isExpanded ? 180 : 0 }}

@@ -12,9 +12,9 @@ export async function POST(req: NextRequest) {
   return await createPoster(req);
 }
 
-export async function GET() {
+export async function GET(req:NextRequest) {
   await connect();
-  return await getAllPosters();
+  return await getAllPosters(req);
 }
 
 export async function PATCH(req: NextRequest) {

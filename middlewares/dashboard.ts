@@ -17,6 +17,13 @@ export interface DashboardStats {
   newsletterSubscribers: number;
 }
 
+interface JwtCustomPayload {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  role: string;
+}
+
 export const getDashboardStats = async (request: NextRequest) => {
   try {
     await connect();
@@ -31,13 +38,6 @@ export const getDashboardStats = async (request: NextRequest) => {
     }
 
     try {
-      interface JwtCustomPayload {
-        id: string;
-        name: string;
-        phoneNumber: string;
-        role: string;
-      }
-
       const decodedToken = jwt.verify(
         token,
         process.env.JWT_SECRET!

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FiUpload,
@@ -10,6 +10,14 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
+import { jwtDecode } from "jwt-decode";
+
+type TokenPayload = {
+  id?: string;
+  _id?: string;
+  exp?: number;
+  iat?: number;
+};
 
 // Dynamically import LocationPicker to avoid SSR issues
 const LocationPicker = dynamic(() => import("../../ui/locationPicker"), {
@@ -24,6 +32,7 @@ const PosterForm = ({}) => {
     { alt: string; url: string; mainImage: boolean }[]
   >([]);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Form state - Updated to match new model structure
   const [formData, setFormData] = useState({
@@ -174,6 +183,21 @@ const PosterForm = ({}) => {
     );
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const decoded = jwtDecode<TokenPayload>(token); // ✅
+      const idFromToken = decoded.id ?? decoded._id ?? null;
+      console.log(idFromToken)
+      setUserId(idFromToken);
+    } catch (err) {
+      console.log("❌ توکن معتبر نیست:", err);
+      setUserId(null);
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -242,7 +266,8 @@ const PosterForm = ({}) => {
           : undefined,
         rentPrice: formData.rentPrice ? Number(formData.rentPrice) : undefined,
         buildingDate: Number(formData.buildingDate),
-        user: "683838a637d65797392334f5",
+        user: userId,
+        consultant: userId,
         status: "pending",
       };
 
@@ -584,7 +609,7 @@ const PosterForm = ({}) => {
           {!isRentType ? (
             <>
               {/* Total Price for Buy/Sell */}
-          <div className="col-span-2 md:col-span-1">
+              <div className="col-span-2 md:col-span-1">
                 <label
                   htmlFor="totalPrice"
                   className="block text-sm font-medium text-gray-700 mb-1"
@@ -604,7 +629,7 @@ const PosterForm = ({}) => {
               </div>
 
               {/* Price Per Meter */}
-          <div className="col-span-2 md:col-span-1">
+              <div className="col-span-2 md:col-span-1">
                 <label
                   htmlFor="pricePerMeter"
                   className="block text-sm font-medium text-gray-700 mb-1"

@@ -367,12 +367,7 @@ export default function PosterDetailClient({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-lg mb-4">{error}</div>
-          <button
-            onClick={fetchPosterData}
-            className="bg-[#01ae9b] text-white px-6 py-2 rounded-lg hover:bg-[#018a7a] transition-colors"
-          >
-            تلاش مجدد
-          </button>
+        
         </div>
       </div>
     );

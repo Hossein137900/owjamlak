@@ -18,6 +18,8 @@ const ConsultantManager = () => {
   const [consultantToDelete, setConsultantToDelete] =
     useState<Consultant | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [totalPoster, setTotalPoster] = useState<number | null>(null);
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -33,6 +35,7 @@ const ConsultantManager = () => {
   });
 
   useEffect(() => {
+    fetchUserPosters();
     fetchConsultants();
   }, []);
 
@@ -43,6 +46,42 @@ const ConsultantManager = () => {
       setConsultants(data.consultants);
     } catch (error) {
       console.log("Error fetching consultants:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const fetchUserPosters = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token"); // ✅ توکن که بعد از لاگین ذخیره کردی
+
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/posters-by-user", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // 👈 توکن در هدر
+        },
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "مشکلی پیش آمد");
+      }
+
+      const data = await res.json();
+      // 👇 ریسپانس سرور
+      console.log("✅ ریسپانس API:", data);
+
+      setTotalPoster(data.total); // تعداد کل آگهی‌ها
+      // اگر لیست هم برگردونی می‌تونی بگذاری تو state دیگه
+      // setPosters(data.posters);
+    } catch (err) {
+      console.log("❌ خطا در گرفتن آگهی‌ها:", err);
     } finally {
       setLoading(false);
     }
@@ -243,6 +282,138 @@ const ConsultantManager = () => {
           <FaPlus />
           <span>افزودن مشاور جدید</span>
         </button>
+      </div>
+
+      {/* Consultants List */}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  مشاور
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  تماس
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  تجربه
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  آگهی‌ها
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  امتیاز
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  وضعیت
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  عملیات
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {consultants.map((consultant) => (
+                <tr key={consultant._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <Image
+                          src={
+                            consultant.image ||
+                            "/assets/images/default-consultant.jpg"
+                          }
+                          alt={consultant.name}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      </div>
+                      <div className="mr-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {consultant.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {/* {consultant.workAreas.slice(0, 2).join(", ")} */}
+                          {/* {consultant.workAreas.length > 2 && "..."} */}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {consultant.phone}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {consultant.whatsapp}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {consultant.experienceYears} سال
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {totalPoster ? totalPoster : "-"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <span className="text-sm text-gray-900">
+                        {consultant.rating || "-"}
+                      </span>
+                      {consultant.rating && (
+                        <span className="text-yellow-400 mr-1">★</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        consultant.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {consultant.isActive ? "فعال" : "غیرفعال"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() =>
+                          window.open(`/consultant/${consultant._id}`, "_blank")
+                        }
+                        className="text-blue-600 hover:text-blue-900"
+                        title="مشاهده"
+                      >
+                        <FiEye className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleEdit(consultant)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                        title="ویرایش"
+                      >
+                        <FiEdit2 className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(consultant)}
+                        className="text-red-600 hover:text-red-900"
+                        title="حذف"
+                      >
+                        <FiTrash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {consultants.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <p className="text-gray-500">هیچ مشاوری یافت نشد</p>
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -597,138 +768,6 @@ const ConsultantManager = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Consultants List */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  مشاور
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  تماس
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  تجربه
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  آگهی‌ها
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  امتیاز
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  وضعیت
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  عملیات
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {consultants.map((consultant) => (
-                <tr key={consultant._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <Image
-                          src={
-                            consultant.image ||
-                            "/assets/images/default-consultant.jpg"
-                          }
-                          alt={consultant.name}
-                          width={40}
-                          height={40}
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                      </div>
-                      <div className="mr-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {consultant.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {/* {consultant.workAreas.slice(0, 2).join(", ")} */}
-                          {/* {consultant.workAreas.length > 2 && "..."} */}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {consultant.phone}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {consultant.whatsapp}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {consultant.experienceYears} سال
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {consultant.posterCount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <span className="text-sm text-gray-900">
-                        {consultant.rating || "-"}
-                      </span>
-                      {consultant.rating && (
-                        <span className="text-yellow-400 mr-1">★</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        consultant.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {consultant.isActive ? "فعال" : "غیرفعال"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() =>
-                          window.open(`/consultant/${consultant._id}`, "_blank")
-                        }
-                        className="text-blue-600 hover:text-blue-900"
-                        title="مشاهده"
-                      >
-                        <FiEye className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(consultant)}
-                        className="text-indigo-600 hover:text-indigo-900"
-                        title="ویرایش"
-                      >
-                        <FiEdit2 className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(consultant)}
-                        className="text-red-600 hover:text-red-900"
-                        title="حذف"
-                      >
-                        <FiTrash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {consultants.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">هیچ مشاوری یافت نشد</p>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

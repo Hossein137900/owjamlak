@@ -28,7 +28,6 @@ import VideoManagement from "./video/videoManagement";
 import PosterForm from "./posters/posterForm";
 import CreateConsultantForm from "./consultant-champion/addTopConsultant";
 import BlogManagement from "./blogs/blogManagement";
-import CategoryManager from "./category/categoriesPage";
 import ConsultantManager from "./consultant/consultantManager";
 import PropertyListings from "./posters/propertyListings";
 import AdminFavoritesPage from "./favorites/page";

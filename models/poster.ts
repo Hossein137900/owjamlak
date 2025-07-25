@@ -95,14 +95,17 @@ const posterSchema = new mongoose.Schema(
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: User,
+      ref: "User",
       required: true,
     },
+  
+    
     type: {
       type: String,
       enum: ["normal", "investment"],
       default: "normal",
     },
+
     status: {
       type: String,
       required: true,

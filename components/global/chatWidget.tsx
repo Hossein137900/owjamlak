@@ -27,7 +27,7 @@ interface ServiceBox {
 }
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({
-  position = "bottom-right",
+  // position = "bottom-right",
   primaryColor = "#66308d",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -184,7 +184,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
 
   return (
     <div
-      className={`fixed z-999  `}
+      className={`absolute right-6  z-999  `}
       dir="rtl"
     >
       {/* دکمه چت */}
@@ -197,7 +197,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-25 md:bottom-19 right-6 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-white overflow-hidden"
+            className="fixed bottom-25 md:bottom-10 right-6 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-white overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${primaryColor}, #01ae9b)`,
             }}
@@ -242,7 +242,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
               isMobile
                 ? "fixed inset-0 w-full h-full rounded-none"
                 : "w-96 h-[500px] rounded-2xl"
-            } bg-white/90 backdrop-blur-md shadow-2xl border border-white/50 flex flex-col overflow-hidden`}
+            } bg-white/90 md:mt-20 backdrop-blur-md shadow-2xl  flex flex-col overflow-hidden`}
           >
             {/* هدر */}
             <div
