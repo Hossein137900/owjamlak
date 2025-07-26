@@ -65,6 +65,7 @@ const PosterForm = ({}) => {
     floor: "",
     parking: false,
     lift: false,
+    balcony: false,
     // tag: "",
     type: "normal",
     user: "",
@@ -190,7 +191,7 @@ const PosterForm = ({}) => {
     try {
       const decoded = jwtDecode<TokenPayload>(token); // ✅
       const idFromToken = decoded.id ?? decoded._id ?? null;
-      console.log(idFromToken)
+      console.log(idFromToken);
       setUserId(idFromToken);
     } catch (err) {
       console.log("❌ توکن معتبر نیست:", err);
@@ -316,6 +317,7 @@ const PosterForm = ({}) => {
           floor: "",
           parking: false,
           lift: false,
+          balcony: false,
           // tag: "",
           type: "normal",
           user: "",
@@ -957,7 +959,7 @@ const PosterForm = ({}) => {
           {/* Amenities Section */}
           <div className="col-span-2">
             <h3 className="text-lg font-medium text-gray-800 mb-4">امکانات</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Storage */}
               <div className="flex items-center">
                 <input
@@ -1009,6 +1011,23 @@ const PosterForm = ({}) => {
                   className="mr-2 block text-sm text-gray-700"
                 >
                   آسانسور
+                </label>
+              </div>
+              {/* balcony */}
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="balcony"
+                  name="balcony"
+                  checked={formData.balcony}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="balcony"
+                  className="mr-2 block text-sm text-gray-700"
+                >
+                  بالکن
                 </label>
               </div>
             </div>

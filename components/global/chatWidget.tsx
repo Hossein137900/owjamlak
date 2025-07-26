@@ -183,10 +183,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
   };
 
   return (
-    <div
-      className={`absolute right-6  z-999  `}
-      dir="rtl"
-    >
+    <div dir="rtl">
       {/* دکمه چت */}
       <AnimatePresence>
         {!isOpen && (
@@ -197,7 +194,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-25 md:bottom-10 right-6 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-white overflow-hidden"
+            className="fixed bottom-25 md:bottom-20 z-999999 right-6 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-white overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${primaryColor}, #01ae9b)`,
             }}
@@ -241,8 +238,9 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             className={`${
               isMobile
                 ? "fixed inset-0 w-full h-full rounded-none"
-                : "w-96 h-[500px] rounded-2xl"
-            } bg-white/90 md:mt-20 backdrop-blur-md shadow-2xl  flex flex-col overflow-hidden`}
+                : "fixed bottom-20 right-6 w-96 h-[500px] rounded-2xl"
+            } bg-white/90 backdrop-blur-md shadow-2xl flex flex-col overflow-hidden`}
+            style={{ zIndex: 1100 }}
           >
             {/* هدر */}
             <div

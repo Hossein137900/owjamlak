@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import User from "./user";
 const posterSchema = new mongoose.Schema(
   {
     title: {
@@ -93,13 +92,15 @@ const posterSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    balcony: {
+      type: Boolean,
+      default: false,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-  
-    
     type: {
       type: String,
       enum: ["normal", "investment"],
@@ -134,10 +135,24 @@ const posterSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    meta: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    options: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   { timestamps: true }
 );
-// Add geospatial index for location-based queries
-posterSchema.index({ coordinates: "2dsphere" });
 
+posterSchema.index({ user: 1 });
+posterSchema.index({ status: 1 });
+posterSchema.index({ createdAt: -1 });
+posterSchema.index({ totalPrice: 1 });
+posterSchema.index({ pricePerMeter: 1 });
+posterSchema.index({ parentType: 1, tradeType: 1, status: 1 });
 export default mongoose.models.Poster || mongoose.model("Poster", posterSchema);

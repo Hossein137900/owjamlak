@@ -33,6 +33,7 @@ interface ReportageBoxProps {
   storage?: boolean; // Added storage from model
   parking?: boolean; // Added parking from model
   lift?: boolean; // Added lift from model
+  balcony?: boolean; // Added balcony from model
   className?: string;
 }
 

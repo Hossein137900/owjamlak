@@ -130,6 +130,7 @@ const PropertyListings: React.FC = () => {
       status: property.status,
       coordinates: property.coordinates,
       buildingDate: property.buildingDate,
+      balcony: property.balcony,
     });
     setIsEditModalOpen(true);
   };
@@ -382,10 +383,7 @@ const PropertyListings: React.FC = () => {
                 setPage(1);
               }}
             >
-              <option value="">
-
-                همه‌ نوع آگهی
-              </option>
+              <option value="">همه‌ نوع آگهی</option>
               <option value="residentialRent">اجاره مسکونی</option>
               <option value="residentialSale">فروش مسکونی</option>
               <option value="commercialRent">اجاره تجاری</option>
@@ -393,7 +391,7 @@ const PropertyListings: React.FC = () => {
               <option value="shortTermRent">اجاره کوتاه مدت</option>
               <option value="ConstructionProject">پروژه ساختمانی</option>
             </select>
-            </div>
+          </div>
           {/* Loading state for first page */}
           {loading && (
             <div className="flex items-center justify-center py-10">
@@ -411,9 +409,7 @@ const PropertyListings: React.FC = () => {
                 setPage(1);
               }}
             >
-              <option value="">
-                همه‌ نوع معامله
-              </option>
+              <option value="">همه‌ نوع معامله</option>
               <option value="House">خانه</option>
               <option value="Villa">ویلا</option>
               <option value="Old">کلنگی</option>
@@ -522,7 +518,7 @@ const PropertyListings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 max-w-xs truncate">
-                      {property.location.slice(0,40) || "موقعیت نامشخص"}
+                      {property.location.slice(0, 40) || "موقعیت نامشخص"}
                     </div>
                     {property.coordinates?.lat && property.coordinates?.lng && (
                       <div className="text-xs text-gray-400 flex items-center gap-1 mt-1">
@@ -1010,6 +1006,20 @@ const PropertyListings: React.FC = () => {
                           آسانسور
                         </label>
                       </div>
+
+                      {/* Balcony */}
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="balcony"
+                          checked={editFormData.balcony || false}
+                          onChange={handleEditFormChange}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label className="mr-2 block text-sm text-gray-700">
+                          بالکن
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1221,6 +1231,11 @@ const PropertyListings: React.FC = () => {
                   {selectedProperty.lift && (
                     <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
                       آسانسور
+                    </span>
+                  )}
+                  {selectedProperty.balcony && (
+                    <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                      بالکن
                     </span>
                   )}
                   {selectedProperty.convertible && (

@@ -24,6 +24,22 @@ const userSchema = new mongoose.Schema(
         ref: "Poster",
       },
     ],
+    currentPlan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
+      default: null,
+      required: false,
+    },
+    planExpireDate: {
+      type: Date,
+      default: null,
+      required: false,
+    },
+    meta: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   { timestamps: true }
 );

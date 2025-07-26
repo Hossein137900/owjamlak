@@ -79,6 +79,7 @@ export interface Poster {
   floor?: number; // Optional
   parking: boolean;
   lift: boolean;
+  balcony: boolean; 
   tag: string;
   user: {
     _id: string;

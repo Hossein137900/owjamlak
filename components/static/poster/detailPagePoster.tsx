@@ -27,6 +27,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { FiLoader } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { MdBalcony } from "react-icons/md";
 
 const LeafletMap = dynamic(
   () => import("@/components/static/poster/leafletMap"),
@@ -72,7 +73,7 @@ interface PosterDetailClientProps {
 export default function PosterDetailClient({
   posterId,
 }: PosterDetailClientProps) {
-//   const params = useParams();
+  //   const params = useParams();
   const id = posterId;
   const [posterData, setPosterData] = useState<Poster | null>(null);
   const [loading, setLoading] = useState(true);
@@ -367,7 +368,6 @@ export default function PosterDetailClient({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-lg mb-4">{error}</div>
-        
         </div>
       </div>
     );
@@ -770,7 +770,7 @@ export default function PosterDetailClient({
               <h2 className="text-lg text-gray-700 font-semibold mb-4">
                 ویژگی‌ها و امکانات
               </h2>
-              <div className="grid grid-cols-3 gap-4 text-gray-700">
+              <div className="grid grid-cols-4 gap-4 text-gray-700">
                 {posterData.storage && (
                   <motion.div
                     whileHover={{ y: -5 }}
@@ -796,6 +796,15 @@ export default function PosterDetailClient({
                   >
                     <FaElementor className="w-6 h-6 text-[#01ae9b] mb-2" />
                     <span className="text-sm">آسانسور</span>
+                  </motion.div>
+                )}
+                {posterData.balcony && (
+                  <motion.div
+                    whileHover={{ y: -5 }}
+                    className="flex flex-col items-center bg-white p-4 rounded-lg shadow-sm"
+                  >
+                    <MdBalcony className="w-6 h-6 text-[#01ae9b] mb-2" />
+                    <span className="text-sm">بالکن</span>
                   </motion.div>
                 )}
               </div>
