@@ -55,4 +55,5 @@ const chatRoomSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("ChatRoom", chatRoomSchema);
+export default mongoose.models.ChatRoom ||
+  mongoose.model("ChatRoom", chatRoomSchema);

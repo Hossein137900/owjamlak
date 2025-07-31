@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import connect from "@/lib/data";
-
-const ChatRoom = require("@/models/room");
+import ChatRoom from "../../../models/room";
 
 // GET: Get all or one chatroom entry
 export const GET = async (req: NextRequest) => {
@@ -11,12 +10,8 @@ export const GET = async (req: NextRequest) => {
 
   if (id) {
     try {
-      const chatRoom = await ChatRoom.findById(id)
-        .populate('userId')
-        .populate('adminId')
-        .populate('posterId')
-        .populate('messages.senderId')
-        .populate('messages.receiverId');
+      const chatRoom = await ChatRoom.findById(id);
+
       if (!chatRoom) {
         return NextResponse.json(
           { error: "ChatRoom not found" },
@@ -33,12 +28,8 @@ export const GET = async (req: NextRequest) => {
   }
 
   try {
-    const chatRooms = await ChatRoom.find()
-      .populate('userId')
-      .populate('adminId')
-      .populate('posterId')
-      .populate('messages.senderId')
-      .populate('messages.receiverId');
+    const chatRooms = await ChatRoom.find();
+
     return NextResponse.json({ chatRooms });
   } catch (error) {
     return NextResponse.json(
@@ -54,12 +45,12 @@ export const POST = async (req: NextRequest) => {
 
   try {
     const body = await req.json();
-    
+
     // Parse messages if it's a string
-    if (typeof body.messages === 'string') {
+    if (typeof body.messages === "string") {
       body.messages = JSON.parse(body.messages);
     }
-    
+
     const chatRoom = await ChatRoom.create(body);
     return NextResponse.json({ chatRoom }, { status: 201 });
   } catch (error) {
@@ -70,7 +61,7 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
-// PATCH: Update a chatroom entry
+// PATCH: Add new message to chatroom
 export const PATCH = async (req: NextRequest) => {
   await connect();
 
@@ -84,14 +75,23 @@ export const PATCH = async (req: NextRequest) => {
   }
 
   try {
-    const body = await req.json();
-    
-    // Parse messages if it's a string
-    if (typeof body.messages === 'string') {
-      body.messages = JSON.parse(body.messages);
-    }
-    
-    const chatRoom = await ChatRoom.findByIdAndUpdate(id, body, { new: true });
+    const { content, senderId, receiverId } = await req.json();
+
+    const newMessage = {
+      content,
+      senderId,
+      receiverId,
+      status: "sent",
+    };
+
+    const chatRoom = await ChatRoom.findByIdAndUpdate(
+      id,
+      { $push: { messages: newMessage } },
+      { new: true }
+    )
+      .populate("messages.senderId", "name email")
+      .populate("messages.receiverId", "name email");
+
     if (!chatRoom) {
       return NextResponse.json(
         { error: "ChatRoom not found" },

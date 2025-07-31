@@ -48,25 +48,26 @@ const ServiceCard: React.FC<{
     const card = cardRef.current;
     if (!card) return;
 
-    gsap.fromTo(card, 
+    gsap.fromTo(
+      card,
       { opacity: 0, y: 60, scale: 0.8 },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
         duration: 0.6,
         delay: index * 0.15,
         ease: "back.out(1.7)",
         scrollTrigger: {
           trigger: card,
           start: "top 80%",
-          once: true
-        }
+          once: true,
+        },
       }
     );
 
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, [index]);
 
@@ -86,30 +87,50 @@ const ServiceCard: React.FC<{
     if (hoveredService === service.id) {
       if (content) {
         gsap.to(content, { scale: 1.02, duration: 0.3, ease: "power2.out" });
-        gsap.to(content, { 
+        gsap.to(content, {
           backgroundColor: "rgba(255, 255, 255, 0.95)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5)",
-          duration: 0.3 
+          boxShadow:
+            "0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5)",
+          duration: 0.3,
         });
       }
-      if (icon) gsap.to(icon, { scale: 1.1, rotation: "5_short", duration: 0.3 });
+      if (icon)
+        gsap.to(icon, { scale: 1.1, rotation: "5_short", duration: 0.3 });
       if (overlay) gsap.to(overlay, { opacity: 0.03, duration: 0.3 });
       if (title) gsap.to(title, { color: service.color, duration: 0.3 });
       if (desc) gsap.to(desc, { color: "#374151", duration: 0.3 });
       if (decor1) gsap.to(decor1, { scale: 1.2, opacity: 0.1, duration: 0.5 });
-      if (decor2) gsap.to(decor2, { scale: 1.3, opacity: 0.08, rotation: 180, duration: 0.8 });
-      if (border) gsap.to(border, { borderColor: `${service.color}30`, duration: 0.3 });
-      
+      if (decor2)
+        gsap.to(decor2, {
+          scale: 1.3,
+          opacity: 0.08,
+          rotation: 180,
+          duration: 0.8,
+        });
+      if (border)
+        gsap.to(border, { borderColor: `${service.color}30`, duration: 0.3 });
+
       if (pulse) {
-        gsap.to(pulse, { scale: 1.3, opacity: 0.2, duration: 2, repeat: -1, yoyo: true });
+        gsap.to(pulse, {
+          scale: 1.3,
+          opacity: 0.2,
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+        });
       }
       if (path) {
-        gsap.to(path, { strokeDasharray: "100%", strokeDashoffset: "0%", duration: 1.5 });
+        gsap.to(path, {
+          strokeDasharray: "100%",
+          strokeDashoffset: "0%",
+          duration: 1.5,
+        });
       }
-      
+
       particles.forEach((particle, i) => {
         if (particle) {
-          gsap.fromTo(particle,
+          gsap.fromTo(
+            particle,
             { opacity: 0, scale: 0, x: 0, y: 0 },
             {
               opacity: 1,
@@ -120,7 +141,7 @@ const ServiceCard: React.FC<{
               repeat: -1,
               delay: i * 0.3,
               ease: "power2.out",
-              yoyo: true
+              yoyo: true,
             }
           );
         }
@@ -128,10 +149,11 @@ const ServiceCard: React.FC<{
     } else {
       if (content) {
         gsap.to(content, { scale: 1, duration: 0.3 });
-        gsap.to(content, { 
+        gsap.to(content, {
           backgroundColor: "rgba(255, 255, 255, 0.8)",
-          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
-          duration: 0.3 
+          boxShadow:
+            "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
+          duration: 0.3,
         });
       }
       if (icon) gsap.to(icon, { scale: 1, rotation: 0, duration: 0.3 });
@@ -139,9 +161,16 @@ const ServiceCard: React.FC<{
       if (title) gsap.to(title, { color: "#1f2937", duration: 0.3 });
       if (desc) gsap.to(desc, { color: "#6b7280", duration: 0.3 });
       if (decor1) gsap.to(decor1, { scale: 1, opacity: 0.05, duration: 0.5 });
-      if (decor2) gsap.to(decor2, { scale: 1, opacity: 0.03, rotation: 0, duration: 0.8 });
-      if (border) gsap.to(border, { borderColor: "transparent", duration: 0.3 });
-      
+      if (decor2)
+        gsap.to(decor2, {
+          scale: 1,
+          opacity: 0.03,
+          rotation: 0,
+          duration: 0.8,
+        });
+      if (border)
+        gsap.to(border, { borderColor: "transparent", duration: 0.3 });
+
       if (pulse) {
         gsap.killTweensOf(pulse);
         gsap.to(pulse, { scale: 1, opacity: 0, duration: 0.3 });
@@ -149,11 +178,17 @@ const ServiceCard: React.FC<{
       if (path) {
         gsap.to(path, { strokeDashoffset: "100%", duration: 0.5 });
       }
-      
-      particles.forEach(particle => {
+
+      particles.forEach((particle) => {
         if (particle) {
           gsap.killTweensOf(particle);
-          gsap.to(particle, { opacity: 0, scale: 0, x: 0, y: 0, duration: 0.3 });
+          gsap.to(particle, {
+            opacity: 0,
+            scale: 0,
+            x: 0,
+            y: 0,
+            duration: 0.3,
+          });
         }
       });
     }
@@ -164,12 +199,12 @@ const ServiceCard: React.FC<{
       const rect = event.currentTarget.getBoundingClientRect();
       const x = (event.clientX - rect.left - rect.width / 2) / 10;
       const y = (event.clientY - rect.top - rect.height / 2) / 10;
-      
+
       gsap.to(contentRef.current, {
         rotationY: x,
         rotationX: -y,
         duration: 0.3,
-        ease: "power2.out"
+        ease: "power2.out",
       });
     }
   };
@@ -180,7 +215,7 @@ const ServiceCard: React.FC<{
         rotationY: 0,
         rotationX: 0,
         duration: 0.5,
-        ease: "power2.out"
+        ease: "power2.out",
       });
     }
     onMouseLeave();
@@ -217,7 +252,7 @@ const ServiceCard: React.FC<{
         opacity="0.1"
         style={{
           strokeDasharray: "100%",
-          strokeDashoffset: "100%"
+          strokeDashoffset: "100%",
         }}
       />
     </svg>
@@ -238,7 +273,8 @@ const ServiceCard: React.FC<{
           className="relative h-full p-6 lg:p-8 rounded-2xl lg:rounded-3xl text-right overflow-hidden cursor-pointer"
           style={{
             backgroundColor: "rgba(255, 255, 255, 0.8)",
-            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)"
+            boxShadow:
+              "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)",
           }}
         >
           <SVGBackground serviceId={service.id} />
@@ -265,10 +301,7 @@ const ServiceCard: React.FC<{
               </p>
             </div>
 
-            <div
-              ref={iconRef}
-              className="flex-shrink-0 relative"
-            >
+            <div ref={iconRef} className="flex-shrink-0 relative">
               <div
                 ref={pulseRef}
                 className="absolute inset-0 rounded-full opacity-0"
@@ -285,7 +318,9 @@ const ServiceCard: React.FC<{
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  ref={el => { if (el) particlesRef.current[i] = el; }}
+                  ref={(el) => {
+                    if (el) particlesRef.current[i] = el;
+                  }}
                   className="absolute w-2 h-2 rounded-full opacity-0"
                   style={{ backgroundColor: service.color }}
                 />
@@ -337,7 +372,7 @@ const BusinessServices = () => {
         scale: 1.2,
         duration: 20,
         repeat: -1,
-        ease: "none"
+        ease: "none",
       });
     }
     if (bg2) {
@@ -346,12 +381,13 @@ const BusinessServices = () => {
         scale: 0.8,
         duration: 25,
         repeat: -1,
-        ease: "none"
+        ease: "none",
       });
     }
 
     if (header) {
-      gsap.fromTo(header,
+      gsap.fromTo(
+        header,
         { opacity: 0, y: -30 },
         {
           opacity: 1,
@@ -361,14 +397,15 @@ const BusinessServices = () => {
           scrollTrigger: {
             trigger: header,
             start: "top 80%",
-            once: true
-          }
+            once: true,
+          },
         }
       );
     }
 
     if (cta) {
-      gsap.fromTo(cta,
+      gsap.fromTo(
+        cta,
         { opacity: 0, y: 40 },
         {
           opacity: 1,
@@ -379,14 +416,15 @@ const BusinessServices = () => {
           scrollTrigger: {
             trigger: cta,
             start: "top 80%",
-            once: true
-          }
+            once: true,
+          },
         }
       );
     }
 
     if (stats) {
-      gsap.fromTo(stats,
+      gsap.fromTo(
+        stats,
         { opacity: 0, y: 50 },
         {
           opacity: 1,
@@ -397,14 +435,14 @@ const BusinessServices = () => {
           scrollTrigger: {
             trigger: stats,
             start: "top 80%",
-            once: true
-          }
+            once: true,
+          },
         }
       );
     }
 
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
 
@@ -466,7 +504,10 @@ const BusinessServices = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-16 lg:py-24 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="py-16 lg:py-24 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden"
+    >
       <div className="absolute inset-0 overflow-hidden">
         <div
           ref={bg1Ref}
