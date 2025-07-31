@@ -414,7 +414,7 @@ const Navbar = () => {
                           <FiUser size={18} className="text-[#01ae9b]" />
                         </div>
                         <span className="font-medium text-sm truncate max-w-[60px]">
-                          {user.name.slice(0, 5)}
+                          {user.name}
                         </span>
                       </div>
 
