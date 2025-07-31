@@ -6,8 +6,8 @@ import {
   FiHome,
   FiSearch,
   FiPlusCircle,
-  FiMessageCircle,
   FiUser,
+  FiHeart,
 } from "react-icons/fi";
 
 interface MenuItem {
@@ -27,28 +27,30 @@ const menuItems: MenuItem[] = [
     adminSection: "dashboard",
   },
   {
-    icon: <FiSearch size={22} />,
-    activeIcon: <FiSearch size={22} fill="currentColor" />,
-    label: "جستجو",
-    adminSection: "properties",
+    icon: <FiHeart size={22} />,
+    activeIcon: <FiHeart size={22} fill="currentColor" />,
+    label: "علاقه مندی‌ها",
+    adminSection: "favorite",
   },
   {
     icon: <FiPlusCircle size={26} />,
     activeIcon: <FiPlusCircle size={26} fill="currentColor" />,
-    label: "افزودن ملک",
+    label: "ثبت آگهی",
     adminSection: "Addposter",
   },
   {
-    icon: <FiMessageCircle size={22} />,
-    activeIcon: <FiMessageCircle size={22} fill="currentColor" />,
-    label: "پیام‌ها",
-    adminSection: "real-estate-requests",
+    icon: <FiSearch size={22} />,
+    activeIcon: <FiSearch size={22} fill="currentColor" />,
+    label: "آگهی‌ها",
+    // adminSection: "real-estate-requests",
+    href: "/poster",
   },
   {
     icon: <FiUser size={22} />,
     activeIcon: <FiUser size={22} fill="currentColor" />,
-    label: "پروفایل",
-    adminSection: "users",
+    label: "خدمات",
+    // adminSection: "users",
+    href: "/services",
   },
 ];
 

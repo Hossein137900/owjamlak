@@ -32,6 +32,7 @@ import ConsultantManager from "./consultant/consultantManager";
 import PropertyListings from "./posters/propertyListings";
 import AdminFavoritesPage from "./favorites/page";
 import MessagesPage from "./contactForm/messagesPage";
+import PosterById from "./posters/posterById";
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -94,6 +95,7 @@ const AdminLayout: React.FC = () => {
   const menuItems = [
     { id: "dashboard", icon: <FiHome />, label: "داشبورد" },
     { id: "properties", icon: <FiLayers />, label: "آگهی‌های ملک" },
+    { id: "Myproperties", icon: <FiLayers />, label: "آگهی‌های من" },
     { id: "Addposter", icon: <FiHome />, label: "ساخت آگهی" },
     {
       id: "real-estate-requests",
@@ -150,6 +152,8 @@ const AdminLayout: React.FC = () => {
         return <UsersManagement />;
       case "newsletter":
         return <NewsletterManagement />;
+      case "Myproperties":
+        return <PosterById  />;
     
       case "Consultant":
         return <ConsultantManager />;

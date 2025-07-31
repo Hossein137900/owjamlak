@@ -83,7 +83,7 @@ export const getPosterById = async (id: string) => {
       return NextResponse.json({ message: "آگهی پیدا نشد" }, { status: 404 });
     }
 
-    poster.views = (poster.views || 0) + 1;
+    poster.views = poster.views + 1;
     await poster.save();
     return NextResponse.json(poster, { status: 200 });
   } catch (error) {

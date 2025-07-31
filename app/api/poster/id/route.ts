@@ -5,7 +5,7 @@ import { getPosterById } from "@/middlewares/poster";
 export async function GET(req: NextRequest) {
   await connect();
   try {
-    const  id  = await req.headers.get("id");
+    const id = await req.headers.get("id");
     if (!id) {
       return NextResponse.json(
         { message: "Poster ID is required" },
