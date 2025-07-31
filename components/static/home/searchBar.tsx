@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   FaSearch,
   FaMapMarkerAlt,
@@ -19,6 +20,7 @@ export default function SearchBar({
   className = "",
   compact = true,
 }: SearchBarProps) {
+  const router = useRouter()
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(compact);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -216,6 +218,13 @@ export default function SearchBar({
     ],
   };
 
+  // ✅ تابع جستجو
+  const handleSearch = () => {
+    if (selectedNeighborhood) {
+      router.push(`/poster?query=${encodeURIComponent(selectedNeighborhood)}`);
+    }
+  };
+
   return (
     <motion.div
       className={`bg-white/10 backdrop-blur-[2px] mt-20 md:mt-0 rounded-2xl shadow-lg p-5 sm:p-6 border border-white/20 relative ${className}`}
@@ -287,10 +296,11 @@ export default function SearchBar({
             {compact && (
               <motion.button
                 className="text-gray-400  h-full px-4 sm:px-6 flex items-center justify-center  transition-all duration-300"
+                onClick={handleSearch}
                 whileHover={{
                   scale: 1.05,
                   backgroundColor: "#8B3BC7",
-                }}
+                }}  
                 whileTap={{ scale: 0.95 }}
               >
                 <FaSearch className="text-sm sm:text-base" />
@@ -398,6 +408,7 @@ export default function SearchBar({
               {(!compact || expanded) && (
                 <motion.button
                   className="flex-1 bg-gradient-to-r from-[#00BC9B] to-[#00a589] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold flex items-center justify-center hover:from-[#00a589] hover:to-[#008f7a] transition-all duration-300 shadow-lg hover:shadow-xl"
+                  onClick={handleSearch}
                   whileTap={{ scale: 0.98 }}
                 >
                   <FaSearch className="ml-2 sm:ml-3 text-sm sm:text-base" />

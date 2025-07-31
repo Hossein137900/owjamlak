@@ -1,36 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import Poster from "@/models/poster";
 import User from "@/models/user";
-import Consultant from "@/models/consultant";
 import jwt from "jsonwebtoken";
 
 export const getAllPosters = async (req: NextRequest) => {
   try {
-    // ✅ گرفتن پارامترها از URL
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "8");
     const parentType = searchParams.get("parentType") || "";
     const tradeType = searchParams.get("tradeType") || "";
+    const searchQuery = searchParams.get("query") || "";
+    const isSuggestionMode = searchParams.get("suggestionsOnly") === "true";
 
     const skip = (page - 1) * limit;
 
-    // ✅ ساخت query
+    // 🔍 ساخت query
     const query: any = {};
     if (parentType) query.parentType = parentType;
     if (tradeType) query.tradeType = tradeType;
 
-    // ✅ تعداد کل
-    const totalPosters = await Poster.countDocuments(query);
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { description: { $regex: searchQuery, $options: "i" } },
+        { location: { $regex: searchQuery, $options: "i" } },
+        { address: { $regex: searchQuery, $options: "i" } },
+        { neighborhood: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
 
-    // ✅ دریافت آگهی‌ها
+    // ✅ اگر فقط پیشنهاد می‌خوایم
+    if (isSuggestionMode) {
+      const suggestionsRaw = await Poster.find(query)
+        .limit(10)
+        .select("title")
+        .lean();
+
+      const suggestions = Array.from(
+        new Set(suggestionsRaw.map((s) => s.title).filter(Boolean))
+      ).slice(0, 5);
+
+      return NextResponse.json({ suggestions });
+    }
+
+    // ✅ حالت عادی با paginate
+    const totalPosters = await Poster.countDocuments(query);
     const posters = await Poster.find(query)
       .populate({ path: "user", model: User })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    // ✅ محاسبه Pagination
     const totalPages = Math.ceil(totalPosters / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;

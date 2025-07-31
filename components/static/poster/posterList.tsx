@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSearch,
@@ -11,6 +11,7 @@ import {
   FiCalendar,
   FiLoader,
   FiX,
+  FiTag,
 } from "react-icons/fi";
 import ReportageBox from "./posterBox";
 import { Filters, Poster } from "@/types/type";
@@ -20,6 +21,8 @@ const PosterListPage = () => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [inputValue, setInputValue] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [posters, setPosters] = useState<Poster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
@@ -28,11 +31,9 @@ const PosterListPage = () => {
   const [page, setPage] = useState<number>(
     parseInt(searchParams.get("page") || "1")
   );
-  const [limit, setLimit] = useState<number>(
-    parseInt(searchParams.get("limit") || "9")
-  );
+  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "9"));
   const [filters, setFilters] = useState<Filters>({
-    search: "",
+    search: searchParams.get("query") || "",
     parentType: searchParams.get("parentType") || "",
     tradeType: searchParams.get("tradeType") || "",
     minPrice: "",
@@ -44,7 +45,7 @@ const PosterListPage = () => {
     // parentType: "",
   });
   const [mobileFilters, setMobileFilters] = useState({
-    search: "",
+    search: searchParams.get("query") || "",
     parentType: searchParams.get("parentType") || "",
     tradeType: searchParams.get("tradeType") || "",
     minPrice: "",
@@ -57,18 +58,21 @@ const PosterListPage = () => {
 
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [cameFromSearch, setCameFromSearch] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const updateURL = (
     p = page,
     l = limit,
     parent = filters.parentType,
-    trade = filters.tradeType
+    trade = filters.tradeType,
+    query = filters.search
   ) => {
     const params = new URLSearchParams();
     if (parent) params.set("parentType", parent);
     if (trade) params.set("tradeType", trade);
+    if (query) params.set("query", query);
     if (p) params.set("page", String(p));
     if (l) params.set("limit", String(l));
     router.replace(`${pathname}?${params.toString()}`);
@@ -121,6 +125,24 @@ const PosterListPage = () => {
     return filtered;
   }, [posters, filters]);
 
+  // ✅ تشخیص اینکه کاربر از جستجو آمده
+  useEffect(() => {
+    const queryFromURL = searchParams.get("query");
+    if (queryFromURL) {
+      setCameFromSearch(true);
+      // فوکوس روی اینپوت جستجو بعد از لود شدن کامپوننت
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      }, 500);
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     if (showFiltersMobile) {
       setMobileFilters(filters);
@@ -144,6 +166,7 @@ const PosterListPage = () => {
           limit: String(limit),
           ...(filters.parentType && { parentType: filters.parentType }),
           ...(filters.tradeType && { tradeType: filters.tradeType }),
+          ...(filters.search && { query: filters.search }),
         });
 
         const res = await fetch(`/api/poster?${query.toString()}`);
@@ -165,7 +188,7 @@ const PosterListPage = () => {
     };
 
     fetchData();
-  }, [page, limit, filters.parentType, filters.tradeType]);
+  }, [page, limit, filters.parentType, filters.tradeType, filters.search]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -192,9 +215,35 @@ const PosterListPage = () => {
     updateURL(
       1,
       limit,
-      key === "parentType" ? value : filters.parentType,
-      key === "tradeType" ? value : filters.tradeType
+      key === "parentType" ? value : updated.parentType,
+      key === "tradeType" ? value : updated.tradeType,
+      key === "search" ? value : updated.search
     );
+  };
+
+  const handleInputChangeSuggestion = async (value: string) => {
+    setInputValue(value);
+
+    if (value.trim().length >= 2) {
+      try {
+        const res = await fetch(
+          `/api/poster?query=${encodeURIComponent(value)}&suggestionsOnly=true`
+        );
+        const data = await res.json();
+        setSuggestions(data.suggestions || []);
+      } catch (e) {
+        console.error("Suggestion fetch error", e);
+      }
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (text: string) => {
+    setInputValue(text);
+    setSuggestions([]);
+
+    handleFilterChange("search", text); // همون تابعی که فیلترها رو آپدیت می‌کنه
   };
 
   const clearFilters = () => {
@@ -210,7 +259,7 @@ const PosterListPage = () => {
       location: "",
     });
     setPage(1);
-    updateURL(1, limit, "", "");
+    updateURL(1, limit, "", "", "");
   };
 
   const formatPosterForReportageBox = (poster: Poster) => {
@@ -286,9 +335,21 @@ const PosterListPage = () => {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
-                آگهی‌های املاک
-              </h1>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold text-gray-800">
+                  آگهی‌های املاک
+                </h1>
+                {cameFromSearch && filters.search && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#00BC9B] text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg"
+                  >
+                    <FiTag size={14} />
+                    <span>جستجو برای: {filters.search}</span>
+                  </motion.div>
+                )}
+              </div>
               <p className="text-gray-600 mt-1">
                 {filteredPos.length} آگهی از {posters.length} آگهی موجود
               </p>
@@ -362,18 +423,46 @@ const PosterListPage = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       جستجو
+                      {cameFromSearch && filters.search && (
+                        <span className="mr-2 text-xs bg-[#01ae9b] text-white px-2 py-0.5 rounded-full">
+                          فعال
+                        </span>
+                      )}
                     </label>
-                    <div className="relative">
-                      <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <div className="relative w-full">
                       <input
+                        ref={searchInputRef}
                         type="text"
-                        placeholder="جستجو..."
-                        value={filters.search}
+                        placeholder="جستجو در عنوان، توضیحات و موقعیت..."
+                        value={inputValue}
                         onChange={(e) =>
-                          handleFilterChange("search", e.target.value)
+                          handleInputChangeSuggestion(e.target.value)
                         }
-                        className="w-full pr-10 text-black pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                        className={`w-full pr-10 text-black pl-4 py-2 border rounded-lg transition-all duration-300 ${
+                          cameFromSearch && filters.search
+                            ? "border-[#01ae9b] ring-2 ring-[#01ae9b]/20 bg-[#01ae9b]/5"
+                            : "border-gray-300 focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                        }`}
                       />
+                      {suggestions.length > 0 && (
+                        <ul className="absolute z-10 w-full bg-white border rounded-lg shadow-md mt-1 max-h-60 overflow-auto">
+                          {suggestions.map((sugg, idx) => (
+                            <li
+                              key={idx}
+                              onClick={() => handleSuggestionClick(sugg)}
+                              className="px-4 py-2 hover:bg-[#01ae9b]/10 text-black cursor-pointer"
+                            >
+                              {sugg}
+                            </li>
+                          ))}
+                          <li
+                            className="px-4 py-2 text-center text-sm text-[#01ae9b] cursor-pointer hover:bg-gray-50"
+                            onClick={() => handleSuggestionClick(inputValue)}
+                          >
+                            نمایش همه نتایج برای "{inputValue}"
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </div>
 
@@ -528,14 +617,26 @@ const PosterListPage = () => {
                     <div className="relative">
                       <FiMapPin className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
+                        ref={searchInputRef}
                         type="text"
                         placeholder="نام منطقه یا محله..."
-                        value={filters.location}
+                        value={inputValue}
                         onChange={(e) =>
-                          handleFilterChange("location", e.target.value)
+                          handleInputChangeSuggestion(e.target.value)
                         }
                         className="w-full text-black pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                       />
+                      {/* نمایش فقط مقدار تایپ شده و امکان کلیک روی آن */}
+                      {inputValue.trim() !== "" && (
+                        <ul className="absolute z-10 w-full bg-white border rounded-lg shadow-md mt-1 max-h-60 overflow-auto">
+                          <li
+                            className="px-4 py-2 text-black cursor-pointer hover:bg-[#01ae9b]/10"
+                            onClick={() => handleSuggestionClick(inputValue)}
+                          >
+                            {inputValue.trim()}
+                          </li>
+                        </ul>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -546,21 +647,21 @@ const PosterListPage = () => {
           {/* Main Content */}
           <div className="flex-1">
             {/* Results Summary */}
-            <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <div
+              className={`bg-white rounded-xl shadow-sm p-4 mb-6 transition-all duration-300 ${
+                cameFromSearch && filters.search
+                  ? "ring-2 ring-[#01ae9b]/20 border border-[#01ae9b]/30"
+                  : ""
+              }`}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-gray-600">
                     <FiHome size={18} />
-                    <span>{filteredPos.length} آگهی یافت شد</span>
+                    <span className="font-medium">
+                      {filteredPos.length} آگهی یافت شد
+                    </span>
                   </div>
-                  {filters.search && (
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <span>برای:</span>
-                      <span className="bg-gray-100 px-2 py-1 rounded">
-                        {filters.search}
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -714,21 +815,66 @@ const PosterListPage = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       جستجو
+                      {cameFromSearch && mobileFilters.search && (
+                        <span className="mr-2 text-xs bg-[#01ae9b] text-white px-2 py-0.5 rounded-full">
+                          فعال
+                        </span>
+                      )}
                     </label>
                     <div className="relative">
-                      <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="جستجو..."
-                        value={mobileFilters.search}
-                        onChange={(e) =>
-                          setMobileFilters({
-                            ...mobileFilters,
-                            search: e.target.value,
-                          })
-                        }
-                        className="w-full pr-10 text-black pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                      <FiSearch
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                          cameFromSearch && mobileFilters.search
+                            ? "text-[#01ae9b]"
+                            : "text-gray-400"
+                        }`}
                       />
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        placeholder="جستجو در عنوان، توضیحات و موقعیت..."
+                        value={inputValue}
+                        onChange={(e) =>
+                          handleInputChangeSuggestion(e.target.value)
+                        }
+                        className={`w-full pr-10 text-black pl-4 py-2 border rounded-lg transition-all duration-300 ${
+                          cameFromSearch && mobileFilters.search
+                            ? "border-[#01ae9b] ring-2 ring-[#01ae9b]/20 bg-[#01ae9b]/5"
+                            : "border-gray-300 focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                        }`}
+                      />
+                      {suggestions.length > 0 && (
+                        <ul className="absolute z-10 w-full bg-white border rounded-lg shadow-md mt-1 max-h-60 overflow-auto">
+                          {suggestions.map((sugg, idx) => (
+                            <li
+                              key={idx}
+                              onClick={() => handleSuggestionClick(sugg)}
+                              className="px-4 py-2 hover:bg-[#01ae9b]/10 text-black cursor-pointer"
+                            >
+                              {sugg}
+                            </li>
+                          ))}
+                          <li
+                            className="px-4 py-2 text-center text-sm text-[#01ae9b] cursor-pointer hover:bg-gray-50"
+                            onClick={() => handleSuggestionClick(inputValue)}
+                          >
+                            نمایش همه نتایج برای "{inputValue}"
+                          </li>
+                        </ul>
+                      )}
+                      {mobileFilters.search && (
+                        <button
+                          onClick={() =>
+                            setMobileFilters({
+                              ...mobileFilters,
+                              search: "",
+                            })
+                          }
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          <FiX size={16} />
+                        </button>
+                      )}
                     </div>
                   </div>
 
