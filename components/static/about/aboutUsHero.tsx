@@ -4,6 +4,7 @@ import { useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FaUser, FaArrowLeft } from "react-icons/fa";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -276,14 +277,15 @@ export default function AboutUsHero() {
             برای زندگی تا یه سرمایه‌گذاری پرسود کلان، ما بلدیم چطوری کار می‌کنه
             و همیشه سعی می‌کنیم مشاوره‌ای بدیم که به نفع تو باشه.
           </p>
-
-          <button
-            ref={buttonRef}
-            className="bg-gradient-to-r from-[#66308d] to-[#01ae9b] hover:from-[#01ae9b] hover:to-[#66308d] text-white px-8 py-4 rounded-2xl font-bold transition-all duration-500 shadow-xl hover:shadow-2xl flex items-center gap-3 justify-center hover:scale-105 transform"
-          >
-            مشاوره رایگان
-            <FaArrowLeft className="h-4 w-4" />
-          </button>
+          <Link href="/services">
+            <button
+              ref={buttonRef}
+              className="bg-gradient-to-r from-[#66308d] to-[#01ae9b] hover:from-[#01ae9b] hover:to-[#66308d] text-white px-8 py-4 rounded-2xl font-bold transition-all duration-500 shadow-xl hover:shadow-2xl flex items-center gap-3 justify-center hover:scale-105 transform"
+            >
+              مشاوره رایگان
+              <FaArrowLeft className="h-4 w-4" />
+            </button>
+          </Link>
         </div>
       </div>
     </div>

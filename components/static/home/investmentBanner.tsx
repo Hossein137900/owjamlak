@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Link from "next/link";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -82,7 +83,7 @@ export default function InvestmentBanner() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full overflow-hidden bg-white py-16 px-6 md:px-16 flex flex-col md:flex-row items-center justify-between gap-10 rounded-2xl shadow-2xl"
+      className="relative w-full overflow-hidden bg-white py-16 px-6 md:px-16 flex flex-col md:flex-row items-center justify-between gap-10 rounded-2xl s"
     >
       {/* ====== تصویر ====== */}
       <div className="banner-image flex-1 flex justify-center z-10">
@@ -104,9 +105,11 @@ export default function InvestmentBanner() {
           با ما در بهترین و آینده‌دارترین پروژه‌های سرمایه‌گذاری همراه شوید. تیم
           ما بهترین فرصت‌ها را گلچین کرده و در اختیار شما قرار می‌دهد.
         </p>
-        <button className="mt-8 px-8 py-4 bg-[#7D3AC1] text-white font-semibold rounded-xl shadow-lg hover:bg-[#2DD4BF] transition-all">
-          مشاهده آگهی‌ها
-        </button>
+        <Link href={"/offers"} className="cursor-pointer">
+          <button className="mt-8 px-8 py-4 bg-[#7D3AC1] text-white cursor-pointer font-semibold rounded-xl shadow-lg hover:bg-[#2DD4BF] transition-all duration-300">
+            مشاهده آگهی‌ها
+          </button>
+        </Link>
       </div>
 
       {/* ====== بلاب‌های نرم ====== */}

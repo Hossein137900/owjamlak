@@ -10,6 +10,7 @@ export const getAllPosters = async (req: NextRequest) => {
     const limit = parseInt(searchParams.get("limit") || "8");
     const parentType = searchParams.get("parentType") || "";
     const tradeType = searchParams.get("tradeType") || "";
+    const type = searchParams.get("type") || "";
     const searchQuery = searchParams.get("query") || "";
     const isSuggestionMode = searchParams.get("suggestionsOnly") === "true";
 
@@ -19,6 +20,7 @@ export const getAllPosters = async (req: NextRequest) => {
     const query: any = {};
     if (parentType) query.parentType = parentType;
     if (tradeType) query.tradeType = tradeType;
+    if (type) query.type = type;
 
     if (searchQuery) {
       query.$or = [
@@ -200,7 +202,6 @@ export const getPostersByUser = async (req: Request) => {
 
     const decoded = jwt.verify(token, secret) as { id: string }; // 👈 تایپ اختیاری
     const userId = decoded.id; // 👈 بسته به اینکه توکن رو چطور ساختی
-    console.log(userId, "hhhhhhhhhhhhhhhhhhhhh");
     if (!userId) {
       return NextResponse.json(
         { message: "User ID not found in token" },

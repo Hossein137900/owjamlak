@@ -2,9 +2,9 @@
 import { motion } from "framer-motion";
 import React from "react";
 import BusinessApproach from "./businessApproach";
-import OurWorks from "@/components/global/ourWorks";
+// import OurWorks from "@/components/global/ourWorks";
 import Testimonials from "@/components/global/testimonials";
-import { testimonialsData, worksData } from "../../../data/data";
+// import { testimonialsData, worksData } from "../../../data/data";
 import Link from "next/link";
 import { BiHeadphone, BiLeftArrowAlt } from "react-icons/bi";
 
@@ -133,9 +133,9 @@ export default function OurApproachPage() {
       <BusinessApproach />
 
       {/* Our Works Section */}
-      <div id="our-works" className="bg-white py-16">
+      {/* <div id="our-works" className="bg-white py-16">
         <OurWorks works={worksData} />
-      </div>
+      </div> */}
 
       {/* Testimonials Section */}
       <Testimonials />

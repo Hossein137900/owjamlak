@@ -15,6 +15,7 @@ import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
 // import IranFlag from "../static/ui/iranFlag";
 import toast from "react-hot-toast";
 import MapModal from "../static/ui/mapModal";
+import { usePathname } from "next/navigation";
 
 // Pre-generate window positions to avoid hydration mismatch
 const windowPositions = [
@@ -140,6 +141,8 @@ const itemVariants = {
 };
 
 const Footer = () => {
+  const pathname = usePathname();
+
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{
@@ -153,6 +156,31 @@ const Footer = () => {
   const handleMapClick = () => {
     setIsMapModalOpen(true);
   };
+
+  // Contact information with updated map item
+  const contactInfo = [
+    {
+      icon: FiPhone,
+      text: "۰۲۱-۱۲۳۴۵۶۷۸",
+      href: "tel:+982112345678",
+      isClickable: true,
+      onClick: null,
+    },
+    {
+      icon: FiMail,
+      text: "info@amalak.com",
+      href: "mailto:info@amalak.com",
+      isClickable: true,
+      onClick: null,
+    },
+    {
+      icon: FiMapPin,
+      text: "تهران، خیابان ولیعصر، پلاک ۱۲۳",
+      href: "#",
+      isClickable: true,
+      onClick: handleMapClick,
+    },
+  ];
 
   const closeMapModal = () => {
     setIsMapModalOpen(false);
@@ -196,30 +224,9 @@ const Footer = () => {
     }
   };
 
-  // Contact information with updated map item
-  const contactInfo = [
-    {
-      icon: FiPhone,
-      text: "۰۲۱-۱۲۳۴۵۶۷۸",
-      href: "tel:+982112345678",
-      isClickable: true,
-      onClick: null,
-    },
-    {
-      icon: FiMail,
-      text: "info@amalak.com",
-      href: "mailto:info@amalak.com",
-      isClickable: true,
-      onClick: null,
-    },
-    {
-      icon: FiMapPin,
-      text: "تهران، خیابان ولیعصر، پلاک ۱۲۳",
-      href: "#",
-      isClickable: true,
-      onClick: handleMapClick,
-    },
-  ];
+  if (pathname === "/auth") {
+    return null;
+  }
 
   return (
     <>

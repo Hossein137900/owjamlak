@@ -93,7 +93,7 @@ const ConsultantFilters: React.FC<ConsultantFiltersProps> = ({
 
   return (
     <div
-      className="bg-white rounded-lg max-w-2xl mx-auto shadow-md p-6 mb-6"
+      className="bg-white rounded-lg max-w-2xl mx-auto p-6 mb-6"
       dir="rtl"
     >
       {/* Search Bar */}

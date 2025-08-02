@@ -29,6 +29,7 @@ import {
 import { User } from "@/types/type";
 import TopBar from "../static/ui/topBar";
 import MapModal from "../static/ui/mapModal";
+import { usePathname } from "next/navigation";
 
 // JWT decode function
 const decodeJWT = (token: string) => {
@@ -49,7 +50,7 @@ const decodeJWT = (token: string) => {
 };
 const Navbar = () => {
   const mapButtonRef = useRef<HTMLButtonElement>(null);
-
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDrop, setIsOpenDrop] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -82,6 +83,7 @@ const Navbar = () => {
     const checkAuth = () => {
       const token = localStorage.getItem("token");
       if (!token) {
+        setUser(null);
         setIsLoadingUser(false);
         return;
       }
@@ -120,6 +122,26 @@ const Navbar = () => {
     };
 
     checkAuth();
+
+    // Listen for storage changes (when token is added/removed)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "token") {
+        checkAuth();
+      }
+    };
+
+    // Listen for custom auth events
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authChange", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authChange", handleAuthChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -197,6 +219,10 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
+  if (pathname === "/auth") {
+    return null;
+  }
+
   return (
     <>
       {/* Top Contact Bar - Now responsive for all devices */}
@@ -238,19 +264,6 @@ const Navbar = () => {
               className="flex items-center"
             >
               <Link href="/" className="flex items-center gap-3 group">
-                <div className="flex flex-col">
-                  <motion.span
-                    className={`text-xl lg:text-2xl font-bold transition-all duration-300 ${
-                      scrolled ? "text-[#01ae9b]" : "text-gray-800"
-                    }`}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    املاک
-                  </motion.span>
-                  <span className="text-xs text-gray-500 font-medium">
-                    مشاور املاک
-                  </span>
-                </div>
                 <motion.div
                   className="relative h-10 w-10 lg:h-12 lg:w-12 overflow-hidden rounded-xl"
                   whileHover={{ scale: 1.05, rotate: 5 }}
@@ -265,12 +278,22 @@ const Navbar = () => {
                     priority
                   />
                 </motion.div>
+                <div className="flex flex-col">
+                  <motion.span
+                    className={`text-xl lg:text-2xl font-bold transition-all duration-300 ${
+                      scrolled ? "text-[#01ae9b]" : "text-gray-800"
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    املاک
+                  </motion.span>
+                </div>
               </Link>
             </motion.div>
 
             {/* Desktop Menu */}
             <nav className="hidden lg:flex items-center">
-              <div className="flex items-center gap-8 ml-8">
+              <div className="flex items-center gap-2 ml-12">
                 {navItems.map((item, index) => (
                   <motion.div
                     key={item.href}
@@ -380,10 +403,14 @@ const Navbar = () => {
                     ) : (
                       <Link href={item.href} className="relative group">
                         <motion.span
-                          className="text-sm lg:text-base font-medium transition-all duration-300 text-gray-700 hover:text-[#01ae9b] py-2 px-3 rounded-lg hover:bg-gray-50 block"
+                          className={`text-sm lg:text-base font-medium transition-all duration-300 py-3 px-4 rounded-xl block relative overflow-hidden ${
+                            activeItem === item.href
+                              ? "text-gray-700"
+                              : "text-gray-700 hover:text-[#01ae9b] hover:bg-gradient-to-r hover:from-[#01ae9b]/10 hover:to-[#66308d]/10"
+                          }`}
                           whileHover={{ scale: 1.02 }}
                         >
-                          {item.name}
+                          <span className="relative z-10">{item.name}</span>
                         </motion.span>
                       </Link>
                     )}
@@ -407,15 +434,20 @@ const Navbar = () => {
                       onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      className="flex items-center justify-between gap-2 rounded-full border border-[#01ae9b]/20 bg-white text-gray-800 px-2 py-2 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-[#01ae9b]/10 focus:outline-none focus:ring-2 focus:ring-[#01ae9b]/50 "
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-[#01ae9b]/20 bg-white text-gray-800 px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#01ae9b]/10 hover:to-[#66308d]/10 focus:outline-none focus:ring-2 focus:ring-[#01ae9b]/50 min-w-[140px]"
                     >
-                      <div className="flex items-center gap-2">
-                        <div className="bg-[#01ae9b]/10 p-2 rounded-full">
-                          <FiUser size={18} className="text-[#01ae9b]" />
+                      <div className="flex items-center gap-3">
+                        <div className="bg-gradient-to-r from-[#01ae9b] to-[#66308d] p-2 rounded-xl shadow-sm">
+                          <FiUser size={16} className="text-white" />
                         </div>
-                        <span className="font-medium text-sm truncate max-w-[60px]">
-                          {user.name}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-sm text-gray-800 truncate max-w-[80px]">
+                            {user.name}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            کاربر سایت
+                          </span>
+                        </div>
                       </div>
 
                       <motion.div
@@ -513,8 +545,11 @@ const Navbar = () => {
                         boxShadow: "0 10px 25px rgba(1, 174, 155, 0.3)",
                       }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-[#01ae9b] to-[#66308d] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-white/20"
+                      className="flex items-center gap-3 bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300"
                     >
+                      <div className="bg-white/20 p-1.5 rounded-lg">
+                        <FiUser size={16} className="text-white" />
+                      </div>
                       ورود / ثبت نام
                     </motion.button>
                   </Link>

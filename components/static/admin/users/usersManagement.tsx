@@ -181,8 +181,9 @@ const UsersManagement: React.FC = () => {
       const data: ApiResponse = await response.json();
 
       if (data.success) {
+        fetchUsers();
         setUsers(users.filter((user) => user._id !== userId));
-        toast.success("کاربر با موفقیت حذف شد");
+        toast.success(`کاربر  با موفقیت حذف شد`);
         setShowDeleteModal(false);
         setUserToDelete(null);
       } else {

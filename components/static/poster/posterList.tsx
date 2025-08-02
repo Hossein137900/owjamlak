@@ -56,6 +56,20 @@ const PosterListPage = () => {
     location: "",
   });
 
+  const [tempMobileFilters, setTempMobileFilters] = useState({
+    minPrice: "",
+    maxPrice: "",
+    minArea: "",
+    maxArea: "",
+  });
+
+  const [tempFilters, setTempFilters] = useState({
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    minArea: filters.minArea,
+    maxArea: filters.maxArea,
+  });
+
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
@@ -102,10 +116,26 @@ const PosterListPage = () => {
       filtered = filtered.filter((p) => p.tradeType === filters.tradeType);
     }
     if (filters.minPrice) {
-      filtered = filtered.filter((p) => p.totalPrice >= +filters.minPrice);
+      filtered = filtered.filter((p) => {
+        const isRentType =
+          p.parentType === "residentialRent" ||
+          p.parentType === "commercialRent";
+        const priceToCheck = isRentType
+          ? p.depositRent || 0
+          : p.totalPrice || 0;
+        return priceToCheck >= +filters.minPrice;
+      });
     }
     if (filters.maxPrice) {
-      filtered = filtered.filter((p) => p.totalPrice <= +filters.maxPrice);
+      filtered = filtered.filter((p) => {
+        const isRentType =
+          p.parentType === "residentialRent" ||
+          p.parentType === "commercialRent";
+        const priceToCheck = isRentType
+          ? p.depositRent || 0
+          : p.totalPrice || 0;
+        return priceToCheck <= +filters.maxPrice;
+      });
     }
     if (filters.minArea) {
       filtered = filtered.filter((p) => p.area >= +filters.minArea);
@@ -146,6 +176,12 @@ const PosterListPage = () => {
   useEffect(() => {
     if (showFiltersMobile) {
       setMobileFilters(filters);
+      setTempMobileFilters({
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        minArea: filters.minArea,
+        maxArea: filters.maxArea,
+      });
     }
   }, [showFiltersMobile]);
 
@@ -257,6 +293,12 @@ const PosterListPage = () => {
       maxArea: "",
       rooms: "",
       location: "",
+    });
+    setTempFilters({
+      minPrice: "",
+      maxPrice: "",
+      minArea: "",
+      maxArea: "",
     });
     setPage(1);
     updateURL(1, limit, "", "", "");
@@ -527,9 +569,22 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداقل"
-                          value={filters.minPrice}
+                          value={tempFilters.minPrice}
                           onChange={(e) =>
+                            setTempFilters((prev) => ({
+                              ...prev,
+                              minPrice: e.target.value,
+                            }))
+                          }
+                          onBlur={(e) =>
                             handleFilterChange("minPrice", e.target.value)
+                          }
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            handleFilterChange(
+                              "minPrice",
+                              e.currentTarget.value
+                            )
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -541,9 +596,22 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداکثر"
-                          value={filters.maxPrice}
+                          value={tempFilters.maxPrice}
                           onChange={(e) =>
+                            setTempFilters((prev) => ({
+                              ...prev,
+                              maxPrice: e.target.value,
+                            }))
+                          }
+                          onBlur={(e) =>
                             handleFilterChange("maxPrice", e.target.value)
+                          }
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            handleFilterChange(
+                              "maxPrice",
+                              e.currentTarget.value
+                            )
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -564,9 +632,19 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداقل"
-                          value={filters.minArea}
+                          value={tempFilters.minArea}
                           onChange={(e) =>
+                            setTempFilters((prev) => ({
+                              ...prev,
+                              minArea: e.target.value,
+                            }))
+                          }
+                          onBlur={(e) =>
                             handleFilterChange("minArea", e.target.value)
+                          }
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            handleFilterChange("minArea", e.currentTarget.value)
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -578,9 +656,19 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداکثر"
-                          value={filters.maxArea}
+                          value={tempFilters.maxArea}
                           onChange={(e) =>
+                            setTempFilters((prev) => ({
+                              ...prev,
+                              maxArea: e.target.value,
+                            }))
+                          }
+                          onBlur={(e) =>
                             handleFilterChange("maxArea", e.target.value)
+                          }
+                          onKeyDown={(e) =>
+                            e.key === "Enter" &&
+                            handleFilterChange("maxArea", e.currentTarget.value)
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -957,18 +1045,12 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداقل"
-                          value={
-                            showFiltersMobile
-                              ? mobileFilters.minPrice
-                              : filters.minPrice
-                          }
+                          value={tempMobileFilters.minPrice}
                           onChange={(e) =>
-                            showFiltersMobile
-                              ? setMobileFilters({
-                                  ...mobileFilters,
-                                  minPrice: e.target.value,
-                                })
-                              : handleFilterChange("minPrice", e.target.value)
+                            setTempMobileFilters((prev) => ({
+                              ...prev,
+                              minPrice: e.target.value,
+                            }))
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -980,18 +1062,12 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداکثر"
-                          value={
-                            showFiltersMobile
-                              ? mobileFilters.maxPrice
-                              : filters.maxPrice
-                          }
+                          value={tempMobileFilters.maxPrice}
                           onChange={(e) =>
-                            showFiltersMobile
-                              ? setMobileFilters({
-                                  ...mobileFilters,
-                                  maxPrice: e.target.value,
-                                })
-                              : handleFilterChange("maxPrice", e.target.value)
+                            setTempMobileFilters((prev) => ({
+                              ...prev,
+                              maxPrice: e.target.value,
+                            }))
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -1012,18 +1088,12 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداقل"
-                          value={
-                            showFiltersMobile
-                              ? mobileFilters.minArea
-                              : filters.minArea
-                          }
+                          value={tempMobileFilters.minArea}
                           onChange={(e) =>
-                            showFiltersMobile
-                              ? setMobileFilters({
-                                  ...mobileFilters,
-                                  minArea: e.target.value,
-                                })
-                              : handleFilterChange("minArea", e.target.value)
+                            setTempMobileFilters((prev) => ({
+                              ...prev,
+                              minArea: e.target.value,
+                            }))
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -1035,18 +1105,12 @@ const PosterListPage = () => {
                         <input
                           type="number"
                           placeholder="حداکثر"
-                          value={
-                            showFiltersMobile
-                              ? mobileFilters.maxArea
-                              : filters.maxArea
-                          }
+                          value={tempMobileFilters.maxArea}
                           onChange={(e) =>
-                            showFiltersMobile
-                              ? setMobileFilters({
-                                  ...mobileFilters,
-                                  maxArea: e.target.value,
-                                })
-                              : handleFilterChange("maxArea", e.target.value)
+                            setTempMobileFilters((prev) => ({
+                              ...prev,
+                              maxArea: e.target.value,
+                            }))
                           }
                           className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                         />
@@ -1117,7 +1181,20 @@ const PosterListPage = () => {
                   <button
                     onClick={() => {
                       // اعمال فیلترها وقتی کاربر دکمه را می‌زند
-                      setFilters(mobileFilters);
+                      const updatedMobileFilters = {
+                        ...mobileFilters,
+                        minPrice: tempMobileFilters.minPrice,
+                        maxPrice: tempMobileFilters.maxPrice,
+                        minArea: tempMobileFilters.minArea,
+                        maxArea: tempMobileFilters.maxArea,
+                      };
+                      setFilters(updatedMobileFilters);
+                      setTempFilters({
+                        minPrice: tempMobileFilters.minPrice,
+                        maxPrice: tempMobileFilters.maxPrice,
+                        minArea: tempMobileFilters.minArea,
+                        maxArea: tempMobileFilters.maxArea,
+                      });
                       setShowFiltersMobile(false);
                     }}
                     className="w-full py-3 bg-[#01ae9b] text-white rounded-lg hover:bg-[#018a7a] transition-colors font-medium"

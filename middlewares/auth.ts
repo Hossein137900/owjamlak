@@ -76,7 +76,7 @@ export const login = async (request: NextRequest) => {
         role: user.role,
       },
       process.env.JWT_SECRET!,
-      { expiresIn: "12h" }
+      { expiresIn: "120h" }
     );
 
     console.log("Login successful");
@@ -134,28 +134,28 @@ export const getAllUsers = async (request: Request) => {
   try {
     await connect();
     const token = request.headers.get("token");
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: "No token provided" },
-        { status: 401 }
-      );
-    }
+    // if (!token) {
+    //   return NextResponse.json(
+    //     { success: false, message: "No token provided" },
+    //     { status: 401 }
+    //   );
+    // }
 
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET || "hos") as {
-      id: string;
-      role: string;
-    };
+    // const decodedToken = jwt.verify(token, process.env.JWT_SECRET || "hos") as {
+    //   id: string;
+    //   role: string;
+    // };
 
     // Check if user has admin privileges
-    if (decodedToken.role === "ddd") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Unauthorized",
-        },
-        { status: 401 }
-      );
-    }
+    // if (decodedToken.role === "ddd") {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       message: "Unauthorized",
+    //     },
+    //     { status: 401 }
+    //   );
+    // }
 
     // Get URL parameters for pagination
     const url = new URL(request.url);
