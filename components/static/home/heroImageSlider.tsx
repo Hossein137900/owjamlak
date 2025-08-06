@@ -5,9 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { HiOutlineEye, HiOutlineLocationMarker } from "react-icons/hi";
-import { BiArea } from "react-icons/bi";
-import { IoBedOutline } from "react-icons/io5";
 import { Poster } from "@/types/type";
+import { FiLoader } from "react-icons/fi";
 
 const HeroImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -86,10 +85,12 @@ const HeroImageSlider = () => {
   if (loading || !currentPoster) {
     return (
       <div className="col-span-8 row-span-6 flex items-center justify-center bg-[#01ae9b]/10 rounded-tr-3xl rounded-br-3xl">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#01ae9b]"></div>
+        <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />{" "}
       </div>
     );
   }
+
+
 
   if (error) {
     return (

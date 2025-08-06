@@ -360,7 +360,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="sm:flex hidden items-center  justify-between">
             <div className="bg-[#01ae9b] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#018a7a] transition-colors duration-200 flex items-center justify-center gap-2">
               <span>مشاهده جزئیات</span>
               <FaChevronLeft className="text-xs" />

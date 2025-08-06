@@ -9,6 +9,8 @@ import {
   FaBuilding,
   FaWarehouse,
   FaChevronDown,
+  FaKey,
+  FaHammer,
 } from "react-icons/fa";
 
 interface SearchBarProps {
@@ -20,7 +22,7 @@ export default function SearchBar({
   className = "",
   compact = true,
 }: SearchBarProps) {
-  const router = useRouter()
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(compact);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
@@ -90,9 +92,12 @@ export default function SearchBar({
   };
 
   const filterOptions = [
-    { id: "residential", icon: FaHome, label: "مسکونی" },
-    { id: "commercial", icon: FaBuilding, label: "تجاری" },
-    { id: "industrial", icon: FaWarehouse, label: "صنعتی" },
+    { id: "residentialSale", icon: FaHome, label: "فروش مسکونی" },
+    { id: "residentialRent", icon: FaKey, label: "اجاره مسکونی" },
+    { id: "commercialSale", icon: FaBuilding, label: "فروش تجاری" },
+    { id: "commercialRent", icon: FaWarehouse, label: "اجاره تجاری" },
+    { id: "shortTermRent", icon: FaKey, label: " کوتاه مدت" },
+    { id: "ConstructionProject", icon: FaHammer, label: "پروژه ساخت" },
   ];
 
   const locationData: { [key: string]: string[] } = {
@@ -220,9 +225,17 @@ export default function SearchBar({
 
   // ✅ تابع جستجو
   const handleSearch = () => {
+    const params = new URLSearchParams();
+
     if (selectedNeighborhood) {
-      router.push(`/poster?query=${encodeURIComponent(selectedNeighborhood)}`);
+      params.append("query", selectedNeighborhood);
     }
+
+    if (activeFilter) {
+      params.append("parentType", activeFilter);
+    }
+
+    router.push(`/poster?${params.toString()}`);
   };
 
   return (
@@ -252,7 +265,7 @@ export default function SearchBar({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.3 }}
-                className="absolute top-full right-0 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-[300px] overflow-y-auto mt-2"
+                className="absolute -top-20 right-0 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-[300px] overflow-y-auto mt-2"
               >
                 {!selectedDistrict ? (
                   Object.keys(locationData).map((district) => (
@@ -300,7 +313,7 @@ export default function SearchBar({
                 whileHover={{
                   scale: 1.05,
                   backgroundColor: "#8B3BC7",
-                }}  
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 <FaSearch className="text-sm sm:text-base" />
@@ -341,7 +354,7 @@ export default function SearchBar({
           <div className="">
             {/* Filter Options */}
             <motion.div
-              className="grid grid-cols-3 gap-3  mb-6"
+              className="grid grid-cols-3 md:grid-cols-6 gap-1 md:gap-3 mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{
                 opacity: expanded ? 1 : 0,
@@ -356,10 +369,10 @@ export default function SearchBar({
               {filterOptions.map((option, index) => (
                 <motion.button
                   key={option.id}
-                  className={`flex flex-col items-center justify-center w-full p-3  rounded-xl transition-all duration-300 ${
+                  className={`flex flex-col items-center justify-center w-full p-2  rounded-xl transition-all duration-300 ${
                     activeFilter === option.id
                       ? "md:bg-[#A14BE0]  bg-[#A14BE0] border text-white shadow-lg transform scale-105"
-                      : "md:bg-white/90 text-[#fff] md:text-black border  border-white/20 hover:bg-[#A14BE0]/10 hover:shadow-md hover:scale-102"
+                      : "md:bg-white/5 text-[#fff] md:text-black border  border-white/20 hover:bg-whote/50 hover:shadow-md hover:scale-102"
                   }`}
                   onClick={() =>
                     setActiveFilter(
@@ -382,8 +395,8 @@ export default function SearchBar({
                     ease: "easeOut",
                   }}
                 >
-                  <option.icon className="text-xl sm:text-2xl mb-2 sm:mb-3" />
-                  <span className="text-sm sm:text-base font-medium">
+                  <option.icon className="text-sm sm:text-base mb-2 sm:mb-3" />
+                  <span className="text-sm sm:text-sm font-medium">
                     {option.label}
                   </span>
                 </motion.button>

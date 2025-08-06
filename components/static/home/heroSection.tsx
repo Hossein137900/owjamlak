@@ -1,148 +1,167 @@
 "use client";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import SearchBar from "./searchBar";
 import HeroImageSlider from "./heroImageSlider";
 
-export default function RealEstateSearch() {
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
-    },
-  };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
+export default function RealEstateSearch() {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const imageGridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    gsap.set([titleRef.current, descRef.current, searchRef.current], {
+      y: 50,
+      opacity: 0,
+    });
+    gsap.set(imageGridRef.current, {
+      x: 100,
+      opacity: 0,
+    });
+
+    tl.to(titleRef.current, {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 100 },
-    },
-  };
+      duration: 0.8,
+      ease: "power2.out",
+    })
+      .to(
+        descRef.current,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: "power2.out",
+        },
+        "-=0.4"
+      )
+      .to(
+        searchRef.current,
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: "power2.out",
+        },
+        "-=0.3"
+      )
+      .to(
+        imageGridRef.current,
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.8,
+          ease: "power2.out",
+        },
+        "-=0.5"
+      );
+  }, []);
 
   return (
-    <motion.div
-      className="relative p-6 md:p-10 md:rounded-2xl overflow-hidden h-screen 
-             bg-gradient-to-br from-[#01ae9b] via-[#cd90f8] to-[#fff]"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
+    <div
+      className="relative h-screen overflow-hidden bg-white"
       dir="rtl"
+      style={{
+        backgroundImage: `url("/assets/images/bg.png")`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "600px",
+        backgroundPosition: "right",
+        backfaceVisibility:"revert"
+      }}
     >
-  
-      {/* Mobile background image - only visible on small screens */}
+      {/* Mobile background */}
       <div className="absolute inset-0 sm:hidden">
-        <div className="w-full h-full rounded-2xl overflow-hidden">
-          <Image
-            src="/assets/images/hero2.png"
-            alt="Modern apartment"
-            fill
-            sizes="100vw"
-            style={{ objectFit: "cover" }}
-            className="transition-transform duration-700 hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30"></div>
+        <Image
+          src="/assets/images/hero2.png"
+          alt="Modern apartment"
+          fill
+          style={{ objectFit: "cover" }}
+        />
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
+
+      <div className="relative z-10 h-full flex items-center">
+        <div className="max-w-7xl mx-auto px-6 md:px-10 w-full">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            {/* Text Section */}
+            <div className="md:w-2/5">
+              <h1
+                ref={titleRef}
+                className="text-3xl md:text-4xl font-bold  text-right text-white sm:text-gray-800 mb-3"
+              >
+                <span className="text-[#01ae9b]">اوج،</span> مسیر امن خرید و
+                فروش ملک
+              </h1>
+
+              <p
+                ref={descRef}
+                className="text-right text-white sm:text-gray-600 mb-4 text-sm leading-relaxed"
+              >
+                با اوج، خرید و فروش ملک را آسانتر از همیشه تجربه کنید. ما به شما
+                کمک میکنیم تا بهترین انتخاب را داشته باشید.
+              </p>
+
+              <div ref={searchRef}>
+                <SearchBar compact className="" />
+              </div>
+            </div>
+
+            {/* Image Grid */}
+            <div ref={imageGridRef} className="hidden sm:block md:w-3/5">
+              <div className="grid grid-cols-12 grid-rows-6 gap-3 h-[450px]">
+                <HeroImageSlider />
+
+                <div className="col-span-4 row-span-3 relative group">
+                  <div className="absolute inset-0 rounded-tl-3xl rounded-bl-3xl overflow-hidden shadow-xl">
+                    <Image
+                      src="/assets/images/hero2.png"
+                      alt="Modern apartment"
+                      fill
+                      style={{ objectFit: "cover" }}
+                      className="transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-gray-800 font-bold text-xs">
+                      آپارتمان مدرن
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-4 row-span-3 relative group">
+                  <div className="absolute inset-0 rounded-bl-3xl rounded-tl-3xl overflow-hidden shadow-xl">
+                    <Image
+                      src="/assets/images/hero3.png"
+                      alt="Cozy house"
+                      fill
+                      style={{ objectFit: "cover" }}
+                      className="transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-gray-800 font-bold text-xs">
+                      خانه دنج
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute -bottom-6 -left-6 w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-white shadow-xl">
+                <Image
+                  src="/assets/images/hero1.jpg"
+                  alt="Featured property"
+                  fill
+                  style={{ objectFit: "cover" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="flex flex-col mt-20 md:flex-row items-center justify-between gap-8 md:gap-12 relative z-10">
-        {/* Text Section - Left side on desktop, top on mobile */}
-        <motion.div className="md:w-2/5 z-10" variants={itemVariants}>
-          <h1 className="text-xl md:text-4xl lg:text-4xl font-bold text-right text-white sm:text-[#1A1A1A] mb-6">
-            <span className="md:text-[#01ae9b] text-[#cd90f8]  font-bold">
-              اوج،
-            </span>{" "}
-            مسیر امن خرید و فروش ملک
-          </h1>
-          <p className="text-right text-white sm:text-gray-600 mb-6 text-sm">
-            با اوج، خرید و فروش ملک را آسان‌تر از همیشه تجربه کنید. ما به شما
-            کمک می‌کنیم تا بهترین انتخاب را داشته باشید.
-          </p>
-
-          {/* Search Bar Component */}
-          <SearchBar compact className="mt-6 " />
-        </motion.div>
-
-        {/* Image Grid - Right side on desktop, hidden on mobile */}
-        <motion.div
-          className="hidden sm:block md:w-3/5 relative"
-          variants={itemVariants}
-        >
-          <div className="grid grid-cols-12 grid-rows-6 gap-3 h-[450px]">
-            {/* Main large image slider */}
-            <HeroImageSlider />
-
-            {/* Top right image - hexagonal shape */}
-            <motion.div
-              className="col-span-4 row-span-3 relative"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="absolute inset-0 rounded-tl-3xl rounded-bl-3xl overflow-hidden shadow-xl">
-                <Image
-                  src="/assets/images/hero2.png"
-                  alt="Modern apartment"
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  style={{ objectFit: "cover" }}
-                  className="transition-transform duration-700 hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[#1A1A1A] font-bold text-xs">
-                  آپارتمان مدرن
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Bottom right image - unique shape */}
-            <motion.div
-              className="col-span-4 row-span-3 relative"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="absolute inset-0 rounded-bl-3xl rounded-tl-3xl overflow-hidden shadow-xl">
-                <Image
-                  src="/assets/images/hero3.png"
-                  alt="Cozy house"
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  style={{ objectFit: "cover" }}
-                  className="transition-transform duration-700 hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-[#1A1A1A] font-bold text-xs">
-                  خانه دنج
-                </div>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Floating elements */}
-          <motion.div
-            className="absolute -bottom-6 -left-6 w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-white shadow-xl z-10"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5, type: "spring" }}
-          >
-            <Image
-              src="/assets/images/hero1.jpg"
-              alt="Featured property"
-              fill
-              sizes="(max-width: 768px) 25vw, 10vw"
-              style={{ objectFit: "cover" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-          </motion.div>
-        </motion.div>
-      </div>
-    </motion.div>
+    </div>
   );
 }

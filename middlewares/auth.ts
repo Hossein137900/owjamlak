@@ -129,7 +129,6 @@ export const checkAdminAccess = async (request: NextRequest) => {
 };
 
 // Get all users from app/api/auth/route.ts GET
-// Update the getAllUsers function to support pagination
 export const getAllUsers = async (request: Request) => {
   try {
     await connect();
@@ -189,16 +188,53 @@ export const getAllUsers = async (request: Request) => {
       query.status = status;
     }
 
-    // Get total count for pagination
-    const totalUsers = await User.countDocuments(query);
-    const totalPages = Math.ceil(totalUsers / limit);
+    // Build aggregation pipeline
+    const pipeline: any[] = [
+      {
+        $lookup: {
+          from: "posters",
+          localField: "_id",
+          foreignField: "user",
+          as: "posters",
+        },
+      },
+      {
+        $addFields: {
+          posterCount: { $size: "$posters" },
+        },
+      },
+      {
+        $project: {
+          name: 1,
+          phone: 1,
+          role: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          posterCount: 1,
+        },
+      },
+    ];
 
-    // Get users with pagination
-    const users = await User.find(query)
-      .select("+password") // Include password field
-      .sort({ createdAt: -1 }) // Sort by newest first
-      .skip(skip)
-      .limit(limit);
+    // Add match stage for filters
+    if (Object.keys(query).length > 0) {
+      pipeline.unshift({ $match: query });
+    }
+
+    // Get total count for pagination
+    const totalCountPipeline = [...pipeline, { $count: "total" }];
+    const totalResult = await User.aggregate(totalCountPipeline);
+    const totalUsers = totalResult[0]?.total || 0;
+    const totalPages = Math.max(Math.ceil(totalUsers / limit), 1);
+
+    // Add pagination to main pipeline
+    pipeline.push(
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit }
+    );
+
+    // Get users with poster count
+    const users = await User.aggregate(pipeline);
 
     return NextResponse.json(
       {
@@ -342,7 +378,6 @@ export const updateUserByToken = async (request: NextRequest) => {
 };
 
 // Add this function to your existing auth middleware file
-
 export const deleteUser = async (request: Request) => {
   try {
     const body = await request.json();

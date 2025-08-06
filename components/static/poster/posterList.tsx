@@ -73,8 +73,28 @@ const PosterListPage = () => {
   const [hasNextPage, setHasNextPage] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
   const [cameFromSearch, setCameFromSearch] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // detecte the page scrolling or Not and set the isScrolling state for filter button
+  useEffect(() => {
+    let scrollTimer: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      setIsScrolling(true);
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        setIsScrolling(false);
+      }, 150);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimer);
+    };
+  }, []);
 
   const updateURL = (
     p = page,
@@ -480,7 +500,7 @@ const PosterListPage = () => {
                         onChange={(e) =>
                           handleInputChangeSuggestion(e.target.value)
                         }
-                        className={`w-full pr-10 text-black pl-4 py-2 border rounded-lg transition-all duration-300 ${
+                        className={`w-full pr-2 text-black  py-2 border rounded-lg transition-all duration-300 ${
                           cameFromSearch && filters.search
                             ? "border-[#01ae9b] ring-2 ring-[#01ae9b]/20 bg-[#01ae9b]/5"
                             : "border-gray-300 focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
@@ -702,7 +722,7 @@ const PosterListPage = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       منطقه
                     </label>
-                    <div className="relative">
+                    {/* <div className="relative">
                       <FiMapPin className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
                         ref={searchInputRef}
@@ -714,9 +734,8 @@ const PosterListPage = () => {
                         }
                         className="w-full text-black pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                       />
-                      {/* نمایش فقط مقدار تایپ شده و امکان کلیک روی آن */}
                       {inputValue.trim() !== "" && (
-                        <ul className="absolute z-10 w-full bg-white border rounded-lg shadow-md mt-1 max-h-60 overflow-auto">
+                        <ul className="absolute -top-14 z-10 w-full bg-white border rounded-lg shadow-md mt-1 max-h-60 overflow-auto">
                           <li
                             className="px-4 py-2 text-black cursor-pointer hover:bg-[#01ae9b]/10"
                             onClick={() => handleSuggestionClick(inputValue)}
@@ -725,7 +744,7 @@ const PosterListPage = () => {
                           </li>
                         </ul>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </motion.div>
@@ -842,10 +861,14 @@ const PosterListPage = () => {
         </div>
 
         {/* Mobile Filter Button */}
-        <div className="fixed bottom-25 left-1/2 -translate-x-1/2 md:hidden z-30">
+        <div className="fixed bottom-15 left-1/2 -translate-x-1/2 md:hidden z-30">
           <button
             onClick={() => setShowFiltersMobile(true)}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-[#01ae9b] text-white rounded-full shadow-lg hover:bg-[#018a7a] transition-colors"
+            className={`flex items-center justify-center gap-2 px-6 py-3 backdrop-blur-sm text-white rounded-full shadow-lg hover:bg-[#01ae9b] transition-all duration-300 ${
+              isScrolling
+                ? "bg-[#01ae9b]/15 backdrop-blur-sm"
+                : "bg-[#01ae9b]/80"
+            }`}
           >
             <FiFilter size={20} />
             <span>فیلترها</span>

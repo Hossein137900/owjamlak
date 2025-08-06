@@ -138,21 +138,6 @@ export default function AdminFavoritesPage() {
                   fill
                   className="object-cover"
                 />
-
-                {/* Action Buttons */}
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <Link href={`/poster/${poster._id}`} target="_blank">
-                    <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">
-                      <FiEye className="text-sm" />
-                    </button>
-                  </Link>
-                  <button
-                    onClick={() => confirmDelete(poster._id)}
-                    className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-red-600 hover:text-white transition-colors"
-                  >
-                    <FiTrash2 className="text-sm" />
-                  </button>
-                </div>
               </div>
 
               {/* Content */}
@@ -167,17 +152,28 @@ export default function AdminFavoritesPage() {
                   </p>
                 )}
 
-                {poster.price && (
-                  <p className="text-lg font-bold text-green-600 mb-3">
-                    {formatPrice(poster.price)}
+                <div className=" flex gap-2 justify-between items-center mt-2">
+                  <p className="text-xs text-gray-500">
+                    {poster.createdAt
+                      ? new Date(poster.createdAt).toLocaleDateString("fa-IR")
+                      : "نامشخص"}
                   </p>
-                )}
-
-                <p className="text-xs text-gray-500">
-                  {poster.createdAt
-                    ? new Date(poster.createdAt).toLocaleDateString("fa-IR")
-                    : "نامشخص"}
-                </p>
+                  {/* Action Buttons */}
+                  <div className="flex">
+                    {" "}
+                    <Link href={`/poster/${poster._id}`} target="_blank">
+                      <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">
+                        <FiEye className="text-sm" />
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => confirmDelete(poster._id)}
+                      className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-red-600 hover:text-white transition-colors"
+                    >
+                      <FiTrash2 className="text-sm" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

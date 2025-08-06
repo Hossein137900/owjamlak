@@ -39,12 +39,14 @@ interface User {
   updatedAt: string;
   lastLogin?: string;
   status?: "active" | "inactive";
+  posterCount?: number;
 }
 
 const UsersManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [selectedStatus] = useState<string>("all");
   const [selectedRole, setSelectedRole] = useState<string>("all");
   const [loading, setLoading] = useState(true);
@@ -369,11 +371,6 @@ const UsersManagement: React.FC = () => {
     }
   };
 
-  // const handleLimitChange = (newLimit: number) => {
-  //   setPagination((prev) => ({ ...prev, limit: newLimit, currentPage: 1 }));
-  //   fetchUsers(true, 1);
-  // };
-
   if (loading) {
     return (
       <div className="h-64 bg-transparent flex items-center justify-center">
@@ -430,15 +427,21 @@ const UsersManagement: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search Input */}
-          <div className="relative">
+          <div className="relative flex">
             <input
               type="text"
               placeholder="جستجو نام، تلفن، نقش..."
-              className="w-full sm:w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#66308d] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full sm:w-64 pr-4 py-2 rounded-r-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#66308d] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && setSearchTerm(searchInput)}
             />
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <button
+              onClick={() => setSearchTerm(searchInput)}
+              className="px-3 py-2 bg-[#66308d] hover:bg-[#4a1f5f] text-white rounded-l-lg border border-[#66308d] transition-colors duration-200"
+            >
+              <FiSearch />
+            </button>
           </div>
 
           {/* Role Filter */}
@@ -497,6 +500,9 @@ const UsersManagement: React.FC = () => {
                 نقش
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                تعداد آگهی
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 رمز عبور
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -550,6 +556,16 @@ const UsersManagement: React.FC = () => {
                   >
                     {getRoleDisplayName(user.role)}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {user.posterCount || 0}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400 mr-1">
+                      آگهی
+                    </span>
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-2">

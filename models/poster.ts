@@ -149,10 +149,8 @@ const posterSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-posterSchema.index({ user: 1 });
 posterSchema.index({ status: 1 });
 posterSchema.index({ createdAt: -1 });
 posterSchema.index({ totalPrice: 1 });
-posterSchema.index({ pricePerMeter: 1 });
 posterSchema.index({ parentType: 1, tradeType: 1, status: 1 });
 export default mongoose.models.Poster || mongoose.model("Poster", posterSchema);
