@@ -69,8 +69,8 @@ export default function RealEstateSearch() {
       style={{
         backgroundImage: `url("/assets/images/bg.png")`,
         backgroundRepeat: "no-repeat",
-        backgroundSize: "600px",
-        backgroundPosition: "right",
+        backgroundSize: "1000px",
+        backgroundPosition: "center",
         backfaceVisibility:"revert"
       }}
     >
@@ -142,22 +142,14 @@ export default function RealEstateSearch() {
                       className="transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-                    <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-gray-800 font-bold text-xs">
+                    <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg text-gray-800 font-bold text-xs">
                       خانه دنج
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="absolute -bottom-6 -left-6 w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-white shadow-xl">
-                <Image
-                  src="/assets/images/hero1.jpg"
-                  alt="Featured property"
-                  fill
-                  style={{ objectFit: "cover" }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              </div>
+              
             </div>
           </div>
         </div>

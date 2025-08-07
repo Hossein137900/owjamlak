@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search");
     const isActive = searchParams.get("isActive") || "true";
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
 
     if (isActive !== "all") {
       query.isActive = isActive === "true";
@@ -42,12 +42,12 @@ export async function GET(req: NextRequest) {
       success: true,
       consultants,
     });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
         message: "خطا در دریافت مشاوران",
-        error: error.message,
+        error: (error as Error).message,
       },
       { status: 500 }
     );
@@ -130,12 +130,12 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
         message: "خطا در ایجاد مشاور",
-        error: error.message,
+        error: (error as Error).message,
       },
       { status: 500 }
     );

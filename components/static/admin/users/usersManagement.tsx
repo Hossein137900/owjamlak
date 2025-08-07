@@ -4,7 +4,6 @@ import {
   FiEdit2,
   FiTrash2,
   FiSearch,
-  FiUserPlus,
   FiFilter,
   FiLoader,
   FiRefreshCw,

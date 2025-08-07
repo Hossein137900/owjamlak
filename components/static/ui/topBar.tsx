@@ -33,7 +33,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: scrolled ? -40 : 0, opacity: scrolled ? 0 : 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-[#01ae9b] text-white py-2 text-sm"
+        className="bg-[#01ae9b] text-white py-3 md:py-2 text-sm"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Desktop Layout */}

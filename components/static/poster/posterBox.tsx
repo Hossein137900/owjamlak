@@ -41,7 +41,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
   id,
   title,
   location,
-  price,
+  // price,
   parentType,
   tradeType,
   convertible = false,
@@ -49,16 +49,16 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
   status = "active",
   className = "",
 }) => {
-  const formatPrice = (amount: number) => {
-    if (amount === 0) return "توافقی";
-    if (amount >= 1000000000) {
-      return `${(amount / 1000000000).toFixed(1)} میلیارد`;
-    }
-    if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)} میلیون`;
-    }
-    return amount.toLocaleString("fa-IR");
-  };
+  // const formatPrice = (amount: number) => {
+  //   if (amount === 0) return "توافقی";
+  //   if (amount >= 1000000000) {
+  //     return `${(amount / 1000000000).toFixed(1)} میلیارد`;
+  //   }
+  //   if (amount >= 1000000) {
+  //     return `${(amount / 1000000).toFixed(1)} میلیون`;
+  //   }
+  //   return amount.toLocaleString("fa-IR");
+  // };
 
   // Helper function to get parent type label in Persian
   const getParentTypeLabel = (parentType: string) => {
@@ -145,10 +145,10 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
-        className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${className}`}
+        className={`bg-white rounded-md shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer ${className}`}
       >
         <div className="relative">
-          <div className="relative h-64 overflow-hidden">
+          <div className="relative h-40 md:h-64 overflow-hidden">
             <Image
               src={"/assets/images/hero2.png"}
               alt={title}

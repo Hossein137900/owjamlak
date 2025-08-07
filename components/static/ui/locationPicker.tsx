@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { FiMapPin, FiSearch, FiX } from "react-icons/fi";
+import { FiMapPin, FiX } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMapEvents } from "react-leaflet";
 

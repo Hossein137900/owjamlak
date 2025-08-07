@@ -51,7 +51,6 @@ export default function AuthPageContainer() {
   });
   const [signupErrors, setSignupErrors] = useState<FormErrors>({});
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   // Success/Error messages
   const [successMessage, setSuccessMessage] = useState("");

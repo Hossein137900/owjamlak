@@ -56,7 +56,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [isVisible, setIsVisible] = useState(true);
+  // const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   // Add user state
   const [user, setUser] = useState<User | null>(null);
@@ -152,11 +152,11 @@ const Navbar = () => {
       const currentScrollY = window.scrollY;
 
       // Show/hide navbar based on scroll direction
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
-      }
+      // if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      //   setIsVisible(false);
+      // } else {
+      //   setIsVisible(true);
+      // }
 
       setScrolled(currentScrollY > 20);
       setLastScrollY(currentScrollY);
@@ -406,7 +406,7 @@ const Navbar = () => {
                           className={`text-sm lg:text-base font-medium transition-all duration-300 py-3 px-4 rounded-xl block relative overflow-hidden ${
                             activeItem === item.href
                               ? "text-gray-700"
-                              : "text-gray-700 hover:text-[#01ae9b] hover:bg-gradient-to-r hover:from-[#01ae9b]/10 hover:to-[#66308d]/10"
+                              : "text-gray-700 hover:text-[#01ae9b] "
                           }`}
                           whileHover={{ scale: 1.02 }}
                         >
@@ -434,7 +434,7 @@ const Navbar = () => {
                       onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-[#01ae9b]/20 bg-white text-gray-800 px-4 py-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#01ae9b]/10 hover:to-[#66308d]/10 focus:outline-none focus:ring-2 focus:ring-[#01ae9b]/50 min-w-[140px]"
+                      className="flex items-center justify-between gap-3 rounded-2xl  bg-white text-gray-800 px-4 py-3  hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-r hover:from-[#01ae9b]/10 hover:to-[#66308d]/10 focus:outline-none focus:ring-2 focus:ring-[#01ae9b]/50 min-w-[140px]"
                     >
                       <div className="flex items-center gap-3">
                         <div className="bg-gradient-to-r from-[#01ae9b] to-[#66308d] p-2 rounded-xl shadow-sm">

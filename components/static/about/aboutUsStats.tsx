@@ -4,14 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  FaHome,
-  FaMoneyBillWave,
-  FaHeadset,
-  FaChartLine,
-  FaUsers,
-  FaAward,
-} from "react-icons/fa";
+import { FaChartLine, FaUsers, FaAward } from "react-icons/fa";
 import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);

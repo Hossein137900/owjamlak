@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import connect from "@/lib/data";
 import ContactMessage from "@/models/contactForm";
 
+interface UpdateData {
+  status: "accepted" | "declined" | "pending";
+  adminNote: string;
+  acceptedAt?: Date | null;
+  declinedAt?: Date | null;
+  rating?: number | null;
+  isTestimonial?: boolean;
+}
+
 // GET - Fetch all messages or testimonials
 export async function GET(request: NextRequest) {
   try {
@@ -66,7 +75,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const updateData: any = {
+    const updateData: UpdateData = {
       status,
       adminNote: adminNote || "",
     };
@@ -174,14 +183,13 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-
 export async function POST(req: NextRequest) {
   await connect();
 
   try {
     const body = await req.json();
 
-    const {  name, email, phone, message } = body;
+    const { name, email, phone, message } = body;
 
     if (!name || !email || !message) {
       return NextResponse.json(
@@ -198,8 +206,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: doc }, { status: 201 });
-  } catch (error: any) {
-    console.error("API error:", error);
+  } catch (error) {
+    console.error("API error:", error as Error);
     return NextResponse.json({ error: "خطا در ذخیره پیام" }, { status: 500 });
   }
 }

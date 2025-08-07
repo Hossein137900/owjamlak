@@ -67,9 +67,8 @@ const propertyTypes = [
 ];
 
 const ContactForm = () => {
-  const [formType, setFormType] = useState<FormType>("general");
+  const [formType] = useState<FormType>("general");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState({});
 
   const handleInputChange = (
@@ -95,19 +94,18 @@ const ContactForm = () => {
       if (!res.ok) {
         throw new Error("مشکلی در ارسال فرم رخ داد");
       }
+      if (res.ok) {
+        toast.success("فرم با موفقیت ارسال شد");
+      }
 
-      const data = await res.json();
-      toast.success("فرم با موفقیت ارسال شد");
+      // const data = await res.json();
 
-      setIsSuccess(true);
       setFormData({});
       // پاک کردن فرم
       const inputs = document.querySelectorAll<
         HTMLInputElement | HTMLTextAreaElement
       >("input, textarea, select");
       inputs.forEach((input) => (input.value = ""));
-
-      setTimeout(() => setIsSuccess(false), 5000);
     } catch (err) {
       toast.error("مشکلی در ارسال فرم رخ داد");
       console.log("❌ Error submitting form:", err);

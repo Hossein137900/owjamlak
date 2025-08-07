@@ -43,13 +43,13 @@ export async function GET(
       success: true,
       consultant,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.log("API Error:", error); // Debug log
     return NextResponse.json(
       {
         success: false,
         message: "خطا در دریافت اطلاعات مشاور",
-        error: error.message,
+        error: (error as Error).message,
       },
       { status: 500 }
     );
@@ -157,12 +157,12 @@ export async function PUT(
       message: "مشاور با موفقیت به‌روزرسانی شد",
       consultant,
     });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
         message: "خطا در به‌روزرسانی مشاور",
-        error: error.message,
+        error: (error as Error).message,
       },
       { status: 500 }
     );
@@ -194,12 +194,12 @@ export async function DELETE(
       success: true,
       message: "مشاور با موفقیت حذف شد",
     });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json(
       {
         success: false,
         message: "خطا در حذف مشاور",
-        error: error.message,
+        error: (error as Error).message,
       },
       { status: 500 }
     );

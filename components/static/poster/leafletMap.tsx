@@ -7,8 +7,8 @@ import { Poster } from "@/types/type";
 export default function LeafletMap({
   lat,
   lng,
-  title,
-  location,
+  // title,
+  // location,
   posterData,
 }: {
   lat: number;

@@ -19,7 +19,7 @@ const ConsultantsSlider = () => {
   const [direction, setDirection] = useState(0);
   const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchConsultants = async () => {
@@ -28,8 +28,8 @@ const ConsultantsSlider = () => {
         if (!res.ok) throw new Error("Failed to fetch consultants");
         const data = await res.json();
         setConsultants(data.consultants);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        console.log("Failed to fetch consultants" + err);
       } finally {
         setLoading(false);
       }
@@ -106,7 +106,7 @@ const ConsultantsSlider = () => {
   if (error || consultants.length === 0) {
     return (
       <div className="col-span-8 h-50 row-span-6 flex items-center justify-center bg-red-800 text-red-700 rounded-tr-3xl rounded-br-3xl">
-        <p >خطا در بارگذاری مشاوران</p>
+        <p>خطا در بارگذاری مشاوران</p>
       </div>
     );
   }
@@ -312,8 +312,6 @@ const ConsultantsSlider = () => {
           </div>
         </>
       )}
-
-  
     </motion.div>
   );
 };

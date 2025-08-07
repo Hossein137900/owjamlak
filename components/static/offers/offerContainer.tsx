@@ -82,7 +82,7 @@ const OffersPage = () => {
   };
 
   const filterAndSortPosters = () => {
-    let filtered = [...posters];
+    const filtered = [...posters];
 
     // Sort posters
     switch (sortBy) {
@@ -355,7 +355,7 @@ const OffersPage = () => {
             ref={gridRef}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16"
           >
-            {filteredPosters.map((poster, index) => (
+            {filteredPosters.map((poster) => (
               <div key={poster._id}>
                 <ReportageBox
                   id={poster._id}

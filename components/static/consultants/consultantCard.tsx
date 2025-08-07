@@ -4,9 +4,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaWhatsapp, FaPhone, FaStar } from "react-icons/fa";
-import { HiOutlineLocationMarker, HiOutlineBriefcase } from "react-icons/hi";
-import { BiTime } from "react-icons/bi";
-import { MdRealEstateAgent } from "react-icons/md";
 import { Consultant } from "@/types/type";
 
 interface ConsultantCardProps {

@@ -6,7 +6,6 @@ import {
   FiFilter,
   FiGrid,
   FiList,
-  FiMapPin,
   FiHome,
   FiCalendar,
   FiLoader,
@@ -468,30 +467,60 @@ const PosterListPage = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="lg:w-80 bg-white rounded-xl shadow-sm p-6 h-fit hidden md:block sticky top-6"
+                className="lg:w-80 bg-white rounded-2xl shadow-lg border border-gray-100 h-fit hidden md:block sticky top-6 overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-bold text-gray-800">فیلترها</h3>
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm text-[#01ae9b] hover:text-[#018a7a] transition-colors"
-                  >
-                    پاک کردن همه
-                  </button>
+                {/* Header */}
+                <div className="bg-gradient-to-r from-[#01ae9b] to-[#66308d] p-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      فیلترها
+                    </h3>
+                    <button
+                      onClick={clearFilters}
+                      className="text-sm text-white/90 hover:text-white bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg transition-all duration-200 font-medium"
+                    >
+                      پاک کردن
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-180px)] pr-2">
+                {/* Scrollable Content */}
+                <div className="p-6 space-y-8 overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
                   {/* Search */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg
+                        className="w-4 h-4 text-[#01ae9b]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                      </svg>
                       جستجو
                       {cameFromSearch && filters.search && (
-                        <span className="mr-2 text-xs bg-[#01ae9b] text-white px-2 py-0.5 rounded-full">
+                        <span className="text-xs bg-[#01ae9b] text-white px-2 py-1 rounded-full font-medium">
                           فعال
                         </span>
                       )}
                     </label>
-                    <div className="relative w-full">
+                    <div className="relative">
                       <input
                         ref={searchInputRef}
                         type="text"
@@ -500,28 +529,28 @@ const PosterListPage = () => {
                         onChange={(e) =>
                           handleInputChangeSuggestion(e.target.value)
                         }
-                        className={`w-full pr-2 text-black  py-2 border rounded-lg transition-all duration-300 ${
+                        className={`w-full px-4 py-3 text-black placeholder:text-sm bg-white border-2 rounded-xl transition-all duration-300 placeholder:text-gray-400 ${
                           cameFromSearch && filters.search
-                            ? "border-[#01ae9b] ring-2 ring-[#01ae9b]/20 bg-[#01ae9b]/5"
-                            : "border-gray-300 focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                            ? "border-[#01ae9b] ring-4 ring-[#01ae9b]/10 bg-[#01ae9b]/5"
+                            : "border-gray-200 focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300"
                         }`}
                       />
                       {suggestions.length > 0 && (
-                        <ul className="absolute z-10 w-full bg-white border rounded-lg shadow-md mt-1 max-h-60 overflow-auto">
+                        <ul className="absolute z-20 w-full bg-white border-2 border-gray-200 rounded-xl shadow-xl mt-2 max-h-60 overflow-auto">
                           {suggestions.map((sugg, idx) => (
                             <li
                               key={idx}
                               onClick={() => handleSuggestionClick(sugg)}
-                              className="px-4 py-2 hover:bg-[#01ae9b]/10 text-black cursor-pointer"
+                              className="px-4 py-3 hover:bg-[#01ae9b]/10 text-black cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
                             >
                               {sugg}
                             </li>
                           ))}
                           <li
-                            className="px-4 py-2 text-center text-sm text-[#01ae9b] cursor-pointer hover:bg-gray-50"
+                            className="px-4 py-3 text-center text-sm text-[#01ae9b] cursor-pointer hover:bg-gray-50 font-medium border-t-2 border-gray-200"
                             onClick={() => handleSuggestionClick(inputValue)}
                           >
-                            نمایش همه نتایج برای "{inputValue}"
+                            نمایش همه نتایج برای {inputValue}
                           </li>
                         </ul>
                       )}
@@ -529,8 +558,21 @@ const PosterListPage = () => {
                   </div>
 
                   {/* Property Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg
+                        className="w-4 h-4 text-[#01ae9b]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
                       نوع ملک
                     </label>
                     <select
@@ -538,7 +580,7 @@ const PosterListPage = () => {
                       onChange={(e) =>
                         handleFilterChange("parentType", e.target.value)
                       }
-                      className="w-full p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                      className="w-full px-4 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                     >
                       <option value="">همه انواع</option>
                       <option value="residentialRent">مسکونی اجاره</option>
@@ -553,8 +595,21 @@ const PosterListPage = () => {
                   </div>
 
                   {/* Trade Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg
+                        className="w-4 h-4 text-[#01ae9b]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
                       نوع معامله
                     </label>
                     <select
@@ -562,7 +617,7 @@ const PosterListPage = () => {
                       onChange={(e) =>
                         handleFilterChange("tradeType", e.target.value)
                       }
-                      className="w-full p-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                      className="w-full px-4 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                     >
                       <option value="">همه انواع</option>
                       <option value="House">خانه</option>
@@ -577,13 +632,26 @@ const PosterListPage = () => {
                   </div>
 
                   {/* Price Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg
+                        className="w-4 h-4 text-[#01ae9b]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                        />
+                      </svg>
                       محدوده قیمت (تومان)
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="relative">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 bg-white px-1">
                           از
                         </span>
                         <input
@@ -606,11 +674,11 @@ const PosterListPage = () => {
                               e.currentTarget.value
                             )
                           }
-                          className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                       <div className="relative">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 bg-white px-1">
                           تا
                         </span>
                         <input
@@ -633,20 +701,33 @@ const PosterListPage = () => {
                               e.currentTarget.value
                             )
                           }
-                          className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Area Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg
+                        className="w-4 h-4 text-[#01ae9b]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+                        />
+                      </svg>
                       محدوده متراژ (متر مربع)
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="relative">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 bg-white px-1">
                           از
                         </span>
                         <input
@@ -666,11 +747,11 @@ const PosterListPage = () => {
                             e.key === "Enter" &&
                             handleFilterChange("minArea", e.currentTarget.value)
                           }
-                          className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                       <div className="relative">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 bg-white px-1">
                           تا
                         </span>
                         <input
@@ -690,15 +771,28 @@ const PosterListPage = () => {
                             e.key === "Enter" &&
                             handleFilterChange("maxArea", e.currentTarget.value)
                           }
-                          className="w-full pl-8 pr-3 py-2 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Rooms */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg
+                        className="w-4 h-4 text-[#01ae9b]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0"
+                        />
+                      </svg>
                       تعداد اتاق
                     </label>
                     <select
@@ -706,7 +800,7 @@ const PosterListPage = () => {
                       onChange={(e) =>
                         handleFilterChange("rooms", e.target.value)
                       }
-                      className="w-full p-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
+                      className="w-full px-4 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                     >
                       <option value="">همه</option>
                       <option value="1">1 اتاق</option>
@@ -718,11 +812,15 @@ const PosterListPage = () => {
                   </div>
 
                   {/* Location */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {/* <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                      <svg className="w-4 h-4 text-[#01ae9b]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                       منطقه
                     </label>
-                    {/* <div className="relative">
+                    <div className="relative">
                       <FiMapPin className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
                         ref={searchInputRef}
@@ -744,8 +842,8 @@ const PosterListPage = () => {
                           </li>
                         </ul>
                       )}
-                    </div> */}
-                  </div>
+                    </div>
+                  </div> */}
                 </div>
               </motion.div>
             )}
@@ -846,7 +944,7 @@ const PosterListPage = () => {
             )}
 
             {/* Load More Button */}
-            {filteredPos.length > 0 && filteredPos.length >= 20 && (
+            {/* {filteredPos.length > 0 && filteredPos.length >= 20 && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -856,7 +954,7 @@ const PosterListPage = () => {
                   مشاهده آگهی‌های بیشتر
                 </button>
               </motion.div>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -969,7 +1067,7 @@ const PosterListPage = () => {
                             className="px-4 py-2 text-center text-sm text-[#01ae9b] cursor-pointer hover:bg-gray-50"
                             onClick={() => handleSuggestionClick(inputValue)}
                           >
-                            نمایش همه نتایج برای "{inputValue}"
+                            نمایش همه نتایج برای {inputValue}
                           </li>
                         </ul>
                       )}
@@ -1170,7 +1268,7 @@ const PosterListPage = () => {
                   </div>
 
                   {/* Location */}
-                  <div>
+                  {/* <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       منطقه
                     </label>
@@ -1195,35 +1293,33 @@ const PosterListPage = () => {
                         className="w-full text-black pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
                       />
                     </div>
-                    <div className="h-20" />
+                  </div> */}
+                  {/* Apply Button */}
+                  <div className=" p-4 bg-white border-b z-50">
+                    <button
+                      onClick={() => {
+                        // اعمال فیلترها وقتی کاربر دکمه را می‌زند
+                        const updatedMobileFilters = {
+                          ...mobileFilters,
+                          minPrice: tempMobileFilters.minPrice,
+                          maxPrice: tempMobileFilters.maxPrice,
+                          minArea: tempMobileFilters.minArea,
+                          maxArea: tempMobileFilters.maxArea,
+                        };
+                        setFilters(updatedMobileFilters);
+                        setTempFilters({
+                          minPrice: tempMobileFilters.minPrice,
+                          maxPrice: tempMobileFilters.maxPrice,
+                          minArea: tempMobileFilters.minArea,
+                          maxArea: tempMobileFilters.maxArea,
+                        });
+                        setShowFiltersMobile(false);
+                      }}
+                      className="w-full py-3 bg-[#01ae9b] text-white rounded-lg hover:bg-[#018a7a] transition-colors font-medium"
+                    >
+                      اعمال فیلترها ({filteredPos.length})
+                    </button>
                   </div>
-                </div>
-
-                {/* Apply Button */}
-                <div className="fixed bottom-20 left-0 right-0 p-4 bg-white border-t z-50">
-                  <button
-                    onClick={() => {
-                      // اعمال فیلترها وقتی کاربر دکمه را می‌زند
-                      const updatedMobileFilters = {
-                        ...mobileFilters,
-                        minPrice: tempMobileFilters.minPrice,
-                        maxPrice: tempMobileFilters.maxPrice,
-                        minArea: tempMobileFilters.minArea,
-                        maxArea: tempMobileFilters.maxArea,
-                      };
-                      setFilters(updatedMobileFilters);
-                      setTempFilters({
-                        minPrice: tempMobileFilters.minPrice,
-                        maxPrice: tempMobileFilters.maxPrice,
-                        minArea: tempMobileFilters.minArea,
-                        maxArea: tempMobileFilters.maxArea,
-                      });
-                      setShowFiltersMobile(false);
-                    }}
-                    className="w-full py-3 bg-[#01ae9b] text-white rounded-lg hover:bg-[#018a7a] transition-colors font-medium"
-                  >
-                    اعمال فیلترها ({filteredPos.length})
-                  </button>
                 </div>
               </motion.div>
             </>

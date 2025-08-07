@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   FaWhatsapp,
@@ -55,9 +54,9 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
       }
 
       setConsultant(data.consultant);
-    } catch (error: any) {
+    } catch (error) {
       console.log("Error fetching consultant:", error);
-      setError(error.message);
+      // setError(error.message);
     } finally {
       setLoading(false);
     }

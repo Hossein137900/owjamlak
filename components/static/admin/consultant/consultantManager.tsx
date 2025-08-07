@@ -441,7 +441,7 @@ const ConsultantManager = () => {
                 </h3>
 
                 <p className="text-sm text-gray-500 mb-6">
-                  آیا از حذف مشاور "{consultantToDelete.name}" اطمینان دارید؟
+                  آیا از حذف مشاور {consultantToDelete.name} اطمینان دارید؟
                   <br />
                   این عمل قابل بازگشت نیست.
                 </p>

@@ -3,7 +3,10 @@ import connect from "@/lib/data";
 import User from "@/models/user";
 import Poster from "@/models/poster";
 import jwt from "jsonwebtoken"; // اگر از jwt استفاده می‌کنی
-
+interface JWTPayload {
+  id: string;
+  [key: string]: any; // for any additional JWT claims
+}
 export async function GET(req: NextRequest) {
   try {
     await connect();
@@ -14,10 +17,11 @@ export async function GET(req: NextRequest) {
     }
 
     // ✅ توکن رو decode کن
-    let decoded: any;
+    let decoded: JWTPayload;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
     } catch (err) {
+      console.log(err);
       return NextResponse.json({ message: "توکن نامعتبر" }, { status: 401 });
     }
 
