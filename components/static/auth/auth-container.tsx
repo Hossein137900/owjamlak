@@ -56,8 +56,16 @@ export default function AuthPageContainer() {
   // Success/Error messages
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [adminRedirectMessage, setAdminRedirectMessage] = useState("");
 
   useEffect(() => {
+    // Check for admin redirect flag
+    const adminRedirect = localStorage.getItem('adminRedirect');
+    if (adminRedirect === 'true') {
+      setAdminRedirectMessage('برای دسترسی به پنل مدیریت، ابتدا وارد حساب کاربری خود شوید');
+      localStorage.removeItem('adminRedirect');
+    }
+
     const container = containerRef.current;
     const leftSide = leftSideRef.current;
     const rightSide = rightSideRef.current;
@@ -280,9 +288,17 @@ export default function AuthPageContainer() {
           window.dispatchEvent(new Event("authChange"));
         }
 
+        // Check if user should be redirected to admin
+        const shouldRedirectToAdmin = localStorage.getItem('adminRedirect') === 'true';
+        
         // Redirect after successful login
         setTimeout(() => {
-          router.push("/");
+          if (shouldRedirectToAdmin) {
+            localStorage.removeItem('adminRedirect');
+            router.push('/admin');
+          } else {
+            router.push('/');
+          }
         }, 1500);
       } else {
         setErrorMessage(data.message || "خطا در ورود");
@@ -453,6 +469,13 @@ export default function AuthPageContainer() {
             />
           </div>
 
+          {/* Admin Redirect Message */}
+          {adminRedirectMessage && (
+            <div className="mb-6 p-4 rounded-2xl text-center font-medium bg-blue-50 text-blue-700 border border-blue-200">
+              {adminRedirectMessage}
+            </div>
+          )}
+
           {/* Success/Error Messages */}
           {(successMessage || errorMessage) && (
             <div
@@ -533,7 +556,7 @@ export default function AuthPageContainer() {
                 )}
               </div>
 
-              <div className="flex justify-between items-center">
+              {/* <div className="flex justify-between items-center">
                 <Link
                   href="/auth/forgot-password"
                   className="text-sm text-[#01ae9b] hover:text-[#66308d] transition-colors font-medium"
@@ -553,7 +576,7 @@ export default function AuthPageContainer() {
                     مرا به خاطر بسپار
                   </label>
                 </div>
-              </div>
+              </div> */}
 
               <button
                 type="submit"

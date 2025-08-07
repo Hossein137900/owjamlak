@@ -170,7 +170,7 @@ export default function WhyUs() {
   return (
     <motion.div
       dir="rtl"
-      className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-12 py-16 px-4 md:px-8"
+      className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-12 py-16 px-4 md:px-20"
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
@@ -195,7 +195,7 @@ export default function WhyUs() {
         <div className="relative z-10">
           {/* Animated Title */}
           <motion.h2
-            className="text-2xl md:text-4xl font-extrabold text-gray-800 mb-4"
+            className="text-2xl md:text-4xl font-extrabold text-gray-800 mb-1"
             variants={titleVariants}
           >
             چرا باید ما را انتخاب کنید

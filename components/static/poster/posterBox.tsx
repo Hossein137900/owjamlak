@@ -207,7 +207,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
           </div>
 
           {/* Price Badge */}
-          <div className="absolute bottom-3 left-3 right-3">
+          {/* <div className="absolute bottom-3 left-3 right-3">
             <motion.div
               className="bg-white/60 backdrop-blur-xl rounded-xl px-4 py-3 w-fit shadow-lg border border-white/20"
               initial={{ opacity: 0, y: 20 }}
@@ -335,7 +335,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
                 </motion.div>
               )}
             </motion.div>
-          </div>
+          </div> */}
         </div>
 
         <div className="p-4">

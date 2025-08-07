@@ -98,7 +98,7 @@ export default function InvestmentBanner() {
 
       {/* ====== متن ====== */}
       <div className="banner-text flex-1 z-10" dir="rtl">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-6 leading-tight">
+        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2 leading-tight">
           فرصت‌های طلایی <span className="text-[#66308d]">سرمایه‌گذاری</span>
         </h2>
         <p className="text-lg md:text-xl text-gray-600 leading-relaxed">

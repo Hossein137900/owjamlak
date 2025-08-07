@@ -62,7 +62,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
 
         {/* Consultant Info */}
         <div className="p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-2 hover:text-[#01ae9b] transition-colors">
+          <h3 className="text-xl font-bold text-gray-800  hover:text-[#01ae9b] transition-colors">
             {consultant.name}
           </h3>
 
@@ -73,7 +73,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
           )}
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          {/* <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
               <BiTime className="text-[#01ae9b] flex-shrink-0" />
               <span className="font-medium">
@@ -84,17 +84,17 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
               <MdRealEstateAgent className="text-[#01ae9b] flex-shrink-0" />
               <span className="font-medium">{consultant.posterCount} آگهی</span>
             </div>
-          </div>
+          </div> */}
 
           {/* Work Areas */}
-          <div className="mb-4">
+          {/* <div className="mb-4 ">
             <div className="flex items-center gap-2 mb-2">
               <HiOutlineLocationMarker className="text-[#01ae9b] text-sm" />
               <span className="text-sm font-medium text-gray-700">
                 مناطق فعالیت:
               </span>
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-row gap-1">
               {consultant.workAreas.slice(0, 3).map((area, idx) => (
                 <span
                   key={idx}
@@ -109,10 +109,10 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
                 </span>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Specialties */}
-          {consultant.specialties && consultant.specialties.length > 0 && (
+          {/* {consultant.specialties && consultant.specialties.length > 0 && (
             <div className="mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <HiOutlineBriefcase className="text-[#01ae9b] text-sm" />
@@ -136,7 +136,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
                 )}
               </div>
             </div>
-          )}
+          )} */}
         </div>
       </Link>
 

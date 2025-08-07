@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import AdminLayout from "@/components/static/admin/adminLayout";
+import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 
 export const metadata: Metadata = {
   title: "  پنل مدیریت | اوج",
@@ -9,9 +10,11 @@ export const metadata: Metadata = {
 };
 const page = () => {
   return (
-    <main className="mt-20" dir="rtl">
-      <AdminLayout />
-    </main>
+    <AdminAuthProvider>
+      <main className="mt-20" dir="rtl">
+        <AdminLayout />
+      </main>
+    </AdminAuthProvider>
   );
 };
 

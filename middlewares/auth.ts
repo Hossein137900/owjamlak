@@ -4,6 +4,13 @@ import { NextResponse, NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import connect from "@/lib/data";
 
+interface JwtCustomPayload {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  role: string;
+}
+
 // Existing signup function
 export const signup = async (req: Request) => {
   const body = await req.json();
@@ -94,36 +101,43 @@ export const login = async (request: NextRequest) => {
 export const checkAdminAccess = async (request: NextRequest) => {
   await connect();
   const token = request.headers.get("token");
+
   if (!token) {
     return NextResponse.json({ message: "Token missing" }, { status: 401 });
   }
+
   try {
-    interface JwtCustomPayload {
-      id: string;
-      name: string;
-      phoneNumber: string;
-      role: string;
-    }
-    const decodedToken = jwt.verify(
+    const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET!
     ) as JwtCustomPayload;
-    const user = await User.findById(decodedToken.id);
+    const user = await User.findById(decoded.id).select("name role _id");
+
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
-    if (user.role !== "admin" && user.role !== "superadmin") {
+
+    const allowedRoles = ["admin", "superadmin", "consultant", "user"];
+    if (!allowedRoles.includes(user.role)) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
     }
+
     return NextResponse.json(
-      { message: "Admin access granted" },
+      {
+        message: "Access granted",
+        user: {
+          id: user._id,
+          name: user.name,
+          role: user.role,
+        },
+      },
       { status: 200 }
     );
-  } catch (error) {
-    console.log("Error fetching users:", error);
+  } catch (err) {
+    console.error("Error in admin-check:", err);
     return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
+      { message: "Invalid or expired token" },
+      { status: 401 }
     );
   }
 };

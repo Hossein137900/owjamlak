@@ -18,6 +18,7 @@ import {
   FiHeart,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAdminAuth } from "../../../contexts/AdminAuthContext";
 import Dashboard from "./dashboard";
 import LegalRequests from "./legalConsultationRequests/legalRequests";
 import UsersManagement from "./users/usersManagement";
@@ -35,19 +36,18 @@ import MessagesPage from "./contactForm/messagesPage";
 import PosterById from "./posters/posterById";
 
 const AdminLayout: React.FC = () => {
+  const { user, hasAccess, logout } = useAdminAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Check if there's a stored active section when component mounts
     const storedSection = sessionStorage.getItem("activeAdminSection");
     if (storedSection) {
       setActiveSection(storedSection);
     }
 
-    // Listen for admin section changes from mobile footer
     const handleAdminSectionChange = (event: CustomEvent) => {
       setActiveSection(event.detail.section);
     };
@@ -65,14 +65,12 @@ const AdminLayout: React.FC = () => {
     };
   }, []);
 
-  // Also add this useEffect to keep sessionStorage in sync with current active section
   useEffect(() => {
     if (activeSection) {
       sessionStorage.setItem("activeAdminSection", activeSection);
     }
   }, [activeSection]);
 
-  // Check for user's preferred color scheme
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -92,90 +90,192 @@ const AdminLayout: React.FC = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
 
-  const menuItems = [
-    { id: "dashboard", icon: <FiHome />, label: "داشبورد" },
-    { id: "properties", icon: <FiLayers />, label: "آگهی‌های ملک" },
-    { id: "Myproperties", icon: <FiLayers />, label: "آگهی‌های من" },
-    { id: "Addposter", icon: <FiHome />, label: "ساخت آگهی" },
+  const allMenuItems = [
+    {
+      id: "dashboard",
+      icon: <FiHome />,
+      label: "داشبورد",
+      roles: ["admin", "superadmin"],
+    },
+    {
+      id: "properties",
+      icon: <FiLayers />,
+      label: "آگهی های ملک",
+      roles: ["admin", "superadmin"],
+    },
+    {
+      id: "Myproperties",
+      icon: <FiLayers />,
+      label: "آگهی های من",
+      roles: ["admin", "superadmin", "consultant", "user"],
+    },
+    {
+      id: "Addposter",
+      icon: <FiHome />,
+      label: "ساخت آگهی",
+      roles: ["admin", "superadmin", "consultant", "user"],
+    },
     {
       id: "real-estate-requests",
       icon: <FiMessageSquare />,
-      label: "درخواست‌های مشاوره املاک",
+      label: "درخواستهای مشاوره املاک",
+      roles: ["admin", "superadmin"],
     },
     {
       id: "legal-requests",
       icon: <FiFileText />,
-      label: "درخواست‌های مشاوره حقوقی",
+      label: "درخواستهای مشاوره حقوقی",
+      roles: ["admin", "superadmin"],
     },
     {
       id: "employment-requests",
       icon: <FiBriefcase />,
-      label: "درخواست‌های همکاری",
+      label: "درخواستهای همکاری",
+      roles: ["admin", "superadmin"],
     },
     {
       id: "favorite",
       icon: <FiHeart />,
       label: "علاقه مندی ها",
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "contact",
       icon: <FiBook />,
       label: "پیام های ارتباط",
+      roles: ["admin", "superadmin"],
     },
     {
       id: "blogs",
       icon: <FiBook />,
       label: "وبلاگ",
+      roles: ["admin", "superadmin"],
     },
-    { id: "newsletter", icon: <FiMail />, label: "خبرنامه" },
-    { id: "ConsultantChampion", icon: <FiUser />, label: "مشاور برتر" },
-    { id: "Consultant", icon: <FiUser />, label: "مشاورین" },
-    { id: "users", icon: <FiUsers />, label: "کاربران" },
-    { id: "video", icon: <FiVideo />, label: "ویدیو ها" },
-    { id: "settings", icon: <FiSettings />, label: "تنظیمات" },
+    {
+      id: "newsletter",
+      icon: <FiMail />,
+      label: "خبرنامه",
+      roles: ["admin", "superadmin"],
+    },
+    {
+      id: "ConsultantChampion",
+      icon: <FiUser />,
+      label: "مشاور برتر",
+      roles: ["superadmin"],
+    },
+    {
+      id: "Consultant",
+      icon: <FiUser />,
+      label: "مشاورین",
+      roles: ["superadmin"],
+    },
+    { id: "users", icon: <FiUsers />, label: "کاربران", roles: ["superadmin"] },
+    {
+      id: "video",
+      icon: <FiVideo />,
+      label: "ویدیو ها",
+      roles: ["admin", "superadmin"],
+    },
+    {
+      id: "settings",
+      icon: <FiSettings />,
+      label: "تنظیمات",
+      roles: ["superadmin"],
+    },
   ];
 
-  // Render the active component based on the selected section
+  const menuItems = allMenuItems.filter((item) => hasAccess(item.roles));
+
   const renderActiveComponent = () => {
+    const currentItem = allMenuItems.find((item) => item.id === activeSection);
+    if (currentItem && !hasAccess(currentItem.roles)) {
+      return (
+        <div className="p-8 text-center text-red-500">
+          شما دسترسی به این بخش را ندارید
+        </div>
+      );
+    }
+
     switch (activeSection) {
       case "dashboard":
         return <Dashboard />;
       case "properties":
-        return <PropertyListings />;
+        return hasAccess(["admin", "superadmin", "user"]) ? (
+          <PropertyListings />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "real-estate-requests":
-        return <RealStateRequests />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <RealStateRequests />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "legal-requests":
-        return <LegalRequests />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <LegalRequests />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "employment-requests":
-        return <EmployRequests />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <EmployRequests />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "users":
-        return <UsersManagement />;
+        return hasAccess(["superadmin"]) ? (
+          <UsersManagement />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "newsletter":
-        return <NewsletterManagement />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <NewsletterManagement />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "Myproperties":
-        return <PosterById  />;
-    
+        return <PosterById />;
       case "Consultant":
-        return <ConsultantManager />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <ConsultantManager />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "favorite":
         return <AdminFavoritesPage />;
       case "contact":
-        return <MessagesPage />;
-
+        return hasAccess(["admin", "superadmin"]) ? (
+          <MessagesPage />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "video":
-        return <VideoManagement />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <VideoManagement />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "Addposter":
         return <PosterForm />;
       case "ConsultantChampion":
-        return <CreateConsultantForm />;
+        return hasAccess(["superadmin"]) ? (
+          <CreateConsultantForm />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       case "blogs":
-        return <BlogManagement />;
+        return hasAccess(["admin", "superadmin"]) ? (
+          <BlogManagement />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
       default:
         return <Dashboard />;
     }
   };
 
-  // Animation variants
   const sidebarVariants = {
     open: { width: "16rem", transition: { duration: 0.3, ease: "easeInOut" } },
     closed: { width: "5rem", transition: { duration: 0.3, ease: "easeInOut" } },
@@ -216,14 +316,12 @@ const AdminLayout: React.FC = () => {
     <div
       className={`min-h-screen ${mainBgClass} flex flex-col transition-colors duration-300`}
     >
-      {/* Top Navigation Bar */}
       <header
         className={`${headerBgClass} shadow-sm z-20 transition-colors duration-300`}
       >
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              {/* Mobile menu button */}
               <button
                 onClick={toggleMobileSidebar}
                 className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
@@ -254,7 +352,6 @@ const AdminLayout: React.FC = () => {
                 </AnimatePresence>
               </button>
 
-              {/* Desktop sidebar toggle */}
               <button
                 onClick={toggleSidebar}
                 className="hidden md:inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
@@ -269,19 +366,24 @@ const AdminLayout: React.FC = () => {
               </button>
 
               <div className="flex-shrink-0 flex items-center mr-4">
-                <motion.h1
-                  className={`text-xl font-bold ${textClass} transition-colors duration-300`}
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  پنل مدیریت املاک
-                </motion.h1>
+                  <h1
+                    className={`text-xl font-bold ${textClass} transition-colors duration-300`}
+                  >
+                    پنل مدیریت املاک
+                  </h1>
+                  <div className={`text-sm ${textClass} opacity-70`}>
+                    {user?.name} ({user?.role})
+                  </div>
+                </motion.div>
               </div>
             </div>
 
             <div className="flex items-center space-x-4 space-x-reverse">
-              {/* Dark mode toggle */}
               <button
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-full ${hoverBgClass} transition-colors duration-200`}
@@ -326,7 +428,6 @@ const AdminLayout: React.FC = () => {
       </header>
 
       <div className="flex flex-1">
-        {/* Sidebar for mobile */}
         <AnimatePresence>
           {isMobileSidebarOpen && (
             <>
@@ -422,6 +523,7 @@ const AdminLayout: React.FC = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={logout}
                     className="flex items-center w-full px-3 py-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
                   >
                     <FiLogOut className="h-5 w-5" />
@@ -433,7 +535,6 @@ const AdminLayout: React.FC = () => {
           )}
         </AnimatePresence>
 
-        {/* Static sidebar for desktop */}
         <motion.div
           variants={sidebarVariants}
           initial={false}
@@ -508,7 +609,6 @@ const AdminLayout: React.FC = () => {
                     )}
                   </motion.button>
 
-                  {/* Tooltip for collapsed sidebar */}
                   {!isSidebarOpen && (
                     <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                       <div
@@ -532,6 +632,7 @@ const AdminLayout: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={logout}
                 className="flex items-center text-gray-400 hover:text-red-500 transition-colors duration-200 group w-full"
               >
                 <FiLogOut className="h-5 w-5 group-hover:text-red-500 transition-colors duration-200" />
@@ -550,7 +651,6 @@ const AdminLayout: React.FC = () => {
                 </AnimatePresence>
               </motion.button>
 
-              {/* Tooltip for logout when sidebar is collapsed */}
               {!isSidebarOpen && (
                 <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                   <div
@@ -565,7 +665,6 @@ const AdminLayout: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Main content */}
         <main
           className={`flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 ${mainBgClass} transition-colors duration-300`}
         >
