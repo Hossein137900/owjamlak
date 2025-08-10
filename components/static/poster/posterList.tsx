@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiSearch,
@@ -16,7 +16,7 @@ import ReportageBox from "./posterBox";
 import { Filters, Poster } from "@/types/type";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-const PosterListPage = () => {
+function PosterListContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -1327,6 +1327,27 @@ const PosterListPage = () => {
         </AnimatePresence>
       </div>
     </div>
+  );
+};
+
+// Loading component
+function PosterListLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+        <p className="text-gray-600">در حال بارگذاری...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main export with Suspense wrapper
+const PosterListPage = () => {
+  return (
+    <Suspense fallback={<PosterListLoading />}>
+      <PosterListContent />
+    </Suspense>
   );
 };
 

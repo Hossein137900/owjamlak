@@ -25,11 +25,9 @@ const messageSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt
+    timestamps: true,
   }
 );
-
-module.exports = messageSchema;
 
 const chatRoomSchema = new mongoose.Schema(
   {
