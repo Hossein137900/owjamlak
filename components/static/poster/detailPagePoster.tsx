@@ -84,27 +84,53 @@ export default function PosterDetailClient({
   const [isFavorite, setIsFavorite] = useState(false);
   const [loadingFav, setLoadingFav] = useState(false);
   const [userId, setUserId] = useState("");
+  const [hasValidToken, setHasValidToken] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem("token");
+      if (!token) {
+        setHasValidToken(false);
+        setLoading(false);
+        return;
+      }
 
       try {
-        const response = await fetch(`/api/auth/id`, {
-          method: "GET",
-          headers: {
-            token: token ?? "",
-          },
-        });
-        if (!response.ok) {
+        // Check token validity
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const isExpired = payload.exp * 1000 < Date.now();
+        setHasValidToken(!isExpired);
+
+        if (isExpired) {
+          setLoading(false);
           return;
         }
+
+        const response = await fetch(`/api/auth/id`, {
+          method: "GET",
+          headers: { token },
+        });
+
+        if (!response.ok) {
+          setLoading(false);
+          return;
+        }
+
         const data = await response.json();
         if (data) {
           setUserId(data.id);
+          // Check favorite if posterData exists
+          if (
+            posterData?._id &&
+            data.favorite &&
+            Array.isArray(data.favorite)
+          ) {
+            setIsFavorite(data.favorite.includes(posterData._id));
+          }
         }
       } catch (error) {
-        console.log("Error fetching poster:", error);
+        console.log("Error fetching user info:", error);
+        setHasValidToken(false);
         setError("خطا در دریافت اطلاعات کاربر");
       } finally {
         setLoading(false);
@@ -112,30 +138,81 @@ export default function PosterDetailClient({
     };
 
     fetchUserInfo();
-  }, []);
-
-  useEffect(() => {
-    const checkFavorite = async () => {
-      const token = localStorage.getItem("token");
-      if (token && posterData?._id) {
-        try {
-          const response = await fetch(`/api/auth/id`, {
-            method: "GET",
-            headers: {
-              token: token,
-            },
-          });
-          const user: { favorite?: string[] } = await response.json();
-          if (user && user.favorite && Array.isArray(user.favorite)) {
-            setIsFavorite(user.favorite.includes(posterData._id));
-          }
-        } catch {
-          // handle error silently
-        }
-      }
-    };
-    checkFavorite();
   }, [posterData?._id]);
+
+  // useEffect(() => {
+  //   const checkToken = () => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) {
+  //       setHasValidToken(false);
+  //       return;
+  //     }
+
+  //     try {
+  //       // Basic token expiration check (assuming JWT format)
+  //       const payload = JSON.parse(atob(token.split(".")[1]));
+  //       const isExpired = payload.exp * 1000 < Date.now();
+  //       setHasValidToken(!isExpired);
+  //     } catch {
+  //       setHasValidToken(false);
+  //     }
+  //   };
+
+  //   checkToken();
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchUserInfo = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) return;
+
+  //     try {
+  //       const response = await fetch(`/api/auth/id`, {
+  //         method: "GET",
+  //         headers: {
+  //           token: token ?? "",
+  //         },
+  //       });
+  //       if (!response.ok) {
+  //         return;
+  //       }
+  //       const data = await response.json();
+  //       if (data) {
+  //         setUserId(data.id);
+  //       }
+  //     } catch (error) {
+  //       console.log("Error fetching poster:", error);
+  //       setError("خطا در دریافت اطلاعات کاربر");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchUserInfo();
+  // }, []);
+
+  // useEffect(() => {
+  //   const checkFavorite = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (token && posterData?._id) {
+  //       try {
+  //         const response = await fetch(`/api/auth/id`, {
+  //           method: "GET",
+  //           headers: {
+  //             token: token,
+  //           },
+  //         });
+  //         const user: { favorite?: string[] } = await response.json();
+  //         if (user && user.favorite && Array.isArray(user.favorite)) {
+  //           setIsFavorite(user.favorite.includes(posterData._id));
+  //         }
+  //       } catch {
+  //         // handle error silently
+  //       }
+  //     }
+  //   };
+  //   checkFavorite();
+  // }, [posterData?._id]);
 
   const handleToggleFavorite = async () => {
     try {
@@ -179,13 +256,15 @@ export default function PosterDetailClient({
     try {
       setLoading(true);
       setError(null);
-      console.log(id);
+
+      const token = localStorage.getItem("token"); 
 
       const response = await fetch(`/api/poster/id`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           id: id,
+          token: token || "", 
         },
       });
 
@@ -198,7 +277,6 @@ export default function PosterDetailClient({
 
       const data = await response.json();
 
-      // Handle both single poster and array response
       const poster = data.poster || data.posters?.[0] || data;
 
       if (!poster) {
@@ -217,6 +295,22 @@ export default function PosterDetailClient({
   useEffect(() => {
     fetchPosterData();
   }, [id]);
+  useEffect(() => {
+    // فقط یک بار ویو اضافه کن
+    const incrementView = async () => {
+      try {
+        await fetch("/api/poster/view", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: posterId }),
+        });
+      } catch (error) {
+        console.log("Error incrementing view:", error);
+      }
+    };
+
+    incrementView();
+  }, [posterId]);
 
   const formatPrice = (amount: number) => {
     if (amount === 0) return "توافقی";
@@ -832,24 +926,37 @@ export default function PosterDetailClient({
                   <FaUser className="text-[#01ae9b]" />
                   <span>{safeUser.name}</span>
                 </div>
-                {posterData.contact && (
+                {hasValidToken && posterData.contact && (
                   <div className="flex items-center gap-2 text-gray-600 mt-2">
                     <FaPhone className="text-[#01ae9b]" />
                     <span>{posterData.contact}</span>
                   </div>
                 )}
               </div>
-
-              <div className="flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleContact}
-                  className="flex-1 bg-green-600 text-white text-center py-3 rounded-xl text-lg font-medium shadow-md hover:bg-green-700 flex items-center justify-center gap-2"
-                >
-                  <FaPhone /> تماس با آگهی دهنده
-                </motion.button>
-              </div>
+              {hasValidToken ? (
+                <div className="flex gap-3">
+                  <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={handleContact}
+                    className="flex-1 bg-green-600 text-white text-center py-3 rounded-xl text-lg font-medium shadow-md hover:bg-green-700 flex items-center justify-center gap-2"
+                  >
+                    <FaPhone /> تماس با آگهی دهنده
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                  <p className="text-yellow-700 text-sm">
+                    برای مشاهده اطلاعات تماس لطفاً وارد شوید
+                  </p>
+                  <Link
+                    href="/auth"
+                    className="text-green-900 text-sm font-medium mt-2"
+                  >
+                    ورود به حساب کاربری
+                  </Link>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         </div>
@@ -902,8 +1009,8 @@ export default function PosterDetailClient({
 
           {/* Interactive Map */}
           {posterData.coordinates?.lat && posterData.coordinates?.lng && (
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              <div className="h-80 relative">
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden z-10">
+              <div className="h-80 relative z-10">
                 <LeafletMap
                   lat={posterData.coordinates.lat}
                   lng={posterData.coordinates.lng}

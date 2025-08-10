@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import { HiOutlineLocationMarker, HiOutlineBriefcase } from "react-icons/hi";
 import { BiTime } from "react-icons/bi";
-import { MdRealEstateAgent } from "react-icons/md";
+// import { MdRealEstateAgent } from "react-icons/md";
 import { Consultant } from "@/types/type";
 
 interface ConsultantDetailPageProps {
@@ -178,7 +178,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
               )}
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                 <div className=" p-4 rounded-lg text-center shadow-md">
                   <BiTime className="text-2xl text-blue-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-blue-600">
@@ -186,14 +186,14 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
                   </div>
                   <div className="text-sm text-gray-600">سال تجربه</div>
                 </div>
-
+{/* 
                 <div className=" p-4 rounded-lg text-center shadow-md">
                   <MdRealEstateAgent className="text-2xl text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">
                     {consultant.posterCount}
                   </div>
                   <div className="text-sm text-gray-600">آگهی فعال</div>
-                </div>
+                </div> */}
 
                 <div className=" p-4 rounded-lg text-center shadow-md">
                   <HiOutlineLocationMarker className="text-2xl text-purple-600 mx-auto mb-2" />

@@ -22,8 +22,9 @@ const HeroImageSlider = () => {
         if (!res.ok) throw new Error("Failed to fetch posters");
         const data = await res.json();
         setPosters(data.posters.slice(0, 5));
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        console.log(err)
+        setError("خطا در بارگیری بنرها");
       } finally {
         setLoading(false);
       }

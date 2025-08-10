@@ -61,7 +61,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     user.favorite = user.favorite.filter(
-      (fav: String) => fav.toString() !== posterId
+      (fav: string) => fav.toString() !== posterId
     );
     await user.save();
 

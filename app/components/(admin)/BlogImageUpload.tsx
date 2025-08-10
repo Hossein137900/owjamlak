@@ -1,52 +1,52 @@
 "use client";
 
-import { MultiImageDropzone, type FileState } from "@/app/components/MultiImageDropzone";
-import { useEdgeStore } from "@/lib/edgestore";
+
+// import { useEdgeStore } from "@/lib/edgestore";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
 interface BlogImageUploadProps {
-  onImageUpload: (imageUrl: string, type: 'main' | 'second') => void;
+  onImageUpload: (imageUrl: string, type: "main" | "second") => void;
   currentMainImage?: string;
   currentSecondImage?: string;
   maxFiles?: number;
 }
 
-export default function BlogImageUpload({ 
-  onImageUpload, 
-  currentMainImage, 
+export default function BlogImageUpload({
+  onImageUpload,
+  currentMainImage,
   currentSecondImage,
-  maxFiles = 2 
+  maxFiles = 2,
 }: BlogImageUploadProps) {
-  const [fileStates, setFileStates] = useState<FileState[]>([]);
+  // const [fileStates, setFileStates] = useState<FileState[]>([]);
   const [uploadedImages, setUploadedImages] = useState<{
     main?: string;
     second?: string;
   }>({
     main: currentMainImage,
-    second: currentSecondImage
+    second: currentSecondImage,
   });
-  const { edgestore } = useEdgeStore();
+  // const { edgestore } = useEdgeStore();
 
-  function updateFileProgress(key: string, progress: FileState["progress"]) {
-    setFileStates((fileStates) => {
-      const newFileStates = structuredClone(fileStates);
-      const fileState = newFileStates.find(
-        (fileState) => fileState.key === key
-      );
-      if (fileState) {
-        fileState.progress = progress;
-      }
-      return newFileStates;
-    });
-  }
+  // function updateFileProgress(key: string, progress: FileState["progress"]) {
+  //   setFileStates((fileStates) => {
+  //     const newFileStates = structuredClone(fileStates);
+  //     const fileState = newFileStates.find(
+  //       (fileState) => fileState.key === key
+  //     );
+  //     if (fileState) {
+  //       fileState.progress = progress;
+  //     }
+  //     return newFileStates;
+  //   });
+  // }
 
-  const removeImage = (type: 'main' | 'second') => {
-    setUploadedImages(prev => ({
+  const removeImage = (type: "main" | "second") => {
+    setUploadedImages((prev) => ({
       ...prev,
-      [type]: undefined
+      [type]: undefined,
     }));
-    onImageUpload('', type);
+    onImageUpload("", type);
   };
 
   return (
@@ -55,7 +55,7 @@ export default function BlogImageUpload({
         <h3 className="text-xl font-bold text-white mb-4 text-center">
           تصاویر بلاگ
         </h3>
-        
+
         {/* Current Images Display */}
         {(uploadedImages.main || uploadedImages.second) && (
           <div className="mb-6">
@@ -74,7 +74,7 @@ export default function BlogImageUpload({
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                     <button
-                      onClick={() => removeImage('main')}
+                      onClick={() => removeImage("main")}
                       className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
                     >
                       حذف تصویر اصلی
@@ -85,7 +85,7 @@ export default function BlogImageUpload({
                   </span>
                 </motion.div>
               )}
-              
+
               {uploadedImages.second && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -99,7 +99,7 @@ export default function BlogImageUpload({
                   />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                     <button
-                      onClick={() => removeImage('second')}
+                      onClick={() => removeImage("second")}
                       className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
                     >
                       حذف تصویر دوم
@@ -117,10 +117,11 @@ export default function BlogImageUpload({
         {/* Upload Area */}
         <div className="space-y-4">
           <p className="text-white/70 text-sm text-center">
-            حداکثر {maxFiles} تصویر می‌توانید آپلود کنید (تصویر اصلی و تصویر دوم)
+            حداکثر {maxFiles} تصویر می‌توانید آپلود کنید (تصویر اصلی و تصویر
+            دوم)
           </p>
-          
-          <MultiImageDropzone
+
+          {/* <MultiImageDropzone
             value={fileStates}
             dropzoneOptions={{
               maxFiles: maxFiles,
@@ -163,7 +164,7 @@ export default function BlogImageUpload({
                 })
               );
             }}
-          />
+          /> */}
         </div>
 
         {/* Upload Instructions */}

@@ -37,4 +37,4 @@ const realStateRequestSchema = new mongoose.Schema({
   },
 });
 export default mongoose.models.RealStateRequest ||
-  mongoose.model("realStateRequest", realStateRequestSchema);
+  mongoose.model("RealStateRequest", realStateRequestSchema);

@@ -7,7 +7,6 @@ import Footer from "@/components/global/footer";
 import { ray } from "@/next-persian-fonts/ray";
 
 // import Breadcrumb from "@/components/global/breadCrumbs";
-import { EdgeStoreProvider } from "@/lib/edgestore";
 import { Toaster } from "react-hot-toast";
 import ChatWidget from "@/components/global/chatWidget";
 import FooterMobile from "@/components/global/mobileFooter";
@@ -35,7 +34,7 @@ export default function RootLayout({
         <ChatWidget position="bottom-right" primaryColor="#66308d" />
         <Toaster position="top-center" />
         {/* <Breadcrumb /> */}
-        <EdgeStoreProvider> {children}</EdgeStoreProvider>
+        {children}
         <FooterMobile />
         <Footer />
       </body>

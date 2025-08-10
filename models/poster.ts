@@ -135,6 +135,10 @@ const posterSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    isApproved: {
+      type: Boolean,
+      default: false,
+    },
     meta: {
       type: Map,
       of: mongoose.Schema.Types.Mixed,

@@ -80,7 +80,10 @@ const Testimonials = () => {
   };
 
   // ⭐ Drag End Handler
-  const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
+  const handleDragEnd = (
+    _: TouchEvent | MouseEvent,
+    info: { offset: { x: number } }
+  ) => {
     const swipe = info.offset.x;
     if (swipe < -50) {
       // Swiped left

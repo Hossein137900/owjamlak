@@ -26,7 +26,6 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",
-    "edgestore": "^1.0.3",
     "framer-motion": "^12.16.0",
     "gsap": "^3.13.0",
     "jsonwebtoken": "^9.0.2",

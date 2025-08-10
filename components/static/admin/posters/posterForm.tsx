@@ -327,9 +327,9 @@ const PosterForm = ({}) => {
         toast.error("آگهی با موفقیت ایجاد نشد");
         throw new Error(result.message || "خطا در ثبت آگهی");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log(err);
-      setError(err.message || "خطا در ثبت آگهی. لطفا دوباره تلاش کنید.");
+      setError("خطا در ثبت آگهی. لطفا دوباره تلاش کنید.");
     } finally {
       setIsSubmitting(false);
     }

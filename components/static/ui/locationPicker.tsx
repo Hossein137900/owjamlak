@@ -58,7 +58,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
   const [mapCenter, setMapCenter] = useState<[number, number]>([
     35.6892, 51.389,
   ]); // Tehran center
-  const [L, setL] = useState<any>(null);
+  const [L, setL] = useState<typeof import("leaflet") | null>(null);
 
   // Load Leaflet
   useEffect(() => {
@@ -67,7 +67,11 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
         setL(leaflet.default);
 
         // Fix for default markers
-        delete (leaflet.default.Icon.Default.prototype as any)._getIconUrl;
+        delete (
+          leaflet.default.Icon.Default.prototype as unknown as {
+            _getIconUrl?: string;
+          }
+        )._getIconUrl;
         leaflet.default.Icon.Default.mergeOptions({
           iconRetinaUrl: "/leaflet/marker-icon-2x.png",
           iconUrl: "/leaflet/marker-icon.png",
@@ -190,8 +194,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
           {/* Search */}
           <div className="p-4 border-b border-gray-200">
             <form onSubmit={handleSearchSubmit} className="relative">
-             
-
               {/* Search Results */}
               {searchResults.length > 0 && (
                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto z-10 shadow-lg">

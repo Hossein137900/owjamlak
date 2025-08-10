@@ -3,9 +3,12 @@ import connect from "@/lib/data";
 import User from "@/models/user";
 import Poster from "@/models/poster";
 import jwt from "jsonwebtoken"; // اگر از jwt استفاده می‌کنی
+
 interface JWTPayload {
-  id: string;
-  [key: string]: any; // for any additional JWT claims
+  id: string; // آیدی کاربر که شما ذخیره می‌کنید
+  iat?: number; // issued at
+  exp?: number; // expiration time
+  [key: string]: unknown; // برای هر کلید اضافی
 }
 export async function GET(req: NextRequest) {
   try {
@@ -35,12 +38,15 @@ export async function GET(req: NextRequest) {
     const favorites = await Poster.find({ _id: { $in: user.favorite } });
 
     return NextResponse.json({ favorites });
-  } catch (err: any) {
-    console.log("Error in favorite list API:", err);
-    return NextResponse.json(
-      { message: "خطای سرور", error: err.message },
-      { status: 500 }
+  } catch (err) {
+    console.log(
+      "Error get favorite:",
+      err instanceof Error ? err.message : err
     );
+    return NextResponse.json({
+      message: "خطای سرور",
+      error: err instanceof Error ? err.message : "An unknown error occurred",
+    });
   }
 }
 export async function DELETE(req: NextRequest) {
@@ -56,7 +62,13 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    let decoded: JWTPayload;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload;
+    } catch (err) {
+      console.log(err);
+      return NextResponse.json({ message: "توکن نامعتبر" }, { status: 401 });
+    }
     const user = await User.findById(decoded.id);
 
     if (!user) {
@@ -64,7 +76,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     user.favorite = user.favorite.filter(
-      (fav: any) => fav.toString() !== posterId
+      (fav: string) => fav.toString() !== posterId
     );
     await user.save();
 
@@ -72,10 +84,16 @@ export async function DELETE(req: NextRequest) {
       { message: "آگهی از علاقه‌مندی‌ها حذف شد" },
       { status: 200 }
     );
-  } catch (err: any) {
-    console.log("Error removing favorite:", err);
+  } catch (err) {
+    console.log(
+      "Error removing favorite:",
+      err instanceof Error ? err.message : err
+    );
     return NextResponse.json(
-      { message: "خطای سرور", error: err.message },
+      {
+        message: "خطای سرور",
+        error: err instanceof Error ? err.message : "An unknown error occurred",
+      },
       { status: 500 }
     );
   }

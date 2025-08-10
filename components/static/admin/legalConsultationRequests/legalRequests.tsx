@@ -40,8 +40,8 @@ const LegalRequests: React.FC = () => {
       const res = await fetch("/api/legal-request");
       const data = await res.json();
       setRequests(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "خطای ناشناخته");
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,7 @@ const LegalRequests: React.FC = () => {
         }
 
         resolve(data);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.log("❌ خطا در حذف:", err);
         fetchRequests(); // برگردوندن دیتا
         reject(err);

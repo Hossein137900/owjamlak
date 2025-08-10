@@ -194,7 +194,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-25 md:bottom-20 z-999999 right-6 w-16 h-16 rounded-full shadow-lg flex items-center justify-center text-white overflow-hidden"
+            className="fixed bottom-15 md:bottom-15 z-999999 right-2 md:right-6 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-lg flex items-center justify-center text-white overflow-hidden"
             style={{
               background: `linear-gradient(135deg, ${primaryColor}, #01ae9b)`,
             }}

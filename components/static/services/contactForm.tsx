@@ -3,10 +3,9 @@ import { useState, useRef, useEffect, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaCheck, FaPaperPlane } from "react-icons/fa";
 import {
-  MultiImageDropzone,
+  // MultiImageDropzone,
   type FileState,
 } from "@/app/components/MultiImageDropzone";
-import { useEdgeStore } from "@/lib/edgestore";
 // import { FaPaperPlane, FaCheck } from "react-icons/fa";
 
 // Rename to avoid conflict with browser's FormData
@@ -78,8 +77,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>("");
 
   const formRef = useRef<HTMLFormElement>(null);
-  console.log(isSubmitting, focusedField);
-  const { edgestore } = useEdgeStore();
+  console.log(isSubmitting, focusedField , fileStates);
 
   // Sync external errors with local errors state
   useEffect(() => {
@@ -228,61 +226,61 @@ const ContactForm: React.FC<ContactFormProps> = ({
   };
 
 
-  const handleFilesAdded = async (addedFiles: FileState[]) => {
-    setFileStates(addedFiles);
+  // const handleFilesAdded = async (addedFiles: FileState[]) => {
+  //   setFileStates(addedFiles);
 
-    if (addedFiles.length > 0) {
-      const file = addedFiles[0].file;
+  //   if (addedFiles.length > 0) {
+  //     const file = addedFiles[0].file;
 
-      if (file instanceof File) {
-        try {
-          // Start upload to EdgeStore
-          setFileStates((prev) =>
-            prev.map((fileState) =>
-              fileState.key === addedFiles[0].key
-                ? { ...fileState, progress: 0 }
-                : fileState
-            )
-          );
+  //     if (file instanceof File) {
+  //       try {
+  //         // Start upload to EdgeStore
+  //         setFileStates((prev) =>
+  //           prev.map((fileState) =>
+  //             fileState.key === addedFiles[0].key
+  //               ? { ...fileState, progress: 0 }
+  //               : fileState
+  //           )
+  //         );
 
-          const res = await edgestore.publicFiles.upload({
-            file,
-            onProgressChange: (progress) => {
-              setFileStates((prev) =>
-                prev.map((fileState) =>
-                  fileState.key === addedFiles[0].key
-                    ? { ...fileState, progress }
-                    : fileState
-                )
-              );
-            },
-          });
+  //         const res = await edgestore.publicFiles.upload({
+  //           file,
+  //           onProgressChange: (progress) => {
+  //             setFileStates((prev) =>
+  //               prev.map((fileState) =>
+  //                 fileState.key === addedFiles[0].key
+  //                   ? { ...fileState, progress }
+  //                   : fileState
+  //               )
+  //             );
+  //           },
+  //         });
 
-          // Upload completed
-          setFileStates((prev) =>
-            prev.map((fileState) =>
-              fileState.key === addedFiles[0].key
-                ? { ...fileState, progress: "COMPLETE" }
-                : fileState
-            )
-          );
+  //         // Upload completed
+  //         setFileStates((prev) =>
+  //           prev.map((fileState) =>
+  //             fileState.key === addedFiles[0].key
+  //               ? { ...fileState, progress: "COMPLETE" }
+  //               : fileState
+  //           )
+  //         );
 
-          setUploadedFileUrl(res.url);
-          setFormData((prev) => ({ ...prev, file: res.url }));
-        } catch (error) {
-          console.log("Upload error:", error);
-          setFileStates((prev) =>
-            prev.map((fileState) =>
-              fileState.key === addedFiles[0].key
-                ? { ...fileState, progress: "ERROR" }
-                : fileState
-            )
-          );
-          setErrors((prev) => ({ ...prev, file: "خطا در آپلود فایل" }));
-        }
-      }
-    }
-  };
+  //         setUploadedFileUrl(res.url);
+  //         setFormData((prev) => ({ ...prev, file: res.url }));
+  //       } catch (error) {
+  //         console.log("Upload error:", error);
+  //         setFileStates((prev) =>
+  //           prev.map((fileState) =>
+  //             fileState.key === addedFiles[0].key
+  //               ? { ...fileState, progress: "ERROR" }
+  //               : fileState
+  //           )
+  //         );
+  //         setErrors((prev) => ({ ...prev, file: "خطا در آپلود فایل" }));
+  //       }
+  //     }
+  //   }
+  // };
 
   const handleFileRemove = (index: number) => {
     setFileStates((prev) => prev.filter((_, i) => i !== index));
@@ -520,7 +518,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
                         )}
                       </label>
 
-                      <MultiImageDropzone
+                      {/* <MultiImageDropzone
                         value={fileStates}
                         onChange={setFileStates}
                         onFilesAdded={handleFilesAdded}
@@ -537,7 +535,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
                           },
                         }}
                         className="w-full"
-                      />
+                      /> */}
 
                       {uploadedFileUrl && (
                         <motion.div

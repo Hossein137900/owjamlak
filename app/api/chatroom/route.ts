@@ -3,7 +3,7 @@ import connect from "@/lib/data";
 import ChatRoom from "../../../models/room";
 
 // GET: Get all or one chatroom entry
-export const GET = async (req: NextRequest) => {
+export async function GET(req: NextRequest) {
   await connect();
 
   const id = req.headers.get("id");
@@ -37,10 +37,10 @@ export const GET = async (req: NextRequest) => {
       { status: 500 }
     );
   }
-};
+}
 
 // POST: Create a chatroom entry
-export const POST = async (req: NextRequest) => {
+export async function POST(req: NextRequest) {
   await connect();
 
   try {
@@ -59,10 +59,10 @@ export const POST = async (req: NextRequest) => {
       { status: 500 }
     );
   }
-};
+}
 
 // PATCH: Add new message to chatroom
-export const PATCH = async (req: NextRequest) => {
+export async function PATCH(req: NextRequest) {
   await connect();
 
   const id = req.headers.get("id");
@@ -105,10 +105,10 @@ export const PATCH = async (req: NextRequest) => {
       { status: 500 }
     );
   }
-};
+}
 
 // DELETE: Delete a chatroom entry
-export const DELETE = async (req: NextRequest) => {
+export async function DELETE(req: NextRequest) {
   await connect();
 
   const id = req.headers.get("id");
@@ -135,4 +135,4 @@ export const DELETE = async (req: NextRequest) => {
       { status: 500 }
     );
   }
-};
+}

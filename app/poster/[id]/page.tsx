@@ -3,20 +3,21 @@ import { Poster } from "@/types/type";
 import { Metadata } from "next";
 
 interface PageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
-export default function PosterDetail({ params }: PageProps) {
-  return <PosterDetailClient posterId={params.id} />;
+export default async function PosterDetail({ params }: PageProps) {
+  const { id } = await params;
+  return <PosterDetailClient posterId={id} />;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const { id } = await params;
+
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/poster/id`,
@@ -24,10 +25,8 @@ export async function generateMetadata({
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          id: params.id,
+          id,
         },
-        // Add cache control for better performance
-        // next: { revalidate: 3600 }, // Revalidate every hour
       }
     );
 
@@ -48,9 +47,8 @@ export async function generateMetadata({
       };
     }
 
-    // Helper functions for metadata
     const getParentTypeLabel = (type: string) => {
-      const typeLabels: { [key: string]: string } = {
+      const typeLabels: Record<string, string> = {
         residentialRent: "اجاره مسکونی",
         residentialSale: "فروش مسکونی",
         commercialRent: "اجاره تجاری",
@@ -62,7 +60,7 @@ export async function generateMetadata({
     };
 
     const getTradeTypeLabel = (type: string) => {
-      const typeLabels: { [key: string]: string } = {
+      const typeLabels: Record<string, string> = {
         House: "خانه",
         Villa: "ویلا",
         Old: "کلنگی",
@@ -77,12 +75,10 @@ export async function generateMetadata({
 
     const formatPrice = (amount: number) => {
       if (amount === 0) return "توافقی";
-      if (amount >= 1000000000) {
-        return `${(amount / 1000000000).toFixed(1)} میلیارد`;
-      }
-      if (amount >= 1000000) {
-        return `${(amount / 1000000).toFixed(1)} میلیون`;
-      }
+      if (amount >= 1_000_000_000)
+        return `${(amount / 1_000_000_000).toFixed(1)} میلیارد`;
+      if (amount >= 1_000_000)
+        return `${(amount / 1_000_000).toFixed(1)} میلیون`;
       return amount.toLocaleString("fa-IR");
     };
 
@@ -91,19 +87,16 @@ export async function generateMetadata({
       poster.parentType === "commercialRent" ||
       poster.parentType === "shortTermRent";
 
-    // Generate price text for description
     const priceText = isRentType
       ? `رهن: ${formatPrice(poster.depositRent || 0)} - اجاره: ${formatPrice(
           poster.rentPrice || 0
         )} تومان`
       : `قیمت: ${formatPrice(poster.totalPrice || 0)} تومان`;
 
-    // Generate title
     const title = `${poster.title} | ${getParentTypeLabel(
       poster.parentType || ""
     )} ${getTradeTypeLabel(poster.tradeType || "")} | اوج املاک`;
 
-    // Generate description
     const description = `${getParentTypeLabel(
       poster.parentType || ""
     )} ${getTradeTypeLabel(poster.tradeType || "")} در ${
@@ -112,18 +105,12 @@ export async function generateMetadata({
       poster.description ? poster.description.substring(0, 100) + "..." : ""
     }`;
 
-    // Handle images - support both string and object formats
-    const images =
-      poster.images && poster.images.length > 0
-        ? poster.images.map((img) => {
-            if (typeof img === "string") {
-              return img;
-            }
-            return img.url || "/assets/images/hero.jpg";
-          })
-        : ["/assets/images/hero.jpg"];
+    const images = poster.images?.length
+      ? poster.images.map((img) =>
+          typeof img === "string" ? img : img.url || "/assets/images/hero.jpg"
+        )
+      : ["/assets/images/hero.jpg"];
 
-    // Generate keywords
     const keywords = [
       poster.title,
       getParentTypeLabel(poster.parentType || ""),
@@ -143,11 +130,7 @@ export async function generateMetadata({
       title,
       description,
       keywords: keywords.join(", "),
-      authors: [
-        {
-          name: poster.user?.name || "اوج املاک",
-        },
-      ],
+      authors: [{ name: poster.user?.name || "اوج املاک" }],
       openGraph: {
         title,
         description,

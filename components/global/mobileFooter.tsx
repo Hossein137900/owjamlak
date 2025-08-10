@@ -6,7 +6,6 @@ import {
   FiHome,
   FiSearch,
   FiPlusCircle,
-  FiUser,
   FiHeart,
   FiSettings,
 } from "react-icons/fi";

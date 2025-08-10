@@ -82,10 +82,7 @@ export default function AdminFavoritesPage() {
     setShowDeleteModal(true);
   };
 
-  const formatPrice = (price?: number) => {
-    if (!price) return "قیمت نامشخص";
-    return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
-  };
+
 
   if (loading) {
     return (

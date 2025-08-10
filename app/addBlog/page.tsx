@@ -15,8 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { CustomEditor } from "@/types/editor";
 import BlogImageUpload from "../components/(admin)/BlogImageUpload";
-import { MultiImageDropzone, type FileState } from "../components/MultiImageDropzone";
-import { useEdgeStore } from "@/lib/edgestore";
+import { type FileState } from "../components/MultiImageDropzone";
 
 const MenuButton = ({
   onClick,
@@ -103,20 +102,20 @@ const ImageUploadModal = ({
   const [imageUrl, setImageUrl] = useState("");
   const [altText, setAltText] = useState("");
   const [fileStates, setFileStates] = useState<FileState[]>([]);
-  const { edgestore } = useEdgeStore();
+  // const { edgestore } = useEdgeStore();
 
-  function updateFileProgress(key: string, progress: FileState["progress"]) {
-    setFileStates((fileStates) => {
-      const newFileStates = structuredClone(fileStates);
-      const fileState = newFileStates.find(
-        (fileState) => fileState.key === key
-      );
-      if (fileState) {
-        fileState.progress = progress;
-      }
-      return newFileStates;
-    });
-  }
+  // function updateFileProgress(key: string, progress: FileState["progress"]) {
+  //   setFileStates((fileStates) => {
+  //     const newFileStates = structuredClone(fileStates);
+  //     const fileState = newFileStates.find(
+  //       (fileState) => fileState.key === key
+  //     );
+  //     if (fileState) {
+  //       fileState.progress = progress;
+  //     }
+  //     return newFileStates;
+  //   });
+  // }
 
   const handleUrlSubmit = () => {
     if (imageUrl.trim()) {
@@ -128,46 +127,46 @@ const ImageUploadModal = ({
     }
   };
 
-  const handleFilesAdded = async (addedFiles: FileState[]) => {
-    setFileStates([...fileStates, ...addedFiles]);
-    
-    await Promise.all(
-      addedFiles.map(async (addedFileState) => {
-        try {
-          const res = await edgestore.publicFiles.upload({
-            file: addedFileState.file as File,
-            onProgressChange: async (progress) => {
-              updateFileProgress(addedFileState.key, progress);
-              if (progress === 100) {
-                await new Promise((resolve) => setTimeout(resolve, 1000));
-                updateFileProgress(addedFileState.key, "COMPLETE");
-              }
-            },
-          });
+  // const handleFilesAdded = async (addedFiles: FileState[]) => {
+  //   setFileStates([...fileStates, ...addedFiles]);
 
-          // Insert image into editor
-          onImageSelect(res.url, altText.trim() || (addedFileState.file as File).name);
-          
-          // Reset and close after successful upload
-          setTimeout(() => {
-            setFileStates([]);
-            setAltText("");
-            onClose();
-          }, 1500);
-          
-          toast.success('تصویر با موفقیت آپلود شد');
-        } catch (err) {
-          console.log("Upload error:", err);
-          updateFileProgress(addedFileState.key, "ERROR");
-          toast.error('خطا در آپلود تصویر');
-        }
-      })
-    );
-  };
+  //   await Promise.all(
+  //     addedFiles.map(async (addedFileState) => {
+  //       try {
+  //         const res = await edgestore.publicFiles.upload({
+  //           file: addedFileState.file as File,
+  //           onProgressChange: async (progress) => {
+  //             updateFileProgress(addedFileState.key, progress);
+  //             if (progress === 100) {
+  //               await new Promise((resolve) => setTimeout(resolve, 1000));
+  //               updateFileProgress(addedFileState.key, "COMPLETE");
+  //             }
+  //           },
+  //         });
 
-  const handleFileStatesChange = (newFileStates: FileState[]) => {
-    setFileStates(newFileStates);
-  };
+  //         // Insert image into editor
+  //         onImageSelect(res.url, altText.trim() || (addedFileState.file as File).name);
+
+  //         // Reset and close after successful upload
+  //         setTimeout(() => {
+  //           setFileStates([]);
+  //           setAltText("");
+  //           onClose();
+  //         }, 1500);
+
+  //         toast.success('تصویر با موفقیت آپلود شد');
+  //       } catch (err) {
+  //         console.log("Upload error:", err);
+  //         updateFileProgress(addedFileState.key, "ERROR");
+  //         toast.error('خطا در آپلود تصویر');
+  //       }
+  //     })
+  //   );
+  // };
+
+  // const handleFileStatesChange = (newFileStates: FileState[]) => {
+  //   setFileStates(newFileStates);
+  // };
 
   if (!isOpen) return null;
 
@@ -183,14 +182,14 @@ const ImageUploadModal = ({
         <h3 className="text-xl font-bold mb-6 text-white text-center">
           افزودن تصویر به محتوا
         </h3>
-        
+
         <div className="space-y-6">
           {/* Multi Image Dropzone */}
           <div>
             <label className="block text-sm font-medium mb-3 text-white">
               آپلود تصویر
             </label>
-            <div className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#e5d8d0]/20">
+            {/* <div className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#e5d8d0]/20">
               <MultiImageDropzone
                 value={fileStates}
                 dropzoneOptions={{
@@ -204,7 +203,7 @@ const ImageUploadModal = ({
                 onFilesAdded={handleFilesAdded}
                 className="w-full"
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="text-center text-white/70 relative">
@@ -432,7 +431,7 @@ export default function AddBlogPage() {
     } catch (error) {
       console.log("Error creating blog:", error);
       toast.error("خطا در ایجاد بلاگ");
-    } 
+    }
   };
 
   return (
@@ -688,8 +687,7 @@ export default function AddBlogPage() {
           </div>
         </div>
 
-        
-        <div className="text-right pt-6">
+        {/* <div className="text-right pt-6">
           <button
             type="submit"
             disabled={isSubmitting}
@@ -697,7 +695,7 @@ export default function AddBlogPage() {
           >
             {isSubmitting ? "در حال انتشار..." : "انتشار بلاگ"}
           </button>
-        </div>
+        </div> */}
       </form>
 
       {/* Image Upload Modal */}

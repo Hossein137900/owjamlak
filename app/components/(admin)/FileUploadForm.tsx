@@ -1,28 +1,25 @@
 "use client";
 
-import { MultiImageDropzone, type FileState } from "@/app/components/MultiImageDropzone";
-import { useEdgeStore } from "@/lib/edgestore";
 import { useState } from "react";
 
 export default function MultiImageDropzoneUsage() {
-  const [fileStates, setFileStates] = useState<FileState[]>([]);
-  const [uploadedFiles, setUploadedFiles] = useState<
+  // const [fileStates, setFileStates] = useState<FileState[]>([]);
+  const [uploadedFiles] = useState<
     { name: string; url: string }[]
   >([]);
-  const { edgestore } = useEdgeStore();
 
-  function updateFileProgress(key: string, progress: FileState["progress"]) {
-    setFileStates((fileStates) => {
-      const newFileStates = structuredClone(fileStates);
-      const fileState = newFileStates.find(
-        (fileState) => fileState.key === key
-      );
-      if (fileState) {
-        fileState.progress = progress;
-      }
-      return newFileStates;
-    });
-  }
+  // function updateFileProgress(key: string, progress: FileState["progress"]) {
+  //   setFileStates((fileStates) => {
+  //     const newFileStates = structuredClone(fileStates);
+  //     const fileState = newFileStates.find(
+  //       (fileState) => fileState.key === key
+  //     );
+  //     if (fileState) {
+  //       fileState.progress = progress;
+  //     }
+  //     return newFileStates;
+  //   });
+  // }
 
   async function handleSaveToMongoDB() {
     const categorizedFiles = uploadedFiles.map((file) => {
@@ -47,7 +44,7 @@ export default function MultiImageDropzoneUsage() {
 
   return (
     <div>
-      <MultiImageDropzone
+      {/* <MultiImageDropzone
         value={fileStates}
         dropzoneOptions={{
           maxFiles: 6,
@@ -88,7 +85,7 @@ export default function MultiImageDropzoneUsage() {
             })
           );
         }}
-      />
+      /> */}
 
       <ul>
         {uploadedFiles.map((file, index) => (

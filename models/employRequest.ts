@@ -35,4 +35,4 @@ const employRequestSchema = new mongoose.Schema({
   },
 });
 export default mongoose.models.EmployRequest ||
-  mongoose.model("employRequest", employRequestSchema);
+  mongoose.model("EmployRequest", employRequestSchema);

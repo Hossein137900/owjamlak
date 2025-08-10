@@ -218,9 +218,9 @@ const PropertyListings: React.FC = () => {
       } else {
         throw new Error(result.message || "خطا در بروزرسانی آگهی");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.log("Error updating poster:", error);
-      toast.error(error.message || "خطا در بروزرسانی آگهی");
+      toast.error("خطا در بروزرسانی آگهی");
     } finally {
       setIsUpdating(false);
     }

@@ -325,10 +325,10 @@ export const getUserByToken = async (request: NextRequest) => {
 
     return NextResponse.json({
       username: user.name,
-      phoneNumber: user.phone,
+      // phoneNumber: user.phone,
       id: user._id,
       role: user.role,
-      favorite: user.favorite || [], // ✅ اضافه کن
+      favorite: user.favorite || []
     });
   } catch (error) {
     console.log("Error:", error);

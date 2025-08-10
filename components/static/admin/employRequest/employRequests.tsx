@@ -49,19 +49,20 @@ const EmployRequests: React.FC = () => {
         },
       });
       if (!res.ok) throw new Error("مشکلی در دریافت اطلاعات رخ داده است.");
-      const data: EmployRequest[] = await res.json();
+      const data = await res.json();
 
       // اگر API تاریخ یا status ندارد می‌توانیم اینجا مقادیر پیش‌فرض بگذاریم
-      const normalized = data.map((req) => ({
-        ...req,
-        status: (req as any).status || "pending",
-        createdAt:
-          (req as any).createdAt || new Date().toLocaleDateString("fa-IR"),
-      }));
+      const normalized = data.map(
+        (req: EmployRequest & { status?: string; createdAt?: string }) => ({
+          ...req,
+          status: req.status ?? "pending",
+          createdAt: req.createdAt ?? new Date().toLocaleDateString("fa-IR"),
+        })
+      );
       setRequests(normalized);
       setFilteredRequests(normalized);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "خطای ناشناخته");
     } finally {
       setLoading(false);
     }

@@ -3,26 +3,27 @@ import { Consultant } from "@/types/type";
 import { Metadata } from "next";
 
 interface PageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
-export default function ConsultantDetail({ params }: PageProps) {
-  return <ConsultantDetailPage consultantId={params.id} />;
+export default async function ConsultantDetail({ params }: PageProps) {
+  const { id } = await params; // حتما await
+  return <ConsultantDetailPage consultantId={id} />;
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  const { id } = await params; // await برای گرفتن id
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/consultants/${params.id}`
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/consultants/${id}`
   );
   const data = await res.json();
 
-  if ( !data.consultant) {
+  if (!data.consultant) {
     return {
       title: "مشاور یافت نشد",
       description: "اطلاعاتی برای این مشاور در دسترس نیست.",
@@ -32,7 +33,7 @@ export async function generateMetadata({
   const consultant: Consultant = data.consultant;
 
   return {
-    title: `مشاور  ${consultant.name} | اوج املاک`,
+    title: `مشاور ${consultant.name} | اوج املاک`,
     description:
       consultant.description ||
       `اطلاعات تماس، سوابق کاری و تخصص‌های ${

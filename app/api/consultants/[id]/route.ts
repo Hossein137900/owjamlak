@@ -58,12 +58,12 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await connect();
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -171,12 +171,12 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   await connect();
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const consultant = await Consultant.findByIdAndDelete(id);
 

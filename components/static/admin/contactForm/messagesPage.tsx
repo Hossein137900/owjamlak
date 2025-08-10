@@ -35,6 +35,12 @@ interface Message {
   declinedAt?: string;
 }
 
+interface AdditionalStatusData {
+  adminNote?: string;
+  rating?: number;
+  isTestimonial?: boolean;
+}
+
 interface MessageModalProps {
   message: Message | null;
   isOpen: boolean;
@@ -42,7 +48,7 @@ interface MessageModalProps {
   onStatusUpdate: (
     messageId: string,
     status: string,
-    additionalData?: any
+    additionalData?: AdditionalStatusData
   ) => void;
 }
 
@@ -69,7 +75,7 @@ const MessageModal: React.FC<MessageModalProps> = ({
 
   const handleStatusUpdate = async (status: string) => {
     setUpdating(true);
-    const additionalData: any = { adminNote };
+    const additionalData: AdditionalStatusData = { adminNote };
 
     if (status === "accepted") {
       additionalData.rating = rating;
@@ -449,7 +455,7 @@ export default function MessagesPage() {
   const handleStatusUpdate = async (
     messageId: string,
     status: string,
-    additionalData?: any
+    additionalData?: AdditionalStatusData
   ) => {
     setUpdatingStatus(messageId);
     try {
@@ -514,19 +520,6 @@ export default function MessagesPage() {
     } catch (error) {
       console.error("Error deleting message:", error);
     }
-  };
-
-  const getFormTypeColor = (formType: string) => {
-    const colors: { [key: string]: string } = {
-      "مشاوره املاک": "bg-blue-100 text-blue-800",
-      "مشاوره حقوقی": "bg-green-100 text-green-800",
-      همکاری: "bg-purple-100 text-purple-800",
-      "تماس با ما": "bg-orange-100 text-orange-800",
-      general: "bg-gray-100 text-gray-800",
-      property: "bg-blue-100 text-blue-800",
-      support: "bg-green-100 text-green-800",
-    };
-    return colors[formType] || "bg-gray-100 text-gray-800";
   };
 
   const getStatusColor = (status: string) => {
@@ -655,7 +648,6 @@ export default function MessagesPage() {
           </div>
 
           {/* Form Type Filter */}
-   
 
           {/* Status Filter */}
           <div>

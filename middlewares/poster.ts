@@ -78,22 +78,52 @@ export const getAllPosters = async (req: NextRequest) => {
   }
 };
 
-export const getPosterById = async (id: string) => {
+export const getPosterById = async (req: NextRequest) => {
   try {
-    const poster = await Poster.findById(id).populate("user");
+    // چک کردن توکن
+    const token = req.headers.get("token");
+    const id = req.headers.get("id");
+    let hasToken = false;
+    if (token) {
+      try {
+        jwt.verify(token, process.env.JWT_SECRET!);
+        hasToken = true;
+      } catch {
+        hasToken = false;
+      }
+    }
+
+    // اگر توکن نداشت، شماره رو برنگردون
+    const posterSelect = hasToken ? "" : "-contact";
+    const userSelect = hasToken
+      ? "" //
+      : "-phone -password  ";
+
+    const poster = await Poster.findById(id).select(posterSelect).populate({
+      path: "user",
+      select: userSelect,
+    });
+
     if (!poster) {
       return NextResponse.json({ message: "آگهی پیدا نشد" }, { status: 404 });
     }
 
-    poster.views = poster.views + 1;
-    await poster.save();
     return NextResponse.json(poster, { status: 200 });
   } catch (error) {
-    console.log("Error fetching poster:", error);
+    console.error("Error fetching poster:", error);
     return NextResponse.json(
-      { message: "Error fetching poster" },
+      { message: "خطا در دریافت اطلاعات آگهی" },
       { status: 500 }
     );
+  }
+};
+export const incrementPosterView = async (req: Request) => {
+  try {
+    const { id } = await req.json();
+    await Poster.findByIdAndUpdate(id, { $inc: { views: 1 } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 };
 
