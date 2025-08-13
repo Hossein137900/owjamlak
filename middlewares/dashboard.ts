@@ -1,3 +1,4 @@
+// middlewares/dashboard.ts - Updated version
 import { NextRequest, NextResponse } from "next/server";
 import connect from "@/lib/data";
 import jwt from "jsonwebtoken";
@@ -8,15 +9,6 @@ import legalConsultation from "@/models/legalConsultation";
 import newsletter from "@/models/newsletter";
 import employRequest from "@/models/employRequest";
 
-export interface DashboardStats {
-  propertyListings: number;
-  realEstateRequests: number;
-  legalRequests: number;
-  employmentRequests: number;
-  users: number;
-  newsletterSubscribers: number;
-}
-
 interface JwtCustomPayload {
   id: string;
   name: string;
@@ -24,89 +16,108 @@ interface JwtCustomPayload {
   role: string;
 }
 
-export const getDashboardStats = async (request: NextRequest) => {
+export const getDashboardData = async (request: NextRequest) => {
   try {
     await connect();
 
-    // Check admin authentication
     const token = request.headers.get("token");
     if (!token) {
       return NextResponse.json(
-        { success: false, message: "Token missing" },
+        { success: false, message: "توکن یافت نشد" },
         { status: 401 }
       );
     }
 
+    let decodedToken: JwtCustomPayload;
     try {
-      const decodedToken = jwt.verify(
+      decodedToken = jwt.verify(
         token,
         process.env.JWT_SECRET!
       ) as JwtCustomPayload;
-
-      // You can add user role verification here if needed
-      const user = await User.findById(decodedToken.id);
-      if (user.role !== "superadmin") {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-      }
-    } catch (authError) {
+    } catch {
       return NextResponse.json(
-        { success: false, message: "Invalid token" },
+        { success: false, message: "توکن نامعتبر است" },
         { status: 401 }
       );
     }
 
-    // Initialize stats object
-    const stats: DashboardStats = {
-      propertyListings: 0,
-      realEstateRequests: 0,
-      legalRequests: 0,
-      employmentRequests: 0,
-      users: 0,
-      newsletterSubscribers: 0,
-    };
+    const user = await User.findById(decodedToken.id);
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "کاربر یافت نشد" },
+        { status: 404 }
+      );
+    }
 
-    // TODO: Replace these with your actual database queries
+    const { role } = user;
 
-    // 1. آگهی‌های ملک (Property Listings)
-    const propertyCount = await poster.countDocuments();
-    stats.propertyListings = propertyCount;
+    // برای کاربران عادی و مشاوران - فقط آمار شخصی
+    if (role === "user" || role === "consultant") {
+      const userPosters = await poster.countDocuments({ user: user._id });
+      const favoriteCount = user.favorite ? user.favorite.length : 0;
 
-    // 2. درخواست‌های مشاوره املاک (Real Estate Consultation Requests)
-    const realEstateCount = await realStateRequest.countDocuments();
-    stats.realEstateRequests = realEstateCount;
+      return NextResponse.json({
+        success: true,
+        data: {
+          userInfo: {
+            name: user.name,
+            role: user.role,
+            phone: user.phone,
+            createdAt: user.createdAt,
+          },
+          myPosters: userPosters,
+          myFavorites: favoriteCount,
+        },
+        message: "اطلاعات شخصی با موفقیت دریافت شد",
+      });
+    }
 
-    // 3. درخواست‌های مشاوره حقوقی (Legal Consultation Requests)
-    const legalCount = await legalConsultation.countDocuments();
-    stats.legalRequests = legalCount;
+    // برای ادمین و سوپر ادمین - آمار کامل
+    if (role === "admin" || role === "superadmin") {
+      const [
+        propertyListings,
+        realEstateRequests,
+        legalRequests,
+        employmentRequests,
+        users,
+        newsletterSubscribers,
+      ] = await Promise.all([
+        poster.countDocuments(),
+        realStateRequest.countDocuments(),
+        legalConsultation.countDocuments(),
+        employRequest.countDocuments(),
+        User.countDocuments(),
+        newsletter.countDocuments(),
+      ]);
 
-    // 4. درخواست‌های همکاری (Employment/Collaboration Requests)
-    const employmentCount = await employRequest.countDocuments();
-    stats.employmentRequests = employmentCount;
-
-    // 5. کاربران (Users)
-    const userCount = await User.countDocuments();
-    stats.users = userCount;
-
-    // 6. مشترکین خبرنامه (Newsletter Subscribers)
-    const newsletterCount = await newsletter.countDocuments();
-    stats.newsletterSubscribers = newsletterCount;
+      return NextResponse.json({
+        success: true,
+        data: {
+          userInfo: {
+            name: user.name,
+            role: user.role,
+            phone: user.phone,
+            createdAt: user.createdAt,
+          },
+          propertyListings,
+          realEstateRequests,
+          legalRequests,
+          employmentRequests,
+          users,
+          newsletterSubscribers,
+        },
+        message: "آمار داشبورد با موفقیت دریافت شد",
+      });
+    }
 
     return NextResponse.json(
-      {
-        success: true,
-        data: stats,
-        message: "Dashboard statistics retrieved successfully",
-      },
-      { status: 200 }
+      { success: false, message: "دسترسی غیرمجاز" },
+      { status: 403 }
     );
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
+    console.error("خطا در دریافت اطلاعات داشبورد:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: "خطا در دریافت آمار داشبورد",
-        error: process.env.NODE_ENV === "development" ? error : undefined,
-      },
+      { success: false, message: "خطا در دریافت اطلاعات داشبورد" },
       { status: 500 }
     );
   }

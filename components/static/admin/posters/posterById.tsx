@@ -126,13 +126,13 @@ const PosterById: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-">
       <div className="  p-8 text-gray-500">
         <h1 className="text-3xl font-bold mb-3">آگهی‌های من</h1>
         <p className="text-gray-600 text-lg">{posters.length} آگهی فعال</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {posters.map((poster) => {
           const mainImage =
             poster.images.find((img) => img.mainImage) || poster.images[0];
@@ -140,10 +140,10 @@ const PosterById: React.FC = () => {
           return (
             <div
               key={poster._id}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+              className="bg-white rounded-md shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
             >
               {mainImage && (
-                <div className="relative h-56 bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="relative h-36 md:h-44 bg-gradient-to-br from-gray-100 to-gray-200">
                   <Image
                     src={mainImage.url}
                     alt={mainImage.alt || poster.title}
@@ -156,15 +156,15 @@ const PosterById: React.FC = () => {
               )}
 
               <div className="p-6">
-                <h3 className="font-bold text-xl mb-3 text-gray-800 line-clamp-2 leading-tight">
+                <h3 className="font-bold md:text-xl mb-3 text-gray-800 line-clamp-2 leading-tight">
                   {poster.title}
                 </h3>
 
                 <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                  <div className="flex items-center gap-1.5">
-                    <FaEye className="text-[#01ae9b]" />
+                  <div className="flex items-center gap-1">
+                    <FaEye className="text-[#606060]" />
                     <span className="font-medium">
-                      {formatPrice(poster.views)} بازدید
+                      {formatPrice(poster.views)}
                     </span>
                   </div>
                 </div>
@@ -195,46 +195,14 @@ const PosterById: React.FC = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 justify-center items-center gap-2">
-                  {" "}
-                  {poster.totalPrice && (
-                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-1 rounded-xl mb-4 border border-emerald-100">
-                      <div className="text-sm font-bold text-emerald-700">
-                        قیمت کل :{formatPrice(poster.totalPrice)} تومان
-                      </div>
-                    </div>
-                  )}
-                  {poster.depositRent && (
-                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-1 rounded-lg mb-4 border border-emerald-100">
-                      <div className="text-sm font-bold text-emerald-700">
-                        ودیعه :{formatPrice(poster.depositRent)} تومان
-                      </div>
-                    </div>
-                  )}
-                  {poster.rentPrice && (
-                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-1 rounded-lg mb-4 border border-emerald-100">
-                      <div className="text-sm font-bold text-emerald-700">
-                        اجاره :{formatPrice(poster.rentPrice)} تومان
-                      </div>
-                    </div>
-                  )}
-                  {poster.pricePerMeter && (
-                    <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-1 rounded-lg mb-4 border border-emerald-100">
-                      <div className="text-sm font-bold text-emerald-700">
-                        قیمت هر متر :{formatPrice(poster.pricePerMeter)} تومان
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-gray-400 font-medium">
                     تاریخ ثبت :
                     {new Date(poster.createdAt).toLocaleDateString("fa-IR")}
                   </div>
 
-                  <Link href={`/poster/${poster._id}`}>
-                    <button className="bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center gap-2">
+                  <Link href={`/poster/${poster._id}`} target="_blank">
+                    <button className="  text-black md:px-4 py-2 border-b text-xs md:text-sm font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-2">
                       مشاهده
                       <FaExternalLinkAlt className="text-xs" />
                     </button>

@@ -120,9 +120,29 @@ export const getPosterById = async (req: NextRequest) => {
 export const incrementPosterView = async (req: Request) => {
   try {
     const { id } = await req.json();
-    await Poster.findByIdAndUpdate(id, { $inc: { views: 1 } });
-    return NextResponse.json({ success: true });
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "Missing id" },
+        { status: 400 }
+      );
+    }
+
+    const updated = await Poster.findByIdAndUpdate(
+      id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+
+    if (!updated) {
+      return NextResponse.json(
+        { success: false, message: "Poster not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, views: updated.views });
   } catch (error) {
+    console.error("Error incrementing poster view:", error);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 };

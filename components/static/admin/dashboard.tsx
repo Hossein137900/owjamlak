@@ -7,11 +7,13 @@ import {
   FiLayers,
   FiMail,
   FiLoader,
+  FiHeart,
+  FiCalendar,
 } from "react-icons/fi";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 
 const Dashboard: React.FC = () => {
-  const { stats, isLoading, error, refetch } = useDashboardStats();
+  const { data, isLoading, error, refetch } = useDashboardStats();
 
   // Loading state
   if (isLoading) {
@@ -29,7 +31,7 @@ const Dashboard: React.FC = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
-        <p className="text-red-600 mb-4">خطا در بارگذاری داده‌ها: {error}</p>
+        <p className="text-red-600 mb-4">خطا در بارگذاری دادهها: {error}</p>
         <button
           onClick={refetch}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
@@ -40,70 +42,93 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Dashboard stats with real data from API
-  const dashboardStats = [
+  if (!data) return <div className="p-8">اطلاعاتی یافت نشد</div>;
+
+  const { userInfo } = data;
+  const isAdmin = userInfo.role === "admin" || userInfo.role === "superadmin";
+
+  // Admin dashboard stats
+  const adminStats = [
     {
       id: 1,
-      name: "آگهی‌های ملک",
-      value: stats?.propertyListings?.toString() || "0",
+      name: "آگهیهای ملک",
+      value: data.propertyListings?.toString() || "0",
       icon: <FiLayers className="h-6 w-6" />,
       color: "bg-blue-500",
     },
     {
       id: 2,
-      name: "درخواست‌های مشاوره املاک",
-      value: stats?.realEstateRequests?.toString() || "0",
+      name: "درخواستهای املاک",
+      value: data.realEstateRequests?.toString() || "0",
       icon: <FiFileText className="h-6 w-6" />,
       color: "bg-green-500",
     },
     {
       id: 3,
-      name: "درخواست‌های مشاوره حقوقی",
-      value: stats?.legalRequests?.toString() || "0",
+      name: "درخواستهای حقوقی",
+      value: data.legalRequests?.toString() || "0",
       icon: <FiFileText className="h-6 w-6" />,
       color: "bg-purple-500",
     },
     {
       id: 4,
-      name: "درخواست‌های همکاری",
-      value: stats?.employmentRequests?.toString() || "0",
+      name: "درخواستهای همکاری",
+      value: data.employmentRequests?.toString() || "0",
       icon: <FiBriefcase className="h-6 w-6" />,
       color: "bg-yellow-500",
     },
     {
       id: 5,
       name: "کاربران",
-      value: stats?.users?.toString() || "0",
+      value: data.users?.toString() || "0",
       icon: <FiUsers className="h-6 w-6" />,
       color: "bg-red-500",
     },
     {
       id: 6,
       name: "مشترکین خبرنامه",
-      value: stats?.newsletterSubscribers?.toString() || "0",
+      value: data.newsletterSubscribers?.toString() || "0",
       icon: <FiMail className="h-6 w-6" />,
       color: "bg-indigo-500",
-      section: "newsletter",
     },
   ];
 
+  // User/Consultant dashboard stats
+  const userStats = [
+    {
+      id: 1,
+      name: "آگهی های من",
+      value: data.myPosters?.toString() || "0",
+      icon: <FiLayers className="h-6 w-6" />,
+      color: "bg-blue-500",
+    },
+    {
+      id: 2,
+      name: "علاقه مندی های من",
+      value: data.myFavorites?.toString() || "0",
+      icon: <FiHeart className="h-6 w-6" />,
+      color: "bg-red-500",
+    },
+  ];
+
+  const statsToShow = isAdmin ? adminStats : userStats;
+
   return (
     <div>
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-400">داشبورد</h1>
-          <p className="text-gray-500 mt-1">خلاصه وضعیت سیستم</p>
-        </div>
-        <button
-          onClick={refetch}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-        >
-          به‌روزرسانی
-        </button>
+      <div className="mb-8">
+        <p className="text-gray-500 text-sm">
+          خوش آمدید <strong className="text-blue-400">{userInfo.name}</strong> عزیز
+        </p>
+        {userInfo.createdAt && (
+          <p className="text-xs text-yellow-500 flex items-center mt-1">
+            <FiCalendar className="ml-1 h-2.5 w-2.5" />
+            عضویت از: {new Date(userInfo.createdAt).toLocaleDateString("fa-IR")}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {dashboardStats.map((stat) => (
+        {statsToShow.map((stat) => (
           <motion.div
             key={stat.id}
             initial={{ opacity: 0, y: 20 }}
@@ -131,9 +156,9 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Additional info section */}
-      <div className="mt-8 bg-gray-50 rounded-lg p-4">
-        <p className="text-sm text-gray-600">
-          آخرین به‌روزرسانی: {new Date().toLocaleDateString("fa-IR")}
+      <div className="mt-8  border-b border-gray-600/70 p-4">
+        <p className="text-sm text-gray-500">
+          آخرین بهروزرسانی: {new Date().toLocaleDateString("fa-IR")}
         </p>
       </div>
     </div>

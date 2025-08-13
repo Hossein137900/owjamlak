@@ -135,6 +135,13 @@ const posterSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    /** 🆕 فیلد جدید برای ذخیره sessionId بازدیدکننده‌ها */
+    viewedSessions: {
+      type: [String],
+      required: false,
+
+      default: [],
+    },
     isApproved: {
       type: Boolean,
       default: false,

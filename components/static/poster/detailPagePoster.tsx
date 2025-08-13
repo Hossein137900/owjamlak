@@ -139,6 +139,37 @@ export default function PosterDetailClient({
 
     fetchUserInfo();
   }, [posterData?._id]);
+  useEffect(() => {
+    if (!posterId) return;
+
+    const incrementView = async () => {
+      // کلید برای ذخیره بازدید این آگهی
+      const storageKey = `poster_viewed_${posterId}`;
+
+      // اگر این آگهی قبلاً در این مرورگر دیده شده
+      if (localStorage.getItem(storageKey)) {
+        return; // دیگه کال نکن
+      }
+
+      try {
+        const response = await fetch("/api/poster/view", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: posterId }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          // ثبت بازدید در localStorage
+          localStorage.setItem(storageKey, "true");
+        }
+      } catch (error) {
+        console.error("Error incrementing view:", error);
+      }
+    };
+
+    incrementView();
+  }, [posterId]);
 
   // useEffect(() => {
   //   const checkToken = () => {
@@ -257,14 +288,14 @@ export default function PosterDetailClient({
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
 
       const response = await fetch(`/api/poster/id`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           id: id,
-          token: token || "", 
+          token: token || "",
         },
       });
 
@@ -295,22 +326,23 @@ export default function PosterDetailClient({
   useEffect(() => {
     fetchPosterData();
   }, [id]);
-  useEffect(() => {
-    // فقط یک بار ویو اضافه کن
-    const incrementView = async () => {
-      try {
-        await fetch("/api/poster/view", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: posterId }),
-        });
-      } catch (error) {
-        console.log("Error incrementing view:", error);
-      }
-    };
 
-    incrementView();
-  }, [posterId]);
+  // useEffect(() => {
+  //   // فقط یک بار ویو اضافه کن
+  //   const incrementView = async () => {
+  //     try {
+  //       await fetch("/api/poster/view", {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({ id: posterId }),
+  //       });
+  //     } catch (error) {
+  //       console.log("Error incrementing view:", error);
+  //     }
+  //   };
+
+  //   incrementView();
+  // }, [posterId]);
 
   const formatPrice = (amount: number) => {
     if (amount === 0) return "توافقی";
@@ -491,7 +523,7 @@ export default function PosterDetailClient({
 
   return (
     <main
-      className="p-4 md:p-10 max-w-6xl mt-20 mx-auto min-h-screen"
+      className="p-4 md:p-10 max-w-7xl mt-20 mx-auto min-h-screen"
       dir="rtl"
     >
       {/* Breadcrumb */}
@@ -504,7 +536,7 @@ export default function PosterDetailClient({
             {(() => {
               const breadcrumbItems = [
                 { label: "خانه", href: "/" },
-                { label: "آگهی‌ها", href: "/posters/all" },
+                { label: "آگهی‌ها", href: "/posters" },
                 { label: posterData.title || "آگهی", href: `/poster/${id}` },
               ];
 
