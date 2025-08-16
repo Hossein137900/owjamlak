@@ -506,7 +506,7 @@ const BusinessServices = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-16 lg:py-24 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden"
+      className="py-16 lg:py-24 bg-gradient-to-br md:px-20 from-gray-50 via-white to-gray-100 relative overflow-hidden"
     >
       <div className="absolute inset-0 overflow-hidden">
         <div

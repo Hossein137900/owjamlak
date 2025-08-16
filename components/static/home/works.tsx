@@ -79,8 +79,143 @@ export default function OurApproachPage() {
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#66308d]/90 to-[#01ae9b]/90 text-white">
-        <div className="container mx-auto px-4 py-20 md:py-32">
+      <div className="bg-gradient-to-r from-[#66308d]/90 to-[#01ae9b]/90 text-white relative overflow-hidden">
+        {/* SVG Decorative Elements */}
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+        >
+          {/* Top Left Key */}
+          <motion.svg
+            className="absolute top-8 left-8 w-16 h-16 text-white/20"
+            initial={{ rotate: -45, scale: 0 }}
+            animate={{
+              rotate: [0, 360],
+              scale: 1,
+            }}
+            transition={{
+              rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+              scale: { duration: 1, delay: 0.5 },
+            }}
+            whileHover={{ scale: 1.1 }}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+          </motion.svg>
+
+          {/* Top Right Building */}
+          <motion.svg
+            className="absolute top-12 right-12 w-20 h-20 text-white/15"
+            style={{
+              filter: "drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))",
+            }}
+            initial={{ y: -50, opacity: 0 }}
+            animate={{
+              y: 0,
+              opacity: 1,
+              scale: [1, 1.1, 1],
+              filter: [
+                "drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))",
+                "drop-shadow(0 0 15px rgba(255, 255, 255, 0.5))",
+                "drop-shadow(0 0 8px rgba(255, 255, 255, 0.3))",
+              ],
+            }}
+            transition={{
+              y: { duration: 1.2, delay: 0.8 },
+              opacity: { duration: 1.2, delay: 0.8 },
+              scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+              filter: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+            }}
+            whileHover={{ y: -5 }}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.8"
+          >
+            <path d="M3 21h18M5 21V7l8-4v18M19 21V10l-6-3" />
+            <path d="M9 9v.01M9 12v.01M9 15v.01M13 9v.01M13 12v.01M13 15v.01" />
+          </motion.svg>
+
+          {/* Bottom Left Home */}
+          <motion.svg
+            className="absolute bottom-16 left-16 w-14 h-14"
+            initial={{ scale: 0, rotate: 180 }}
+            animate={{
+              scale: 1,
+              rotate: 0,
+              color: [
+                "rgba(255, 255, 255, 0.25)",
+                "rgba(102, 48, 141, 0.4)",
+                "rgba(1, 174, 155, 0.4)",
+                "rgba(255, 255, 255, 0.25)",
+              ],
+            }}
+            transition={{
+              scale: { duration: 1, delay: 1.2 },
+              rotate: { duration: 1, delay: 1.2 },
+              color: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+            }}
+            whileHover={{ scale: 1.15 }}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9,22 9,12 15,12 15,22" />
+          </motion.svg>
+
+          {/* Bottom Right Key Ring */}
+          <motion.svg
+            className="absolute bottom-8 right-8 w-12 h-12 text-white/20"
+            initial={{ rotate: 90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ duration: 1.5, delay: 1.5 }}
+            whileHover={{ rotate: -10 }}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+          >
+            <circle cx="8" cy="8" r="6" />
+            <path d="M18.09 10.37a6 6 0 1 1-10.37 0" />
+            <path d="M12 2a6 6 0 0 0-6 6c0 1 .2 1.8.57 2.5L12 16l5.43-5.5c.37-.7.57-1.5.57-2.5a6 6 0 0 0-6-6z" />
+          </motion.svg>
+
+          {/* Center Floating Elements */}
+          <motion.div
+            className="absolute top-1/4 left-1/4 w-2 h-2 bg-white/30 rounded-full"
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-white/25 rounded-full"
+            animate={{ y: [0, 15, 0] }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1,
+            }}
+          />
+          <motion.div
+            className="absolute bottom-1/3 left-1/3 w-1 h-1 bg-white/20 rounded-full"
+            animate={{ y: [0, -8, 0] }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            }}
+          />
+        </motion.div>
+
+        <div className="container mx-auto px-4 py-20 md:py-32 relative z-10">
           <motion.div
             className="max-w-3xl mx-auto text-center"
             variants={heroContainerVariants}
@@ -96,7 +231,7 @@ export default function OurApproachPage() {
               variants={heroTitleVariants}
               className="text-4xl md:text-5xl font-bold mb-6"
             >
-              خدمات حرفه‌ای املاک با رویکردی متفاوت
+              خدمات حرفهای املاک با رویکردی متفاوت
             </motion.h1>
 
             <motion.p
@@ -104,7 +239,7 @@ export default function OurApproachPage() {
               className="text-lg md:text-xl mb-8 text-white/90"
             >
               ما با تکیه بر تخصص و تجربه، خدمات جامع املاک را با بالاترین کیفیت
-              ارائه می‌دهیم
+              ارائه میدهیم
             </motion.p>
 
             <motion.div variants={heroButtonVariants}>

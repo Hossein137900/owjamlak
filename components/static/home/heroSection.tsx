@@ -92,7 +92,7 @@ export default function RealEstateSearch() {
             <div className="md:w-2/5">
               <h1
                 ref={titleRef}
-                className="text-3xl md:text-4xl font-bold  text-right text-white sm:text-gray-800 mb-3"
+                className="text-2xl md:text-4xl font-bold  text-right text-white sm:text-gray-800 mb-1"
               >
                 <span className="text-[#01ae9b]">اوج،</span> مسیر امن خرید و
                 فروش ملک
@@ -100,7 +100,7 @@ export default function RealEstateSearch() {
 
               <p
                 ref={descRef}
-                className="text-right text-white sm:text-gray-600 mb-4 text-sm leading-relaxed"
+                className="text-right text-white sm:text-gray-600 text-sm leading-relaxed"
               >
                 با اوج، خرید و فروش ملک را آسانتر از همیشه تجربه کنید. ما به شما
                 کمک میکنیم تا بهترین انتخاب را داشته باشید.
