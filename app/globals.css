@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import 'leaflet/dist/leaflet.css';
+@import "leaflet/dist/leaflet.css";
 
 :root {
   --background: #ffffff;
@@ -26,7 +26,7 @@ body {
 
 /* Fix for Leaflet markers in Next.js */
 .leaflet-default-icon-path {
-  background-image: url('/leaflet/marker-icon.png');
+  background-image: url("/leaflet/marker-icon.png");
 }
 
 /* Custom popup styles for RTL */
@@ -69,7 +69,7 @@ body {
   .leaflet-control-container {
     font-size: 14px;
   }
-  
+
   .leaflet-control-zoom {
     margin: 8px !important;
   }
@@ -110,6 +110,3 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
-
-
-

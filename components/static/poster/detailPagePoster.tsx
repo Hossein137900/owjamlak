@@ -984,6 +984,9 @@ export default function PosterDetailClient({
                   <Link
                     href="/auth"
                     className="text-green-900 text-sm font-medium mt-2"
+                    onClick={() => {
+                      localStorage.setItem('contactRedirect', 'true');
+                    }}
                   >
                     ورود به حساب کاربری
                   </Link>

@@ -80,6 +80,7 @@ export interface Poster {
   parking: boolean;
   lift: boolean;
   balcony: boolean; 
+  isApproved: boolean; 
   tag: string;
   user: {
     _id: string;

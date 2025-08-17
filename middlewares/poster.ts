@@ -5,6 +5,22 @@ import jwt from "jsonwebtoken";
 
 export const getAllPosters = async (req: NextRequest) => {
   try {
+    // 🔐 چک کردن توکن
+    const token = req.headers.get("token");
+    let hasToken = false;
+    if (token) {
+      try {
+        jwt.verify(token, process.env.JWT_SECRET!);
+        hasToken = true;
+      } catch {
+        hasToken = false;
+      }
+    }
+
+    // اگه توکن نداشت، فیلدهای حساس رو برنگردون
+    const userSelect = hasToken ? "" : "-phone -password";
+    const posterSelect = hasToken ? "" : "-contact";
+
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "8");
@@ -22,6 +38,12 @@ export const getAllPosters = async (req: NextRequest) => {
     if (tradeType) query.tradeType = tradeType;
     if (type) query.type = type;
 
+    // Only show approved posters for public view
+    const isAdminRequest = req.headers.get("x-admin-request") === "true";
+    if (!isAdminRequest) {
+      query.isApproved = true;
+    }
+
     if (searchQuery) {
       query.$or = [
         { title: { $regex: searchQuery, $options: "i" } },
@@ -32,7 +54,7 @@ export const getAllPosters = async (req: NextRequest) => {
       ];
     }
 
-    // ✅ اگر فقط پیشنهاد می‌خوایم
+    // ✅ حالت suggestions
     if (isSuggestionMode) {
       const suggestionsRaw = await Poster.find(query)
         .limit(10)
@@ -49,7 +71,8 @@ export const getAllPosters = async (req: NextRequest) => {
     // ✅ حالت عادی با paginate
     const totalPosters = await Poster.countDocuments(query);
     const posters = await Poster.find(query)
-      .populate({ path: "user", model: User })
+      .select(posterSelect)
+      .populate({ path: "user", model: User, select: userSelect })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);

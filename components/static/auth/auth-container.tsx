@@ -56,6 +56,7 @@ export default function AuthPageContainer() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [adminRedirectMessage, setAdminRedirectMessage] = useState("");
+  const [contactRedirectMessage, setContactRedirectMessage] = useState("");
 
   useEffect(() => {
     // Check for admin redirect flag
@@ -63,6 +64,13 @@ export default function AuthPageContainer() {
     if (adminRedirect === 'true') {
       setAdminRedirectMessage('برای دسترسی به پنل مدیریت، ابتدا وارد حساب کاربری خود شوید');
       localStorage.removeItem('adminRedirect');
+    }
+
+    // Check for contact redirect flag
+    const contactRedirect = localStorage.getItem('contactRedirect');
+    if (contactRedirect === 'true') {
+      setContactRedirectMessage('برای مشاهده اطلاعات تماس آگهی دهنده، ابتدا وارد حساب کاربری خود شوید');
+      localStorage.removeItem('contactRedirect');
     }
 
     const container = containerRef.current;
@@ -472,6 +480,13 @@ export default function AuthPageContainer() {
           {adminRedirectMessage && (
             <div className="mb-6 p-4 rounded-2xl text-center font-medium bg-blue-50 text-blue-700 border border-blue-200">
               {adminRedirectMessage}
+            </div>
+          )}
+
+          {/* Contact Redirect Message */}
+          {contactRedirectMessage && (
+            <div className="mb-6 p-4 rounded-2xl text-center font-medium bg-green-50 text-green-700 border border-green-200">
+              {contactRedirectMessage}
             </div>
           )}
 

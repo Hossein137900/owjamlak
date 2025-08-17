@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: " درباره  ما | اوج",
   description:
     "با تیم املاک در تماس باشید. ما آماده پاسخگویی به سوالات و درخواست‌های شما هستیم.",
-};
+}; 
 export default function AboutPage() {
   return (
     <section className="w-full bg-white py-12 md:py-20 px-4 md:px-20" dir="rtl">

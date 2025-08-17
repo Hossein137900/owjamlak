@@ -56,7 +56,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  // const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   // Add user state
   const [user, setUser] = useState<User | null>(null);
@@ -152,11 +152,11 @@ const Navbar = () => {
       const currentScrollY = window.scrollY;
 
       // Show/hide navbar based on scroll direction
-      // if (currentScrollY > lastScrollY && currentScrollY > 100) {
-      //   setIsVisible(false);
-      // } else {
-      //   setIsVisible(true);
-      // }
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
 
       setScrolled(currentScrollY > 20);
       setLastScrollY(currentScrollY);
@@ -241,13 +241,17 @@ const Navbar = () => {
       {/* Main Navbar */}
       <motion.header
         dir="rtl"
+        animate={{
+          y: isVisible ? 0 : -100,
+          opacity: isVisible ? 1 : 0,
+        }}
         transition={{
           duration: 0.3,
           ease: [0.25, 0.46, 0.45, 0.94],
         }}
         className={`fixed top-0 w-full z-50 transition-all duration-500 ease-out ${
           scrolled
-            ? "bg-white/40 backdrop-blur-lg shadow-lg border-b border-gray-100"
+            ? "bg-white/50 backdrop-blur-sm shadow-lg border-b border-gray-100"
             : "bg-white/90 backdrop-blur-sm"
         }`}
         style={{

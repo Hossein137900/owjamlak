@@ -87,7 +87,7 @@ const FooterMobile = () => {
   if (!isClient) return null;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-md ">
+    <footer className="fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-xl border-t border-gray-200 z-50 shadow-md ">
       <nav className="flex justify-between items-center px-2 py-1" dir="rtl">
         {menuItems.map((item, idx) => {
           const active = isActive(item);

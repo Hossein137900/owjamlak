@@ -25,6 +25,9 @@ const PropertyListings: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+  const [approvalAction, setApprovalAction] = useState<'approve' | 'decline'>('approve');
+  const [isProcessingApproval, setIsProcessingApproval] = useState(false);
   // Edit form state
   const [editFormData, setEditFormData] = useState<Partial<Poster>>({});
   const [posters, setPosters] = useState<Poster[]>([]);
@@ -56,9 +59,14 @@ const PropertyListings: React.FC = () => {
         limit: String(limit),
         ...(parentType ? { parentType } : {}),
         ...(tradeType ? { tradeType } : {}),
+        ...(searchTerm ? { query: searchTerm } : {}),
       });
 
-      const res = await fetch(`/api/poster?${query.toString()}`);
+      const res = await fetch(`/api/poster?${query.toString()}`, {
+        headers: {
+          "x-admin-request": "true",
+        },
+      });
       const data = await res.json();
 
       setHasNextPage(data.pagination.hasNextPage);
@@ -168,6 +176,41 @@ const PropertyListings: React.FC = () => {
       toast.error("خطا در حذف آگهی");
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleApprovalClick = (property: Poster, action: 'approve' | 'decline') => {
+    setSelectedProperty(property);
+    setApprovalAction(action);
+    setIsApprovalModalOpen(true);
+  };
+
+  const handleApprovalConfirm = async () => {
+    if (!selectedProperty) return;
+
+    setIsProcessingApproval(true);
+    try {
+      const response = await fetch('/api/poster/approve', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: selectedProperty._id, action: approvalAction }),
+      });
+
+      if (response.ok) {
+        fetchData();
+        setIsApprovalModalOpen(false);
+        setSelectedProperty(null);
+        toast.success(approvalAction === 'approve' ? 'آگهی تایید شد' : 'آگهی رد شد');
+      } else {
+        toast.error('خطا در بروزرسانی وضعیت');
+      }
+    } catch (error) {
+      console.error('Error updating approval status:', error);
+      toast.error('خطا در بروزرسانی وضعیت');
+    } finally {
+      setIsProcessingApproval(false);
     }
   };
 
@@ -326,6 +369,8 @@ const PropertyListings: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setPage(1);
+    fetchData();
   };
 
   // Check if trade type is rent-related
@@ -364,20 +409,26 @@ const PropertyListings: React.FC = () => {
         </h1>
         {/* Filters - Same as before */}
         <div className="flex flex-col md:flex-row gap-3">
-          <form onSubmit={handleSearch} className="relative">
+          <form onSubmit={handleSearch} className="relative flex">
             <input
               type="text"
-              placeholder="جستجو..."
-              className="w-full sm:w-64 text-gray-900 placeholder:text-gray-400 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="جستجو در عنوان و توضیحات..."
+              className="w-full sm:w-64 text-gray-900 placeholder:text-gray-400 pl-12 pr-4 py-2 rounded-r-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <button
+              type="submit"
+              className="px-3 py-2  text-emerald-500 rounded-l-lg border border-green-600 hover:bg-gray-200 transition-colors"
+              title="جستجو"
+            >
+              <FiSearch className="w-4 h-4" />
+            </button>
           </form>
           <div className="relative">
             <select
-              className="border text-black  rounded-lg px-3 py-2"
-              value={parentType}
+              className="border border-gray-400 text-black rounded-lg px-3 py-2"
+               value={parentType}
               onChange={(e) => {
                 setParentType(e.target.value);
                 setPage(1);
@@ -402,7 +453,7 @@ const PropertyListings: React.FC = () => {
 
           <div className="relative">
             <select
-              className="border text-black rounded-lg px-3 py-2"
+              className="border border-gray-400 text-black rounded-lg px-3 py-2"
               value={tradeType}
               onChange={(e) => {
                 setTradeType(e.target.value);
@@ -464,7 +515,12 @@ const PropertyListings: React.FC = () => {
               >
                 وضعیت
               </th>
-
+              <th
+                scope="col"
+                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                تایید
+              </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -487,7 +543,6 @@ const PropertyListings: React.FC = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  whileHover={{ backgroundColor: "#f9fafb" }}
                 >
                   <td className="px-6 text-black py-4 whitespace-nowrap">
                     {index + 1}
@@ -567,7 +622,39 @@ const PropertyListings: React.FC = () => {
                       </span>
                     )}
                   </td>
-
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          property.isApproved
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {property.isApproved ? "تایید شده" : "در انتظار"}
+                      </span>
+                      <div className="flex gap-1">
+                        {!property.isApproved && (
+                          <button
+                            onClick={() => handleApprovalClick(property, 'approve')}
+                            className="text-green-600 hover:text-green-900 transition-colors p-1 rounded"
+                            title="تایید"
+                          >
+                            ✓
+                          </button>
+                        )}
+                        {property.isApproved && (
+                          <button
+                            onClick={() => handleApprovalClick(property, 'decline')}
+                            className="text-red-600 hover:text-red-900 transition-colors p-1 rounded"
+                            title="رد"
+                          >
+                            ✗
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">
                       {property.createdAt
@@ -606,7 +693,7 @@ const PropertyListings: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                <td colSpan={9} className="px-6 py-4 text-center text-gray-500">
                   هیچ آگهی‌ای یافت نشد
                 </td>
               </tr>
@@ -1437,6 +1524,87 @@ const PropertyListings: React.FC = () => {
                 <button
                   onClick={() => setIsDeleteModalOpen(false)}
                   disabled={isDeleting}
+                  className="px-4 py-2 border text-black border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  انصراف
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Approval Confirmation Modal */}
+      {isApprovalModalOpen && selectedProperty && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg shadow-xl max-w-md w-full"
+          >
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="flex-shrink-0">
+                  <FiAlertCircle className={`h-6 w-6 ${approvalAction === 'approve' ? 'text-green-600' : 'text-red-600'}`} />
+                </div>
+                <div className="mr-3">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {approvalAction === 'approve' ? 'تایید آگهی' : 'رد آگهی'}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-gray-700 mb-2">
+                  {approvalAction === 'approve' 
+                    ? 'آیا از تایید آگهی زیر اطمینان دارید؟' 
+                    : 'آیا از رد آگهی زیر اطمینان دارید؟'}
+                </p>
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 flex-shrink-0 rounded-md overflow-hidden relative">
+                      <Image
+                        src={getFirstImageUrl(selectedProperty.images)}
+                        alt={selectedProperty.title || "تصویر ملک"}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/assets/images/hero4.jpg";
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {selectedProperty.title || "بدون عنوان"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {selectedProperty.location || "موقعیت نامشخص"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-start gap-2">
+                <button
+                  onClick={handleApprovalConfirm}
+                  disabled={isProcessingApproval}
+                  className={`px-4 py-2 text-white rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${
+                    approvalAction === 'approve' 
+                      ? 'bg-green-600 hover:bg-green-700' 
+                      : 'bg-red-600 hover:bg-red-700'
+                  }`}
+                >
+                  {isProcessingApproval && <FiLoader className="animate-spin ml-1" />}
+                  {isProcessingApproval 
+                    ? 'در حال پردازش...' 
+                    : approvalAction === 'approve' ? 'بله، تایید شود' : 'بله، رد شود'
+                  }
+                </button>
+                <button
+                  onClick={() => setIsApprovalModalOpen(false)}
+                  disabled={isProcessingApproval}
                   className="px-4 py-2 border text-black border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   انصراف

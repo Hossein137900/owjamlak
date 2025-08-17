@@ -101,7 +101,7 @@ const AdminLayout: React.FC = () => {
       id: "properties",
       icon: <FiLayers />,
       label: "آگهی های ملک",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "Myproperties",

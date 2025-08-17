@@ -145,6 +145,7 @@ const posterSchema = new mongoose.Schema(
     isApproved: {
       type: Boolean,
       default: false,
+      required: true,
     },
     meta: {
       type: Map,
