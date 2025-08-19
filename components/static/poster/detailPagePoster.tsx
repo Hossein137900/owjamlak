@@ -327,6 +327,21 @@ export default function PosterDetailClient({
     fetchPosterData();
   }, [id]);
 
+  useEffect(() => {
+    // Handle scrolling to contact section after redirect
+    if (
+      typeof window !== "undefined" &&
+      window.location.hash === "#contact-section"
+    ) {
+      setTimeout(() => {
+        const element = document.getElementById("contact-section");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 500);
+    }
+  }, [posterData]);
+
   // useEffect(() => {
   //   // فقط یک بار ویو اضافه کن
   //   const incrementView = async () => {
@@ -949,7 +964,11 @@ export default function PosterDetailClient({
             </motion.div>
 
             {/* Contact Section */}
-            <motion.div variants={fadeIn} className="space-y-3">
+            <motion.div
+              id="contact-section"
+              variants={fadeIn}
+              className="space-y-3"
+            >
               <div className="bg-white p-4 rounded-lg border border-gray-200">
                 <h3 className="font-semibold text-gray-700 mb-2">
                   اطلاعات تماس
@@ -985,7 +1004,11 @@ export default function PosterDetailClient({
                     href="/auth"
                     className="text-green-900 text-sm font-medium mt-2"
                     onClick={() => {
-                      localStorage.setItem('contactRedirect', 'true');
+                      localStorage.setItem("contactRedirect", "true");
+                      localStorage.setItem(
+                        "contactRedirectUrl",
+                        `/poster/${posterId}#contact-section`
+                      );
                     }}
                   >
                     ورود به حساب کاربری

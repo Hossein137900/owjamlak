@@ -31,7 +31,7 @@ export default function RootLayout({
       <body className={ray.className}>
         <Navbar />
         {/* <SmoothScrollProvider /> */}
-        <ChatWidget position="bottom-right" primaryColor="#66308d" />
+        <ChatWidget />
         <Toaster position="top-center" />
         {/* <Breadcrumb /> */}
         {children}

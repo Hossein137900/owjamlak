@@ -34,6 +34,7 @@ import PropertyListings from "./posters/propertyListings";
 import AdminFavoritesPage from "./favorites/page";
 import MessagesPage from "./contactForm/messagesPage";
 import PosterById from "./posters/posterById";
+import ChatAdmin from "./chat/adminChat";
 
 const AdminLayout: React.FC = () => {
   const { hasAccess, logout } = useAdminAuth();
@@ -95,6 +96,12 @@ const AdminLayout: React.FC = () => {
       id: "dashboard",
       icon: <FiHome />,
       label: "داشبورد",
+      roles: ["admin", "superadmin", "consultant", "user"],
+    },
+    {
+      id: "chat",
+      icon: <FiMessageSquare />,
+      label: "چت آنلاین",
       roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
@@ -226,6 +233,12 @@ const AdminLayout: React.FC = () => {
       case "users":
         return hasAccess(["superadmin"]) ? (
           <UsersManagement />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
+      case "chat":
+        return hasAccess(["superadmin", "admin", "consultant", "user"]) ? (
+          <ChatAdmin />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );

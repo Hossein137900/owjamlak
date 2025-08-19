@@ -60,17 +60,19 @@ export default function AuthPageContainer() {
 
   useEffect(() => {
     // Check for admin redirect flag
-    const adminRedirect = localStorage.getItem('adminRedirect');
-    if (adminRedirect === 'true') {
-      setAdminRedirectMessage('برای دسترسی به پنل مدیریت، ابتدا وارد حساب کاربری خود شوید');
-      localStorage.removeItem('adminRedirect');
+    const adminRedirect = localStorage.getItem("adminRedirect");
+    if (adminRedirect === "true") {
+      setAdminRedirectMessage(
+        "برای دسترسی به پنل مدیریت، ابتدا وارد حساب کاربری خود شوید"
+      );
     }
 
     // Check for contact redirect flag
-    const contactRedirect = localStorage.getItem('contactRedirect');
-    if (contactRedirect === 'true') {
-      setContactRedirectMessage('برای مشاهده اطلاعات تماس آگهی دهنده، ابتدا وارد حساب کاربری خود شوید');
-      localStorage.removeItem('contactRedirect');
+    const contactRedirect = localStorage.getItem("contactRedirect");
+    if (contactRedirect === "true") {
+      setContactRedirectMessage(
+        "برای مشاهده اطلاعات تماس آگهی دهنده، ابتدا وارد حساب کاربری خود شوید"
+      );
     }
 
     const container = containerRef.current;
@@ -295,18 +297,29 @@ export default function AuthPageContainer() {
           window.dispatchEvent(new Event("authChange"));
         }
 
-        // Check if user should be redirected to admin
-        const shouldRedirectToAdmin = localStorage.getItem('adminRedirect') === 'true';
-        
+        // Check redirect flags
+        const shouldRedirectToAdmin =
+          localStorage.getItem("adminRedirect") === "true";
+        const shouldRedirectToContact =
+          localStorage.getItem("contactRedirect") === "true";
+        const contactRedirectUrl = localStorage.getItem("contactRedirectUrl");
+
         // Redirect after successful login
         setTimeout(() => {
           if (shouldRedirectToAdmin) {
-            localStorage.removeItem('adminRedirect');
-            router.push('/admin');
+            localStorage.removeItem("adminRedirect");
+            toast.success("در حال انتقال به پنل مدیریت...");
+            router.replace("/dashboard");
+          } else if (shouldRedirectToContact && contactRedirectUrl) {
+            localStorage.removeItem("contactRedirect");
+            localStorage.removeItem("contactRedirectUrl");
+            toast.success("در حال بازگشت به صفحه قبلی...");
+            router.replace(contactRedirectUrl);
           } else {
-            router.push('/');
+            toast.success("در حال انتقال به صفحه اصلی...");
+            router.replace("/");
           }
-        }, 1500);
+        }, 1000);
       } else {
         setErrorMessage(data.message || "خطا در ورود");
       }
