@@ -1,5 +1,5 @@
 import connect from "@/lib/data";
-import { createLegalRequest, deleteLegalRequest, getAllLegalRequests, updateLegalRequest } from "@/middlewares/legalConsultation";
+import { createLegalRequest, deleteLegalRequest, getAllLegalRequests, updateLegalRequest } from "@/hooks/middlewares/legalConsultation";
 
 export async function GET() {
   await connect();

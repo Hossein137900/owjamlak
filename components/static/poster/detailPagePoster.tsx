@@ -290,11 +290,10 @@ export default function PosterDetailClient({
 
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`/api/poster/id`, {
+      const response = await fetch(`/api/poster/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          id: id,
           token: token || "",
         },
       });

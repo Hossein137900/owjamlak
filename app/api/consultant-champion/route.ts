@@ -5,7 +5,7 @@ import {
   updateConsultant,
   deleteConsultant,
   getAllConsultants,
-} from "@/middlewares/consultant";
+} from "@/hooks/middlewares/consultant";
 
 export async function POST(req: NextRequest) {
   await connect();

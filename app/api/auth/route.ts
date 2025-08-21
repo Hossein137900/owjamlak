@@ -5,7 +5,7 @@ import {
   updateUserRole, 
   deleteUser, 
   editUser 
-} from "@/middlewares/auth";
+} from "@/hooks/middlewares/auth";
 
 export async function POST(request: Request) {
   await connect();

@@ -1,5 +1,5 @@
 import connect from "@/lib/data";
-import { createRequest, deleteRequest, getAllRequests, updateRequest } from "@/middlewares/employRequest";
+import { createRequest, deleteRequest, getAllRequests, updateRequest } from "@/hooks/middlewares/employRequest";
 
 // works with request extract id from req.body 
 export async function GET() {

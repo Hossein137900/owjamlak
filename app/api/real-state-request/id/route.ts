@@ -1,5 +1,5 @@
 import connect from "@/lib/data";
-import { getRealStateRequestById } from "@/middlewares/realStateConsultation";
+import { getRealStateRequestById } from "@/hooks/middlewares/realStateConsultation";
 
 //works with url or paramsId
 export async function GET(req: Request) {

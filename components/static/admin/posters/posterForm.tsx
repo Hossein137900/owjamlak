@@ -29,7 +29,7 @@ const PosterForm = ({}) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [images, setImages] = useState<
-    { alt: string; url: string; mainImage: boolean }[]
+    { alt: string; url: string; mainImage: boolean; file?: File }[]
   >([]);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -160,6 +160,7 @@ const PosterForm = ({}) => {
         alt: `تصویر ${images.length + index + 1}`,
         url: URL.createObjectURL(file),
         mainImage: images.length === 0 && index === 0,
+        file,
       }));
       setImages((prev) => [...prev, ...newImages]);
     }
@@ -275,13 +276,33 @@ const PosterForm = ({}) => {
       console.log(submitData);
       const token = localStorage.getItem("token");
 
+      // Create FormData for file upload
+      const formDataToSend = new FormData();
+      
+      // Add all form fields
+      Object.entries(submitData).forEach(([key, value]) => {
+        if (key !== 'images') {
+          formDataToSend.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        }
+      });
+      
+      // Add image files
+      images.forEach((image, index) => {
+        if (image.file) {
+          formDataToSend.append('images', image.file);
+          formDataToSend.append(`imageData_${index}`, JSON.stringify({
+            alt: image.alt,
+            mainImage: image.mainImage
+          }));
+        }
+      });
+
       const response = await fetch("/api/poster", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           token: token || "",
         },
-        body: JSON.stringify(submitData),
+        body: formDataToSend,
       });
 
       const result = await response.json();
@@ -289,6 +310,9 @@ const PosterForm = ({}) => {
       if (response.ok) {
         setSuccess("آگهی با موفقیت ایجاد شد");
         toast.success("آگهی با موفقیت ایجاد شد");
+        
+        // Trigger event to refresh posterById component
+        window.dispatchEvent(new CustomEvent('posterCreated'));
         // Reset form
         setFormData({
           title: "",

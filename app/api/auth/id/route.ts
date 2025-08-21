@@ -1,5 +1,5 @@
 import {  NextRequest } from "next/server";
-import { getUserByToken, updateUserByToken } from "@/middlewares/auth";
+import { getUserByToken, updateUserByToken } from "@/hooks/middlewares/auth";
 
 export async function GET(request: NextRequest) {
   return await getUserByToken(request);

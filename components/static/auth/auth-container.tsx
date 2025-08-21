@@ -309,7 +309,7 @@ export default function AuthPageContainer() {
           if (shouldRedirectToAdmin) {
             localStorage.removeItem("adminRedirect");
             toast.success("در حال انتقال به پنل مدیریت...");
-            router.replace("/dashboard");
+            router.replace("/");
           } else if (shouldRedirectToContact && contactRedirectUrl) {
             localStorage.removeItem("contactRedirect");
             localStorage.removeItem("contactRedirectUrl");
