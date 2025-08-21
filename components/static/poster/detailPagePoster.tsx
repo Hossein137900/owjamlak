@@ -990,7 +990,8 @@ export default function PosterDetailClient({
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={handleContact}
-                    className="flex-1 bg-green-600 text-white text-center py-3 rounded-xl text-lg font-medium shadow-md hover:bg-green-700 flex items-center justify-center gap-2"
+                    className="flex-1 bg-green-600 text-white text-cente
+                    r py-3 rounded-xl text-lg font-medium shadow-md hover:bg-green-700 flex items-center justify-center gap-2"
                   >
                     <FaPhone /> تماس با آگهی دهنده
                   </motion.button>
