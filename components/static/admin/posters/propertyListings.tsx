@@ -11,10 +11,22 @@ import {
   FiAlertCircle,
   FiMapPin,
   FiSave,
+  FiUpload,
+  FiCheck,
 } from "react-icons/fi";
+import imageCompression from "browser-image-compression";
+
 import Image from "next/image";
 import { Poster } from "@/types/type";
 import LocationPicker from "../../ui/locationPicker";
+
+interface ImageItem {
+  alt: string;
+  url: string;
+  mainImage: boolean;
+  file?: File; // optional because existing images may not have `file`
+  _id: string;
+}
 
 const PropertyListings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,10 +38,22 @@ const PropertyListings: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
-  const [approvalAction, setApprovalAction] = useState<'approve' | 'decline'>('approve');
+  const [approvalAction, setApprovalAction] = useState<"approve" | "decline">(
+    "approve"
+  );
   const [isProcessingApproval, setIsProcessingApproval] = useState(false);
   // Edit form state
-  const [editFormData, setEditFormData] = useState<Partial<Poster>>({});
+  const [editFormData, setEditFormData] = useState<
+    Partial<Poster> & {
+      images?: Array<
+        | Poster["images"][0]
+        | { alt: string; url: string; mainImage: boolean; file: File }
+      >;
+    }
+  >({});
+  const [newImages, setNewImages] = useState<ImageItem[]>([]);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageProgress, setImageProgress] = useState(0);
   const [posters, setPosters] = useState<Poster[]>([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -61,10 +85,12 @@ const PropertyListings: React.FC = () => {
         ...(tradeType ? { tradeType } : {}),
         ...(searchTerm ? { query: searchTerm } : {}),
       });
+      const token = localStorage.getItem("token");
 
       const res = await fetch(`/api/poster?${query.toString()}`, {
         headers: {
           "x-admin-request": "true",
+          token: token || "",
         },
       });
       const data = await res.json();
@@ -110,6 +136,7 @@ const PropertyListings: React.FC = () => {
   const handleViewProperty = (property: Poster) => {
     setSelectedProperty(property);
     setIsModalOpen(true);
+    document.body.style.overflow = "hidden";
   };
 
   const handleEditProperty = (property: Poster) => {
@@ -128,7 +155,7 @@ const PropertyListings: React.FC = () => {
       rentPrice: property.rentPrice,
       convertible: property.convertible,
       location: property.location,
-      contact: property.contact,
+      contact: property.contact || "",
       storage: property.storage,
       floor: property.floor,
       parking: property.parking,
@@ -139,13 +166,17 @@ const PropertyListings: React.FC = () => {
       coordinates: property.coordinates,
       buildingDate: property.buildingDate,
       balcony: property.balcony,
+      images: property.images,
     });
+    setNewImages([]);
     setIsEditModalOpen(true);
+    document.body.style.overflow = "hidden";
   };
 
   const handleDeleteClick = (property: Poster) => {
     setSelectedProperty(property);
     setIsDeleteModalOpen(true);
+    document.body.style.overflow = "hidden";
   };
 
   const handleDeleteConfirm = async () => {
@@ -166,6 +197,8 @@ const PropertyListings: React.FC = () => {
         setIsDeleteModalOpen(false);
         setSelectedProperty(null);
         toast.success("آگهی با موفقیت حذف شد");
+        document.body.style.overflow = "unset";
+        document.body.style.overflow = "unset";
       } else {
         const errorData = await response.json();
         console.log("Error deleting poster:", errorData);
@@ -179,10 +212,14 @@ const PropertyListings: React.FC = () => {
     }
   };
 
-  const handleApprovalClick = (property: Poster, action: 'approve' | 'decline') => {
+  const handleApprovalClick = (
+    property: Poster,
+    action: "approve" | "decline"
+  ) => {
     setSelectedProperty(property);
     setApprovalAction(action);
     setIsApprovalModalOpen(true);
+    document.body.style.overflow = "hidden";
   };
 
   const handleApprovalConfirm = async () => {
@@ -190,25 +227,31 @@ const PropertyListings: React.FC = () => {
 
     setIsProcessingApproval(true);
     try {
-      const response = await fetch('/api/poster/approve', {
-        method: 'PATCH',
+      const response = await fetch("/api/poster/approve", {
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: selectedProperty._id, action: approvalAction }),
+        body: JSON.stringify({
+          id: selectedProperty._id,
+          action: approvalAction,
+        }),
       });
 
       if (response.ok) {
         fetchData();
         setIsApprovalModalOpen(false);
         setSelectedProperty(null);
-        toast.success(approvalAction === 'approve' ? 'آگهی تایید شد' : 'آگهی رد شد');
+        document.body.style.overflow = "unset";
+        toast.success(
+          approvalAction === "approve" ? "آگهی تایید شد" : "آگهی رد شد"
+        );
       } else {
-        toast.error('خطا در بروزرسانی وضعیت');
+        toast.error("خطا در بروزرسانی وضعیت");
       }
     } catch (error) {
-      console.error('Error updating approval status:', error);
-      toast.error('خطا در بروزرسانی وضعیت');
+      console.error("Error updating approval status:", error);
+      toast.error("خطا در بروزرسانی وضعیت");
     } finally {
       setIsProcessingApproval(false);
     }
@@ -231,6 +274,69 @@ const PropertyListings: React.FC = () => {
     setIsLocationPickerOpen(false);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const files = Array.from(e.target.files);
+    const compressedImages: typeof editFormData.images = [];
+
+    setImageUploading(true);
+    setImageProgress(0);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        let finalFile = file;
+
+        if (file.size > 100 * 1024) {
+          // اگر بزرگتر از 100KB
+          const options = {
+            maxSizeMB: 0.1,
+            maxWidthOrHeight: 1280,
+            fileType: "image/webp",
+            useWebWorker: true,
+          };
+          finalFile = await imageCompression(file, options);
+        }
+
+        compressedImages.push({
+          alt: `تصویر ${(editFormData.images?.length || 0) + i + 1}`,
+          url: URL.createObjectURL(finalFile),
+          mainImage:
+            (!editFormData.images || editFormData.images.length === 0) &&
+            i === 0,
+          file: finalFile,
+          _id: crypto.randomUUID(),
+        });
+
+        setImageProgress(Math.round(((i + 1) / files.length) * 100));
+      } catch (err) {
+        console.error("خطا در فشرده‌سازی تصویر:", err);
+        toast.error("مشکلی در پردازش تصویر پیش آمد");
+      }
+    }
+
+    const updatedImages = [...(editFormData.images || []), ...compressedImages];
+    setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+    setNewImages(compressedImages);
+    setImageUploading(false);
+  };
+
+  const removeExistingImage = (index: number) => {
+    const updatedImages =
+      editFormData.images?.filter((_, i) => i !== index) || [];
+    setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+  };
+
+  const setMainImage = (index: number) => {
+    const updatedImages =
+      editFormData.images?.map((img, i) => ({
+        ...img,
+        mainImage: i === index,
+      })) || [];
+    setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+  };
+
   const handleUpdatePoster = async () => {
     if (!editFormData._id) return;
 
@@ -238,15 +344,28 @@ const PropertyListings: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("/api/poster", {
+      const updatedImages = editFormData.images || [];
+
+      const response = await fetch(`/api/poster`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          token: token || "",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          id: editFormData._id,
+          id: selectedProperty?._id,
           ...editFormData,
+          // Separate existing images from new uploads
+          images: updatedImages.map((img) => ({
+            ...img,
+            // Remove temporary fields and files from existing images
+            ...("file" in img
+              ? {
+                  file: undefined,
+                  _id: undefined,
+                }
+              : {}),
+          })),
         }),
       });
 
@@ -258,6 +377,8 @@ const PropertyListings: React.FC = () => {
         setIsEditModalOpen(false);
         setSelectedProperty(null);
         setEditFormData({});
+        setNewImages([]);
+        document.body.style.overflow = "unset";
       } else {
         throw new Error(result.message || "خطا در بروزرسانی آگهی");
       }
@@ -348,7 +469,7 @@ const PropertyListings: React.FC = () => {
       return "/assets/images/hero4.jpg";
     }
 
-    const firstImage = images[0];
+    const firstImage = images.find((image) => image.mainImage);
     if (typeof firstImage === "string") {
       return firstImage;
     }
@@ -408,7 +529,7 @@ const PropertyListings: React.FC = () => {
           مدیریت آگهی‌های ملک ({posters.length || 0} آگهی)
         </h1>
         {/* Filters - Same as before */}
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex w-full flex-col md:flex-row gap-3">
           <form onSubmit={handleSearch} className="relative flex">
             <input
               type="text"
@@ -427,8 +548,8 @@ const PropertyListings: React.FC = () => {
           </form>
           <div className="relative">
             <select
-              className="border border-gray-400 text-black rounded-lg px-3 py-2"
-               value={parentType}
+              className="border  w-full border-gray-400 text-black rounded-lg px-3 py-2"
+              value={parentType}
               onChange={(e) => {
                 setParentType(e.target.value);
                 setPage(1);
@@ -453,7 +574,7 @@ const PropertyListings: React.FC = () => {
 
           <div className="relative">
             <select
-              className="border border-gray-400 text-black rounded-lg px-3 py-2"
+              className="border  w-full border-gray-400 text-black rounded-lg px-3 py-2"
               value={tradeType}
               onChange={(e) => {
                 setTradeType(e.target.value);
@@ -573,7 +694,7 @@ const PropertyListings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500 max-w-xs truncate">
-                      {property.location.slice(0, 40) || "موقعیت نامشخص"}
+                      {property.location.slice(0, 80) || "موقعیت نامشخص"}
                     </div>
                     {property.coordinates?.lat && property.coordinates?.lng && (
                       <div className="text-xs text-gray-400 flex items-center gap-1 mt-1">
@@ -636,7 +757,9 @@ const PropertyListings: React.FC = () => {
                       <div className="flex gap-1">
                         {!property.isApproved && (
                           <button
-                            onClick={() => handleApprovalClick(property, 'approve')}
+                            onClick={() =>
+                              handleApprovalClick(property, "approve")
+                            }
                             className="text-green-600 hover:text-green-900 transition-colors p-1 rounded"
                             title="تایید"
                           >
@@ -645,7 +768,9 @@ const PropertyListings: React.FC = () => {
                         )}
                         {property.isApproved && (
                           <button
-                            onClick={() => handleApprovalClick(property, 'decline')}
+                            onClick={() =>
+                              handleApprovalClick(property, "decline")
+                            }
                             className="text-red-600 hover:text-red-900 transition-colors p-1 rounded"
                             title="رد"
                           >
@@ -716,6 +841,7 @@ const PropertyListings: React.FC = () => {
                 onClick={() => {
                   setIsEditModalOpen(false);
                   setEditFormData({});
+                  document.body.style.overflow = "unset";
                 }}
                 className="text-gray-400 hover:text-gray-500 transition-colors"
               >
@@ -1046,6 +1172,99 @@ const PropertyListings: React.FC = () => {
                     </select>
                   </div>
 
+                  {/* Images Section */}
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      تصاویر
+                    </h3>
+
+                    {editFormData.images && editFormData.images.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          تصاویر موجود
+                        </h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {editFormData.images.map((image, index) => (
+                            <div key={index} className="relative group">
+                              <Image
+                                src={image.url}
+                                alt={image.alt}
+                                width={100}
+                                height={100}
+                                className="w-full h-20 object-cover rounded-lg border"
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setMainImage(index)}
+                                  className={`px-2 py-1 text-xs rounded ${
+                                    image.mainImage
+                                      ? "bg-green-600 text-white"
+                                      : "bg-white text-gray-700"
+                                  }`}
+                                >
+                                  {image.mainImage ? "اصلی" : "انتخاب"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeExistingImage(index)}
+                                  className="p-1 bg-red-600 text-white rounded"
+                                >
+                                  <FiTrash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        افزودن تصاویر جدید
+                      </label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                        <input
+                          type="file"
+                          id="imageUpload"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="imageUpload"
+                          className="cursor-pointer flex flex-col items-center justify-center"
+                        >
+                          <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500 mb-1">
+                            برای آپلود تصاویر کلیک کنید
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            یا فایلها را اینجا رها کنید
+                          </span>
+                        </label>
+                      </div>
+                      {/* Progress Bar */}
+                      {imageUploading && (
+                        <div className="mt-2 w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="bg-blue-600 h-3 transition-all duration-300"
+                            style={{ width: `${imageProgress}%` }}
+                          ></div>
+                        </div>
+                      )}
+
+                      {/* Ready Images */}
+                      {newImages.length > 0 && !imageUploading && (
+                        <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg flex items-center text-sm text-green-700">
+                          <FiCheck className="w-4 h-4 ml-2" />{" "}
+                          {newImages.length} تصویر آماده آپلود
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Amenities Section */}
                   <div className="col-span-2">
                     <h3 className="text-lg font-medium text-gray-800 mb-4">
@@ -1126,13 +1345,15 @@ const PropertyListings: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={isUpdating}
+                    disabled={isUpdating || imageUploading}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   >
-                    {isUpdating ? (
+                    {isUpdating || imageUploading ? (
                       <>
                         <FiLoader className="animate-spin ml-2" />
-                        در حال بروزرسانی...
+                        {imageUploading
+                          ? "در حال آپلود تصاویر..."
+                          : "در حال بروزرسانی..."}
                       </>
                     ) : (
                       <>
@@ -1159,7 +1380,10 @@ const PropertyListings: React.FC = () => {
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">جزئیات آگهی</h3>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  document.body.style.overflow = "unset";
+                }}
                 className="text-gray-400 hover:text-gray-500 transition-colors"
               >
                 <FiX className="w-5 h-5" />
@@ -1522,7 +1746,10 @@ const PropertyListings: React.FC = () => {
                   {isDeleting ? "در حال حذف..." : "بله، حذف شود"}
                 </button>
                 <button
-                  onClick={() => setIsDeleteModalOpen(false)}
+                  onClick={() => {
+                    setIsDeleteModalOpen(false);
+                    document.body.style.overflow = "unset";
+                  }}
                   disabled={isDeleting}
                   className="px-4 py-2 border text-black border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -1545,20 +1772,26 @@ const PropertyListings: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center mb-4">
                 <div className="flex-shrink-0">
-                  <FiAlertCircle className={`h-6 w-6 ${approvalAction === 'approve' ? 'text-green-600' : 'text-red-600'}`} />
+                  <FiAlertCircle
+                    className={`h-6 w-6 ${
+                      approvalAction === "approve"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  />
                 </div>
                 <div className="mr-3">
                   <h3 className="text-lg font-medium text-gray-900">
-                    {approvalAction === 'approve' ? 'تایید آگهی' : 'رد آگهی'}
+                    {approvalAction === "approve" ? "تایید آگهی" : "رد آگهی"}
                   </h3>
                 </div>
               </div>
 
               <div className="mb-4">
                 <p className="text-gray-700 mb-2">
-                  {approvalAction === 'approve' 
-                    ? 'آیا از تایید آگهی زیر اطمینان دارید؟' 
-                    : 'آیا از رد آگهی زیر اطمینان دارید؟'}
+                  {approvalAction === "approve"
+                    ? "آیا از تایید آگهی زیر اطمینان دارید؟"
+                    : "آیا از رد آگهی زیر اطمینان دارید؟"}
                 </p>
                 <div className="bg-gray-50 p-3 rounded-md">
                   <div className="flex items-center gap-3">
@@ -1591,19 +1824,25 @@ const PropertyListings: React.FC = () => {
                   onClick={handleApprovalConfirm}
                   disabled={isProcessingApproval}
                   className={`px-4 py-2 text-white rounded-md text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${
-                    approvalAction === 'approve' 
-                      ? 'bg-green-600 hover:bg-green-700' 
-                      : 'bg-red-600 hover:bg-red-700'
+                    approvalAction === "approve"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-red-600 hover:bg-red-700"
                   }`}
                 >
-                  {isProcessingApproval && <FiLoader className="animate-spin ml-1" />}
-                  {isProcessingApproval 
-                    ? 'در حال پردازش...' 
-                    : approvalAction === 'approve' ? 'بله، تایید شود' : 'بله، رد شود'
-                  }
+                  {isProcessingApproval && (
+                    <FiLoader className="animate-spin ml-1" />
+                  )}
+                  {isProcessingApproval
+                    ? "در حال پردازش..."
+                    : approvalAction === "approve"
+                    ? "بله، تایید شود"
+                    : "بله، رد شود"}
                 </button>
                 <button
-                  onClick={() => setIsApprovalModalOpen(false)}
+                  onClick={() => {
+                    setIsApprovalModalOpen(false);
+                    document.body.style.overflow = "unset";
+                  }}
                   disabled={isProcessingApproval}
                   className="px-4 py-2 border text-black border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

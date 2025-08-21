@@ -743,7 +743,7 @@ export default function PosterDetailClient({
                 onClick={() => openGallery(currentImageIndex)}
                 className="absolute top-2 left-2 bg-black/50 text-white px-3 py-1 rounded-full text-sm hover:bg-black/70 transition-colors"
               >
-                <FaImages className="inline mr-1" />
+                <FaImages className="inline ml-1" />
                 مشاهده همه
               </motion.button>
             </div>
@@ -1179,6 +1179,7 @@ export default function PosterDetailClient({
             onNext={nextGalleryImage}
             onPrev={prevGalleryImage}
             onSelectImage={(index) => setGalleryIndex(index)}
+            title={posterData.title}
           />
         )}
       </AnimatePresence>

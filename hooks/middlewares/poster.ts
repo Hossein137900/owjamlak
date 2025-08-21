@@ -238,9 +238,9 @@ export const updatePoster = async (req: Request) => {
     });
     return NextResponse.json(poster);
   } catch (error) {
-    console.log("Error updating poster:", error);
+    console.log("خطا در ویرایش:", error);
     return NextResponse.json(
-      { message: "Error updating poster" },
+      { message: "خطا در ویرایش" },
       { status: 500 }
     );
   }

@@ -4,52 +4,33 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaEye, FaExternalLinkAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { FiLoader } from "react-icons/fi";
-
-interface PosterImage {
-  alt: string;
-  url: string;
-  mainImage: boolean;
-}
-
-interface User {
-  _id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-}
-
-interface Poster {
-  _id: string;
-  title: string;
-  description: string;
-  images: PosterImage[];
-  buildingDate: number;
-  area: number;
-  rooms: number;
-  parentType: string;
-  tradeType: string;
-  totalPrice?: number;
-  pricePerMeter?: number;
-  depositRent?: number;
-  rentPrice?: number;
-  location: string;
-  contact: string;
-  storage: boolean;
-  floor?: number;
-  parking: boolean;
-  lift: boolean;
-  balcony: boolean;
-  user: User;
-  status: string;
-  views: number;
-  createdAt: string;
-}
+import {
+  FiLoader,
+  FiX,
+  FiSave,
+  FiEdit,
+  FiTrash2,
+  FiUpload,
+  FiCheck,
+} from "react-icons/fi";
+import toast from "react-hot-toast";
+import { Poster } from "@/types/type";
 
 const PosterById: React.FC = () => {
   const [posters, setPosters] = useState<Poster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    posterId: string | null;
+  }>({ isOpen: false, posterId: null });
+  const [deleting, setDeleting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedPoster, setSelectedPoster] = useState<Poster | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<Poster>>({});
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [imageUploading, setImageUploading] = useState(false);
 
   useEffect(() => {
     const fetchUserPosters = async () => {
@@ -91,16 +72,171 @@ const PosterById: React.FC = () => {
       fetchUserPosters();
     };
 
-    window.addEventListener('posterCreated', handlePosterCreated);
+    window.addEventListener("posterCreated", handlePosterCreated);
 
     return () => {
-      window.removeEventListener('posterCreated', handlePosterCreated);
+      window.removeEventListener("posterCreated", handlePosterCreated);
     };
   }, []);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("fa-IR").format(price);
   };
+
+  const handleDeletePoster = async () => {
+    if (!deleteModal.posterId) return;
+
+    setDeleting(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("لطفا وارد شوید");
+        return;
+      }
+
+      const response = await fetch(`/api/poster/${deleteModal.posterId}`, {
+        method: "DELETE",
+        headers: { token },
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("آگهی با موفقیت حذف شد");
+        setPosters((prev) =>
+          prev.filter((p) => p._id !== deleteModal.posterId)
+        );
+      } else {
+        toast.error(result.message || "خطا در حذف آگهی");
+      }
+    } catch (error) {
+      toast.error("خطا در حذف آگهی");
+    } finally {
+      setDeleting(false);
+      setDeleteModal({ isOpen: false, posterId: null });
+      document.body.style.overflow = "unset";
+    }
+  };
+
+  const handleEditPoster = (poster: Poster) => {
+    setSelectedPoster(poster);
+    setEditFormData(poster);
+    setNewImages([]);
+    setIsEditModalOpen(true);
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleEditFormChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newImages = Array.from(e.target.files).map((file, index) => ({
+        alt: `تصویر ${(editFormData.images?.length || 0) + index + 1}`,
+        url: URL.createObjectURL(file),
+        mainImage: (editFormData.images?.length ?? 0) === 0 && index === 0,
+        file,
+      }));
+
+      const updatedImages = [...(editFormData.images || []), ...newImages];
+      setEditFormData((prev) => ({
+        ...prev,
+        images: updatedImages as Poster["images"],
+      }));
+      setNewImages([]);
+    }
+  };
+
+  const handleUpdatePoster = async () => {
+    if (!selectedPoster) return;
+
+    setIsUpdating(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("لطفا وارد شوید");
+        return;
+      }
+
+      const updatedImages = editFormData.images || [];
+
+      const response = await fetch(`/api/poster`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id: selectedPoster._id,
+          ...editFormData,
+          // Separate existing images from new uploads
+          images: updatedImages.map((img) => ({
+            ...img,
+            // Remove temporary fields and files from existing images
+            ...("file" in img
+              ? {
+                  file: undefined,
+                  _id: undefined,
+                }
+              : {}),
+          })),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("آگهی با موفقیت بروزرسانی شد");
+        setPosters((prev) =>
+          prev.map((p) =>
+            p._id === selectedPoster._id
+              ? { ...p, ...editFormData, images: updatedImages }
+              : p
+          )
+        );
+        setIsEditModalOpen(false);
+        setEditFormData({});
+        setSelectedPoster(null);
+
+        document.body.style.overflow = "unset";
+      } else {
+        toast.error(result.message || "خطا در بروزرسانی آگهی");
+      }
+    } catch (error) {
+      toast.error("خطا در بروزرسانی آگهی");
+    } finally {
+      setIsUpdating(false);
+      document.body.style.overflow = "unset";
+    }
+  };
+
+  const removeExistingImage = (index: number) => {
+    const updatedImages =
+      editFormData.images?.filter((_, i) => i !== index) || [];
+    setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+  };
+
+  const setMainImage = (index: number) => {
+    const updatedImages =
+      editFormData.images?.map((img, i) => ({
+        ...img,
+        mainImage: i === index,
+      })) || [];
+    setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+  };
+
+  const isRentType = editFormData.parentType?.includes("Rent") || false;
 
   if (loading) {
     return (
@@ -136,8 +272,8 @@ const PosterById: React.FC = () => {
   }
 
   return (
-    <div className="space-y-">
-      <div className="  p-8 text-gray-500">
+    <div className=" ">
+      <div className="px-8 pb-4 m-4 border-b text-gray-500">
         <h1 className="text-3xl font-bold mb-3">آگهی‌های من</h1>
         <p className="text-gray-600 text-lg">{posters.length} آگهی فعال</p>
       </div>
@@ -218,21 +354,17 @@ const PosterById: React.FC = () => {
                         <FaExternalLinkAlt className="text-xs" />
                       </button>
                     </Link>
-                    <button 
-                      onClick={async () => {
-                        if (confirm('آیا مطمئن هستید؟')) {
-                          const token = localStorage.getItem('token');
-                          const response = await fetch(`/api/poster/${poster._id}`, {
-                            method: 'DELETE',
-                            headers: { token: token || '' }
-                          });
-                          const result = await response.json();
-                          if (result.success) {
-                            window.location.reload();
-                          } else {
-                            alert(result.message);
-                          }
-                        }
+                    <button
+                      onClick={() => handleEditPoster(poster)}
+                      className="text-blue-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-1"
+                    >
+                      <FiEdit className="text-xs" />
+                      ویرایش
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDeleteModal({ isOpen: true, posterId: poster._id });
+                        document.body.style.overflow = "hidden";
                       }}
                       className="text-red-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105"
                     >
@@ -245,6 +377,502 @@ const PosterById: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Edit Modal */}
+      {isEditModalOpen && selectedPoster && (
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[70vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+              <h3 className="text-lg font-medium text-gray-900">ویرایش آگهی</h3>
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setEditFormData({});
+                  setSelectedPoster(null);
+                  document.body.style.overflow = "unset";
+                }}
+                className="text-gray-400 hover:text-gray-500 transition-colors"
+              >
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-6 py-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleUpdatePoster();
+                }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      عنوان آگهی *
+                    </label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={editFormData.title || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      توضیحات *
+                    </label>
+                    <textarea
+                      name="description"
+                      value={editFormData.description || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      rows={4}
+                      className="w-full px-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      نوع ملک *
+                    </label>
+                    <select
+                      name="parentType"
+                      value={editFormData.parentType || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">انتخاب کنید</option>
+                      <option value="residentialRent">اجاره مسکونی</option>
+                      <option value="residentialSale">فروش مسکونی</option>
+                      <option value="commercialRent">اجاره تجاری</option>
+                      <option value="commercialSale">فروش تجاری</option>
+                      <option value="shortTermRent">اجاره کوتاه مدت</option>
+                      <option value="ConstructionProject">
+                        پروژه ساختمانی
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      نوع معامله *
+                    </label>
+                    <select
+                      name="tradeType"
+                      value={editFormData.tradeType || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">انتخاب کنید</option>
+                      <option value="House">خانه</option>
+                      <option value="Villa">ویلا</option>
+                      <option value="Old">کلنگی</option>
+                      <option value="Office">دفتر کار</option>
+                      <option value="Shop">مغازه</option>
+                      <option value="industrial">صنعتی</option>
+                      <option value="partnerShip">مشارکت</option>
+                      <option value="preSale">پیش فروش</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      تاریخ ساخت *
+                    </label>
+                    <input
+                      type="number"
+                      name="buildingDate"
+                      value={editFormData.buildingDate || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      متراژ (متر مربع) *
+                    </label>
+                    <input
+                      type="number"
+                      name="area"
+                      value={editFormData.area || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      min="1"
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      تعداد اتاق *
+                    </label>
+                    <input
+                      type="number"
+                      name="rooms"
+                      value={editFormData.rooms || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      min="0"
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      طبقه
+                    </label>
+                    <input
+                      type="number"
+                      name="floor"
+                      value={editFormData.floor || ""}
+                      onChange={handleEditFormChange}
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {!isRentType ? (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          قیمت کل (تومان) *
+                        </label>
+                        <input
+                          type="number"
+                          name="totalPrice"
+                          value={editFormData.totalPrice || ""}
+                          onChange={handleEditFormChange}
+                          required={!isRentType}
+                          min="0"
+                          className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          قیمت هر متر (تومان)
+                        </label>
+                        <input
+                          type="number"
+                          name="pricePerMeter"
+                          value={editFormData.pricePerMeter || ""}
+                          onChange={handleEditFormChange}
+                          min="0"
+                          className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          مبلغ ودیعه (تومان) *
+                        </label>
+                        <input
+                          type="number"
+                          name="depositRent"
+                          value={editFormData.depositRent || ""}
+                          onChange={handleEditFormChange}
+                          required={isRentType}
+                          min="0"
+                          className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          اجاره ماهانه (تومان) *
+                        </label>
+                        <input
+                          type="number"
+                          name="rentPrice"
+                          value={editFormData.rentPrice || ""}
+                          onChange={handleEditFormChange}
+                          required={isRentType}
+                          min="0"
+                          className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      آدرس *
+                    </label>
+                    <textarea
+                      name="location"
+                      value={editFormData.location || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      rows={2}
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      شماره تماس *
+                    </label>
+                    <input
+                      type="tel"
+                      name="contact"
+                      value={editFormData.contact || ""}
+                      onChange={handleEditFormChange}
+                      required
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      وضعیت
+                    </label>
+                    <select
+                      name="status"
+                      value={editFormData.status || "pending"}
+                      onChange={handleEditFormChange}
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="pending">در انتظار تایید</option>
+                      <option value="active">فعال</option>
+                      <option value="sold">فروخته شده</option>
+                      <option value="rented">اجاره داده شده</option>
+                    </select>
+                  </div>
+
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      تصاویر
+                    </h3>
+
+                    {editFormData.images && editFormData.images.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          تصاویر موجود
+                        </h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                          {editFormData.images.map((image, index) => (
+                            <div key={index} className="relative group">
+                              <Image
+                                src={image.url}
+                                alt={image.alt}
+                                width={100}
+                                height={100}
+                                className="w-full h-20 object-cover rounded-lg border"
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setMainImage(index)}
+                                  className={`px-2 py-1 text-xs rounded ${
+                                    image.mainImage
+                                      ? "bg-green-600 text-white"
+                                      : "bg-white text-gray-700"
+                                  }`}
+                                >
+                                  {image.mainImage ? "اصلی" : "انتخاب"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeExistingImage(index)}
+                                  className="p-1 bg-red-600 text-white rounded"
+                                >
+                                  <FiTrash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        افزودن تصاویر جدید
+                      </label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                        <input
+                          type="file"
+                          id="imageUpload"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="imageUpload"
+                          className="cursor-pointer flex flex-col items-center justify-center"
+                        >
+                          <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500 mb-1">
+                            برای آپلود تصاویر کلیک کنید
+                          </span>
+                        </label>
+                      </div>
+                      {newImages.length > 0 && (
+                        <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center text-sm text-green-700">
+                            <FiCheck className="w-4 h-4 ml-2" />
+                            {newImages.length} تصویر آماده آپلود
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      امکانات
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="storage"
+                          checked={editFormData.storage || false}
+                          onChange={handleEditFormChange}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label className="mr-2 block text-sm text-gray-700">
+                          انباری
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="parking"
+                          checked={editFormData.parking || false}
+                          onChange={handleEditFormChange}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label className="mr-2 block text-sm text-gray-700">
+                          پارکینگ
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="lift"
+                          checked={editFormData.lift || false}
+                          onChange={handleEditFormChange}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label className="mr-2 block text-sm text-gray-700">
+                          آسانسور
+                        </label>
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="balcony"
+                          checked={editFormData.balcony || false}
+                          onChange={handleEditFormChange}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label className="mr-2 block text-sm text-gray-700">
+                          بالکن
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditModalOpen(false);
+                      setEditFormData({});
+                      setSelectedPoster(null);
+                      document.body.style.overflow = "unset";
+                    }}
+                    disabled={isUpdating}
+                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    انصراف
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdating || imageUploading}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                  >
+                    {isUpdating || imageUploading ? (
+                      <>
+                        <FiLoader className="animate-spin ml-2" />
+                        {imageUploading
+                          ? "در حال آپلود تصاویر..."
+                          : "در حال بروزرسانی..."}
+                      </>
+                    ) : (
+                      <>
+                        <FiSave className="ml-2" />
+                        ذخیره تغییرات
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => {
+              setDeleteModal({ isOpen: false, posterId: null });
+              document.body.style.overflow = "unset";
+            }}
+          />
+
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+              حذف آگهی
+            </h3>
+            <p className="text-gray-600 text-center mb-6">
+              آیا از حذف این آگهی مطمئن هستید؟ این عمل قابل بازگشت نیست.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setDeleteModal({ isOpen: false, posterId: null });
+                  document.body.style.overflow = "unset";
+                }}
+                disabled={deleting}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                انصراف
+              </button>
+              <button
+                onClick={handleDeletePoster}
+                disabled={deleting}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <FiLoader className="animate-spin" />
+                    در حال حذف...
+                  </>
+                ) : (
+                  "حذف آگهی"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

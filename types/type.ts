@@ -31,6 +31,7 @@ export interface Poster {
     alt: string;
     url: string;
     mainImage: boolean;
+    _id:string
   }>;
   buildingDate: string | number; // Date as string from API
   area: number;

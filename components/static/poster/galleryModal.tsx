@@ -1,13 +1,13 @@
 "use client";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   FaChevronLeft,
   FaChevronRight,
   FaTimes,
   FaExpand,
 } from "react-icons/fa";
-import React from "react";
+import { useEffect } from "react";
 
 interface GalleryModalProps {
   images: string[];
@@ -16,6 +16,7 @@ interface GalleryModalProps {
   onNext: () => void;
   onPrev: () => void;
   onSelectImage: (index: number) => void;
+  title: string;
 }
 
 const GalleryModal: React.FC<GalleryModalProps> = ({
@@ -25,24 +26,22 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
   onNext,
   onPrev,
   onSelectImage,
+  title,
 }) => {
   // For swipe/drag functionality
-  const swipeConfidenceThreshold = 10000;
-  const swipePower = (offset: number, velocity: number) => {
-    return Math.abs(offset) * velocity;
-  };
 
-  // Handle keyboard navigation
-  React.useEffect(() => {
+  // Handle keyboard navigation (RTL corrected)
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") onNext();
-      if (e.key === "ArrowRight") onPrev();
+      if (e.key === "ArrowLeft") onPrev(); // RTL: Left arrow goes to previous
+      if (e.key === "ArrowRight") onNext(); // RTL: Right arrow goes to next
       if (e.key === "Escape") onClose();
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onNext, onPrev, onClose]);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -68,59 +67,53 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
 
       {/* Main image with swipe functionality */}
       <div className="relative w-full h-[70vh] mt-20 overflow-hidden">
-        <AnimatePresence initial={false} custom={currentIndex}>
-          <motion.div
-            key={currentIndex}
-            custom={currentIndex}
-            initial={{ opacity: 0, x: 300 * (currentIndex > 0 ? 1 : -1) }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -300 * (currentIndex > 0 ? 1 : -1) }}
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
-            className="absolute inset-0 flex items-center justify-center"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={1}
-            onDragEnd={(e, { offset, velocity }) => {
-              const swipe = swipePower(offset.x, velocity.x);
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="absolute inset-0 flex items-center justify-center touch-pan-x"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.1}
+          dragMomentum={false}
+          whileDrag={{ cursor: "grabbing" }}
+          onDragEnd={(e, { offset, velocity }) => {
+            const dragThreshold = 100;
+            const velocityThreshold = 500;
 
-              if (swipe < -swipeConfidenceThreshold) {
-                onNext();
-              } else if (swipe > swipeConfidenceThreshold) {
-                onPrev();
+            // Simple and reliable swipe detection
+            if (
+              Math.abs(offset.x) > dragThreshold ||
+              Math.abs(velocity.x) > velocityThreshold
+            ) {
+              if (offset.x > 0 || velocity.x > 0) {
+                onPrev(); // Swipe right = previous (RTL)
+              } else {
+                onNext(); // Swipe left = next (RTL)
               }
-            }}
-          >
+            }
+          }}
+        >
+          <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
             <Image
               src={images[currentIndex]}
-              alt={`تصویر ${currentIndex + 1}`}
+              alt={`تصویر ${title}`}
               fill
               className="object-contain select-none"
               sizes="100vw"
               priority
-              draggable="false"
+              draggable={false}
             />
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Overlay instructions for mobile */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-between px-4 md:hidden">
-          <div className="bg-black/30 text-white text-xs p-2 rounded-full opacity-70">
-            ← بکشید
           </div>
-          <div className="bg-black/30 text-white text-xs p-2 rounded-full opacity-70">
-            بکشید →
-          </div>
-        </div>
+        </motion.div>
 
-        {/* Navigation buttons (visible on desktop/tablet) */}
+        {/* Navigation buttons (visible on desktop/tablet) - RTL corrected */}
         <motion.button
           initial={{ opacity: 0.6 }}
           whileHover={{ opacity: 1, scale: 1.1 }}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/40 text-white p-3 rounded-full hover:bg-black/60 transition-colors hidden md:block"
-          onClick={onPrev}
+          onClick={onNext}
         >
           <FaChevronLeft size={24} />
         </motion.button>
@@ -129,16 +122,16 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
           initial={{ opacity: 0.6 }}
           whileHover={{ opacity: 1, scale: 1.1 }}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/40 text-white p-3 rounded-full hover:bg-black/60 transition-colors hidden md:block"
-          onClick={onNext}
+          onClick={onPrev}
         >
           <FaChevronRight size={24} />
         </motion.button>
       </div>
 
       {/* Thumbnails with active indicator and smooth scrolling */}
-      <div className="w-full bg-black/70 py-3 mt-auto">
+      <div className="w-full mb-12 bg-black/70 py-3 mt-auto">
         <div className="w-full max-w-5xl mx-auto overflow-x-auto hide-scrollbar px-4">
-          <div className="flex gap-2 py-2">
+          <div className="flex gap-2 py-2" dir="rtl">
             {images.map((img, index) => (
               <motion.div
                 key={index}
@@ -146,7 +139,7 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
                 whileTap={{ scale: 0.95 }}
                 className={`relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0 cursor-pointer transition-all duration-200 ${
                   currentIndex === index
-                    ? "ring-2 ring-green-500 ring-offset-2 ring-offset-black"
+                    ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-black shadow-lg"
                     : "opacity-60 hover:opacity-100"
                 }`}
                 onClick={() => onSelectImage(index)}
@@ -158,6 +151,9 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
                   className="object-cover rounded-md"
                   sizes="80px"
                 />
+                {currentIndex === index && (
+                  <div className="absolute inset-0 bg-blue-500/20 rounded-md" />
+                )}
               </motion.div>
             ))}
           </div>
@@ -168,7 +164,7 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
       <motion.button
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className="absolute bottom-20 right-4 bg-black/50 text-white p-2 rounded-full"
+        className="absolute bottom-40 lg:bottom-43 right-4 bg-black/50 text-white p-2 rounded-full"
         onClick={() => {
           if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch((err) => {

@@ -324,9 +324,6 @@ function PosterListContent() {
   };
 
   const formatPosterForReportageBox = (poster: Poster) => {
-    const mainImage =
-      poster.images.find((img) => img.mainImage) || poster.images[0];
-
     return {
       id: poster._id,
       title: poster.title,
@@ -343,7 +340,7 @@ function PosterListContent() {
         floor: poster.floor,
         buildingDate: poster.buildingDate,
       },
-      imagePath: mainImage?.url || "/assets/images/default-property.jpg",
+      images: poster.images || [],
       isNew:
         new Date(poster.createdAt) >
         new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -942,19 +939,6 @@ function PosterListContent() {
                 </div>
               </div>
             )}
-
-            {/* Load More Button */}
-            {/* {filteredPos.length > 0 && filteredPos.length >= 20 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center mt-12"
-              >
-                <button className="px-8 py-3 bg-white border-2 border-[#01ae9b] text-[#01ae9b] rounded-lg hover:bg-[#01ae9b] hover:text-white transition-colors duration-200 font-medium">
-                  مشاهده آگهی‌های بیشتر
-                </button>
-              </motion.div>
-            )} */}
           </div>
         </div>
 
@@ -1328,7 +1312,7 @@ function PosterListContent() {
       </div>
     </div>
   );
-};
+}
 
 // Loading component
 function PosterListLoading() {

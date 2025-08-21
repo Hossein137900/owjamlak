@@ -5,6 +5,13 @@ import Link from "next/link";
 import { FiMapPin, FiTrendingUp, FiHome, FiTag } from "react-icons/fi";
 import { FaChevronLeft } from "react-icons/fa";
 
+interface PosterImage {
+  alt: string;
+  url: string;
+  mainImage: boolean;
+  _id: string;
+}
+
 interface ReportageBoxProps {
   id: string;
   title: string;
@@ -17,23 +24,23 @@ interface ReportageBoxProps {
   };
   features: {
     area: number;
-    rooms: number; // Changed from bedrooms to rooms to match model
-    floor?: number; // Added floor from model
-    buildingDate: number | string; // Changed from yearBuilt to buildingDate
+    rooms: number;
+    floor?: number;
+    buildingDate: number | string;
   };
-  imagePath?: string;
+  images: PosterImage[];
   isNew?: boolean;
   isSpecialOffer?: boolean;
-  parentType: string; // Added parentType from model
-  tradeType: string; // Updated tradeType to match model
+  parentType: string;
+  tradeType: string;
   convertible?: boolean;
-  type?: "normal" | "investment"; // Added type from model
-  status?: "active" | "pending" | "sold" | "rented"; // Added status from model
-  views?: number; // Added views from model
-  storage?: boolean; // Added storage from model
-  parking?: boolean; // Added parking from model
-  lift?: boolean; // Added lift from model
-  balcony?: boolean; // Added balcony from model
+  type?: "normal" | "investment";
+  status?: "active" | "pending" | "sold" | "rented";
+  views?: number;
+  storage?: boolean;
+  parking?: boolean;
+  lift?: boolean;
+  balcony?: boolean;
   className?: string;
 }
 
@@ -41,7 +48,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
   id,
   title,
   location,
-  // price,
+  images,
   parentType,
   tradeType,
   convertible = false,
@@ -49,6 +56,11 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
   status = "active",
   className = "",
 }) => {
+  // Get main image or fallback to first image
+  const getMainImage = () => {
+    const mainImg = images?.find((img) => img.mainImage);
+    return mainImg?.url || images?.[0]?.url || "/assets/images/hero2.png";
+  };
   // const formatPrice = (amount: number) => {
   //   if (amount === 0) return "توافقی";
   //   if (amount >= 1000000000) {
@@ -150,10 +162,14 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
         <div className="relative">
           <div className="relative h-40 md:h-64 overflow-hidden">
             <Image
-              src={"/assets/images/hero2.png"}
+              src={getMainImage()}
               alt={title}
               fill
               className="object-cover transition-transform duration-300 hover:scale-105"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/assets/images/hero2.png";
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
           </div>

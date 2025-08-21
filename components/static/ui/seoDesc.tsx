@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDownIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { FaArrowDown } from "react-icons/fa";
 
 const SEODescription: React.FC = () => {
   const pathname = usePathname();
@@ -22,7 +22,6 @@ const SEODescription: React.FC = () => {
     }
   }, [isExpanded]);
 
-  
   const lineHeight = 28; // px for leading-7
 
   const mainText = `املاک اوج، پیشرو در ارائه خدمات جامع مشاوره املاک با بیش از ۱۰ سال تجربه در زمینه خرید، فروش و اجاره املاک مسکونی، تجاری و اداری در سراسر کشور. ما با تیمی از کارشناسان مجرب و متخصص، بهترین گزینه‌های ملکی را متناسب با بودجه و نیازهای شما ارائه می‌دهیم.`;
@@ -78,7 +77,7 @@ const SEODescription: React.FC = () => {
                 animate={{ rotate: isExpanded ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <ChevronDownIcon className="w-5 h-5" />
+                <FaArrowDown className="w-3 h-3" />
               </motion.span>
               {isExpanded ? "نمایش کمتر" : "نمایش بیشتر"}
             </button>
