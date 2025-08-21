@@ -21,6 +21,8 @@ export default function Chat() {
   const [activity, setActivity] = useState<string>("");
   const [currentRoom, setCurrentRoom] = useState<string>("");
 
+  console.log(isConnected)
+
   // Form states
   const [name, setName] = useState<string>("");
   const [token, setToken] = useState<string>("");
@@ -105,7 +107,7 @@ export default function Chat() {
         const payload: JWTPayload = JSON.parse(atob(token.split(".")[1]));
         finalRoom = `user_${payload.userId || payload.id}`;
         roomDisplay = "Personal Chat";
-      } catch (e) {
+      } catch {
         alert("Invalid token format");
         return;
       }
@@ -152,7 +154,7 @@ export default function Chat() {
       try {
         const payload: JWTPayload = JSON.parse(atob(token.split(".")[1]));
         return payload.name || "User";
-      } catch (e) {
+      } catch {
         return "User";
       }
     }

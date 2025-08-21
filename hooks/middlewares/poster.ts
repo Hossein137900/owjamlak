@@ -101,11 +101,10 @@ export const getAllPosters = async (req: NextRequest) => {
   }
 };
 
-export const getPosterById = async (req: NextRequest) => {
+export const getPosterById = async (req: NextRequest, id: string) => {
   try {
     // چک کردن توکن
     const token = req.headers.get("token");
-    const id = req.headers.get("id");
     let hasToken = false;
     if (token) {
       try {
@@ -150,11 +149,22 @@ export const incrementPosterView = async (req: Request) => {
       );
     }
 
-    const updated = await Poster.findByIdAndUpdate(
-      id,
-      { $inc: { views: 1 } },
-      { new: true }
-    );
+    let updated;
+    try {
+      updated = await Poster.findByIdAndUpdate(
+        id,
+        { $inc: { views: 1 } },
+        { new: true }
+      );
+    } catch (dbError: any) {
+      if (dbError.name === 'CastError') {
+        return NextResponse.json(
+          { success: false, message: "Invalid poster ID" },
+          { status: 400 }
+        );
+      }
+      throw dbError;
+    }
 
     if (!updated) {
       return NextResponse.json(

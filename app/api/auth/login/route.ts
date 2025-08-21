@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { login, checkAdminAccess } from "@/middlewares/auth";
+import { login, checkAdminAccess } from "@/hooks/middlewares/auth";
 
 export async function POST(request: NextRequest) {
   return await login(request);

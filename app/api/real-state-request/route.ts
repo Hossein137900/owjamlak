@@ -1,5 +1,5 @@
 import connect from "@/lib/data";
-import { createRealStateRequest, deleteRealStateRequest, getAllRealStateRequests, updateRealStateRequest } from "@/middlewares/realStateConsultation";
+import { createRealStateRequest, deleteRealStateRequest, getAllRealStateRequests, updateRealStateRequest } from "@/hooks/middlewares/realStateConsultation";
 
 export async function GET() {
   await connect();

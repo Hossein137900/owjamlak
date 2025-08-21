@@ -1,5 +1,5 @@
 import connect from "@/lib/data";
-import { getLegalRequestById } from "@/middlewares/legalConsultation";
+import { getLegalRequestById } from "@/hooks/middlewares/legalConsultation";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {

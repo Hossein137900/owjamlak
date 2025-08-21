@@ -1,5 +1,5 @@
 import connect from "@/lib/data";
-import { getRealStateRequestById } from "@/middlewares/realStateConsultation";
+import { getRealStateRequestById } from "@/hooks/middlewares/realStateConsultation";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {

@@ -86,6 +86,16 @@ const PosterById: React.FC = () => {
     };
 
     fetchUserPosters();
+
+    const handlePosterCreated = () => {
+      fetchUserPosters();
+    };
+
+    window.addEventListener('posterCreated', handlePosterCreated);
+
+    return () => {
+      window.removeEventListener('posterCreated', handlePosterCreated);
+    };
   }, []);
 
   const formatPrice = (price: number) => {
@@ -201,12 +211,34 @@ const PosterById: React.FC = () => {
                     {new Date(poster.createdAt).toLocaleDateString("fa-IR")}
                   </div>
 
-                  <Link href={`/poster/${poster._id}`} target="_blank">
-                    <button className="  text-black md:px-4 py-2 border-b text-xs md:text-sm font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-2">
-                      مشاهده
-                      <FaExternalLinkAlt className="text-xs" />
+                  <div className="flex gap-2">
+                    <Link href={`/poster/${poster._id}`} target="_blank">
+                      <button className="text-black px-2 py-2 border-b text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-1">
+                        مشاهده
+                        <FaExternalLinkAlt className="text-xs" />
+                      </button>
+                    </Link>
+                    <button 
+                      onClick={async () => {
+                        if (confirm('آیا مطمئن هستید؟')) {
+                          const token = localStorage.getItem('token');
+                          const response = await fetch(`/api/poster/${poster._id}`, {
+                            method: 'DELETE',
+                            headers: { token: token || '' }
+                          });
+                          const result = await response.json();
+                          if (result.success) {
+                            window.location.reload();
+                          } else {
+                            alert(result.message);
+                          }
+                        }
+                      }}
+                      className="text-red-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105"
+                    >
+                      حذف
                     </button>
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>
