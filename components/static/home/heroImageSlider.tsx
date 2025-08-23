@@ -117,8 +117,8 @@ const HeroImageSlider = () => {
             className="absolute  inset-0 w-full h-full"
           >
             <Image
-              src={"/assets/images/hero4.jpg"}
-              alt={currentPoster.images[0]?.alt || currentPoster.title}
+              src={currentPoster.images.find((image) => image.mainImage)?.url || currentPoster.title}
+              alt={currentPoster.title}
               fill
               className="object-cover  rounded-tr-3xl rounded-br-3xl"
               priority

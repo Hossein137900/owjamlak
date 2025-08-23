@@ -16,6 +16,9 @@ const posterSchema = new mongoose.Schema(
         mainImage: Boolean,
       },
     ],
+    video: {
+      type: String,
+    },
     buildingDate: {
       type: Number,
       required: true,

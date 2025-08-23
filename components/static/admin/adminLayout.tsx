@@ -126,19 +126,19 @@ const AdminLayout: React.FC = () => {
       id: "real-estate-requests",
       icon: <FiMessageSquare />,
       label: "درخواستهای مشاوره املاک",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "legal-requests",
       icon: <FiFileText />,
       label: "درخواستهای مشاوره حقوقی",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "employment-requests",
       icon: <FiBriefcase />,
       label: "درخواستهای همکاری",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "favorite",
@@ -150,19 +150,19 @@ const AdminLayout: React.FC = () => {
       id: "contact",
       icon: <FiBook />,
       label: "پیام های ارتباط",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "blogs",
       icon: <FiBook />,
       label: "وبلاگ",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "newsletter",
       icon: <FiMail />,
       label: "خبرنامه",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "ConsultantChampion",
@@ -181,13 +181,13 @@ const AdminLayout: React.FC = () => {
       id: "video",
       icon: <FiVideo />,
       label: "ویدیو ها",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "settings",
       icon: <FiSettings />,
       label: "تنظیمات",
-      roles: ["superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
   ];
 
@@ -213,37 +213,37 @@ const AdminLayout: React.FC = () => {
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "real-estate-requests":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <RealStateRequests />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "legal-requests":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <LegalRequests />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "employment-requests":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <EmployRequests />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "users":
-        return hasAccess(["superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <UsersManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "chat":
-        return hasAccess(["superadmin", "admin", "consultant", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <ChatAdmin />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "newsletter":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <NewsletterManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
@@ -251,7 +251,7 @@ const AdminLayout: React.FC = () => {
       case "Myproperties":
         return <PosterById />;
       case "Consultant":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <ConsultantManager />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
@@ -259,13 +259,13 @@ const AdminLayout: React.FC = () => {
       case "favorite":
         return <AdminFavoritesPage />;
       case "contact":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <MessagesPage />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "video":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user"]) ? (
           <VideoManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
