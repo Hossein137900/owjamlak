@@ -27,28 +27,26 @@ const VideoManagement: React.FC = () => {
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - replace with actual API call
+  const getToken = () => localStorage.getItem("token");
+
+  const fetchVideos = async () => {
+    try {
+      const response = await fetch("/api/videos");
+      const data = await response.json();
+      if (data.success) {
+        setVideos(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching videos:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const mockVideos: Video[] = [
-      {
-        _id: "1",
-        title: "تور ویلای لوکس در شمال",
-        description: "بازدید کامل از ویلای 500 متری در محمودآباد",
-        src: "/videos/villa-tour.mp4",
-        alt: "تور ویلای لوکس",
-        createdAt: "1402/06/15",
-      },
-      {
-        _id: "2",
-        title: "آپارتمان مدرن در تهران",
-        description: "نمایش آپارتمان 120 متری در منطقه ولنجک",
-        src: "/videos/apartment-modern.mp4",
-        alt: "آپارتمان مدرن",
-        createdAt: "1402/06/10",
-      },
-    ];
-    setVideos(mockVideos);
+    fetchVideos();
   }, []);
 
   const filteredVideos = videos.filter(
@@ -66,36 +64,70 @@ const VideoManagement: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteVideo = (videoId: string) => {
+  const handleDeleteVideo = async (videoId: string) => {
     if (confirm("آیا از حذف این ویدیو اطمینان دارید؟")) {
-      setVideos(videos.filter((video) => video._id !== videoId));
+      try {
+        const response = await fetch(`/api/videos/${videoId}`, {
+          method: "DELETE",
+          headers: { token: getToken() || "" },
+        });
+        const data = await response.json();
+        if (data.success) {
+          setVideos(videos.filter((video) => video._id !== videoId));
+        } else {
+          alert(data.message || "خطا در حذف ویدیو");
+        }
+      } catch (error) {
+        alert("خطا در حذف ویدیو");
+      }
     }
   };
 
   const handleSubmit = async (formData: Omit<Video, "_id" | "createdAt">) => {
     setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
       if (editingVideo) {
-        // Update existing video
-        setVideos(
-          videos.map((video) =>
-            video._id === editingVideo._id ? { ...video, ...formData } : video
-          )
-        );
+        const response = await fetch(`/api/videos/${editingVideo._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            token: getToken() || "",
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setVideos(
+            videos.map((video) =>
+              video._id === editingVideo._id ? data.data : video
+            )
+          );
+          setIsModalOpen(false);
+        } else {
+          alert(data.message || "خطا در بهروزرسانی ویدیو");
+        }
       } else {
-        // Add new video
-        const newVideo: Video = {
-          _id: Date.now().toString(),
-          ...formData,
-          createdAt: new Date().toLocaleDateString("fa-IR"),
-        };
-        setVideos([newVideo, ...videos]);
+        const response = await fetch("/api/videos", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            token: getToken() || "",
+          },
+          body: JSON.stringify(formData),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setVideos([data.data, ...videos]);
+          setIsModalOpen(false);
+        } else {
+          alert(data.message || "خطا در ایجاد ویدیو");
+        }
       }
-      setIsModalOpen(false);
+    } catch (error) {
+      alert("خطا در عملیات");
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -266,22 +298,27 @@ const VideoFormModal: React.FC<VideoFormModalProps> = ({
     onSubmit(formData);
   };
 
-  const handleFileUpload = (file: File) => {
-    // Simulate file upload
+  const handleFileUpload = async (file: File) => {
     setUploadProgress(0);
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setFormData((prev) => ({
-            ...prev,
-            src: `/videos/${file.name}`,
-          }));
-          return 100;
-        }
-        return prev + 10;
+    const formData = new FormData();
+    formData.append("video", file);
+
+    try {
+      const response = await fetch("/api/videos/upload", {
+        method: "POST",
+        headers: { token: localStorage.getItem("token") || "" },
+        body: formData,
       });
-    }, 200);
+      const data = await response.json();
+      if (data.success) {
+        setFormData(prev => ({ ...prev, src: data.data.src }));
+        setUploadProgress(100);
+      } else {
+        alert(data.message || "خطا در آپلود فایل");
+      }
+    } catch (error) {
+      alert("خطا در آپلود فایل");
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {

@@ -15,6 +15,7 @@ import {
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { Poster } from "@/types/type";
+import imageCompression from "browser-image-compression";
 
 const PosterById: React.FC = () => {
   const [posters, setPosters] = useState<Poster[]>([]);
@@ -31,6 +32,8 @@ const PosterById: React.FC = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imageUploading, setImageUploading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const fetchUserPosters = async () => {
@@ -140,22 +143,54 @@ const PosterById: React.FC = () => {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newImages = Array.from(e.target.files).map((file, index) => ({
-        alt: `تصویر ${(editFormData.images?.length || 0) + index + 1}`,
-        url: URL.createObjectURL(file),
-        mainImage: (editFormData.images?.length ?? 0) === 0 && index === 0,
-        file,
-      }));
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
 
-      const updatedImages = [...(editFormData.images || []), ...newImages];
-      setEditFormData((prev) => ({
-        ...prev,
-        images: updatedImages as Poster["images"],
-      }));
-      setNewImages([]);
+    const files = Array.from(e.target.files);
+    const compressedImages: Poster["images"] = [];
+
+    setUploading(true);
+    setProgress(0);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        let finalFile = file;
+
+        // اگر بیشتر از 100KB بود فشرده‌سازی بشه
+        if (file.size > 100 * 1024) {
+          const options = {
+            maxSizeMB: 0.1,
+            maxWidthOrHeight: 1280,
+            fileType: "image/webp",
+            useWebWorker: true,
+          };
+          finalFile = await imageCompression(file, options);
+        }
+
+        compressedImages.push({
+          alt: `تصویر ${(editFormData.images?.length || 0) + i + 1}`,
+          url: URL.createObjectURL(finalFile),
+          mainImage: (editFormData.images?.length ?? 0) === 0 && i === 0,
+          file: finalFile,
+          _id: crypto.randomUUID(),
+        } as Poster["images"][0]);
+
+        setProgress(Math.round(((i + 1) / files.length) * 100));
+      } catch (err) {
+        console.log("خطا در فشرده‌سازی:", err);
+        toast.error("خطا در فشرده‌سازی:");
+      }
     }
+
+    const updatedImages = [...(editFormData.images || []), ...compressedImages];
+    setEditFormData((prev) => ({
+      ...prev,
+      images: updatedImages,
+    }));
+
+    setNewImages([]);
+    setUploading(false);
   };
 
   const handleUpdatePoster = async () => {
@@ -668,7 +703,7 @@ const PosterById: React.FC = () => {
                                 height={100}
                                 className="w-full h-20 object-cover rounded-lg border"
                               />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                              <div className="absolute inset-0 bg-black/50 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                                 <button
                                   type="button"
                                   onClick={() => setMainImage(index)}
@@ -716,7 +751,18 @@ const PosterById: React.FC = () => {
                             برای آپلود تصاویر کلیک کنید
                           </span>
                         </label>
+
+                        {/* Progress bar */}
+                        {uploading && (
+                          <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                            <div
+                              className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                              style={{ width: `${progress}%` }}
+                            ></div>
+                          </div>
+                        )}
                       </div>
+
                       {newImages.length > 0 && (
                         <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
                           <div className="flex items-center text-sm text-green-700">

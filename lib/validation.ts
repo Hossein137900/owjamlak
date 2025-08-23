@@ -22,6 +22,21 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
   return { valid: true };
 };
 
+export const validateVideoFile = (file: File): { valid: boolean; error?: string } => {
+  const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
+  const maxSize = 5 * 1024 * 1024; // 100MB
+
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: 'نوع فایل ویدیو نامعتبر است' };
+  }
+
+  if (file.size > maxSize) {
+    return { valid: false, error: 'حجم فایل ویدیو بیش از حد مجاز است' };
+  }
+
+  return { valid: true };
+};
+
 export const validateUserId = (userId: string): boolean => {
   return /^[a-zA-Z0-9_-]+$/.test(userId) && userId.length <= 50;
 };

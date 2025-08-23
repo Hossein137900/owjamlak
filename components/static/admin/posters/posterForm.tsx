@@ -11,6 +11,14 @@ import {
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import { jwtDecode } from "jwt-decode";
+import imageCompression from "browser-image-compression";
+interface ImageItem {
+  alt: string;
+  url: string;
+  mainImage: boolean;
+  file: File;
+  _id: string;
+}
 
 type TokenPayload = {
   id?: string;
@@ -28,9 +36,10 @@ const PosterForm = ({}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [images, setImages] = useState<
-    { alt: string; url: string; mainImage: boolean; file?: File }[]
-  >([]);
+  const [images, setImages] = useState<ImageItem[]>([]);
+
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -154,16 +163,47 @@ const PosterForm = ({}) => {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newImages = Array.from(e.target.files).map((file, index) => ({
-        alt: `تصویر ${images.length + index + 1}`,
-        url: URL.createObjectURL(file),
-        mainImage: images.length === 0 && index === 0,
-        file,
-      }));
-      setImages((prev) => [...prev, ...newImages]);
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const files = Array.from(e.target.files);
+    const compressedImages: ImageItem[] = [];
+
+    setUploading(true);
+    setProgress(0);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        let finalFile = file;
+
+        // اگر بالای 100KB بود فشرده کن
+        if (file.size > 100 * 1024) {
+          const options = {
+            maxSizeMB: 0.1, // حدود 100KB
+            maxWidthOrHeight: 1280,
+            fileType: "image/webp", // تبدیل به WebP برای کاهش حجم
+            useWebWorker: true,
+          };
+          finalFile = await imageCompression(file, options);
+        }
+
+        compressedImages.push({
+          alt: `تصویر ${images.length + i + 1}`,
+          url: URL.createObjectURL(finalFile),
+          mainImage: images.length === 0 && i === 0,
+          file: finalFile,
+          _id: crypto.randomUUID(),
+        });
+
+        setProgress(Math.round(((i + 1) / files.length) * 100));
+      } catch (err) {
+        console.error("خطا در فشرده‌سازی تصویر:", err);
+      }
     }
+
+    setImages((prev) => [...prev, ...compressedImages]);
+    setUploading(false);
   };
 
   const removeImage = (index: number) => {
@@ -278,22 +318,28 @@ const PosterForm = ({}) => {
 
       // Create FormData for file upload
       const formDataToSend = new FormData();
-      
+
       // Add all form fields
       Object.entries(submitData).forEach(([key, value]) => {
-        if (key !== 'images') {
-          formDataToSend.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        if (key !== "images") {
+          formDataToSend.append(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : String(value)
+          );
         }
       });
-      
+
       // Add image files
       images.forEach((image, index) => {
         if (image.file) {
-          formDataToSend.append('images', image.file);
-          formDataToSend.append(`imageData_${index}`, JSON.stringify({
-            alt: image.alt,
-            mainImage: image.mainImage
-          }));
+          formDataToSend.append("images", image.file);
+          formDataToSend.append(
+            `imageData_${index}`,
+            JSON.stringify({
+              alt: image.alt,
+              mainImage: image.mainImage,
+            })
+          );
         }
       });
 
@@ -310,9 +356,9 @@ const PosterForm = ({}) => {
       if (response.ok) {
         setSuccess("آگهی با موفقیت ایجاد شد");
         toast.success("آگهی با موفقیت ایجاد شد");
-        
+
         // Trigger event to refresh posterById component
-        window.dispatchEvent(new CustomEvent('posterCreated'));
+        window.dispatchEvent(new CustomEvent("posterCreated"));
         // Reset form
         setFormData({
           title: "",
@@ -447,6 +493,7 @@ const PosterForm = ({}) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               تصاویر
             </label>
+
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <input
                 type="file"
@@ -465,12 +512,22 @@ const PosterForm = ({}) => {
                   برای آپلود تصاویر کلیک کنید یا فایل‌ها را اینجا رها کنید
                 </span>
               </label>
+
+              {/* Progress Bar */}
+              {uploading && (
+                <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                  <div
+                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              )}
             </div>
 
             {images.length > 0 && (
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {images.map((image, index) => (
-                  <div key={index} className="relative group">
+                  <div key={image._id} className="relative group">
                     <img
                       src={image.url}
                       alt={image.alt}
