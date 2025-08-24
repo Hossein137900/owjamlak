@@ -102,7 +102,7 @@ const AdminLayout: React.FC = () => {
       id: "chat",
       icon: <FiMessageSquare />,
       label: "چت آنلاین",
-      roles: ["admin", "superadmin", "consultant", "user"],
+      roles: ["admin", "superadmin"],
     },
     {
       id: "properties",
@@ -237,7 +237,7 @@ const AdminLayout: React.FC = () => {
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "chat":
-        return hasAccess(["superadmin", "admin", "consultant", "user"]) ? (
+        return hasAccess(["admin", "superadmin"]) ? (
           <ChatAdminList />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>

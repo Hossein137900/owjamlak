@@ -3,18 +3,18 @@ import { Poster } from "@/types/type";
 import { Metadata } from "next";
 
 interface PageProps {
-  params: { id: string }; // ❌ دیگه Promise نیست
+  params: Promise<{ id: string }>;
 }
 
-export default function PosterDetail({ params }: PageProps) {
-  const { id } = params;
+export default async function PosterDetail({ params }: PageProps) {
+  const { id } = await params;
   return <PosterDetailClient posterId={id} />;
 }
 
 export async function generateMetadata(
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const response = await fetch(
