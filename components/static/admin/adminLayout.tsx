@@ -34,7 +34,7 @@ import PropertyListings from "./posters/propertyListings";
 import AdminFavoritesPage from "./favorites/page";
 import MessagesPage from "./contactForm/messagesPage";
 import PosterById from "./posters/posterById";
-import ChatAdmin from "./chat/adminChat";
+import ChatAdminList from "./chat/adminChatList";
 
 const AdminLayout: React.FC = () => {
   const { hasAccess, logout } = useAdminAuth();
@@ -237,8 +237,8 @@ const AdminLayout: React.FC = () => {
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "chat":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
-          <ChatAdmin />
+        return hasAccess(["admin", "superadmin"]) ? (
+          <ChatAdminList />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
