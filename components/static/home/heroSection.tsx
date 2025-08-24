@@ -1,67 +1,10 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
+import { motion } from "framer-motion";
 import SearchBar from "./searchBar";
 import HeroImageSlider from "./heroImageSlider";
 
-
 export default function RealEstateSearch() {
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const descRef = useRef<HTMLParagraphElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const imageGridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const tl = gsap.timeline();
-
-    gsap.set([titleRef.current, descRef.current, searchRef.current], {
-      y: 50,
-      opacity: 0,
-    });
-    gsap.set(imageGridRef.current, {
-      x: 100,
-      opacity: 0,
-    });
-
-    tl.to(titleRef.current, {
-      y: 0,
-      opacity: 1,
-      duration: 0.8,
-      ease: "power2.out",
-    })
-      .to(
-        descRef.current,
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          ease: "power2.out",
-        },
-        "-=0.4"
-      )
-      .to(
-        searchRef.current,
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          ease: "power2.out",
-        },
-        "-=0.3"
-      )
-      .to(
-        imageGridRef.current,
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.8,
-          ease: "power2.out",
-        },
-        "-=0.5"
-      );
-  }, []);
-
   return (
     <div
       className="relative h-screen overflow-hidden bg-white"
@@ -71,7 +14,7 @@ export default function RealEstateSearch() {
         backgroundRepeat: "no-repeat",
         backgroundSize: "1000px",
         backgroundPosition: "center",
-        backfaceVisibility:"revert"
+        backfaceVisibility: "revert",
       }}
     >
       {/* Mobile background */}
@@ -90,29 +33,42 @@ export default function RealEstateSearch() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
             {/* Text Section */}
             <div className="md:w-2/5">
-              <h1
-                ref={titleRef}
+              <motion.h1
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-2xl md:text-4xl font-bold  text-right text-white sm:text-gray-800 mb-1"
               >
                 <span className="text-[#01ae9b]">اوج،</span> مسیر امن خرید و
                 فروش ملک
-              </h1>
+              </motion.h1>
 
-              <p
-                ref={descRef}
+              <motion.p
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
                 className="text-right text-white sm:text-gray-600 text-sm leading-relaxed"
               >
                 با اوج، خرید و فروش ملک را آسانتر از همیشه تجربه کنید. ما به شما
                 کمک میکنیم تا بهترین انتخاب را داشته باشید.
-              </p>
+              </motion.p>
 
-              <div ref={searchRef}>
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.7, ease: "easeOut" }}
+              >
                 <SearchBar compact className="" />
-              </div>
+              </motion.div>
             </div>
 
             {/* Image Grid */}
-            <div ref={imageGridRef} className="hidden sm:block md:w-3/5">
+            <motion.div
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="hidden sm:block md:w-3/5"
+            >
               <div className="grid grid-cols-12 grid-rows-6 gap-3 h-[450px]">
                 <HeroImageSlider />
 
@@ -148,9 +104,7 @@ export default function RealEstateSearch() {
                   </div>
                 </div>
               </div>
-
-              
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

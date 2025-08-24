@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
 import ReportageBox from "@/components/static/poster/posterBox";
 import { Poster } from "@/types/type";
 import {
@@ -13,8 +12,6 @@ import {
   FiMail,
 } from "react-icons/fi";
 import Link from "next/link";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const OffersPage = () => {
   const [posters, setPosters] = useState<Poster[]>([]);
@@ -30,12 +27,6 @@ const OffersPage = () => {
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const LIMIT = 20;
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const textBoxRef = useRef<HTMLDivElement>(null);
-  const filtersRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
   const expandableContentRef = useRef<HTMLDivElement>(null);
 
   const fetchInvestmentPosters = async (page = 1, append = false) => {
@@ -74,7 +65,7 @@ const OffersPage = () => {
       );
       setCurrentPage(page);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "خطا در بارگذاری آگهی‌ها");
+      setError(err instanceof Error ? err.message : "خطا در بارگذاری آگهیها");
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -124,81 +115,12 @@ const OffersPage = () => {
   };
 
   const toggleTextExpansion = () => {
-    const content = expandableContentRef.current;
-    if (!content) return;
-
-    if (isTextExpanded) {
-      gsap.to(content, {
-        height: 0,
-        opacity: 0,
-        duration: 0.5,
-        ease: "power2.inOut",
-      });
-    } else {
-      gsap.set(content, { height: "auto" });
-      const height = content.offsetHeight;
-      gsap.fromTo(
-        content,
-        { height: 0, opacity: 0 },
-        { height: height, opacity: 1, duration: 0.5, ease: "power2.inOut" }
-      );
-    }
     setIsTextExpanded(!isTextExpanded);
   };
 
   useEffect(() => {
     fetchInvestmentPosters(1, false);
   }, []);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline();
-
-      tl.from(headerRef.current, {
-        y: -50,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-      })
-        .from(
-          textBoxRef.current,
-          {
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-            ease: "power2.out",
-          },
-          "-=0.5"
-        )
-        .from(
-          filtersRef.current,
-          {
-            y: 20,
-            opacity: 0,
-            duration: 0.6,
-            ease: "power2.out",
-          },
-          "-=0.3"
-        );
-
-      if (gridRef.current?.children) {
-        gsap.from(gridRef.current.children, {
-          y: 50,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: gridRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
-          },
-        });
-      }
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, [filteredPosters]);
 
   useEffect(() => {
     filterAndSortPosters();
@@ -209,7 +131,7 @@ const OffersPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">در حال بارگذاری آگهی‌ها...</p>
+          <p className="text-gray-600">در حال بارگذاری آگهیها...</p>
         </div>
       </div>
     );
@@ -235,28 +157,34 @@ const OffersPage = () => {
 
   return (
     <div
-      ref={containerRef}
       className="min-h-screen mt-20 bg-gradient-to-br from-gray-50 to-white"
       dir="rtl"
     >
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-12 mt-8">
+        <motion.div
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="text-center mb-12 mt-8"
+        >
           <h1 className="text-5xl font-bold mb-6">
             <span className="bg-gradient-to-r from-[#01ae9b] to-teal-600 bg-clip-text text-transparent">
-              فرصت‌های{" "}
+              فرصتهای{" "}
             </span>
-            <span className="text-gray-800">سرمایه‌گذاری</span>
+            <span className="text-gray-800">سرمایهگذاری</span>
           </h1>
           <p className="text-gray-600 text-xl max-w-3xl mx-auto leading-relaxed">
-            بهترین فرصت‌های سرمایه‌گذاری در بازار املاک را کشف کنید و آینده مالی
+            بهترین فرصتهای سرمایهگذاری در بازار املاک را کشف کنید و آینده مالی
             خود را تضمین کنید
           </p>
-        </div>
+        </motion.div>
 
         {/* Expandable Text Box */}
-        <div
-          ref={textBoxRef}
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
           className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-12 border border-gray-100"
         >
           <div className="flex items-center justify-between mb-4">
@@ -265,7 +193,7 @@ const OffersPage = () => {
                 <FiTrendingUp className="text-white text-xl" />
               </div>
               <h2 className="md:text-2xl font-bold text-gray-800">
-                چرا سرمایه‌گذاری در املاک؟
+                چرا سرمایهگذاری در املاک؟
               </h2>
             </div>
             <button
@@ -278,21 +206,25 @@ const OffersPage = () => {
           </div>
 
           <p className="text-gray-700 text-lg leading-relaxed mb-4">
-            سرمایه‌گذاری در بخش املاک یکی از مطمئن‌ترین و پرسودترین روش‌های
-            سرمایه‌گذاری محسوب می‌شود. با رشد مداوم جمعیت و توسعه شهری، تقاضا
-            برای املاک همواره در حال افزایش است.
+            سرمایهگذاری در بخش املاک یکی از مطمئنترین و پرسودترین روشهای
+            سرمایهگذاری محسوب میشود. با رشد مداوم جمعیت و توسعه شهری، تقاضا برای
+            املاک همواره در حال افزایش است.
           </p>
 
-          <div
-            ref={expandableContentRef}
+          <motion.div
+            initial={false}
+            animate={{
+              height: isTextExpanded ? "auto" : 0,
+              opacity: isTextExpanded ? 1 : 0,
+            }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
             className="overflow-hidden"
-            style={{ height: 0, opacity: 0 }}
           >
             <div className="space-y-4">
               <p className="text-gray-700 leading-relaxed">
-                در پلتفرم اوج، ما بهترین فرصت‌های سرمایه‌گذاری را برای شما
-                انتخاب کرده‌ایم. هر ملک با دقت بررسی شده و پتانسیل رشد قیمت و
-                درآمدزایی آن تحلیل شده است.
+                در پلتفرم اوج، ما بهترین فرصتهای سرمایهگذاری را برای شما انتخاب
+                کردهایم. هر ملک با دقت بررسی شده و پتانسیل رشد قیمت و درآمدزایی
+                آن تحلیل شده است.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl">
@@ -317,12 +249,14 @@ const OffersPage = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Filters and Sort */}
-        <div
-          ref={filtersRef}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.7, ease: "easeOut" }}
           className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-12 border border-gray-100"
         >
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -334,7 +268,7 @@ const OffersPage = () => {
                 className="px-4 py-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
               >
                 <option value="newest">جدیدترین</option>
-                <option value="oldest">قدیمی‌ترین</option>
+                <option value="oldest">قدیمیترین</option>
                 <option value="price-high">قیمت (بالا به پایین)</option>
                 <option value="price-low">قیمت (پایین به بالا)</option>
                 <option value="area-large">متراژ (بزرگ به کوچک)</option>
@@ -344,19 +278,32 @@ const OffersPage = () => {
 
             {/* Results Count */}
             <div className="text-gray-600">
-              {filteredPosters.length} از {totalPosters} فرصت سرمایه‌گذاری
+              {filteredPosters.length} از {totalPosters} فرصت سرمایهگذاری
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Posters Grid */}
         {filteredPosters.length > 0 ? (
-          <div
-            ref={gridRef}
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, stagger: 0.1, ease: "easeOut" }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16"
           >
-            {filteredPosters.map((poster) => (
-              <div key={poster._id}>
+            {filteredPosters.map((poster, index) => (
+              <motion.div
+                key={poster._id}
+                initial={{ y: 50, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.1,
+                  ease: "easeOut",
+                }}
+              >
                 <ReportageBox
                   id={poster._id}
                   title={poster.title}
@@ -390,13 +337,13 @@ const OffersPage = () => {
                   balcony={poster.balcony}
                   views={poster.views}
                 />
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="text-center py-16">
             <div className="text-gray-500 text-lg mb-4">
-              هیچ فرصت سرمایه‌گذاری‌ای یافت نشد
+              هیچ فرصت سرمایهگذاریای یافت نشد
             </div>
             <p className="text-gray-400">
               لطفاً فیلترهای خود را تغییر دهید یا بعداً دوباره تلاش کنید
@@ -407,10 +354,12 @@ const OffersPage = () => {
         {/* Load More Button */}
         {filteredPosters.length > 0 && hasMore && (
           <div className="text-center mb-16">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={loadMore}
               disabled={loadingMore}
-              className="bg-gradient-to-r from-[#01ae9b] to-teal-600 hover:from-teal-600 hover:to-[#01ae9b] text-white px-10 py-4 rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="bg-gradient-to-r from-[#01ae9b] to-teal-600 hover:from-teal-600 hover:to-[#01ae9b] text-white px-10 py-4 rounded-full font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto shadow-lg hover:shadow-xl"
             >
               {loadingMore ? (
                 <>
@@ -423,31 +372,28 @@ const OffersPage = () => {
                   totalPosters - filteredPosters.length
                 )} مورد)`
               )}
-            </button>
+            </motion.button>
           </div>
         )}
 
         {/* CTA Section */}
-        <div
-          ref={ctaRef}
-          className="bg-gradient-to-r from-[#01ae9b] to-teal-600 rounded-3xl p-12 text-center text-white shadow-2xl"
-        >
+        <div className="bg-gradient-to-r from-[#01ae9b] to-teal-600 rounded-3xl p-12 text-center text-white shadow-2xl">
           <h2 className="text-4xl font-bold mb-6">
-            آماده شروع سرمایه‌گذاری هستید؟
+            آماده شروع سرمایهگذاری هستید؟
           </h2>
           <p className="text-xl mb-8 opacity-90 max-w-3xl mx-auto">
-            با مشاوران متخصص ما در تماس باشید و بهترین فرصت‌های سرمایه‌گذاری را
-            کشف کنید. ما در هر مرحله از سرمایه‌گذاری کنار شما هستیم.
+            با مشاوران متخصص ما در تماس باشید و بهترین فرصتهای سرمایهگذاری را
+            کشف کنید. ما در هر مرحله از سرمایهگذاری کنار شما هستیم.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <div className="text-3xl font-bold mb-2">+۵۰۰۰</div>
-              <div className="opacity-90">املاک سرمایه‌گذاری</div>
+              <div className="opacity-90">املاک سرمایهگذاری</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <div className="text-3xl font-bold mb-2">+۲۵۰۰</div>
-              <div className="opacity-90">سرمایه‌گذار موفق</div>
+              <div className="opacity-90">سرمایهگذار موفق</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <div className="text-3xl font-bold mb-2">۲۴/۷</div>
@@ -457,16 +403,24 @@ const OffersPage = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/consultant">
-              <button className="bg-white cursor-pointer text-[#01ae9b] px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300 flex items-center gap-2 justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white cursor-pointer text-[#01ae9b] px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-colors duration-300 flex items-center gap-2 justify-center"
+              >
                 <FiPhone />
                 تماس با مشاور
-              </button>
+              </motion.button>
             </Link>
             <Link href="/realEstateConsultation">
-              <button className="bg-transparent border-2 cursor-pointer border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-[#01ae9b] transition-all duration-300 flex items-center gap-2 justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-transparent border-2 cursor-pointer border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-[#01ae9b] transition-all duration-300 flex items-center gap-2 justify-center"
+              >
                 <FiMail />
                 درخواست مشاوره
-              </button>
+              </motion.button>
             </Link>
           </div>
         </div>

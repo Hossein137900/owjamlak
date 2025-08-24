@@ -1,20 +1,12 @@
 import type { Metadata } from "next";
-// import { Vazirmatn as VazirmatnFont } from "next/font/google";
-// import "../styles/leaflet-custom.css";
 import "./globals.css";
 import Navbar from "@/components/global/navbar";
 import Footer from "@/components/global/footer";
 import { ray } from "@/next-persian-fonts/ray";
 
-// import Breadcrumb from "@/components/global/breadCrumbs";
 import { Toaster } from "react-hot-toast";
 import ChatWidget from "@/components/global/chatWidget";
 import FooterMobile from "@/components/global/mobileFooter";
-
-// const vazirmatn = VazirmatnFont({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 
 export const metadata: Metadata = {
   title: "املاک اوج",
@@ -30,10 +22,8 @@ export default function RootLayout({
     <html lang="fa">
       <body className={ray.className}>
         <Navbar />
-        {/* <SmoothScrollProvider /> */}
         <ChatWidget />
         <Toaster position="top-center" />
-        {/* <Breadcrumb /> */}
         {children}
         <FooterMobile />
         <Footer />

@@ -1,83 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
+import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function Custom404() {
-  const houseRef = useRef<SVGGElement>(null);
-  const doorRef = useRef<SVGRectElement>(null);
-  const windowLeftRef = useRef<SVGRectElement>(null);
-  const windowRightRef = useRef<SVGRectElement>(null);
-  const keyRef = useRef<SVGGElement>(null);
-  const text404Ref = useRef<SVGTextElement>(null);
-  const shadowRef = useRef<SVGEllipseElement>(null);
-
-  useEffect(() => {
-    const tl = gsap.timeline({
-      repeat: -1,
-      yoyo: true,
-      defaults: { ease: "power2.inOut" },
-    });
-
-    // نوسان خونه با حرکت کمی عمودی و چرخش
-    tl.to(houseRef.current, {
-      rotation: 4,
-      y: -5,
-      transformOrigin: "50% 100%",
-      duration: 2,
-    })
-      .to(houseRef.current, {
-        rotation: -4,
-        y: 5,
-        duration: 2,
-      })
-      .to(houseRef.current, {
-        rotation: 0,
-        y: 0,
-        duration: 2,
-      });
-
-    // در باز و بسته شدن به صورت نرم
-    tl.to(
-      doorRef.current,
-      { rotation: 15, transformOrigin: "50% 100%", duration: 1.5 },
-      0
-    ).to(doorRef.current, { rotation: 0, duration: 1.5 });
-
-    // پنجره‌ها یکم تاب خوردن داشته باشند
-    tl.to(
-      windowLeftRef.current,
-      { rotation: 5, transformOrigin: "50% 50%", duration: 1.2 },
-      0.5
-    ).to(windowLeftRef.current, { rotation: 0, duration: 1.2 });
-    tl.to(
-      windowRightRef.current,
-      { rotation: -5, transformOrigin: "50% 50%", duration: 1.2 },
-      0.5
-    ).to(windowRightRef.current, { rotation: 0, duration: 1.2 });
-
-    // کلید تاب خوردن ملایم
-    tl.to(
-      keyRef.current,
-      { rotation: 20, transformOrigin: "center", duration: 1.8 },
-      1
-    ).to(keyRef.current, { rotation: -20, duration: 1.8 });
-
-    // سایه زیر خانه کمی گسترش و جمع شدن
-    tl.to(
-      shadowRef.current,
-      { scaleX: 1.1, scaleY: 1.1, transformOrigin: "50% 50%", duration: 2 },
-      0
-    ).to(shadowRef.current, { scaleX: 1, scaleY: 1, duration: 2 });
-
-    // تغییر رنگ متن 404 از بنفش به سبز و برعکس
-    tl.to(text404Ref.current, { fill: "#01ae9b", duration: 1.5 }, 0).to(
-      text404Ref.current,
-      { fill: "#66308d", duration: 1.5 }
-    );
-  }, []);
-
   return (
     <main className="flex flex-col items-center  justify-center min-h-screen bg-gradient-to-tr from-white to-[#eae9f6] px-6">
       <svg
@@ -100,8 +26,9 @@ export default function Custom404() {
         </defs>
 
         {/* سایه زیر خانه */}
-        <ellipse
-          ref={shadowRef}
+        <motion.ellipse
+          animate={{ scaleX: [1, 1.1, 1], scaleY: [1, 1.1, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           cx="110"
           cy="200"
           rx="60"
@@ -112,7 +39,13 @@ export default function Custom404() {
         />
 
         {/* خانه */}
-        <g ref={houseRef} className="house" transform="translate(0, 20)">
+        <motion.g
+          animate={{ rotate: [0, 4, -4, 0], y: [0, -5, 5, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="house"
+          transform="translate(0, 20)"
+          style={{ transformOrigin: "50% 100%" }}
+        >
           {/* بدنه خانه */}
           <rect
             x="55"
@@ -135,8 +68,9 @@ export default function Custom404() {
             filter="url(#shadow)"
           />
           {/* در */}
-          <rect
-            ref={doorRef}
+          <motion.rect
+            animate={{ rotate: [0, 15, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             x="100"
             y="135"
             width="40"
@@ -146,10 +80,17 @@ export default function Custom404() {
             fill="#01ae9b"
             stroke="#66308d"
             strokeWidth="2"
+            style={{ transformOrigin: "50% 100%" }}
           />
           {/* پنجره ها */}
-          <rect
-            ref={windowLeftRef}
+          <motion.rect
+            animate={{ rotate: [0, 5, 0] }}
+            transition={{
+              duration: 2.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            }}
             x="70"
             y="95"
             width="30"
@@ -159,9 +100,16 @@ export default function Custom404() {
             fill="#ffffff"
             stroke="#01ae9b"
             strokeWidth="2"
+            style={{ transformOrigin: "50% 50%" }}
           />
-          <rect
-            ref={windowRightRef}
+          <motion.rect
+            animate={{ rotate: [0, -5, 0] }}
+            transition={{
+              duration: 2.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.5,
+            }}
             x="120"
             y="95"
             width="30"
@@ -171,6 +119,7 @@ export default function Custom404() {
             fill="#ffffff"
             stroke="#01ae9b"
             strokeWidth="2"
+            style={{ transformOrigin: "50% 50%" }}
           />
           {/* خطوط داخلی پنجره ها */}
           <line
@@ -206,53 +155,27 @@ export default function Custom404() {
             stroke="#01ae9b"
             strokeWidth="2"
           />
-        </g>
-
-        {/* کلید */}
-        <g
-          ref={keyRef}
-          className="key"
-          transform="translate(170, 165)"
-          fill="#01ae9b"
-          stroke="#66308d"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="0" cy="0" r="12" fill="#01ae9b" />
-          <rect
-            x="12"
-            y="-5"
-            width="30"
-            height="10"
-            rx="4"
-            ry="4"
-            fill="#66308d"
-          />
-          <rect x="35" y="0" width="6" height="18" fill="#66308d" />
-          <rect x="28" y="18" width="18" height="6" fill="#66308d" />
-        </g>
+        </motion.g>
 
         {/* متن 404 */}
-        <text
-          ref={text404Ref}
+        <motion.text
+          animate={{ fill: ["#66308d", "#01ae9b", "#66308d"] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           x="110"
           y="215"
           textAnchor="middle"
           fontSize="56"
           fontWeight="900"
-          fill="#66308d"
           fontFamily="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
           style={{ userSelect: "none" }}
         >
           404
-        </text>
+        </motion.text>
       </svg>
 
       <h1 className="text-2xl md:text-4xl font-extrabold text-[#66308d] mb-4 text-center">
         صفحه مورد نظر پیدا نشد
       </h1>
-    
 
       <Link
         href="/"

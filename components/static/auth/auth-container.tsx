@@ -1,8 +1,7 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { gsap } from "gsap";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
-
 import { FaUser, FaLock, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,14 +25,6 @@ export default function AuthPageContainer() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Refs for GSAP animations
-  const containerRef = useRef<HTMLDivElement>(null);
-  const leftSideRef = useRef<HTMLDivElement>(null);
-  const rightSideRef = useRef<HTMLDivElement>(null);
-  const switchRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
-  const messageRef = useRef<HTMLDivElement>(null);
 
   // Login form state
   const [loginForm, setLoginForm] = useState({
@@ -74,79 +65,10 @@ export default function AuthPageContainer() {
         "برای مشاهده اطلاعات تماس آگهی دهنده، ابتدا وارد حساب کاربری خود شوید"
       );
     }
-
-    const container = containerRef.current;
-    const leftSide = leftSideRef.current;
-    const rightSide = rightSideRef.current;
-
-    if (!container) return;
-
-    // Initial animations
-    gsap.fromTo(
-      container,
-      { opacity: 0, scale: 0.9 },
-      { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)" }
-    );
-
-    if (leftSide) {
-      gsap.fromTo(
-        leftSide.children,
-        { opacity: 0, x: -50 },
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          delay: 0.3,
-          ease: "power2.out",
-        }
-      );
-    }
-
-    if (rightSide) {
-      gsap.fromTo(
-        rightSide,
-        { opacity: 0, x: 50 },
-        { opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: "power2.out" }
-      );
-    }
   }, []);
-
-  useEffect(() => {
-    const form = formRef.current;
-    if (!form) return;
-
-    gsap.fromTo(
-      form.children,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }
-    );
-  }, [mode]);
-
-  useEffect(() => {
-    const message = messageRef.current;
-    if (!message) return;
-
-    if (successMessage || errorMessage) {
-      gsap.fromTo(
-        message,
-        { opacity: 0, y: -20, scale: 0.9 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.7)" }
-      );
-    }
-  }, [successMessage, errorMessage]);
 
   const handleModeSwitch = (newMode: FormMode) => {
     if (isLoading) return;
-
-    const switchElement = switchRef.current;
-    if (switchElement) {
-      gsap.to(switchElement, {
-        x: newMode === "login" ? "0%" : "100%",
-        duration: 0.3,
-        ease: "power2.out",
-      });
-    }
 
     setMode(newMode);
     setLoginErrors({});
@@ -388,18 +310,18 @@ export default function AuthPageContainer() {
   };
 
   return (
-    <div
-      className={`min-h-screen ${
-        mode === "login" ? "" : ""
-      } flex items-center justify-center p-4 `}
-    >
-      <div
-        ref={containerRef}
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: "backOut" }}
         className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row py-10 md:py-0 md:mb-14"
       >
         {/* Left Side - Image */}
-        <div
-          ref={leftSideRef}
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
           className="md:w-1/2 bg-gradient-to-br from-[#01ae9b] to-[#66308d] p-12 hidden md:flex flex-col justify-between relative overflow-hidden"
         >
           {/* Background Pattern */}
@@ -437,7 +359,7 @@ export default function AuthPageContainer() {
             <div className="text-white">
               <h1 className="text-4xl font-bold mb-4">مشاور املاک اوج</h1>
               <p className="text-white/90 text-lg">
-                همراه شما در مسیر خانه‌دار شدن
+                همراه شما در مسیر خانهدار شدن
               </p>
             </div>
           </div>
@@ -445,8 +367,8 @@ export default function AuthPageContainer() {
           <div className="relative z-10" dir="rtl">
             <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20">
               <p className="text-white text-lg leading-relaxed">
-                با عضویت در سایت مشاور املاک اوج، به راحتی می‌توانید به هزاران
-                آگهی ملک دسترسی داشته باشید و از مشاوره‌های تخصصی ما بهره‌مند
+                با عضویت در سایت مشاور املاک اوج، به راحتی میتوانید به هزاران
+                آگهی ملک دسترسی داشته باشید و از مشاورههای تخصصی ما بهرهمند
                 شوید.
               </p>
             </div>
@@ -455,10 +377,15 @@ export default function AuthPageContainer() {
           {/* Floating Elements */}
           <div className="absolute top-20 right-20 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
           <div className="absolute bottom-32 left-16 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-        </div>
+        </motion.div>
 
         {/* Right Side - Form */}
-        <div ref={rightSideRef} className="md:w-1/2 p-12">
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="md:w-1/2 p-12"
+        >
           {/* Mode Switch */}
           <div className="relative h-14 mb-10 bg-gray-100 rounded-2xl w-full mx-auto overflow-hidden">
             <div className="flex h-full relative z-10">
@@ -483,8 +410,9 @@ export default function AuthPageContainer() {
                 ثبت نام
               </button>
             </div>
-            <div
-              ref={switchRef}
+            <motion.div
+              animate={{ x: mode === "login" ? "0%" : "100%" }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-[#01ae9b] to-[#66308d] rounded-2xl shadow-lg"
             />
           </div>
@@ -505,8 +433,10 @@ export default function AuthPageContainer() {
 
           {/* Success/Error Messages */}
           {(successMessage || errorMessage) && (
-            <div
-              ref={messageRef}
+            <motion.div
+              initial={{ opacity: 0, y: -20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, ease: "backOut" }}
               className={`mb-6 p-4 rounded-2xl text-center font-medium ${
                 successMessage
                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
@@ -514,12 +444,15 @@ export default function AuthPageContainer() {
               }`}
             >
               {successMessage || errorMessage}
-            </div>
+            </motion.div>
           )}
 
           {mode === "login" ? (
-            <form
-              ref={formRef}
+            <motion.form
+              key="login"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, stagger: 0.1, ease: "easeOut" }}
               onSubmit={handleLoginSubmit}
               className="space-y-6 text-right"
             >
@@ -583,32 +516,12 @@ export default function AuthPageContainer() {
                 )}
               </div>
 
-              {/* <div className="flex justify-between items-center">
-                <Link
-                  href="/auth/forgot-password"
-                  className="text-sm text-[#01ae9b] hover:text-[#66308d] transition-colors font-medium"
-                >
-                  فراموشی رمز عبور
-                </Link>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="remember"
-                    className="ml-2 w-4 h-4 text-[#01ae9b] border-2 border-gray-300 rounded focus:ring-[#01ae9b]"
-                    checked={rememberMe}
-                    onChange={() => setRememberMe(!rememberMe)}
-                    disabled={isLoading}
-                  />
-                  <label htmlFor="remember" className="text-sm text-gray-600">
-                    مرا به خاطر بسپار
-                  </label>
-                </div>
-              </div> */}
-
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 bg-gradient-to-r cursor-pointer  from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="w-full py-4 bg-gradient-to-r cursor-pointer from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
                   <>
@@ -618,11 +531,14 @@ export default function AuthPageContainer() {
                 ) : (
                   "ورود"
                 )}
-              </button>
-            </form>
+              </motion.button>
+            </motion.form>
           ) : (
-            <form
-              ref={formRef}
+            <motion.form
+              key="signup"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, stagger: 0.1, ease: "easeOut" }}
               onSubmit={handleSignupSubmit}
               className="space-y-6 text-right"
             >
@@ -770,10 +686,12 @@ export default function AuthPageContainer() {
                 </p>
               )}
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 cursor-pointer   bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="w-full py-4 cursor-pointer bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
                   <>
@@ -783,15 +701,15 @@ export default function AuthPageContainer() {
                 ) : (
                   "ثبت نام"
                 )}
-              </button>
+              </motion.button>
 
               <div className="text-center text-sm text-gray-500 mt-6">
                 <p>
-                  با ثبت نام، شما عضو خانواده بزرگ املاک ایران می‌شوید و از
-                  خدمات ویژه ما بهره‌مند خواهید شد.
+                  با ثبت نام، شما عضو خانواده بزرگ املاک ایران میشوید و از خدمات
+                  ویژه ما بهرهمند خواهید شد.
                 </p>
               </div>
-            </form>
+            </motion.form>
           )}
 
           {/* Additional Links */}
@@ -799,7 +717,7 @@ export default function AuthPageContainer() {
             <p>
               {mode === "login"
                 ? "حساب کاربری ندارید؟"
-                : "قبلاً ثبت نام کرده‌اید؟"}{" "}
+                : "قبلاً ثبت نام کردهاید؟"}{" "}
               <button
                 onClick={() =>
                   handleModeSwitch(mode === "login" ? "signup" : "login")
@@ -811,8 +729,8 @@ export default function AuthPageContainer() {
               </button>
             </p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

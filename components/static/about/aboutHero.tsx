@@ -2,77 +2,14 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function OwjAdComponent() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const descRef = useRef<HTMLParagraphElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const imagesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-          end: "bottom 20%",
-          toggleActions: "play none none reverse",
-        },
-      });
-
-      tl.from(titleRef.current, {
-        y: 50,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-      })
-        .from(
-          descRef.current,
-          {
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-            ease: "power2.out",
-          },
-          "-=0.5"
-        )
-        .from(
-          statsRef.current?.children || [],
-          {
-            y: 40,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.2,
-            ease: "back.out(1.7)",
-          },
-          "-=0.3"
-        )
-        .from(
-          imagesRef.current?.children || [],
-          {
-            scale: 0.8,
-            opacity: 0,
-            duration: 1,
-            stagger: 0.3,
-            ease: "power3.out",
-          },
-          "-=0.5"
-        );
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
-    <section
-      ref={sectionRef}
+    <motion.section
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-100px" }}
       className="relative py-20 px-6 lg:px-24 text-center bg-gradient-to-br from-gray-50 to-white overflow-hidden"
     >
       {/* Background Elements */}
@@ -82,29 +19,38 @@ export default function OwjAdComponent() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
-        <h2
-          ref={titleRef}
+        <motion.h2
+          initial={{ y: 50, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: "easeOut" }}
           className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 mb-6"
         >
           <span className="bg-gradient-to-r from-purple-700 to-teal-600 bg-clip-text text-transparent">
             اوج
           </span>
-          ، جایی که رویای خانه‌دار شدن محقق می‌شود
-        </h2>
+          ، جایی که رویای خانه دار شدن محقق میشود
+        </motion.h2>
 
-        <p
-          ref={descRef}
+        <motion.p
+          initial={{ y: 30, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           className="mt-6 text-gray-600 text-lg md:text-xl leading-relaxed max-w-4xl mx-auto"
         >
           در اوج، ما بیش از یک پلتفرم املاک هستیم. ما شریک شما در مسیر یافتن
-          خانه‌ای هستیم که واقعاً متعلق به شماست. با تیمی از مشاوران متخصص و
-          تکنولوژی پیشرفته، تجربه‌ای بی‌نظیر از خرید، فروش و اجاره املاک را برای
-          شما فراهم می‌کنیم.
-        </p>
+          خانهای هستیم که واقعاً متعلق به شماست. با تیمی از مشاوران متخصص و
+          تکنولوژی پیشرفته، تجربهای بینظیر از خرید، فروش و اجاره املاک را برای
+          شما فراهم میکنیم.
+        </motion.p>
 
         {/* Stats Section */}
-        <div
-          ref={statsRef}
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
           className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
         >
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-100">
@@ -123,10 +69,13 @@ export default function OwjAdComponent() {
             <div className="text-3xl font-bold text-teal-600 mb-2">۹۸%</div>
             <div className="text-gray-600 text-sm">رضایت مشتری</div>
           </div>
-        </div>
+        </motion.div>
 
-        <div
-          ref={imagesRef}
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
           className="relative flex flex-col md:flex-row items-center justify-center gap-8"
         >
           {/* Main Image */}
@@ -154,7 +103,7 @@ export default function OwjAdComponent() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Call to Action */}
         <div className="mt-16">
@@ -170,6 +119,6 @@ export default function OwjAdComponent() {
           </Link>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

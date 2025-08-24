@@ -1,6 +1,6 @@
 "use client";
 import { formatFileSize } from "@edgestore/react/utils";
-import { UploadCloudIcon, X } from "lucide-react";
+import { FiUploadCloud, FiX } from "react-icons/fi";
 import Image from "next/image";
 import * as React from "react";
 import { useDropzone, type DropzoneOptions } from "react-dropzone";
@@ -170,11 +170,7 @@ const MultiImageDropzone = React.forwardRef<HTMLInputElement, InputProps>(
                   }}
                 >
                   <div className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border border-solid border-gray-500 bg-white transition-all duration-300 hover:h-6 hover:w-6 dark:border-gray-400 dark:bg-black">
-                    <X
-                      className="text-gray-500 dark:text-gray-400"
-                      width={16}
-                      height={16}
-                    />
+                    <FiX className="text-gray-500 dark:text-gray-400 w-4 h-4" />
                   </div>
                 </div>
               )}
@@ -191,7 +187,7 @@ const MultiImageDropzone = React.forwardRef<HTMLInputElement, InputProps>(
               {/* Main File Input */}
               <input ref={ref} {...getInputProps()} />
               <div className="flex flex-col items-center justify-center text-xs text-gray-400">
-                <UploadCloudIcon className="mb-2 h-7 w-7" />
+                <FiUploadCloud className="mb-2 h-7 w-7" />
                 <div className="text-gray-400">drag & drop to upload</div>
                 <div className="mt-3">
                   <Button type="button" disabled={disabled}>

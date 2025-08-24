@@ -10,12 +10,11 @@ import TextAlign from "@tiptap/extension-text-align";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Image from "@tiptap/extension-image";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { motion } from "framer-motion";
 import { CustomEditor } from "@/types/editor";
 import BlogImageUpload from "../components/(admin)/BlogImageUpload";
 import { type FileState } from "../components/MultiImageDropzone";
+import toast from "react-hot-toast";
 
 const MenuButton = ({
   onClick,
@@ -704,8 +703,6 @@ export default function AddBlogPage() {
         onClose={() => setShowImageModal(false)}
         onImageSelect={handleInsertImage}
       />
-
-      <ToastContainer position="top-center" rtl={true} />
     </div>
   );
 }

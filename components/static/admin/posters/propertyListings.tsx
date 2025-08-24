@@ -524,12 +524,14 @@ const PropertyListings: React.FC = () => {
       className="bg-white rounded-lg shadow-md p-6"
     >
       {/* Header and Search - Same as before */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-800 ">
-          مدیریت آگهی‌های ملک ({posters.length || 0} آگهی)
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4   mb-6">
+        <h1 className="text-base text-nowrap font-bold text-gray-800 ">
+          مدیریت آگهی‌های ملک ({" "}
+          <span className="text-gray-600">{posters.length || 0} </span> مورد )
         </h1>
         {/* Filters - Same as before */}
-        <div className="flex w-full flex-col md:flex-row gap-3">
+        <div className="flex   flex-col md:flex-row gap-3">
+          
           <form onSubmit={handleSearch} className="relative flex">
             <input
               type="text"

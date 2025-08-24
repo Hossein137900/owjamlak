@@ -24,7 +24,7 @@ import {
 import { MdBalcony } from "react-icons/md";
 import { FiLoader } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { gsap } from "gsap";
+import { motion } from "framer-motion";
 import GalleryModal from "@/components/static/poster/galleryModal";
 import { Poster } from "@/types/type";
 
@@ -184,17 +184,7 @@ export default function PosterDetailClient({
     }
   }, [posterData]);
 
-  useEffect(() => {
-    const mainContent = document.getElementById("main-content");
-    if (mainContent) {
-      gsap.from(mainContent, {
-        opacity: 0,
-        y: 50,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-    }
-  }, []);
+
 
   const handleToggleFavorite = async () => {
     try {
@@ -453,7 +443,13 @@ export default function PosterDetailClient({
         </nav>
       </div>
 
-      <div className="mb-4 sm:mb-6 mt-4 sm:mt-6" id="main-content">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="mb-4 sm:mb-6 mt-4 sm:mt-6"
+        id="main-content"
+      >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 sm:mb-4">
           <div className="flex-1">
             <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-black font-bold mb-2">
@@ -945,7 +941,7 @@ export default function PosterDetailClient({
               </div>
             )}
         </div>
-      </div>
+      </motion.div>
 
       {isGalleryOpen && images && (
         <GalleryModal
