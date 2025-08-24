@@ -21,7 +21,8 @@ export async function GET(
       return new NextResponse('Invalid user ID', { status: 400 });
     }
 
-    if (!/^[a-zA-Z0-9._-]+\.(jpg|jpeg|png|gif|webp)$/i.test(filename)) {
+    // More flexible filename validation - allow files without extensions but check if they exist
+    if (!/^[a-zA-Z0-9._-]+$/i.test(filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, ''))) {
       return new NextResponse('Invalid filename', { status: 400 });
     }
 
@@ -52,13 +53,27 @@ export async function GET(
     const imageBuffer = await readFile(imagePath);
     const ext = filename.split('.').pop()?.toLowerCase();
     
-    const contentType = {
-      'jpg': 'image/jpeg',
-      'jpeg': 'image/jpeg',
-      'png': 'image/png',
-      'gif': 'image/gif',
-      'webp': 'image/webp'
-    }[ext || 'jpg'] || 'image/jpeg';
+    // Determine content type based on file extension or default to jpeg
+    let contentType = 'image/jpeg';
+    if (ext) {
+      contentType = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp'
+      }[ext] || 'image/jpeg';
+    } else {
+      // If no extension, try to detect from file content (first few bytes)
+      const header = imageBuffer.slice(0, 4);
+      if (header[0] === 0xFF && header[1] === 0xD8) {
+        contentType = 'image/jpeg';
+      } else if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4E && header[3] === 0x47) {
+        contentType = 'image/png';
+      } else if (header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46) {
+        contentType = 'image/gif';
+      }
+    }
 
     return new NextResponse(new Uint8Array(imageBuffer), {
       headers: {

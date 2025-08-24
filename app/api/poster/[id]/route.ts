@@ -15,9 +15,9 @@ type TokenPayload = {
 // 📌 GET آگهی
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || id.includes(".") || !/^[0-9a-fA-F]{24}$/.test(id)) {
     return NextResponse.json({ error: "Invalid poster ID" }, { status: 400 });
@@ -30,10 +30,10 @@ export async function GET(
 // 📌 DELETE آگهی
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const token = req.headers.get("token");
     if (!token) {

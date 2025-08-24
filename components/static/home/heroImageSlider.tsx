@@ -23,7 +23,7 @@ const HeroImageSlider = () => {
         const data = await res.json();
         setPosters(data.posters.slice(0, 5));
       } catch (err: unknown) {
-        console.log(err)
+        console.log(err);
         setError("خطا در بارگیری بنرها");
       } finally {
         setLoading(false);
@@ -117,8 +117,8 @@ const HeroImageSlider = () => {
             className="absolute  inset-0 w-full h-full"
           >
             <Image
-              src={currentPoster.images.find((image) => image.mainImage)?.url || currentPoster.title}
-              alt={currentPoster.title}
+              src={currentPoster.images[0]?.url || "/assets/images/hero4.jpg"}
+              alt={currentPoster.images[0]?.alt || currentPoster.title}
               fill
               className="object-cover  rounded-tr-3xl rounded-br-3xl"
               priority
