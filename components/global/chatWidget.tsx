@@ -15,11 +15,15 @@ export default function Chat() {
   const [socket, setSocket] = useState<ChatSocket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [showChat, setShowChat] = useState<boolean>(false);
+  const [showChat, setShowChat] = useState<boolean>(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [activity, setActivity] = useState<string>("");
   const [currentRoom, setCurrentRoom] = useState<string>("");
+  const [hasNewMessages, setHasNewMessages] = useState<boolean>(false);
+  const [shouldShowWidget, setShouldShowWidget] = useState<boolean>(true);
+  const [sessionCreated, setSessionCreated] = useState<boolean>(false);
+  const [lastAuthState, setLastAuthState] = useState<string | null>(null);
 
   console.log(isConnected)
 
@@ -31,47 +35,173 @@ export default function Chat() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<NodeJS.Timeout | null>(null);
+  const socketRef = useRef<ChatSocket | null>(null);
+
+  const resetChatSession = () => {
+    if (socket) {
+      socket.disconnect();
+      setSocket(null);
+    }
+    setMessages([]);
+    setUsers([]);
+    setActivity("");
+    setCurrentRoom("");
+    setSessionCreated(false);
+    setIsConnected(false);
+  };
 
   useEffect(() => {
     // Get JWT token from localStorage
     const savedToken = localStorage.getItem("token");
+    const currentAuthState = savedToken || "guest";
+    
+    console.log("Component init - savedToken:", savedToken ? "exists" : "null");
+    
+    // Check if auth state changed
+    if (lastAuthState !== null && lastAuthState !== currentAuthState) {
+      console.log("Auth state changed from", lastAuthState, "to", currentAuthState);
+      resetChatSession();
+    }
+    
+    setLastAuthState(currentAuthState);
+    
     if (savedToken) {
       setToken(savedToken);
+      // Check user role
+      try {
+        const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
+        console.log("JWT Payload:", payload);
+        console.log("User role:", payload.role);
+        console.log("User name:", payload.name);
+        
+        const allowedRoles = ["user", "guest"];
+        
+        if (payload.role && allowedRoles.includes(payload.role)) {
+          console.log("Admin role detected, hiding widget");
+          setShouldShowWidget(true);
+        } else {
+          console.log("User/guest role, showing widget");
+          setShouldShowWidget(false);
+          // Auto-initialize for authenticated users to maintain session
+          if (lastAuthState === null || lastAuthState === "guest") {
+            initializeChat();
+            setSessionCreated(true);
+          }
+        }
+      } catch (error) {
+        console.log("Token decode error:", error);
+        // Invalid token, treat as guest
+        setShouldShowWidget(true);
+        setToken("");
+      }
+    } else {
+      console.log("No token, showing widget for guest");
+      // No token = guest user
+      setShouldShowWidget(true);
+      setToken("");
     }
   }, []);
 
+  // Monitor token changes in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedToken = localStorage.getItem("token");
+      const currentAuthState = savedToken || "guest";
+      
+      if (lastAuthState !== currentAuthState) {
+        console.log("Token changed, resetting chat");
+        resetChatSession();
+        setLastAuthState(currentAuthState);
+        
+        if (savedToken) {
+          setToken(savedToken);
+          try {
+            const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
+            const allowedRoles = ["user", "guest"];
+            
+            if (payload.role && allowedRoles.includes(payload.role)) {
+              initializeChat();
+              setSessionCreated(true);
+            }
+          } catch (error) {
+            setToken("");
+          }
+        } else {
+          setToken("");
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also check periodically for same-tab changes
+    const interval = setInterval(() => {
+      const savedToken = localStorage.getItem("token");
+      const currentAuthState = savedToken || "guest";
+      
+      if (lastAuthState !== currentAuthState) {
+        handleStorageChange();
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [lastAuthState]);
+
+  const initializeChat = (): void => {
+    connectSocket();
+    setCurrentRoom("Support Chat");
+    setHasNewMessages(false);
+    loadChatHistory();
+  };
+
+  // Remove auto-initialization for guests
+
   useEffect(() => {
     if (socket) {
-      socket.on("connect", () => {
+      const handleConnect = () => {
         setIsConnected(true);
         console.log("Connected to server");
-      });
+      };
 
-      socket.on("disconnect", () => {
+      const handleDisconnect = () => {
         setIsConnected(false);
         console.log("Disconnected from server");
-      });
+      };
 
-      socket.on("message", (data: Message) => {
+      const handleMessage = (data: Message) => {
         setActivity("");
+        console.log("Received message from:", data.name);
+        console.log("Current user name:", getCurrentUserName());
         setMessages((prev) => [...prev, data]);
-      });
+        if (!isModalOpen && data.name !== getCurrentUserName()) {
+          setHasNewMessages(true);
+        }
+      };
 
-      socket.on("activity", (name: string) => {
+      const handleActivity = (name: string) => {
         setActivity(`${name} is typing...`);
         setTimeout(() => setActivity(""), 3000);
-      });
+      };
 
-      socket.on("userList", ({ users }: { users: User[] }) => {
+      const handleUserList = ({ users }: { users: User[] }) => {
         setUsers(users);
-      });
+      };
+
+      socket.on("connect", handleConnect);
+      socket.on("disconnect", handleDisconnect);
+      socket.on("message", handleMessage);
+      socket.on("activity", handleActivity);
+      socket.on("userList", handleUserList);
 
       return () => {
-        socket.off("connect");
-        socket.off("disconnect");
-        socket.off("message");
-        socket.off("activity");
-        socket.off("userList");
+        socket.off("connect", handleConnect);
+        socket.off("disconnect", handleDisconnect);
+        socket.off("message", handleMessage);
+        socket.off("activity", handleActivity);
+        socket.off("userList", handleUserList);
       };
     }
   }, [socket]);
@@ -81,6 +211,9 @@ export default function Chat() {
   }, [messages]);
 
   const connectSocket = (): void => {
+    // Prevent multiple connections
+    if (socket && socket.connected) return;
+    
     const newSocket = io(
       process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500",
       {
@@ -89,53 +222,58 @@ export default function Chat() {
         },
       }
     ) as ChatSocket;
+    
     setSocket(newSocket);
+    socketRef.current = newSocket;
   };
 
-  const handleJoinRoom = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-
-    if (!socket) {
-      connectSocket();
+  const loadChatHistory = async (): Promise<void> => {
+    if (!token) {
+      // Skip loading history for guest users
+      return;
     }
-
-    let finalRoom = room;
-    let roomDisplay = room;
-
-    if (token) {
-      try {
-        const payload: JWTPayload = JSON.parse(atob(token.split(".")[1]));
-        finalRoom = `user_${payload.userId || payload.id}`;
-        roomDisplay = "Personal Chat";
-      } catch {
-        alert("Invalid token format");
-        return;
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"}/api/messages/current`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      if (response.ok) {
+        const history: Message[] = await response.json();
+        setMessages(history);
       }
-    } else {
-      if (!name || !room) {
-        alert("Please enter your name and room name");
-        return;
-      }
+    } catch (error) {
+      console.error("Error loading chat history:", error);
     }
-
-    const roomData: RoomData = { room: finalRoom };
-    if (!token && name) {
-      roomData.guestName = name;
-    }
-    if (token) {
-      roomData.userToken = token;
-    }
-
-    socket?.emit("enterRoom", roomData);
-    setShowChat(true);
-    setCurrentRoom(roomDisplay);
   };
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
-    if (message.trim() && socket) {
-      socket.emit("message", { text: message.trim() });
-      setMessage("");
+    if (message.trim()) {
+      if (!socket && !sessionCreated) {
+        // For guests only - initialize on first message
+        const messageToSend = message.trim();
+        setMessage("");
+        initializeChat();
+        setSessionCreated(true);
+        // Store message to send after connection
+        const checkConnection = () => {
+          if (socketRef.current && socketRef.current.connected) {
+            console.log("Sending message as:", getCurrentUserName());
+            socketRef.current.emit("message", { text: messageToSend });
+          } else {
+            setTimeout(checkConnection, 100);
+          }
+        };
+        setTimeout(checkConnection, 200);
+      } else if (socket) {
+        console.log("Sending message as:", getCurrentUserName());
+        socket.emit("message", { text: message.trim() });
+        setMessage("");
+      }
     }
   };
 
@@ -150,35 +288,47 @@ export default function Chat() {
   };
 
   const getCurrentUserName = (): string => {
-    if (token) {
+    // Always check localStorage for the latest token
+    const currentToken = token || localStorage.getItem("token");
+    
+    if (currentToken) {
       try {
-        const payload: JWTPayload = JSON.parse(atob(token.split(".")[1]));
-        return payload.name || "User";
-      } catch {
-        return "User";
+        const payload: JWTPayload = JSON.parse(atob(currentToken.split(".")[1]));
+        console.log("getCurrentUserNameasdfasdfasdfasdfasdfas - payload:", payload.name);
+        return payload.name || "Guest";
+      } catch (error) {
+        console.log("getCurrentUserName - token decode error:", error);
+        return "Guest";
       }
     }
-    return name || "Guest";
+    return "Guest";
   };
+
+
 
   const getMessageClass = (msgName: string): string => {
     const currentUser = getCurrentUserName();
+    console.log("Current user:", currentUser, "Message from:", msgName);
     if (msgName === currentUser) return "flex justify-end mb-4";
-    if (msgName === "Admin") return "flex justify-center mb-4";
-    if (msgName === "WhatsApp") return "flex justify-center mb-4";
+    if (msgName === "Admin" || msgName === "WhatsApp") return "flex justify-start mb-4";
     return "flex justify-start mb-4";
   };
 
   const getMessageBubbleClass = (msgName: string): string => {
     const currentUser = getCurrentUserName();
     if (msgName === currentUser)
-      return "bg-gradient-to-r from-blue-500 to-purple-600 text-white";
+      return "bg-gradient-to-r from-blue-600 to-blue-500 text-white";
     if (msgName === "Admin")
-      return "bg-gradient-to-r from-green-500 to-emerald-600 text-white";
+      return "bg-gray-800/80 text-blue-100";
     if (msgName === "WhatsApp")
-      return "bg-gradient-to-r from-orange-500 to-red-600 text-white";
-    return "bg-white/20 text-slate-100";
+      return "bg-gradient-to-r from-gray-700 to-gray-600 text-blue-300";
+    return "bg-gray-800/80 text-blue-100";
   };
+
+  // Don't render widget for admin roles
+  if (!shouldShowWidget) {
+    return null;
+  }
 
   return (
     <>
@@ -189,8 +339,11 @@ export default function Chat() {
 
       {/* Chat Icon Button */}
       <button
-        onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-16 right-6 z-50 w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-purple-500/25 hover:scale-110 transition-all duration-300 flex items-center justify-center group"
+        onClick={() => {
+          setIsModalOpen(true);
+          setHasNewMessages(false);
+        }}
+        className="fixed bottom-16 right-6 z-50 w-16 h-16 bg-gradient-to-r from-gray-900 to-blue-500 text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group border border-blue-400/30"
       >
         <svg
           className="w-8 h-8 group-hover:scale-110 transition-transform duration-200"
@@ -205,9 +358,9 @@ export default function Chat() {
             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
           />
         </svg>
-        {messages.length > 0 && (
+        {hasNewMessages && (
           <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
-            {messages.length > 9 ? "9+" : messages.length}
+            !
           </div>
         )}
       </button>
@@ -220,98 +373,96 @@ export default function Chat() {
             onClick={() => setIsModalOpen(false)}
           />
 
-          <div className="relative w-full max-w-md h-[600px] bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
-            {!showChat ? (
-              <div className="flex flex-col h-full">
-                <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    Join Chat
-                  </h2>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-white/70 hover:text-white transition-colors"
+          <div className="relative w-full max-w-md h-[600px] bg-gradient-to-br from-black via-gray-900 to-black rounded-2xl shadow-2xl border border-blue-400/30 overflow-hidden">
+            <div className="flex flex-col h-full">
+              <div className="p-4 border-b border-blue-400/20 flex justify-between items-center bg-gradient-to-r from-black to-gray-900">
+                <div>
+                  <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                    {currentRoom}
+                  </h3>
+                  <p className="text-sm text-blue-300/70">
+                    {users.length > 0
+                      ? `${users.length} participant${
+                          users.length > 1 ? "s" : ""
+                        }`
+                      : "No participants"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-white/70 hover:text-white transition-colors"
+                >
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="flex-1 p-6 flex items-center justify-center">
-                  <form onSubmit={handleJoinRoom} className="w-full space-y-4">
-                    {!token && (
-                      <input
-                        type="text"
-                        placeholder="Your name"
-                        value={name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setName(e.target.value)
-                        }
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm"
-                        required={!token}
-                      />
-                    )}
-                    <input
-                      type="text"
-                      placeholder="Enter your token (optional)"
-                      value={token}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setToken(e.target.value)
-                      }
-                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm"
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
                     />
-                    {!token && (
-                      <input
-                        type="text"
-                        placeholder="Room name"
-                        value={room}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setRoom(e.target.value)
-                        }
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm"
-                        required={!token}
-                      />
-                    )}
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200 shadow-lg"
-                    >
-                      Join Chat
-                    </button>
-                  </form>
-                </div>
+                  </svg>
+                </button>
               </div>
-            ) : (
-              <div className="flex flex-col h-full">
-                <div className="p-4 border-b border-white/10 flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {currentRoom}
-                    </h3>
-                    <p className="text-sm text-slate-300">
-                      {users.length > 0
-                        ? `${users.length} participant${
-                            users.length > 1 ? "s" : ""
-                          }`
-                        : "No participants"}
-                    </p>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-blue-500/50 scrollbar-track-transparent bg-black/50">
+                {messages.map((msg, index) => (
+                  <div key={index} className={getMessageClass(msg.name)}>
+                    <div
+                      className={`max-w-[80%] p-3 rounded-2xl backdrop-blur-sm border border-blue-400/20 shadow-lg ${getMessageBubbleClass(
+                        msg.name
+                      )}`}
+                    >
+                      {msg.name !== "WhatsApp" ? (
+                        <>
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-semibold text-sm opacity-90 mr-3">
+                              {msg.name}
+                            </span>
+                            <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
+                              {msg.time}
+                            </span>
+                          </div>
+                          <p className="text-sm leading-relaxed mt-1">
+                            {msg.text}
+                          </p>
+                        </>
+                      ) : (
+                        <p className="text-sm text-center">{msg.text}</p>
+                      )}
+                    </div>
                   </div>
+                ))}
+                <div ref={messagesEndRef} />
+                {activity && (
+                  <div className="text-center text-sm text-blue-400/70 italic animate-pulse">
+                    {activity}
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 border-t border-blue-400/20 bg-gradient-to-r from-black to-gray-900">
+                <form onSubmit={handleSendMessage} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    value={message}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setMessage(e.target.value)
+                    }
+                    onInput={handleTyping}
+                    className="flex-1 px-4 py-3 bg-gray-900/80 border border-blue-400/30 rounded-xl text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 backdrop-blur-sm"
+                    required
+                  />
                   <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="text-white/70 hover:text-white transition-colors"
+                    type="submit"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 shadow-lg border border-blue-400/30"
                   >
                     <svg
-                      className="w-6 h-6"
+                      className="w-5 h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -320,83 +471,13 @@ export default function Chat() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
                       />
                     </svg>
                   </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-purple-500/50 scrollbar-track-transparent">
-                  {messages.map((msg, index) => (
-                    <div key={index} className={getMessageClass(msg.name)}>
-                      <div
-                        className={`max-w-[80%] p-3 rounded-2xl backdrop-blur-sm border border-white/10 shadow-lg ${getMessageBubbleClass(
-                          msg.name
-                        )}`}
-                      >
-                        {msg.name !== "WhatsApp" ? (
-                          <>
-                            <div className="flex justify-between items-center mb-1">
-                              <span className="font-semibold text-sm opacity-90">
-                                {msg.name}
-                              </span>
-                              <span className="text-xs opacity-70">
-                                {msg.time}
-                              </span>
-                            </div>
-                            <p className="text-sm leading-relaxed">
-                              {msg.text}
-                            </p>
-                          </>
-                        ) : (
-                          <p className="text-sm text-center">{msg.text}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                  {activity && (
-                    <div className="text-center text-sm text-slate-400 italic animate-pulse">
-                      {activity}
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4 border-t border-white/10">
-                  <form onSubmit={handleSendMessage} className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Type a message..."
-                      value={message}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setMessage(e.target.value)
-                      }
-                      onInput={handleTyping}
-                      className="flex-1 px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm"
-                      required
-                    />
-                    <button
-                      type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-200 shadow-lg"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                        />
-                      </svg>
-                    </button>
-                  </form>
-                </div>
+                </form>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}

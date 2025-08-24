@@ -36,6 +36,7 @@ import MessagesPage from "./contactForm/messagesPage";
 import PosterById from "./posters/posterById";
 import ChatAdminList from "./chat/adminChatList";
 
+
 const AdminLayout: React.FC = () => {
   const { hasAccess, logout } = useAdminAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

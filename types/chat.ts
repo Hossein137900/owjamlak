@@ -21,6 +21,7 @@ export interface JWTPayload {
   userId?: string;
   id?: string;
   name?: string;
+  role?: string;
   exp?: number;
   iat?: number;
 }
@@ -30,6 +31,9 @@ export interface AdminRoomData {
   messages: Message[];
   userCount: number;
   inputValue: string;
+  hasNewMessage?: boolean;
+  userName: string;
+  isOnline: boolean;
 }
 
 export interface ServerToClientEvents {
