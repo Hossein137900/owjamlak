@@ -50,102 +50,71 @@ export default function Chat() {
     setIsConnected(false);
   };
 
-  useEffect(() => {
-    // Get JWT token from localStorage
+  const checkAuthState = () => {
     const savedToken = localStorage.getItem("token");
     const currentAuthState = savedToken || "guest";
     
-    console.log("Component init - savedToken:", savedToken ? "exists" : "null");
-    
-    // Check if auth state changed
-    if (lastAuthState !== null && lastAuthState !== currentAuthState) {
+    if (lastAuthState !== currentAuthState) {
       console.log("Auth state changed from", lastAuthState, "to", currentAuthState);
       resetChatSession();
+      setLastAuthState(currentAuthState);
+      
+      if (savedToken) {
+        setToken(savedToken);
+        try {
+          const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
+          const allowedRoles = ["user", "guest"];
+          
+          if (payload.role && allowedRoles.includes(payload.role)) {
+            setShouldShowWidget(true);
+            initializeChat();
+            setSessionCreated(true);
+          } else {
+            setShouldShowWidget(false);
+          }
+        } catch (error) {
+          setShouldShowWidget(true);
+          setToken("");
+        }
+      } else {
+        setShouldShowWidget(true);
+        setToken("");
+      }
     }
-    
+  };
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    const currentAuthState = savedToken || "guest";
     setLastAuthState(currentAuthState);
     
     if (savedToken) {
       setToken(savedToken);
-      // Check user role
       try {
         const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
-        console.log("JWT Payload:", payload);
-        console.log("User role:", payload.role);
-        console.log("User name:", payload.name);
-        
         const allowedRoles = ["user", "guest"];
         
         if (payload.role && allowedRoles.includes(payload.role)) {
-          console.log("Admin role detected, hiding widget");
           setShouldShowWidget(true);
         } else {
-          console.log("User/guest role, showing widget");
           setShouldShowWidget(false);
-          // Auto-initialize for authenticated users to maintain session
-          if (lastAuthState === null || lastAuthState === "guest") {
-            initializeChat();
-            setSessionCreated(true);
-          }
         }
       } catch (error) {
-        console.log("Token decode error:", error);
-        // Invalid token, treat as guest
         setShouldShowWidget(true);
         setToken("");
       }
     } else {
-      console.log("No token, showing widget for guest");
-      // No token = guest user
       setShouldShowWidget(true);
       setToken("");
     }
   }, []);
 
-  // Monitor token changes in localStorage
   useEffect(() => {
-    const handleStorageChange = () => {
-      const savedToken = localStorage.getItem("token");
-      const currentAuthState = savedToken || "guest";
-      
-      if (lastAuthState !== currentAuthState) {
-        console.log("Token changed, resetting chat");
-        resetChatSession();
-        setLastAuthState(currentAuthState);
-        
-        if (savedToken) {
-          setToken(savedToken);
-          try {
-            const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
-            const allowedRoles = ["user", "guest"];
-            
-            if (payload.role && allowedRoles.includes(payload.role)) {
-              initializeChat();
-              setSessionCreated(true);
-            }
-          } catch (error) {
-            setToken("");
-          }
-        } else {
-          setToken("");
-        }
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    
-    // Also check periodically for same-tab changes
-    const interval = setInterval(() => {
-      const savedToken = localStorage.getItem("token");
-      const currentAuthState = savedToken || "guest";
-      
-      if (lastAuthState !== currentAuthState) {
-        handleStorageChange();
-      }
-    }, 1000);
+    window.addEventListener("storage", checkAuthState);
+    const interval = setInterval(checkAuthState, 500);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("storage", checkAuthState);
       clearInterval(interval);
     };
   }, [lastAuthState]);
