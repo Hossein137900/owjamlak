@@ -409,7 +409,7 @@ export default function PosterDetailClient({
             {(() => {
               const breadcrumbItems = [
                 { label: "خانه", href: "/" },
-                { label: "آگهی‌ها", href: "/posters" },
+                { label: "آگهی‌ها", href: "/poster" },
                 { label: posterData.title || "آگهی", href: `/poster/${id}` },
               ];
 

@@ -3,30 +3,28 @@ import { Poster } from "@/types/type";
 import { Metadata } from "next";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string }; // ❌ دیگه Promise نیست
 }
 
-export default async function PosterDetail({ params }: PageProps) {
-  const { id } = await params;
+export default function PosterDetail({ params }: PageProps) {
+  const { id } = params;
   return <PosterDetailClient posterId={id} />;
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const { id } = await params;
+export async function generateMetadata(
+  { params }: { params: { id: string } }
+): Promise<Metadata> {
+  const { id } = params;
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/poster/id`,
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/poster/${id}`, // ✅ مسیر درست
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          id,
         },
+        cache: "no-store", // ✅ جلوگیری از کش شدن
       }
     );
 
@@ -47,32 +45,31 @@ export async function generateMetadata({
       };
     }
 
-    const getParentTypeLabel = (type: string) => {
-      const typeLabels: Record<string, string> = {
-        residentialRent: "اجاره مسکونی",
-        residentialSale: "فروش مسکونی",
-        commercialRent: "اجاره تجاری",
-        commercialSale: "فروش تجاری",
-        shortTermRent: "اجاره کوتاه مدت",
-        ConstructionProject: "پروژه ساختمانی",
-      };
-      return typeLabels[type] || type;
+    // 🔹 لیبل‌ها
+    const typeLabels: Record<string, string> = {
+      residentialRent: "اجاره مسکونی",
+      residentialSale: "فروش مسکونی",
+      commercialRent: "اجاره تجاری",
+      commercialSale: "فروش تجاری",
+      shortTermRent: "اجاره کوتاه مدت",
+      ConstructionProject: "پروژه ساختمانی",
     };
 
-    const getTradeTypeLabel = (type: string) => {
-      const typeLabels: Record<string, string> = {
-        House: "خانه",
-        Villa: "ویلا",
-        Old: "کلنگی",
-        Office: "دفتر کار",
-        Shop: "مغازه",
-        industrial: "صنعتی",
-        partnerShip: "مشارکت",
-        preSale: "پیش فروش",
-      };
-      return typeLabels[type] || type;
+    const tradeLabels: Record<string, string> = {
+      House: "خانه",
+      Villa: "ویلا",
+      Old: "کلنگی",
+      Office: "دفتر کار",
+      Shop: "مغازه",
+      industrial: "صنعتی",
+      partnerShip: "مشارکت",
+      preSale: "پیش فروش",
     };
 
+    const getParentTypeLabel = (type: string) => typeLabels[type] || type;
+    const getTradeTypeLabel = (type: string) => tradeLabels[type] || type;
+
+    // 🔹 فرمت قیمت
     const formatPrice = (amount: number) => {
       if (amount === 0) return "توافقی";
       if (amount >= 1_000_000_000)
@@ -93,6 +90,7 @@ export async function generateMetadata({
         )} تومان`
       : `قیمت: ${formatPrice(poster.totalPrice || 0)} تومان`;
 
+    // 🔹 متا دیتا
     const title = `${poster.title} | ${getParentTypeLabel(
       poster.parentType || ""
     )} ${getTradeTypeLabel(poster.tradeType || "")} | اوج املاک`;
@@ -165,19 +163,6 @@ export async function generateMetadata({
       },
       alternates: {
         canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/poster/${poster._id}`,
-      },
-      other: {
-        "property:type": getParentTypeLabel(poster.parentType || ""),
-        "property:trade_type": getTradeTypeLabel(poster.tradeType || ""),
-        "property:location": poster.location || "",
-        "property:area": poster.area?.toString() || "",
-        "property:rooms": poster.rooms?.toString() || "",
-        "property:price": isRentType
-          ? `${poster.depositRent || 0}/${poster.rentPrice || 0}`
-          : (poster.totalPrice || 0).toString(),
-        "property:coordinates": poster.coordinates
-          ? `${poster.coordinates.lat},${poster.coordinates.lng}`
-          : "",
       },
       robots: {
         index: true,

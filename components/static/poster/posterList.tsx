@@ -227,12 +227,23 @@ function PosterListContent() {
         const res = await fetch(`/api/poster?${query.toString()}`);
         const data = await res.json();
 
-        setHasNextPage(data.pagination.hasNextPage);
+        // Check if response has pagination (normal mode) vs suggestions mode
+        if (data.pagination) {
+          setHasNextPage(data.pagination.hasNextPage);
 
-        if (page === 1) {
-          setPosters(data.posters);
+          if (page === 1) {
+            setPosters(data.posters || []);
+          } else {
+            setPosters((prev) =>
+              uniqueById([...prev, ...(data.posters || [])])
+            );
+          }
         } else {
-          setPosters((prev) => uniqueById([...prev, ...data.posters]));
+          // Handle error case or suggestions mode
+          setHasNextPage(false);
+          if (page === 1) {
+            setPosters([]);
+          }
         }
       } catch (err) {
         console.error("❌ Fetch error:", err);
@@ -242,7 +253,8 @@ function PosterListContent() {
       }
     };
 
-    fetchData();
+    const timeoutId = setTimeout(fetchData, 300);
+    return () => clearTimeout(timeoutId);
   }, [page, limit, filters.parentType, filters.tradeType, filters.search]);
 
   useEffect(() => {
@@ -280,15 +292,19 @@ function PosterListContent() {
     setInputValue(value);
 
     if (value.trim().length >= 2) {
-      try {
-        const res = await fetch(
-          `/api/poster?query=${encodeURIComponent(value)}&suggestionsOnly=true`
-        );
-        const data = await res.json();
-        setSuggestions(data.suggestions || []);
-      } catch (e) {
-        console.error("Suggestion fetch error", e);
-      }
+      setTimeout(async () => {
+        try {
+          const res = await fetch(
+            `/api/poster?query=${encodeURIComponent(
+              value
+            )}&suggestionsOnly=true`
+          );
+          const data = await res.json();
+          setSuggestions(data.suggestions || []);
+        } catch (e) {
+          console.error("Suggestion fetch error", e);
+        }
+      }, 500);
     } else {
       setSuggestions([]);
     }

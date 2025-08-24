@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connect from "@/lib/data";
 import jwt from "jsonwebtoken";
 import User from "@/models/user";
-import poster from "@/models/poster";
+import Poster from "@/models/poster";
 import realStateRequest from "@/models/realStateConsultation";
 import legalConsultation from "@/models/legalConsultation";
 import newsletter from "@/models/newsletter";
@@ -53,8 +53,15 @@ export const getDashboardData = async (request: NextRequest) => {
 
     // برای کاربران عادی و مشاوران - فقط آمار شخصی
     if (role === "user" || role === "consultant") {
-      const userPosters = await poster.countDocuments({ user: user._id });
-      const favoriteCount = user.favorite ? user.favorite.length : 0;
+      const userPosters = await Poster.countDocuments({ user: user._id });
+
+      // Check if favorited posters exist in database
+      let favoriteCount = 0;
+      if (user.favorite && user.favorite.length > 0) {
+        favoriteCount = await Poster.countDocuments({
+          _id: { $in: user.favorite },
+        });
+      }
 
       return NextResponse.json({
         success: true,
@@ -82,7 +89,7 @@ export const getDashboardData = async (request: NextRequest) => {
         users,
         newsletterSubscribers,
       ] = await Promise.all([
-        poster.countDocuments(),
+        Poster.countDocuments(),
         realStateRequest.countDocuments(),
         legalConsultation.countDocuments(),
         employRequest.countDocuments(),
