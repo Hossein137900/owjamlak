@@ -72,8 +72,11 @@ export async function POST(request: NextRequest) {
         }
         // Generate unique filename with poster ID
         const timestamp = Date.now();
-        const posterId = `poster_${timestamp}`; // You'd get this from database after creating poster
-        const filename = `${posterId}_${i}_${sanitizeFilename(file.name)}`;
+        const posterId = `poster_${timestamp}`;
+        const originalName = file.name || 'image';
+        // const extension = originalName.includes('.') ? originalName.split('.').pop() : 'webp';
+        const extension = 'webp';
+        const filename = `${posterId}_${i}_image.${extension}`;
         const filepath = join(uploadsDir, filename);
 
         // Save file to disk
