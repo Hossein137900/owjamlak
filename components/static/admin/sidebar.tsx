@@ -12,6 +12,7 @@ import {
   FiMail,
   FiLayers,
   FiMessageSquare,
+  FiVideo,
 } from "react-icons/fi";
 
 interface SidebarItem {
@@ -71,6 +72,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           title: "صفحات",
           icon: <FiFileText className="w-4 h-4" />,
           section: "pages",
+        },
+        {
+          id: "videos",
+          title: "ویدیوها",
+          icon: <FiVideo className="w-4 h-4" />,
+          section: "videos",
         },
       ],
     },

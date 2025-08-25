@@ -181,7 +181,7 @@ const AdminLayout: React.FC = () => {
       id: "video",
       icon: <FiVideo />,
       label: "ویدیو ها",
-      roles: ["admin", "superadmin", "consultant", "user"],
+      roles: ["admin", "superadmin"],
     },
     {
       id: "settings",
@@ -265,7 +265,7 @@ const AdminLayout: React.FC = () => {
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "video":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin"]) ? (
           <VideoManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
