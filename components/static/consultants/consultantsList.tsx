@@ -143,12 +143,12 @@ const ConsultantsList = () => {
       />
 
       {/* Results Count */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-center items-center mb-6">
         <div className="text-gray-600">
           {loading ? (
             <span>در حال جستجو...</span>
           ) : (
-            <span>
+            <span className="hidden">
               {consultants.length} مشاور یافت شد
               {filters.search && ` برای "${filters.search}"`}
             </span>

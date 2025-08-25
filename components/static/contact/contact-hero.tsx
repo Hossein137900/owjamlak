@@ -1,36 +1,44 @@
 "use client";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 const ContactHero = () => {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-t from-[#01ae9b]/10 to-white">
-      <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <div className="relative h-screen  pt-20  bg-gradient-to-t from-[#01ae9b]/5 to-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Text Section */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
             className="text-right"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-6 leading-tight">
               <span className="text-[#01ae9b]">تماس</span> با ما
             </h1>
-            <p className="text-gray-600 text-lg mb-6">
-              ما همیشه آماده شنیدن نظرات، پیشنهادات و سوالات شما هستیم. با ما در
-              تماس باشید.
+            <p className="text-gray-600 text-lg leading-relaxed max-w-md mb-10">
+              ما همیشه آماده شنیدن نظرات، پیشنهادات و سوالات شما هستیم. کافیست
+              با ما در تماس باشید تا بهترین تجربه مشاوره املاک را داشته باشید.
             </p>
+
+            {/* Contact Cards */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="flex flex-wrap gap-4 justify-end"
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="flex flex-col sm:flex-row gap-5 justify-end"
             >
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-md">
-                <div className="w-10 h-10 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
+              {/* Phone */}
+              <Link
+                href="tel:02112345678"
+                className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
+                    className="h-6 w-6"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -39,14 +47,21 @@ const ContactHero = () => {
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">تماس مستقیم</div>
-                  <div className="text-sm font-bold">۰۲۱-۱۲۳۴۵۶۷۸</div>
+                  <div className="text-base font-bold text-gray-800">
+                    ۰۲۱-۱۲۳۴۵۶۷۸
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-md">
-                <div className="w-10 h-10 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
+              </Link>
+
+              {/* Email */}
+              <Link
+                href="mailto:info@amalak.com"
+                className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5"
+                    className="h-6 w-6"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -56,40 +71,49 @@ const ContactHero = () => {
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">ایمیل</div>
-                  <div className="text-sm font-bold">info@amalak.com</div>
+                  <div className="text-base font-bold text-gray-800">
+                    info@amalak.com
+                  </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           </motion.div>
+
+          {/* Image Section */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative h-[300px] md:h-[400px]"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative h-[200px] md:h-[420px] lg:h-[500px]"
           >
             <Image
               src="/assets/images/hero.jpg"
               alt="تماس با املاک"
-              width={4000}
-              height={4000}
-              className="object-cover"
+              fill
+              className="object-cover rounded-2xl shadow-xl"
+              priority
             />
           </motion.div>
         </div>
       </div>
-
       {/* Decorative elements */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.5 }}
         transition={{ delay: 0.5, duration: 1 }}
-        className="absolute top-20 right-10 w-20 h-20 rounded-full bg-[#01ae9b]/10 z-0"
+        className="absolute top-20 right-30 w-24 h-24 shadow-3xl rounded-full bg-[#01ae9b]/15 z-0"
+      />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.5 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="absolute top-80 right-100 w-24 h-24 shadow-3xl rounded-full bg-[#01ae9b]/5 z-0"
       />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.3 }}
         transition={{ delay: 0.7, duration: 1 }}
-        className="absolute bottom-10 left-10 w-32 h-32 rounded-full bg-[#01ae9b]/10 z-0"
+        className="absolute bottom-16 left-10 w-40 h-40 rounded-full bg-[#01ae9b]/20 z-0"
       />
     </div>
   );

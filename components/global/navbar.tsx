@@ -252,7 +252,7 @@ const Navbar = () => {
         className={`fixed top-0 w-full z-50 transition-all duration-500 ease-out ${
           scrolled
             ? "bg-white/50 backdrop-blur-sm shadow-lg border-b border-gray-100"
-            : "bg-white/90 backdrop-blur-sm"
+            : "bg-white/50 backdrop-blur-sm"
         }`}
         style={{
           marginTop: scrolled ? "0" : "40px",

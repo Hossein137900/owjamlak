@@ -26,7 +26,7 @@ export default function AboutUsStats() {
         transition={{ duration: 1, ease: "easeOut" }}
         className="md:w-1/2 space-y-8 text-right relative z-10"
       >
-        <h2 className="text-3xl md:text-5xl font-bold text-gray-800 leading-tight">
+        <h2 className="text-2xl md:text-5xl font-medium text-gray-700 leading-tight">
           آینده‌ی سرمایه‌گذاری شما، امروز در{" "}
           <span className="bg-gradient-to-r from-[#01ae9b] to-purple-600 bg-clip-text text-transparent text-4xl md:text-6xl font-extrabold">
             اوج
@@ -35,7 +35,7 @@ export default function AboutUsStats() {
         </h2>
         <p className="text-gray-600 leading-relaxed text-lg md:text-xl">
           در اوج، ما بیش از یک مشاور املاک هستیم. ما شریک شما در مسیر یافتن
-          بهترین فرصتهای سرمایهگذاری و خانهای هستیم که واقعاً شایسته شماست. با
+          بهترین فرصتهای سرمایه گذاری و خانه های هستیم که واقعاً شایسته شماست. با
           تجربهای بیش از ۱۰ سال و تیمی از متخصصان حرفهای، هر روز به هزاران نفر
           کمک میکنیم تا رویای خانهدار شدن را محقق کنند.
         </p>
@@ -64,37 +64,12 @@ export default function AboutUsStats() {
           </div>
         </motion.div>
 
-        {/* Live Counters */}
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5, ease: "backOut" }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8"
-        >
-          <div className="text-center p-4 bg-gradient-to-br from-[#01ae9b]/10 to-[#01ae9b]/5 rounded-xl">
-            <div className="text-3xl font-bold text-[#01ae9b]">5000</div>
-            <div className="text-sm text-gray-600 mt-1">املاک فعال</div>
-          </div>
-          <div className="text-center p-4 bg-gradient-to-br from-purple-600/10 to-purple-600/5 rounded-xl">
-            <div className="text-3xl font-bold text-purple-600">2500</div>
-            <div className="text-sm text-gray-600 mt-1">مشتری راضی</div>
-          </div>
-          <div className="text-center p-4 bg-gradient-to-br from-orange-500/10 to-orange-500/5 rounded-xl">
-            <div className="text-3xl font-bold text-orange-500">150</div>
-            <div className="text-sm text-gray-600 mt-1">معامله روزانه</div>
-          </div>
-          <div className="text-center p-4 bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl">
-            <div className="text-3xl font-bold text-green-500">98</div>
-            <div className="text-sm text-gray-600 mt-1">درصد رضایت</div>
-          </div>
-        </motion.div>
+       
 
         <Link href="/contactUs" className="mt-10">
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="group bg-gradient-to-r from-[#01ae9b] to-teal-600 text-white px-10 py-4 rounded-full font-bold transition-all duration-500 shadow-xl hover:shadow-2xl flex items-center gap-3 justify-center"
+             whileTap={{ scale: 0.95 }}
+            className="group bg-gradient-to-r cursor-pointer from-[#01ae9b] to-teal-600 text-white px-10 py-4 rounded-full font-bold transition-all duration-500 shadow-xl hover:shadow-2xl flex items-center gap-3 justify-center"
           >
             <span>تماس با ما</span>
             <FaChartLine className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
@@ -112,9 +87,9 @@ export default function AboutUsStats() {
       >
         <div className="relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-[#01ae9b] to-purple-600 rounded-2xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl transform group-hover:scale-105 transition-transform duration-500">
+          <div className="relative rounded-2xl overflow-hidden shadow-xl transform group-hover:shadow-3xl transition-transform duration-500">
             <Image
-              src="/assets/images/aboutus1.png"
+              src="/assets/images/about3.webp"
               alt="مجموعه املاک لوکس و مدرن"
               width={500}
               height={500}
@@ -127,7 +102,7 @@ export default function AboutUsStats() {
                   املاک برتر اوج
                 </div>
                 <div className="text-xs text-gray-600 mt-1">
-                  بهترین گزینهها برای سرمایهگذاری
+                  بهترین گزینه ها برای سرمایه گذاری
                 </div>
               </div>
             </div>

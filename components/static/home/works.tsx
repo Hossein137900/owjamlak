@@ -244,7 +244,8 @@ export default function OurApproachPage() {
 
             <motion.div variants={heroButtonVariants}>
               <motion.a
-                href="#our-works"
+                href="/poster"
+                target="_blank"
                 className="bg-white text-[#66308d] px-8 py-3 rounded-lg font-medium hover:bg-white/90 transition-colors inline-block"
                 whileHover={{
                   scale: 1.05,
@@ -257,7 +258,7 @@ export default function OurApproachPage() {
                   transition: { duration: 0.1 },
                 }}
               >
-                مشاهده نمونه کارها
+                مشاهده آگهی ها
               </motion.a>
             </motion.div>
           </motion.div>

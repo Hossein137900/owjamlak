@@ -102,8 +102,8 @@ const ContactFaq = () => {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="p-5 pt-0 border-t border-gray-100">
-                      <p className="text-gray-600">{faq.answer}</p>
+                    <div className="p-5 pt-2 border-t border-gray-100">
+                      <h4 className="text-gray-600">{faq.answer}</h4>
                     </div>
                   </motion.div>
                 )}

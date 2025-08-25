@@ -168,13 +168,13 @@ const OffersPage = () => {
           transition={{ duration: 1, ease: "easeOut" }}
           className="text-center mb-12 mt-8"
         >
-          <h1 className="text-5xl font-bold mb-6">
+          <h1 className="md:text-5xl text-2xl font-bold mb-6">
             <span className="bg-gradient-to-r from-[#01ae9b] to-teal-600 bg-clip-text text-transparent">
-              فرصتهای{" "}
+              فرصت های{" "}
             </span>
-            <span className="text-gray-800">سرمایهگذاری</span>
+            <span className="text-gray-800">سرمایه گذاری</span>
           </h1>
-          <p className="text-gray-600 text-xl max-w-3xl mx-auto leading-relaxed">
+          <p className="text-gray-600 text-sm px-4 md:text-base max-w-3xl mx-auto leading-relaxed">
             بهترین فرصتهای سرمایهگذاری در بازار املاک را کشف کنید و آینده مالی
             خود را تضمین کنید
           </p>
@@ -185,15 +185,15 @@ const OffersPage = () => {
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-12 border border-gray-100"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-12 border border-gray-100"
         >
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#01ae9b] to-teal-600 rounded-full flex items-center justify-center">
+            <div className="flex items-center ">
+              <div className="w-8 h-8 md:w-12 md:h-12 ml-1 bg-gradient-to-r from-[#01ae9b] to-teal-600 rounded-full flex items-center justify-center">
                 <FiTrendingUp className="text-white text-xl" />
               </div>
-              <h2 className="md:text-2xl font-bold text-gray-800">
-                چرا سرمایهگذاری در املاک؟
+              <h2 className="md:text-2xl text-base text-nowrap font-bold text-gray-800">
+                چرا سرمایه گذاری در املاک؟
               </h2>
             </div>
             <button
@@ -206,8 +206,8 @@ const OffersPage = () => {
           </div>
 
           <p className="text-gray-700 text-lg leading-relaxed mb-4">
-            سرمایهگذاری در بخش املاک یکی از مطمئنترین و پرسودترین روشهای
-            سرمایهگذاری محسوب میشود. با رشد مداوم جمعیت و توسعه شهری، تقاضا برای
+            سرمایه گذاری در بخش املاک یکی از مطمئنترین و پرسودترین روشهای
+            سرمایه گذاری محسوب میشود. با رشد مداوم جمعیت و توسعه شهری، تقاضا برای
             املاک همواره در حال افزایش است.
           </p>
 
@@ -222,8 +222,8 @@ const OffersPage = () => {
           >
             <div className="space-y-4">
               <p className="text-gray-700 leading-relaxed">
-                در پلتفرم اوج، ما بهترین فرصتهای سرمایهگذاری را برای شما انتخاب
-                کردهایم. هر ملک با دقت بررسی شده و پتانسیل رشد قیمت و درآمدزایی
+                در پلتفرم اوج، ما بهترین فرصتهای سرمایه گذاری را برای شما انتخاب
+                کرده ایم. هر ملک با دقت بررسی شده و پتانسیل رشد قیمت و درآمدزایی
                 آن تحلیل شده است.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
@@ -268,7 +268,7 @@ const OffersPage = () => {
                 className="px-4 py-2 text-black border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent"
               >
                 <option value="newest">جدیدترین</option>
-                <option value="oldest">قدیمیترین</option>
+                <option value="oldest">قدیمی ترین</option>
                 <option value="price-high">قیمت (بالا به پایین)</option>
                 <option value="price-low">قیمت (پایین به بالا)</option>
                 <option value="area-large">متراژ (بزرگ به کوچک)</option>
@@ -278,7 +278,7 @@ const OffersPage = () => {
 
             {/* Results Count */}
             <div className="text-gray-600">
-              {filteredPosters.length} از {totalPosters} فرصت سرمایهگذاری
+              {filteredPosters.length} از {totalPosters} فرصت سرمایه گذاری
             </div>
           </div>
         </motion.div>
@@ -343,7 +343,7 @@ const OffersPage = () => {
         ) : (
           <div className="text-center py-16">
             <div className="text-gray-500 text-lg mb-4">
-              هیچ فرصت سرمایهگذاریای یافت نشد
+              هیچ فرصت سرمایه گذاریای یافت نشد
             </div>
             <p className="text-gray-400">
               لطفاً فیلترهای خود را تغییر دهید یا بعداً دوباره تلاش کنید
@@ -378,22 +378,22 @@ const OffersPage = () => {
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-[#01ae9b] to-teal-600 rounded-3xl p-12 text-center text-white shadow-2xl">
-          <h2 className="text-4xl font-bold mb-6">
-            آماده شروع سرمایهگذاری هستید؟
+          <h2 className="md:text-4xl text-2xl font-bold mb-6">
+            آماده شروع سرمایه گذاری هستید؟
           </h2>
-          <p className="text-xl mb-8 opacity-90 max-w-3xl mx-auto">
-            با مشاوران متخصص ما در تماس باشید و بهترین فرصتهای سرمایهگذاری را
-            کشف کنید. ما در هر مرحله از سرمایهگذاری کنار شما هستیم.
+          <p className="text-sm md:text-base mb-8 opacity-90 max-w-3xl mx-auto">
+            با مشاوران متخصص ما در تماس باشید و بهترین فرصتهای سرمایه گذاری را
+            کشف کنید. ما در هر مرحله از سرمایه گذاری کنار شما هستیم.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <div className="text-3xl font-bold mb-2">+۵۰۰۰</div>
-              <div className="opacity-90">املاک سرمایهگذاری</div>
+              <div className="opacity-90">املاک سرمایه گذاری</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <div className="text-3xl font-bold mb-2">+۲۵۰۰</div>
-              <div className="opacity-90">سرمایهگذار موفق</div>
+              <div className="opacity-90">سرمایه گذار موفق</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
               <div className="text-3xl font-bold mb-2">۲۴/۷</div>
@@ -401,7 +401,7 @@ const OffersPage = () => {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col items-center sm:flex-row gap-4 justify-center">
             <Link href="/consultant">
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -412,7 +412,7 @@ const OffersPage = () => {
                 تماس با مشاور
               </motion.button>
             </Link>
-            <Link href="/realEstateConsultation">
+            <Link href="/services/realEstateConsultation">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

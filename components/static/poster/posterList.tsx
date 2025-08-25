@@ -163,7 +163,11 @@ function PosterListContent() {
       filtered = filtered.filter((p) => p.area <= +filters.maxArea);
     }
     if (filters.rooms) {
-      filtered = filtered.filter((p) => p.rooms === +filters.rooms);
+      if (filters.rooms === "5") {
+        filtered = filtered.filter((p) => p.rooms >= 5);
+      } else {
+        filtered = filtered.filter((p) => p.rooms === +filters.rooms);
+      }
     }
     if (filters.location) {
       filtered = filtered.filter((p) =>
@@ -429,7 +433,7 @@ function PosterListContent() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="items-center gap-3 hidden lg:flex">
               {/* View Mode Toggle */}
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
@@ -471,7 +475,7 @@ function PosterListContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4  ">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Filters Sidebar - Desktop */}
           <AnimatePresence>
@@ -480,7 +484,7 @@ function PosterListContent() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="lg:w-80 bg-white rounded-2xl shadow-lg border border-gray-100 h-fit hidden md:block sticky top-6 overflow-hidden"
+                className="lg:w-80 bg-white rounded-xl shadow-lg border border-gray-100 h-fit hidden md:block sticky top-6 overflow-hidden"
               >
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#01ae9b] to-[#66308d] p-6">
@@ -509,10 +513,10 @@ function PosterListContent() {
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="p-6 space-y-8 overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+                <div className="p-4">
                   {/* Search */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                  <div className="p-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
                       <svg
                         className="w-4 h-4 text-[#01ae9b]"
                         fill="none"
@@ -542,7 +546,7 @@ function PosterListContent() {
                         onChange={(e) =>
                           handleInputChangeSuggestion(e.target.value)
                         }
-                        className={`w-full px-4 py-3 text-black placeholder:text-sm bg-white border-2 rounded-xl transition-all duration-300 placeholder:text-gray-400 ${
+                        className={`w-full px-4 py-1 text-black placeholder:text-sm bg-white border-2 rounded-md transition-all duration-300 placeholder:text-gray-400 ${
                           cameFromSearch && filters.search
                             ? "border-[#01ae9b] ring-4 ring-[#01ae9b]/10 bg-[#01ae9b]/5"
                             : "border-gray-200 focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300"
@@ -571,8 +575,8 @@ function PosterListContent() {
                   </div>
 
                   {/* Property Type */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                  <div className="  p-2  ">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
                       <svg
                         className="w-4 h-4 text-[#01ae9b]"
                         fill="none"
@@ -593,7 +597,7 @@ function PosterListContent() {
                       onChange={(e) =>
                         handleFilterChange("parentType", e.target.value)
                       }
-                      className="w-full px-4 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                      className="w-full px-4 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                     >
                       <option value="">همه انواع</option>
                       <option value="residentialRent">مسکونی اجاره</option>
@@ -608,8 +612,8 @@ function PosterListContent() {
                   </div>
 
                   {/* Trade Type */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                  <div className=" p-2 ">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
                       <svg
                         className="w-4 h-4 text-[#01ae9b]"
                         fill="none"
@@ -630,7 +634,7 @@ function PosterListContent() {
                       onChange={(e) =>
                         handleFilterChange("tradeType", e.target.value)
                       }
-                      className="w-full px-4 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                      className="w-full px-4 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                     >
                       <option value="">همه انواع</option>
                       <option value="House">خانه</option>
@@ -645,8 +649,8 @@ function PosterListContent() {
                   </div>
 
                   {/* Price Range */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                  <div className="p-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
                       <svg
                         className="w-4 h-4 text-[#01ae9b]"
                         fill="none"
@@ -687,7 +691,7 @@ function PosterListContent() {
                               e.currentTarget.value
                             )
                           }
-                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                          className="w-full pl-10 pr-3 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                       <div className="relative">
@@ -714,15 +718,15 @@ function PosterListContent() {
                               e.currentTarget.value
                             )
                           }
-                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                          className="w-full pl-10 pr-3 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Area Range */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                  <div className=" p-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
                       <svg
                         className="w-4 h-4 text-[#01ae9b]"
                         fill="none"
@@ -760,7 +764,7 @@ function PosterListContent() {
                             e.key === "Enter" &&
                             handleFilterChange("minArea", e.currentTarget.value)
                           }
-                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                          className="w-full pl-10 pr-3 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                       <div className="relative">
@@ -784,15 +788,15 @@ function PosterListContent() {
                             e.key === "Enter" &&
                             handleFilterChange("maxArea", e.currentTarget.value)
                           }
-                          className="w-full pl-10 pr-3 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                          className="w-full pl-10 pr-3 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Rooms */}
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-3">
+                  <div className=" p-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-800 mb-1">
                       <svg
                         className="w-4 h-4 text-[#01ae9b]"
                         fill="none"
@@ -813,7 +817,7 @@ function PosterListContent() {
                       onChange={(e) =>
                         handleFilterChange("rooms", e.target.value)
                       }
-                      className="w-full px-4 py-3 text-black bg-white border-2 border-gray-200 rounded-xl focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
+                      className="w-full px-4 py-1 text-black bg-white border-2 border-gray-200 rounded-md focus:border-[#01ae9b] focus:ring-4 focus:ring-[#01ae9b]/10 hover:border-gray-300 transition-all duration-200"
                     >
                       <option value="">همه</option>
                       <option value="1">1 اتاق</option>
