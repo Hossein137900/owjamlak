@@ -1,7 +1,6 @@
 import CollaborationPage from "@/components/static/services/collaboration";
 import { Metadata } from "next";
-import React from "react";
-
+ 
 export const metadata: Metadata = {
   title: " همکاری",
   description:

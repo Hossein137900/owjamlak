@@ -2,7 +2,7 @@ import VideoContainer from "@/components/static/videos/videoContainer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: " ویدیوها| املاک اوج",
+  title: " ویدیوها | املاک اوج",
   description:
     "قوانین و مقررات استفاده از خدمات املاک ایران، شرایط خرید و فروش، حقوق و تعهدات طرفین",
   keywords:

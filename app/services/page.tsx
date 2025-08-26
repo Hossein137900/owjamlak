@@ -1,7 +1,6 @@
 import ServicesPage from "@/components/static/services/service-container";
 import { Metadata } from "next";
-import React from "react";
-
+ 
 export const metadata: Metadata = {
   title: "خدمات اوج",
   description:

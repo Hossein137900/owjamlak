@@ -1,5 +1,4 @@
 "use client";
-import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,7 +26,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
   const pathname = usePathname();
 
   // Don't render breadcrumb on poster detail pages
-  if (pathname.startsWith('/poster/') && pathname !== '/poster') {
+  if (pathname.startsWith("/poster/") && pathname !== "/poster") {
     return null;
   }
 
@@ -61,14 +60,13 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     realEstateConsultation: "مشاوره املاک",
     Collaboration: "همکاری با ما",
     legalConsultation: "مشاوره حقوقی املاک",
-    poster:"آگهی",
-    auth:"صفحه ورود",
-    offers:"سرمایه گذاری"
+    poster: "آگهی",
+    auth: "صفحه ورود",
+    offers: "سرمایه گذاری",
   };
 
   // Generate breadcrumb items from current path
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
-
     const pathSegments = pathname.split("/").filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
 
@@ -144,7 +142,10 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
       className={`${variantStyles[variant]} ${className} relative`}
       dir="rtl"
     >
-      <nav aria-label="Breadcrumb" className="w-full absolute top-20 sm:right-32">
+      <nav
+        aria-label="Breadcrumb"
+        className="w-full absolute top-20 sm:right-32"
+      >
         <ol className="flex items-center flex-wrap gap-1 text-sm">
           {breadcrumbs.map((item, index) => {
             const isLast = index === breadcrumbs.length - 1;
@@ -203,8 +204,6 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
             );
           })}
         </ol>
-
-    
       </nav>
     </motion.div>
   );

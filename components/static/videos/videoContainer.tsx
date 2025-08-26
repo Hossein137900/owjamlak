@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiPlay,
@@ -11,10 +11,12 @@ import {
   FiSkipBack,
   FiSkipForward,
   FiLoader,
-  FiSearch,
   FiGrid,
   FiList,
   FiClock,
+  FiX,
+  FiChevronUp,
+  FiChevronDown,
 } from "react-icons/fi";
 
 interface Video {
@@ -23,7 +25,12 @@ interface Video {
   description: string;
   src: string;
   alt: string;
-  createdAt?: string;
+  filename: string;
+  originalName: string;
+  size: number;
+  uploadedBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface VideoContainerProps {
@@ -35,71 +42,451 @@ interface VideoContainerProps {
 
 const VideoContainer: React.FC<VideoContainerProps> = ({
   videos = [],
-  autoPlay = false,
-  showControls = true,
+  // autoPlay = false,
+  // showControls = true,
   className = "",
 }) => {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [apiVideos, setApiVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [isTextExpanded, setIsTextExpanded] = useState(false);
+
+  // Fetch videos from API
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/videos");
+        const data = await response.json();
+
+        if (data.videos && Array.isArray(data.videos)) {
+          setApiVideos(data.videos);
+        } else {
+          setError("خطا در دریافت ویدیوها");
+        }
+      } catch (err) {
+        console.error("Error fetching videos:", err);
+        setError("خطا در بارگذاری ویدیوها");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  // Use provided videos or fetched videos
+  const displayVideos = videos.length > 0 ? videos : apiVideos;
+
+  // Filter videos based on search
+  const filteredVideos = displayVideos.filter(
+    (video) =>
+      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      video.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleVideoClick = (video: Video) => {
+    setSelectedVideo(video);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedVideo(null);
+  };
+
+  const toggleTextExpansion = () => {
+    setIsTextExpanded(!isTextExpanded);
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#66308d] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری ویدیوها...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiPlay className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">
+            خطا در بارگذاری
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-[#66308d] text-white rounded-lg hover:bg-[#4a1f5f] transition-colors"
+          >
+            تلاش مجدد
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (filteredVideos.length === 0) {
+    return (
+      <div className={`w-full max-w-7xl mx-auto mt-20 ${className}`} dir="rtl">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 p-4"
+        >
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            گالری ویدیو املاک و مستغلات
+          </h1>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
+        >
+          <FiPlay className="text-6xl text-gray-400 mb-4" />
+          <p className="text-gray-500 text-lg">
+            {searchTerm
+              ? "ویدیویی با این جستجو یافت نشد"
+              : "هیچ ویدیویی موجود نیست"}
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`w-full max-w-7xl mx-auto mt-20 ${className}`} dir="rtl">
+      {/* SEO Optimized Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8 bg-white/80 backdrop-blur-sm   p-6 "
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <div className="w-8 h-8 md:w-12 md:h-12 ml-1 bg-gradient-to-r from-[#66308d] to-purple-600 rounded-full flex items-center justify-center">
+              <FiPlay className="text-white text-xl" />
+            </div>
+            <h1 className="md:text-2xl text-base text-nowrap font-bold text-gray-800">
+              گالری ویدیو املاک و مستغلات
+            </h1>
+          </div>
+          <button
+            onClick={toggleTextExpansion}
+            className="flex items-center text-xs gap-2 text-nowrap bg-[#66308d] text-white px-4 py-2 rounded-full hover:bg-purple-600 transition-colors duration-300"
+          >
+            <span>{isTextExpanded ? "بستن" : "ادامه مطلب"}</span>
+            {isTextExpanded ? <FiChevronUp /> : <FiChevronDown />}
+          </button>
+        </div>
+
+        <p className="text-gray-700 text-lg leading-relaxed mb-4">
+          دنیای املاک و مستغلات همیشه یکی از پیچیده ترین و مهم ترین حوزه ها برای
+          سرمایه گذاری و خرید و فروش بوده است. ما در این بخش مجموعهای از{" "}
+          <strong>ویدیوهای آموزشی حقوقی و املاک</strong> را فراهم کرده ایم.
+        </p>
+
+        <motion.div
+          initial={false}
+          animate={{
+            height: isTextExpanded ? "auto" : 0,
+            opacity: isTextExpanded ? 1 : 0,
+          }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="overflow-hidden"
+        >
+          <div className="prose prose-lg max-w-none text-gray-600 leading-relaxed space-y-4">
+            <p className="mb-4">
+              دنیای املاک و مستغلات همیشه یکی از پیچیده‌ترین و مهم‌ترین حوزه‌ها
+              برای سرمایه‌گذاری و خرید و فروش بوده است. آشنایی با قوانین حقوقی
+              مرتبط با ملک، نحوه تنظیم قراردادها، بررسی سند و آگاهی از حقوق و
+              تعهدات خریدار و فروشنده از موضوعاتی هستند که هر فردی باید قبل از
+              ورود به این بازار با آن‌ها آشنا شود. به همین دلیل ما در این بخش
+              مجموعه‌ای از
+              <strong>ویدیوهای آموزشی حقوقی و املاک</strong> را فراهم کرده‌ایم
+              تا بتوانید با خیالی آسوده‌تر تصمیم‌گیری کنید.
+            </p>
+            <p className="mb-4">
+              در این ویدیوها موضوعات متنوعی پوشش داده می‌شود؛ از
+              <em>اصول خرید و فروش آپارتمان و ویلا</em> گرفته تا نکات مهم در
+              خرید زمین، مشارکت در ساخت، و آشنایی با قوانین پیش‌فروش ساختمان.
+              همچنین مسائل مهمی مانند چگونگی تنظیم قولنامه، بررسی حقوقی سند، فسخ
+              قرارداد و راهکارهای قانونی در صورت بروز اختلاف در معاملات املاک
+              نیز به زبان ساده و کاربردی آموزش داده می‌شود. این محتوای آموزشی
+              برای تمام افرادی که قصد <strong>سرمایه‌گذاری در املاک</strong>
+              یا حتی خرید اولین خانه خود را دارند، بسیار ارزشمند است.
+            </p>
+            <p className="mb-4">
+              علاوه بر مباحث حقوقی، ما در این گالری بخش ویژه‌ای از
+              <strong>تورهای مجازی املاک</strong> را نیز قرار داده‌ایم. شما
+              می‌توانید پروژه‌های ساختمانی، آپارتمان‌ها، ویلاها و حتی املاک
+              تجاری را به صورت
+              <strong>ویدیوهای HD و با کیفیت</strong> مشاهده کنید. این امکان به
+              شما کمک می‌کند تا بدون نیاز به حضور فیزیکی در محل، ملک مورد نظر
+              خود را بررسی کرده و مقایسه‌ای دقیق بین گزینه‌های مختلف داشته
+              باشید. این ویژگی مخصوصاً برای کسانی که زمان محدودی برای بازدید
+              حضوری دارند یا به دنبال
+              <em>خرید املاک در شهرهای دیگر</em> هستند، بسیار کارآمد است.
+            </p>
+            <p className="mb-4">
+              نکته مهم دیگر، وجود <strong>ویدیوهای آموزشی حقوقی</strong> است که
+              توسط کارشناسان برجسته و مشاوران حقوقی تهیه شده‌اند. این ویدیوها به
+              شما کمک می‌کنند تا با جزئیات حقوقی قراردادها و قوانین ملکی آشنا
+              شوید و در صورت مواجهه با مشکلات حقوقی، بهترین راهکارها را انتخاب
+              کنید. بسیاری از اختلافات حقوقی در معاملات ملک به دلیل بی‌اطلاعی
+              خریداران و فروشندگان از قوانین رخ می‌دهد، اما با دیدن این آموزش‌ها
+              می‌توانید از بروز چنین مشکلاتی جلوگیری کنید.
+            </p>
+            <p className="mb-4">
+              هدف ما این است که شما بتوانید با استفاده از این مجموعه ویدیوها،
+              تجربه‌ای متفاوت در انتخاب و خرید ملک داشته باشید. چه قصد خرید یک
+              <em>آپارتمان مسکونی</em> داشته باشید، چه به دنبال
+              <em>سرمایه‌گذاری در پروژه‌های ساختمانی</em> باشید، و یا بخواهید با
+              قوانین و مسائل حقوقی املاک بیشتر آشنا شوید، این گالری می‌تواند
+              بهترین منبع آموزشی و راهنمای شما باشد.
+            </p>
+            <p className="mb-4">
+              اگر به دنبال راهی مطمئن و سریع برای یادگیری مسائل حقوقی در حوزه
+              املاک هستید و می‌خواهید قبل از هر تصمیمی اطلاعات کافی داشته باشید،
+              پیشنهاد می‌کنیم همین حالا مجموعه کامل{" "}
+              <strong>ویدیوهای آموزشی املاک و مستغلات</strong>
+              ما را تماشا کنید. با این کار، نه تنها انتخاب‌های دقیق‌تر و
+              هوشمندانه‌تری خواهید داشت، بلکه از بروز بسیاری از مشکلات و
+              خسارت‌های احتمالی در معاملات ملکی نیز جلوگیری می‌کنید.
+            </p>
+          </div>
+        </motion.div>
+
+        {/*  Filter Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white p-4 rounded-xl shadow-sm"
+        >
+          <div className="flex items-center gap-4 w-full">
+            <div className="flex items-center gap-3">
+              <span className="text-black">
+                نمایش {filteredVideos.length} ویدیو
+              </span>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="چیدمان ویدیوها"
+                onClick={() =>
+                  setViewMode(viewMode === "grid" ? "list" : "grid")
+                }
+                className={`p-3 rounded-lg transition-all duration-200 ${
+                  viewMode === "grid"
+                    ? "bg-[#66308d] text-white shadow-lg"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {viewMode === "grid" ? (
+                  <FiGrid size={20} />
+                ) : (
+                  <FiList size={20} />
+                )}
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Video Playlist */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="space-y-6 mx-2"
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">لیست ویدیوها</h2>
+          </div>
+
+          {/* Video Grid/List */}
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                : "space-y-4"
+            }
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredVideos.map((video, index) => (
+                <motion.article
+                  key={video._id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className={`group cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-200"
+                      : "flex items-center gap-4 bg-white rounded-xl p-4 shadow-md hover:shadow-lg border border-gray-200"
+                  } transition-all duration-300 hover:border-[#66308d]/50`}
+                  onClick={() => handleVideoClick(video)}
+                >
+                  {/* Video Thumbnail */}
+                  <div
+                    className={`relative bg-gradient-to-br from-[#66308d]/20 to-[#01ae9b]/20 flex items-center justify-center overflow-hidden ${
+                      viewMode === "grid"
+                        ? "aspect-video"
+                        : "w-32 h-20 rounded-lg flex-shrink-0"
+                    }`}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#66308d]/10 to-[#01ae9b]/10" />
+
+                    {/* Play Icon */}
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      className="relative z-10 p-4 bg-white/20 backdrop-blur-sm rounded-full group-hover:bg-[#66308d]/80 transition-all duration-300"
+                    >
+                      <FiPlay className="text-2xl text-[#66308d] group-hover:text-white transition-colors duration-300" />
+                    </motion.div>
+                  </div>
+
+                  {/* Video Info */}
+                  <div
+                    className={viewMode === "grid" ? "p-4" : "flex-1 min-w-0"}
+                  >
+                    <h3
+                      className={`font-bold text-gray-900 group-hover:text-[#66308d] transition-colors duration-200 ${
+                        viewMode === "grid"
+                          ? "mb-2 line-clamp-2 text-lg"
+                          : "line-clamp-1 mb-1 text-base"
+                      }`}
+                    >
+                      {video.title}
+                    </h3>
+                    <p
+                      className={`text-gray-600 text-sm leading-relaxed ${
+                        viewMode === "grid"
+                          ? "line-clamp-3 mb-3"
+                          : "line-clamp-2 mb-2"
+                      }`}
+                    >
+                      {video.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <FiClock className="text-xs" />
+                      <time dateTime={video.createdAt}>
+                        {new Date(video.createdAt).toLocaleDateString("fa-IR")}
+                      </time>
+                    </div>
+                  </div>
+
+                  {/* Play Button for List View */}
+                  {viewMode === "list" && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="p-3 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      <FiPlay className="text-lg" />
+                    </motion.button>
+                  )}
+                </motion.article>
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* Video Modal */}
+        <VideoModal
+          isOpen={isModalOpen}
+          video={selectedVideo}
+          onClose={closeModal}
+          allVideos={filteredVideos}
+        />
+
+        {/* Schema.org structured data for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "VideoGallery",
+              name: "گالری ویدیو املاک و مستغلات",
+              description:
+                "مجموعه جامع ویدیوهای املاک شامل تورهای مجازی، بازدید از ملک و معرفی پروژههای ساختمانی",
+              video: filteredVideos.map((video) => ({
+                "@type": "VideoObject",
+                name: video.title,
+                description: video.description,
+                contentUrl: video.src,
+                uploadDate: video.createdAt,
+                duration: "PT0M0S",
+              })),
+            }),
+          }}
+        />
+      </motion.div>
+    </div>
+  );
+};
+
+// Video Modal Component
+interface VideoModalProps {
+  isOpen: boolean;
+  video: Video | null;
+  onClose: () => void;
+  allVideos: Video[];
+}
+
+const VideoModal: React.FC<VideoModalProps> = ({
+  isOpen,
+  video,
+  onClose,
+  allVideos,
+}) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(1);
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [showControls_, setShowControls_] = useState(false);
+  const [volume] = useState(1);
+  const [showControls, setShowControls] = useState(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  // Mock data if no videos provided
-  const mockVideos: Video[] = [
-    {
-      _id: "1",
-      title: "تور ویلای لوکس در شمال",
-      description: "بازدید کامل از ویلای 500 متری در محمودآباد با امکانات کامل",
-      src: "/videos/sample1.mp4",
-      alt: "تور ویلای لوکس",
-      createdAt: "1402/06/15",
-    },
-    {
-      _id: "2",
-      title: "آپارتمان مدرن در تهران",
-      description: "نمایش آپارتمان 120 متری در منطقه ولنجک با دکوراسیون مدرن",
-      src: "/videos/sample2.mp4",
-      alt: "آپارتمان مدرن",
-      createdAt: "1402/06/10",
-    },
-    {
-      _id: "3",
-      title: "پروژه ساختمانی جدید",
-      description: "معرفی پروژه ساختمانی 20 طبقه در منطقه پونک",
-      src: "/videos/sample3.mp4",
-      alt: "پروژه ساختمانی",
-      createdAt: "1402/06/05",
-    },
-  ];
-
-  const displayVideos = videos.length > 0 ? videos : mockVideos;
-  const currentVideo = displayVideos[currentVideoIndex];
-
-  // Filter videos based on search
-
+  // Update current video index when video changes
+  useEffect(() => {
+    if (video && allVideos.length > 0) {
+      const index = allVideos.findIndex((v) => v._id === video._id);
+      setCurrentVideoIndex(index);
+    }
+  }, [video, allVideos]);
 
   // Show/hide controls with timeout
   const showControlsTemporarily = () => {
-    setShowControls_(true);
+    setShowControls(true);
     if (controlsTimeoutRef.current) {
       clearTimeout(controlsTimeoutRef.current);
     }
     controlsTimeoutRef.current = setTimeout(() => {
       if (isPlaying) {
-        setShowControls_(false);
+        setShowControls(false);
       }
     }, 3000);
   };
@@ -120,14 +507,6 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
     if (videoRef.current) {
       videoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
-    }
-  };
-
-  const handleVolumeChange = (newVolume: number) => {
-    if (videoRef.current) {
-      videoRef.current.volume = newVolume;
-      setVolume(newVolume);
-      setIsMuted(newVolume === 0);
     }
   };
 
@@ -155,23 +534,20 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
   };
 
   const handleNextVideo = () => {
-    const nextIndex = (currentVideoIndex + 1) % displayVideos.length;
-    setCurrentVideoIndex(nextIndex);
-    setIsLoading(true);
+    if (currentVideoIndex < allVideos.length - 1) {
+      const nextVideo = allVideos[currentVideoIndex + 1];
+      setCurrentVideoIndex(currentVideoIndex + 1);
+      // Update the video prop by calling parent's handler
+      // This would need to be passed as a prop
+    }
   };
 
   const handlePrevVideo = () => {
-    const prevIndex =
-      currentVideoIndex === 0
-        ? displayVideos.length - 1
-        : currentVideoIndex - 1;
-    setCurrentVideoIndex(prevIndex);
-    setIsLoading(true);
-  };
-
-  const handleVideoSelect = (index: number) => {
-    setCurrentVideoIndex(index);
-    setIsLoading(true);
+    if (currentVideoIndex > 0) {
+      const prevVideo = allVideos[currentVideoIndex - 1];
+      setCurrentVideoIndex(currentVideoIndex - 1);
+      // Update the video prop by calling parent's handler
+    }
   };
 
   // Format time helper
@@ -183,68 +559,43 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
 
   // Video event listeners
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
 
     const handleLoadedData = () => {
-      setIsLoading(false);
-      setDuration(video.duration);
-      if (autoPlay) {
-        video.play();
-        setIsPlaying(true);
-      }
+      setIsVideoLoading(false);
+      setDuration(videoElement.duration);
     };
 
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-      setProgress((video.currentTime / video.duration) * 100);
+      setCurrentTime(videoElement.currentTime);
+      setProgress((videoElement.currentTime / videoElement.duration) * 100);
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
-      if (currentVideoIndex < displayVideos.length - 1) {
+      if (currentVideoIndex < allVideos.length - 1) {
         handleNextVideo();
       }
     };
 
-    const handleLoadStart = () => setIsLoading(true);
-    const handleCanPlay = () => setIsLoading(false);
+    const handleLoadStart = () => setIsVideoLoading(true);
+    const handleCanPlay = () => setIsVideoLoading(false);
 
-    video.addEventListener("loadeddata", handleLoadedData);
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("ended", handleEnded);
-    video.addEventListener("loadstart", handleLoadStart);
-    video.addEventListener("canplay", handleCanPlay);
+    videoElement.addEventListener("loadeddata", handleLoadedData);
+    videoElement.addEventListener("timeupdate", handleTimeUpdate);
+    videoElement.addEventListener("ended", handleEnded);
+    videoElement.addEventListener("loadstart", handleLoadStart);
+    videoElement.addEventListener("canplay", handleCanPlay);
 
     return () => {
-      video.removeEventListener("loadeddata", handleLoadedData);
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("ended", handleEnded);
-      video.removeEventListener("loadstart", handleLoadStart);
-      video.removeEventListener("canplay", handleCanPlay);
+      videoElement.removeEventListener("loadeddata", handleLoadedData);
+      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
+      videoElement.removeEventListener("ended", handleEnded);
+      videoElement.removeEventListener("loadstart", handleLoadStart);
+      videoElement.removeEventListener("canplay", handleCanPlay);
     };
-  }, [currentVideoIndex, autoPlay, displayVideos.length]);
-
-  // Keyboard controls
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.code === "Space") {
-        e.preventDefault();
-        handlePlayPause();
-      } else if (e.code === "ArrowRight") {
-        handleNextVideo();
-      } else if (e.code === "ArrowLeft") {
-        handlePrevVideo();
-      } else if (e.code === "KeyM") {
-        handleMute();
-      } else if (e.code === "KeyF") {
-        handleFullscreen();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, []);
+  }, [video, currentVideoIndex, allVideos.length]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -255,194 +606,73 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
     };
   }, []);
 
-  if (displayVideos.length === 0) {
-    return (
+  if (!isOpen || !video) return null;
+
+  return (
+    <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700"
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-9000 flex items-center justify-center p-4"
+        onClick={onClose}
       >
-        <FiPlay className="text-6xl text-gray-400 mb-4" />
-        <p className="text-gray-500 text-lg">هیچ ویدیویی موجود نیست</p>
-      </motion.div>
-    );
-  }
-
-  return (
-    <div className={`w-full max-w-7xl mx-auto mt-40 ${className}`} dir="rtl">
-      {/* Header */}
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 p-4"
-      >
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900  mb-4">
-          گالری ویدیو املاک و مستغلات
-        </h1>
-        <div className="prose prose-lg max-w-none text-gray-600  leading-relaxed">
-          <p className="mb-4">
-            مجموعه جامع و کاملی از <strong>ویدیوهای املاک و مستغلات</strong> که
-            شامل تورهای مجازی، بازدید از ملک، و معرفی پروژه‌های ساختمانی
-            می‌باشد. در این بخش می‌توانید از
-            <strong> ویدیوهای با کیفیت HD </strong>برای مشاهده انواع املاک شامل
-            <em>آپارتمان، ویلا، زمین، و املاک تجاری</em> استفاده کنید.
-          </p>
-
-          <p className="mb-4">
-            <strong>پلتفرم ویدیویی املاک آملاک</strong> به شما امکان مشاهده دقیق
-            و کامل املاک را قبل از بازدید حضوری فراهم می‌کند. هر ویدیو شامل
-            توضیحات کامل، مشخصات فنی، و جزئیات مهم ملک است که به شما در{" "}
-            <strong>تصمیم‌گیری آگاهانه برای خرید، فروش یا اجاره</strong>
-            کمک می‌کند. سیستم جستجوی پیشرفته ما امکان فیلتر کردن ویدیوها بر اساس
-            نوع ملک، منطقه، و قیمت را فراهم می‌کند.
-          </p>
-
-          <p className="mb-4">
-            ویژگی‌های منحصر به فرد پلیر ویدیویی ما شامل{" "}
-            <strong>
-              کنترل‌های پیشرفته، قابلیت تمام‌صفحه، تنظیم کیفیت، و پخش خودکار
-            </strong>{" "}
-            است. همچنین امکان مشاهده در حالت‌های مختلف (شبکه‌ای و لیستی) و{" "}
-            <strong>پشتیبانی کامل از دستگاه‌های موبایل و تبلت</strong>
-            فراهم شده است. تمامی ویدیوها با <em>کیفیت بالا ضبط و تدوین</em>{" "}
-            شده‌اند تا بهترین تجربه مشاهده را برای کاربران فراهم کنند.
-          </p>
-
-          <p>
-            با استفاده از <strong>فناوری‌های مدرن وب</strong> و رابط کاربری
-            بهینه‌شده، این پلتفرم تجربه‌ای روان و سریع در مرور و مشاهده ویدیوهای
-            املاک ارائه می‌دهد.
-            <strong>مشاوران املاک، سرمایه‌گذاران، و متقاضیان خرید</strong>{" "}
-            می‌توانند از این ابزار قدرتمند برای بررسی دقیق‌تر املاک و صرفه‌جویی
-            در زمان استفاده کنند. همچنین قابلیت اشتراک‌گذاری ویدیوها در شبکه‌های
-            اجتماعی و ارسال لینک مستقیم به دوستان و آشنایان نیز فراهم است.
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Search and Filter Bar */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white  p-4 rounded-xl shadow-sm"
-      >
-        <div className="flex justify-between gap-3 items-center w-full">
-          <div className=" text-black">نمایش {displayVideos.length} ویدیو</div>
-          <div>
-            {" "}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              title="چیدمان ویدیوها"
-              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-              className={`p-3 rounded-lg transition-all duration-200 ${
-                viewMode === "grid"
-                  ? "bg-[#66308d] text-white shadow-lg"
-                  : "bg-gray-100 text-gray-600  hover:bg-gray-200 "
-              }`}
-            >
-              {viewMode === "grid" ? (
-                <FiGrid size={20} />
-              ) : (
-                <FiList size={20} />
-              )}
-            </motion.button>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Main Video Player */}
-      <motion.div
-        ref={containerRef}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="relative bg-black rounded-xl overflow-hidden shadow-2xl mb-8 group"
-        onMouseMove={showControlsTemporarily}
-        onMouseEnter={() => setShowControls_(true)}
-        onMouseLeave={() => !isPlaying && setShowControls_(false)}
-      >
-        {/* Video Element */}
-        <video
-          ref={videoRef}
-          className="w-full aspect-video object-cover"
-          src={currentVideo.src}
-          poster={`/images/video-thumbnails/${currentVideo._id}.jpg`}
-          preload="metadata"
-        />
-
-        {/* Loading Overlay */}
-        <AnimatePresence>
-          {isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center backdrop-blur-sm"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                className="p-4 bg-white bg-opacity-20 rounded-full"
-              >
-                <FiLoader className="text-4xl text-white" />
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Play/Pause Overlay */}
         <motion.div
-          className="absolute inset-0 flex items-center justify-center cursor-pointer"
-          onClick={handlePlayPause}
+          ref={containerRef}
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          className="relative bg-black rounded-xl overflow-hidden shadow-2xl w-full max-w-6xl lg:max-h-[90vh] xl:min-h-full   aspect-video"
+          onClick={(e) => e.stopPropagation()}
+          onMouseMove={showControlsTemporarily}
+          onMouseEnter={() => setShowControls(true)}
+          onMouseLeave={() => !isPlaying && setShowControls(false)}
         >
+          {/* Close Button */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={onClose}
+            className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+          >
+            <FiX className="text-xl" />
+          </motion.button>
+
+          {/* Video Element */}
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            src={video.src}
+            preload="metadata"
+            title={video.title}
+            aria-label={video.alt}
+            autoPlay
+          />
+
+          {/* Loading Overlay */}
           <AnimatePresence>
-            {(!isPlaying || showControls_) && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="p-6 bg-[#66308d] bg-opacity-90 rounded-full backdrop-blur-sm shadow-2xl hover:bg-opacity-100 transition-all duration-300"
+            {isVideoLoading && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center backdrop-blur-sm"
               >
-                {isPlaying ? (
-                  <FiPause className="text-4xl text-white" />
-                ) : (
-                  <FiPlay className="text-4xl text-white ml-1" />
-                )}
-              </motion.button>
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="p-4 bg-white bg-opacity-20 rounded-full"
+                >
+                  <FiLoader className="text-4xl text-white" />
+                </motion.div>
+              </motion.div>
             )}
           </AnimatePresence>
-        </motion.div>
 
-        {/* Video Info Overlay */}
-        <AnimatePresence>
-          {showControls_ && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-4 left-4 right-4"
-            >
-              <div className="bg-gradient-to-r from-black/80 to-black/60 backdrop-blur-md rounded-lg p-4">
-                <h3 className="text-white font-bold text-xl mb-2">
-                  {currentVideo.title}
-                </h3>
-                <p className="text-gray-300 text-sm line-clamp-2">
-                  {currentVideo.description}
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Video Controls */}
-        {showControls && (
+          {/* Video Controls */}
           <AnimatePresence>
-            {showControls_ && (
+            {showControls && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -462,10 +692,6 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
                       transition={{ duration: 0.1 }}
-                    />
-                    <motion.div
-                      className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover/progress:opacity-100 transition-opacity duration-200"
-                      style={{ left: `${progress}%`, marginLeft: "-8px" }}
                     />
                   </div>
                 </div>
@@ -490,7 +716,8 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handlePrevVideo}
-                      className="text-white hover:text-[#01ae9b] transition-colors duration-200"
+                      disabled={currentVideoIndex === 0}
+                      className="text-white hover:text-[#01ae9b] transition-colors duration-200 disabled:opacity-50"
                     >
                       <FiSkipBack className="text-xl" />
                     </motion.button>
@@ -499,17 +726,14 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
                       onClick={handleNextVideo}
-                      className="text-white hover:text-[#01ae9b] transition-colors duration-200"
+                      disabled={currentVideoIndex === allVideos.length - 1}
+                      className="text-white hover:text-[#01ae9b] transition-colors duration-200 disabled:opacity-50"
                     >
                       <FiSkipForward className="text-xl" />
                     </motion.button>
 
                     {/* Volume Control */}
-                    <div
-                      className="relative flex items-center group/volume"
-                      onMouseEnter={() => setShowVolumeSlider(true)}
-                      onMouseLeave={() => setShowVolumeSlider(false)}
-                    >
+                    <div className="relative flex items-center group/volume">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -522,36 +746,6 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
                           <FiVolume2 className="text-xl" />
                         )}
                       </motion.button>
-
-                      <AnimatePresence>
-                        {showVolumeSlider && (
-                          <motion.div
-                            initial={{ opacity: 0, x: -10, scale: 0.9 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{ opacity: 0, x: -10, scale: 0.9 }}
-                            className="absolute left-full ml-3 bg-black/90 backdrop-blur-sm rounded-lg p-3 shadow-xl"
-                          >
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.1"
-                              value={volume}
-                              onChange={(e) =>
-                                handleVolumeChange(parseFloat(e.target.value))
-                              }
-                              className="w-20 h-2 bg-white/30 rounded-lg appearance-none cursor-pointer slider"
-                              style={{
-                                background: `linear-gradient(to right, #66308d 0%, #01ae9b ${
-                                  volume * 100
-                                }%, rgba(255,255,255,0.3) ${
-                                  volume * 100
-                                }%, rgba(255,255,255,0.3) 100%)`,
-                              }}
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
                     </div>
 
                     {/* Time Display */}
@@ -579,320 +773,9 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
               </motion.div>
             )}
           </AnimatePresence>
-        )}
+        </motion.div>
       </motion.div>
-
-      {/* Video Playlist */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="space-y-6 mx-2"
-      >
-        <div className="flex flex-row-reverse items-center justify-end">
-          <h2 className="text-2xl font-bold text-gray-900">لیست ویدیوها</h2>
-        </div>
-
-        {/* Video Grid/List */}
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              : "space-y-4"
-          }
-        >
-          <AnimatePresence mode="popLayout">
-            {displayVideos.map((video, index) => (
-              <motion.div
-                key={video._id}
-                layout
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className={`group cursor-pointer ${
-                  viewMode === "grid"
-                    ? "bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-200 dark:border-gray-700"
-                    : "flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-700"
-                } transition-all duration-300 hover:border-[#66308d]/50`}
-                onClick={() => handleVideoSelect(displayVideos.indexOf(video))}
-              >
-                {/* Video Thumbnail */}
-                <div
-                  className={`relative bg-gradient-to-br from-[#66308d]/20 to-[#01ae9b]/20 flex items-center justify-center overflow-hidden ${
-                    viewMode === "grid"
-                      ? "aspect-video"
-                      : "w-32 h-20 rounded-lg flex-shrink-0"
-                  }`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#66308d]/10 to-[#01ae9b]/10" />
-
-                  {/* Play Icon */}
-                  <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    className="relative z-10 p-4 bg-white/20 backdrop-blur-sm rounded-full group-hover:bg-[#66308d]/80 transition-all duration-300"
-                  >
-                    <FiPlay className="text-2xl text-[#66308d] group-hover:text-white transition-colors duration-300" />
-                  </motion.div>
-
-                  {/* Active Video Indicator */}
-                  {currentVideo._id === video._id && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute top-3 right-3 flex items-center gap-2 bg-[#01ae9b] text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg"
-                    >
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                      در حال پخش
-                    </motion.div>
-                  )}
-
-                  {/* Duration Badge */}
-                  <div className="absolute bottom-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
-                    {formatTime(duration || 0)}
-                  </div>
-                </div>
-
-                {/* Video Info */}
-                <div className={viewMode === "grid" ? "p-4" : "flex-1 min-w-0"}>
-                  <h3
-                    className={`font-bold text-gray-900 dark:text-white group-hover:text-[#66308d] transition-colors duration-200 ${
-                      viewMode === "grid"
-                        ? "mb-2 line-clamp-2 text-lg"
-                        : "line-clamp-1 mb-1 text-base"
-                    }`}
-                  >
-                    {video.title}
-                  </h3>
-                  <p
-                    className={`text-gray-600 dark:text-gray-400 text-sm leading-relaxed ${
-                      viewMode === "grid"
-                        ? "line-clamp-3 mb-3"
-                        : "line-clamp-2 mb-2"
-                    }`}
-                  >
-                    {video.description}
-                  </p>
-                  {video.createdAt && (
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-                      <FiClock className="text-xs" />
-                      <span>{video.createdAt}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Play Button for List View */}
-                {viewMode === "list" && (
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-3 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                  >
-                    <FiPlay className="text-lg" />
-                  </motion.button>
-                )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-
-        {/* Empty State */}
-        {displayVideos.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-[#66308d]/20 to-[#01ae9b]/20 rounded-full flex items-center justify-center">
-              <FiSearch className="text-4xl text-[#66308d]" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              نتیجه‌ای یافت نشد
-            </h3>
-            <p className="text-gray-500 dark:text-gray-400">
-              هیچ ویدیویی با این جستجو پیدا نشد. لطفاً کلمات کلیدی دیگری امتحان
-              کنید.
-            </p>
-          </motion.div>
-        )}
-      </motion.div>
-
-      {/* Custom Styles */}
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #01ae9b;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .slider::-moz-range-thumb {
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: #01ae9b;
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .line-clamp-1 {
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .line-clamp-3 {
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        @media (max-width: 640px) {
-          .aspect-video {
-            aspect-ratio: 16 / 9;
-          }
-        }
-
-        /* Custom scrollbar for webkit browsers */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(45deg, #66308d, #01ae9b);
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(45deg, #4a1f5f, #017a6b);
-        }
-
-        /* Focus styles for accessibility */
-        button:focus-visible,
-        input:focus-visible {
-          outline: 2px solid #66308d;
-          outline-offset: 2px;
-        }
-
-        /* Smooth transitions for dark mode */
-        * {
-          transition: background-color 0.2s ease, border-color 0.2s ease,
-            color 0.2s ease;
-        }
-
-        /* Video element styles */
-        video {
-          background: #000;
-        }
-
-        video::-webkit-media-controls {
-          display: none !important;
-        }
-
-        video::-webkit-media-controls-enclosure {
-          display: none !important;
-        }
-
-        /* Loading animation */
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.5;
-          }
-        }
-
-        .animate-pulse {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        /* Gradient text */
-        .gradient-text {
-          background: linear-gradient(45deg, #66308d, #01ae9b);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        /* Hover effects */
-        .hover-lift {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .hover-lift:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-          .mobile-padding {
-            padding: 1rem;
-          }
-
-          .mobile-text {
-            font-size: 0.875rem;
-          }
-
-          .mobile-button {
-            padding: 0.5rem;
-            min-width: 44px;
-            min-height: 44px;
-          }
-        }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-          .bg-gradient-to-r {
-            background: #66308d !important;
-          }
-
-          .border-gray-200 {
-            border-color: #000 !important;
-          }
-
-          .text-gray-600 {
-            color: #000 !important;
-          }
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-          * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-          }
-        }
-
-        /* Print styles */
-        @media print {
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
-    </div>
+    </AnimatePresence>
   );
 };
 

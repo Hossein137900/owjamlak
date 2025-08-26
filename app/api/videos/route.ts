@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir, readdir, unlink } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
-import { jwtDecode } from "jwt-decode";
 import jwt from "jsonwebtoken";
+import connectDB from "@/lib/data";
+import Video from "@/models/video";
 
 type TokenPayload = {
   id?: string;
@@ -29,23 +30,9 @@ function checkAdminAccess(token: string): { isValid: boolean; role?: string } {
 // GET - List all videos (no auth required)
 export async function GET() {
   try {
-    const videosDir = join(process.cwd(), "public", "uploads", "videos");
+    await connectDB();
+    const videos = await Video.find().sort({ createdAt: -1 });
     
-    if (!existsSync(videosDir)) {
-      return NextResponse.json({ videos: [] });
-    }
-
-    const files = await readdir(videosDir);
-    const videoFiles = files.filter(file => 
-      /\.(mp4|webm|ogg|avi|mov)$/i.test(file)
-    );
-
-    const videos = videoFiles.map(filename => ({
-      filename,
-      url: `/api/videos/${filename}`,
-      uploadedAt: new Date().toISOString() // You might want to get actual file stats
-    }));
-
     return NextResponse.json({ videos });
   } catch (error) {
     console.error("Error listing videos:", error);
@@ -78,10 +65,20 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const videoFile = formData.get("video") as File;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const alt = formData.get("alt") as string;
 
     if (!videoFile || videoFile.size === 0) {
       return NextResponse.json(
         { success: false, message: "فایل ویدیو مورد نیاز است" },
+        { status: 400 }
+      );
+    }
+
+    if (!title || !description || !alt) {
+      return NextResponse.json(
+        { success: false, message: "عنوان، توضیحات و متن جایگزین الزامی است" },
         { status: 400 }
       );
     }
@@ -121,16 +118,25 @@ export async function POST(request: NextRequest) {
     const bytes = await videoFile.arrayBuffer();
     await writeFile(filepath, Buffer.from(bytes));
 
+    // Save to database
+    await connectDB();
+    const video = new Video({
+      title,
+      description,
+      alt,
+      src: `/uploads/videos/${filename}`,
+      filename,
+      originalName: videoFile.name,
+      size: videoFile.size,
+      uploadedBy: role
+    });
+    
+    await video.save();
+
     return NextResponse.json({
       success: true,
       message: "ویدیو با موفقیت آپلود شد",
-      video: {
-        filename,
-        url: `/api/videos/${filename}`,
-        originalName: videoFile.name,
-        size: videoFile.size,
-        uploadedBy: role
-      }
+      video
     });
 
   } catch (error) {
@@ -162,34 +168,35 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { filename } = await request.json();
+    const { id } = await request.json();
     
-    if (!filename) {
+    if (!id) {
       return NextResponse.json(
-        { success: false, message: "نام فایل مورد نیاز است" },
+        { success: false, message: "شناسه ویدیو مورد نیاز است" },
         { status: 400 }
       );
     }
 
-    // Security: Validate filename
-    if (!/^[a-zA-Z0-9._-]+$/.test(filename) || filename.includes('..')) {
+    await connectDB();
+    const video = await Video.findById(id);
+    
+    if (!video) {
       return NextResponse.json(
-        { success: false, message: "نام فایل نامعتبر است" },
-        { status: 400 }
-      );
-    }
-
-    const videosDir = join(process.cwd(), "public", "uploads", "videos");
-    const filepath = join(videosDir, filename);
-
-    if (!existsSync(filepath)) {
-      return NextResponse.json(
-        { success: false, message: "فایل یافت نشد" },
+        { success: false, message: "ویدیو یافت نشد" },
         { status: 404 }
       );
     }
 
-    await unlink(filepath);
+    // Delete file from filesystem
+    const videosDir = join(process.cwd(), "public", "uploads", "videos");
+    const filepath = join(videosDir, video.filename);
+
+    if (existsSync(filepath)) {
+      await unlink(filepath);
+    }
+
+    // Delete from database
+    await Video.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,
@@ -200,6 +207,71 @@ export async function DELETE(request: NextRequest) {
     console.error("Error deleting video:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف ویدیو" },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH - Update video metadata (admin/superadmin only)
+export async function PATCH(request: NextRequest) {
+  try {
+    // Check authentication
+    const token = request.headers.get("token");
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: "توکن مورد نیاز است" },
+        { status: 401 }
+      );
+    }
+
+    const { isValid } = checkAdminAccess(token);
+    if (!isValid) {
+      return NextResponse.json(
+        { success: false, message: "دسترسی محدود به ادمین و سوپرادمین" },
+        { status: 403 }
+      );
+    }
+
+    const { id, title, description, alt } = await request.json();
+    
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "شناسه ویدیو مورد نیاز است" },
+        { status: 400 }
+      );
+    }
+
+    if (!title || !description || !alt) {
+      return NextResponse.json(
+        { success: false, message: "عنوان، توضیحات و متن جایگزین الزامی است" },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+    const video = await Video.findByIdAndUpdate(
+      id,
+      { title, description, alt },
+      { new: true }
+    );
+    
+    if (!video) {
+      return NextResponse.json(
+        { success: false, message: "ویدیو یافت نشد" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "اطلاعات ویدیو با موفقیت به‌روزرسانی شد",
+      video
+    });
+
+  } catch (error) {
+    console.error("Error updating video:", error);
+    return NextResponse.json(
+      { success: false, message: "خطا در به‌روزرسانی ویدیو" },
       { status: 500 }
     );
   }

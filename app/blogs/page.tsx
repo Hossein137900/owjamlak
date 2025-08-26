@@ -1,5 +1,4 @@
-import React from "react";
-import { Metadata } from "next";
+ import { Metadata } from "next";
 import BlogContainer from "@/components/static/blogs/blogContainer";
 
 export const metadata: Metadata = {

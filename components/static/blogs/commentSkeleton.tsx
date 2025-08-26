@@ -1,5 +1,3 @@
-import React from "react";
-
 const CommentSkeleton: React.FC = () => {
   return (
     <div className="border border-gray-200 rounded-lg p-4 animate-pulse">

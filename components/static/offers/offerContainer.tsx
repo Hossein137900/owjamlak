@@ -320,12 +320,7 @@ const OffersPage = () => {
                     rooms: poster.rooms,
                     floor: poster.floor,
                   }}
-                  imagePath={
-                    poster.images && poster.images.length > 0
-                      ? poster.images.find((img) => img.mainImage)?.url ||
-                        poster.images[0]?.url
-                      : undefined
-                  }
+                  images={poster.images}
                   parentType={poster.parentType}
                   tradeType={poster.tradeType}
                   type={poster.type}

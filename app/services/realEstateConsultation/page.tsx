@@ -1,7 +1,6 @@
 import RealEstateConsultationPage from "@/components/static/services/realStateConsultation";
 import { Metadata } from "next";
-import React from "react";
-
+ 
 export const metadata: Metadata = {
   title: "مشاور املاک",
   description:
