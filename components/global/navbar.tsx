@@ -219,7 +219,7 @@ const Navbar = () => {
     window.location.href = "/";
   };
 
-  if (pathname === "/auth") {
+  if (pathname === "/auth" || pathname === "/admin") {
     return null;
   }
 

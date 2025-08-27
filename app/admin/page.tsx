@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const page = () => {
   return (
     <AdminAuthProvider>
-      <main className="mt-20" dir="rtl">
+      <main className="" dir="rtl">
         <AdminLayout />
       </main>
     </AdminAuthProvider>

@@ -52,7 +52,7 @@ export default function BlogImageUpload({
   return (
     <div className="space-y-6">
       <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-[#e5d8d0]/20">
-        <h3 className="text-xl font-bold text-white mb-4 text-center">
+        <h3 className="text-xl font-bold text-black mb-4 text-center">
           تصاویر بلاگ
         </h3>
 
@@ -116,7 +116,7 @@ export default function BlogImageUpload({
 
         {/* Upload Area */}
         <div className="space-y-4">
-          <p className="text-white/70 text-sm text-center">
+          <p className="text-black/50 text-sm text-center">
             حداکثر {maxFiles} تصویر می‌توانید آپلود کنید (تصویر اصلی و تصویر
             دوم)
           </p>
@@ -168,7 +168,7 @@ export default function BlogImageUpload({
         </div>
 
         {/* Upload Instructions */}
-        <div className="mt-4 text-sm text-white/60 space-y-1">
+        <div className="mt-4 text-sm text-black/60 space-y-1">
           <p>• اولین تصویر به عنوان تصویر اصلی بلاگ استفاده می‌شود</p>
           <p>• دومین تصویر به عنوان تصویر فرعی استفاده می‌شود</p>
           <p>• فرمت‌های مجاز: PNG, JPG, JPEG, GIF, WebP</p>

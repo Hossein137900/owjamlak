@@ -5,15 +5,7 @@ import { FiLoader, FiHeart, FiTrash2, FiEye } from "react-icons/fi";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import Image from "next/image";
-
-interface Poster {
-  _id: string;
-  title: string;
-  images: { url: string }[];
-  createdAt: string;
-  price?: number;
-  location?: string;
-}
+import { Poster } from "@/types/type";
 
 export default function AdminFavoritesPage() {
   const [favorites, setFavorites] = useState<Poster[]>([]);
@@ -82,8 +74,6 @@ export default function AdminFavoritesPage() {
     setShowDeleteModal(true);
   };
 
-
-
   if (loading) {
     return (
       <div className="h-64 bg-transparent flex items-center justify-center">
@@ -122,58 +112,67 @@ export default function AdminFavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {favorites.map((poster) => (
-            <div
-              key={poster._id}
-              className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-shadow duration-200 overflow-hidden"
-            >
-              {/* Image */}
-              <div className="relative aspect-video">
-                <Image
-                  src={poster.images?.[0]?.url || "/assets/images/hero.jpg"}
-                  alt={poster.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+          {favorites.map((poster) => {
+            const mainImage =
+              poster.images?.find((img) => img.mainImage) || poster.images?.[0];
+            const imageUrl =
+              typeof mainImage === "string"
+                ? mainImage
+                : mainImage?.url || "/assets/images/hero.jpg";
 
-              {/* Content */}
-              <div className="p-4">
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                  {poster.title}
-                </h3>
+            return (
+              <div
+                key={poster._id}
+                className="bg-white/90 rounded-md shadow-sm   hover:shadow-2xl transition-all duration-300 hover:-translate-y-1  overflow-hidden"
+              >
+                {/* Image */}
+                <div className="relative aspect-square">
+                  <Image
+                    src={imageUrl}
+                    alt={poster.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
-                {poster.location && (
-                  <p className="text-sm text-gray-600 mb-2">
-                    {poster.location}
-                  </p>
-                )}
+                {/* Content */}
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                    {poster.title}
+                  </h3>
 
-                <div className=" flex gap-2 justify-between items-center mt-2">
-                  <p className="text-xs text-gray-500">
-                    {poster.createdAt
-                      ? new Date(poster.createdAt).toLocaleDateString("fa-IR")
-                      : "نامشخص"}
-                  </p>
-                  {/* Action Buttons */}
-                  <div className="flex">
-                    {" "}
-                    <Link href={`/poster/${poster._id}`} target="_blank">
-                      <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-600 hover:text-white transition-colors">
-                        <FiEye className="text-sm" />
+                  {poster.location && (
+                    <p className="text-sm text-gray-600 mb-2">
+                      {poster.location.slice(0, 30)}...
+                    </p>
+                  )}
+
+                  <div className=" flex gap-2 justify-between items-center mt-2">
+                    <p className="text-xs text-gray-500">
+                      {poster.createdAt
+                        ? new Date(poster.createdAt).toLocaleDateString("fa-IR")
+                        : "نامشخص"}
+                    </p>
+                    {/* Action Buttons */}
+                    <div className="flex gap-1">
+                      {" "}
+                      <Link href={`/poster/${poster._id}`} target="_blank">
+                        <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-500 cursor-pointer hover:text-white transition-colors">
+                          <FiEye className="text-sm" />
+                        </button>
+                      </Link>
+                      <button
+                        onClick={() => confirmDelete(poster._id)}
+                        className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-red-600 cursor-pointer hover:text-white transition-colors"
+                      >
+                        <FiTrash2 className="text-sm" />
                       </button>
-                    </Link>
-                    <button
-                      onClick={() => confirmDelete(poster._id)}
-                      className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-red-600 hover:text-white transition-colors"
-                    >
-                      <FiTrash2 className="text-sm" />
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -200,54 +200,87 @@ const PosterById: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
+        localStorage.removeItem("token")
         toast.error("لطفا وارد شوید");
         return;
       }
 
       const updatedImages = editFormData.images || [];
+      const hasNewImages = updatedImages.some((img: any) => img.file);
 
-      const response = await fetch(`/api/poster`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          id: selectedPoster._id,
-          ...editFormData,
-          // Separate existing images from new uploads
-          images: updatedImages.map((img) => ({
-            ...img,
-            // Remove temporary fields and files from existing images
-            ...("file" in img
-              ? {
-                  file: undefined,
-                  _id: undefined,
-                }
-              : {}),
-          })),
-        }),
-      });
+      if (hasNewImages) {
+        // Use FormData for new image uploads
+        const formData = new FormData();
+        formData.append("id", selectedPoster._id);
+        
+        // Add all form fields
+        Object.entries(editFormData).forEach(([key, value]) => {
+          if (key !== "images" && key !== "_id" && value !== undefined && value !== null) {
+            if (typeof value === "object") {
+              formData.append(key, JSON.stringify(value));
+            } else {
+              formData.append(key, String(value));
+            }
+          }
+        });
 
-      const result = await response.json();
+        // Add new image files
+        let imageIndex = 0;
+        updatedImages.forEach((img: any) => {
+          if (img.file) {
+            formData.append("images", img.file);
+            formData.append(`imageData_${imageIndex}`, JSON.stringify({
+              alt: img.alt,
+              mainImage: img.mainImage
+            }));
+            imageIndex++;
+          }
+        });
 
-      if (response.ok) {
-        toast.success("آگهی با موفقیت بروزرسانی شد");
-        setPosters((prev) =>
-          prev.map((p) =>
-            p._id === selectedPoster._id
-              ? { ...p, ...editFormData, images: updatedImages }
-              : p
-          )
-        );
-        setIsEditModalOpen(false);
-        setEditFormData({});
-        setSelectedPoster(null);
+        const response = await fetch(`/api/poster`, {
+          method: "PATCH",
+          headers: {
+            token: token,
+          },
+          body: formData,
+        });
 
-        document.body.style.overflow = "unset";
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || "خطا در بروزرسانی آگهی");
+        }
       } else {
-        toast.error(result.message || "خطا در بروزرسانی آگهی");
+        // Use JSON for updates without new images
+        const response = await fetch(`/api/poster`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            token: token,
+          },
+          body: JSON.stringify({
+            id: selectedPoster._id,
+            ...editFormData,
+          }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || "خطا در بروزرسانی آگهی");
+        }
       }
+
+      toast.success("آگهی با موفقیت بروزرسانی شد");
+      setPosters((prev) =>
+        prev.map((p) =>
+          p._id === selectedPoster._id
+            ? { ...p, ...editFormData, images: updatedImages }
+            : p
+        )
+      );
+      setIsEditModalOpen(false);
+      setEditFormData({});
+      setSelectedPoster(null);
+      document.body.style.overflow = "unset";
     } catch (error) {
       toast.error("خطا در بروزرسانی آگهی");
     } finally {
@@ -307,8 +340,8 @@ const PosterById: React.FC = () => {
   }
 
   return (
-    <div className=" ">
-      <div className="px-8 pb-4 m-4 border-b text-gray-500">
+    <div className="">
+      <div className="pb-4 m-4 text-gray-500">
         <h1 className="text-3xl font-bold mb-3">آگهی‌های من</h1>
         <p className="text-gray-600 text-lg">{posters.length} آگهی فعال</p>
       </div>
@@ -321,10 +354,10 @@ const PosterById: React.FC = () => {
           return (
             <div
               key={poster._id}
-              className="bg-white rounded-md shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+              className="bg-white/90 rounded-md shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1  "
             >
               {mainImage && (
-                <div className="relative h-36 md:h-44 bg-gradient-to-br from-gray-100 to-gray-200">
+                <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200">
                   <Image
                     src={mainImage.url}
                     alt={mainImage.alt || poster.title}
@@ -336,8 +369,8 @@ const PosterById: React.FC = () => {
                 </div>
               )}
 
-              <div className="p-6">
-                <h3 className="font-bold md:text-xl mb-3 text-gray-800 line-clamp-2 leading-tight">
+              <div className="p-4">
+                <h3 className="font-bold md:text-base mb-3 text-gray-800 text-sm line-clamp-1">
                   {poster.title}
                 </h3>
 
@@ -350,31 +383,7 @@ const PosterById: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-5 items-center justify-center gap-3 mb-4">
-                  <span className="text-xs font-semibold text-gray-700">
-                    {formatPrice(poster.area)} متر
-                  </span>
-                  {poster.parking && (
-                    <span className=" text-blue-700 rounded-lg text-xs font-semibold ">
-                      پارکینگ
-                    </span>
-                  )}
-                  {poster.storage && (
-                    <span className=" text-emerald-700 rounded-lg text-xs font-semibold ">
-                      انباری
-                    </span>
-                  )}
-                  {poster.lift && (
-                    <span className=" text-purple-700 rounded-lg text-xs font-semibold ">
-                      آسانسور
-                    </span>
-                  )}
-                  {poster.balcony && (
-                    <span className=" text-purple-700 rounded-lg text-xs font-semibold ">
-                      بالکن
-                    </span>
-                  )}
-                </div>
+                 
 
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-gray-400 font-medium">
@@ -384,9 +393,8 @@ const PosterById: React.FC = () => {
 
                   <div className="flex gap-2">
                     <Link href={`/poster/${poster._id}`} target="_blank">
-                      <button className="text-black px-2 py-2 border-b text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-1">
-                        مشاهده
-                        <FaExternalLinkAlt className="text-xs" />
+                      <button className="text-black px-2 py-2   text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105  ">
+                         <FaExternalLinkAlt className="text-xs" />
                       </button>
                     </Link>
                     <button
@@ -394,8 +402,7 @@ const PosterById: React.FC = () => {
                       className="text-blue-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-1"
                     >
                       <FiEdit className="text-xs" />
-                      ویرایش
-                    </button>
+                     </button>
                     <button
                       onClick={() => {
                         setDeleteModal({ isOpen: true, posterId: poster._id });
@@ -403,8 +410,8 @@ const PosterById: React.FC = () => {
                       }}
                       className="text-red-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105"
                     >
-                      حذف
-                    </button>
+                      <FiTrash2 className="text-xs" />
+                     </button>
                   </div>
                 </div>
               </div>

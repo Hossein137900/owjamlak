@@ -327,13 +327,13 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div
-      className={`min-h-screen ${mainBgClass} flex flex-col transition-colors duration-300`}
+      className={`min-h-screen relative ${mainBgClass} flex flex-col transition-colors duration-300`}
     >
       <header
-        className={`${headerBgClass} shadow-sm z-20 transition-colors duration-300`}
+        className={`${headerBgClass} fixed top-0 w-full shadow-sm z-20 transition-colors duration-300`}
       >
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-16 ">
             <div className="flex items-center">
               <button
                 onClick={toggleMobileSidebar}
@@ -449,7 +449,7 @@ const AdminLayout: React.FC = () => {
                 animate={{ opacity: 0.5 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-30 md:hidden"
+                className="fixed inset-0 bg-black/70 backdrop-blur-md z-9999 md:hidden"
                 onClick={toggleMobileSidebar}
               />
               <motion.div
@@ -485,7 +485,7 @@ const AdminLayout: React.FC = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={toggleMobileSidebar}
-                    className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200"
+                    className="p-2 rounded-full text-gray-500 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200"
                   >
                     املاک اوج
                   </motion.span>
@@ -687,7 +687,7 @@ const AdminLayout: React.FC = () => {
         </motion.div>
 
         <main
-          className={`flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 ${mainBgClass} transition-colors duration-300`}
+          className={`flex-1 overflow-y-auto p-4 sm:p-6 mt-16 md:mt-10 lg:p-8 ${mainBgClass} transition-colors duration-300`}
         >
           <motion.div
             key={activeSection}

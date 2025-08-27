@@ -357,6 +357,9 @@ const PosterForm = ({}) => {
         setSuccess("آگهی با موفقیت ایجاد شد");
         toast.success("آگهی با موفقیت ایجاد شد");
 
+        // Smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
         // Trigger event to refresh posterById component
         window.dispatchEvent(new CustomEvent("posterCreated"));
         // Reset form

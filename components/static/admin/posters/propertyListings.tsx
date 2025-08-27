@@ -343,45 +343,74 @@ const PropertyListings: React.FC = () => {
     setIsUpdating(true);
     try {
       const token = localStorage.getItem("token");
+      const hasNewImages = newImages && newImages.length > 0;
 
-      const updatedImages = editFormData.images || [];
+      if (hasNewImages) {
+        // Use FormData for new image uploads
+        const formData = new FormData();
+        formData.append("id", selectedProperty?._id || "");
+        
+        // Add all form fields
+        Object.entries(editFormData).forEach(([key, value]) => {
+          if (key !== "images" && key !== "_id" && value !== undefined && value !== null) {
+            if (typeof value === "object") {
+              formData.append(key, JSON.stringify(value));
+            } else {
+              formData.append(key, String(value));
+            }
+          }
+        });
 
-      const response = await fetch(`/api/poster`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          id: selectedProperty?._id,
-          ...editFormData,
-          // Separate existing images from new uploads
-          images: updatedImages.map((img) => ({
-            ...img,
-            // Remove temporary fields and files from existing images
-            ...("file" in img
-              ? {
-                  file: undefined,
-                  _id: undefined,
-                }
-              : {}),
-          })),
-        }),
-      });
+        // Add new image files
+        newImages.forEach((img, index) => {
+          if (img.file) {
+            formData.append("images", img.file);
+            formData.append(`imageData_${index}`, JSON.stringify({
+              alt: img.alt,
+              mainImage: img.mainImage
+            }));
+          }
+        });
 
-      const result = await response.json();
+        const response = await fetch(`/api/poster`, {
+          method: "PATCH",
+          headers: {
+            token: token || "",
+          },
+          body: formData,
+        });
 
-      if (response.ok) {
-        toast.success("آگهی با موفقیت بروزرسانی شد");
-        fetchData();
-        setIsEditModalOpen(false);
-        setSelectedProperty(null);
-        setEditFormData({});
-        setNewImages([]);
-        document.body.style.overflow = "unset";
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || "خطا در بروزرسانی آگهی");
+        }
       } else {
-        throw new Error(result.message || "خطا در بروزرسانی آگهی");
+        // Use JSON for updates without new images
+        const response = await fetch(`/api/poster`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            token: token || "",
+          },
+          body: JSON.stringify({
+            id: selectedProperty?._id,
+            ...editFormData,
+          }),
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || "خطا در بروزرسانی آگهی");
+        }
       }
+
+      toast.success("آگهی با موفقیت بروزرسانی شد");
+      fetchData();
+      setIsEditModalOpen(false);
+      setSelectedProperty(null);
+      setEditFormData({});
+      setNewImages([]);
+      document.body.style.overflow = "unset";
     } catch (error: unknown) {
       console.log("Error updating poster:", error);
       toast.error("خطا در بروزرسانی آگهی");
@@ -531,7 +560,6 @@ const PropertyListings: React.FC = () => {
         </h1>
         {/* Filters - Same as before */}
         <div className="flex   flex-col md:flex-row gap-3">
-          
           <form onSubmit={handleSearch} className="relative flex">
             <input
               type="text"

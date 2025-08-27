@@ -169,6 +169,7 @@ export default function PosterDetailClient({
     }
   };
 
+
   useEffect(() => {
     fetchPosterData();
   }, [id]);
@@ -183,8 +184,6 @@ export default function PosterDetailClient({
       }, 500);
     }
   }, [posterData]);
-
-
 
   const handleToggleFavorite = async () => {
     try {
@@ -342,6 +341,29 @@ export default function PosterDetailClient({
       window.open(`tel:${posterData.user.phone}`);
     }
   };
+  const safeUser = {
+    _id: posterData?.user?._id || "",
+    name: posterData?.user?.name || "نامشخص",
+    phone: posterData?.user?.phone || "",
+  };
+
+  const isRentType =
+    posterData?.parentType === "residentialRent" ||
+    posterData?.parentType === "commercialRent" ||
+    posterData?.parentType === "shortTermRent";
+
+  const images =
+    posterData?.images && posterData?.images.length > 0
+      ? posterData?.images.map((img) =>
+          typeof img === "string" ? img : img.url || "/assets/images/hero.jpg"
+        )
+      : ["/assets/images/hero.jpg"];
+
+  // Get main image index for initial display
+  const mainImageIndex = posterData?.images?.findIndex((img) => img.mainImage) ?? -1;
+  
+  // Use main image index initially, then use currentImageIndex for navigation
+  const displayImageIndex = currentImageIndex === 0 && mainImageIndex !== -1 ? mainImageIndex : currentImageIndex;
 
   if (loading) {
     return (
@@ -365,24 +387,6 @@ export default function PosterDetailClient({
       </div>
     );
   }
-
-  const safeUser = {
-    _id: posterData.user?._id || "",
-    name: posterData.user?.name || "نامشخص",
-    phone: posterData.user?.phone || "",
-  };
-
-  const isRentType =
-    posterData.parentType === "residentialRent" ||
-    posterData.parentType === "commercialRent" ||
-    posterData.parentType === "shortTermRent";
-
-  const images =
-    posterData.images && posterData.images.length > 0
-      ? posterData.images.map((img) =>
-          typeof img === "string" ? img : img.url || "/assets/images/hero.jpg"
-        )
-      : ["/assets/images/hero.jpg"];
 
   return (
     <main
@@ -518,8 +522,8 @@ export default function PosterDetailClient({
             <div className="rounded-lg overflow-hidden mb-3 sm:mb-4 relative aspect-[16/9] sm:aspect-video w-full group">
               <div className="absolute w-full h-full">
                 <Image
-                  src={images[currentImageIndex] || "/assets/images/hero.jpg"}
-                  alt={`تصویر ${currentImageIndex + 1}`}
+                  src={images[displayImageIndex] || "/assets/images/hero.jpg"}
+                  alt={`تصویر ${displayImageIndex + 1}`}
                   fill
                   className="object-cover"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, 50vw"
@@ -547,10 +551,10 @@ export default function PosterDetailClient({
                 </>
               )}
               <div className="absolute bottom-2 right-2 bg-black/50 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">
-                {currentImageIndex + 1} / {images.length}
+                {displayImageIndex + 1} / {images.length}
               </div>
               <button
-                onClick={() => openGallery(currentImageIndex)}
+                onClick={() => openGallery(displayImageIndex)}
                 className="absolute top-2 left-2 bg-black/50 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs hover:bg-black/70 transition-colors"
               >
                 <FaImages className="inline ml-1 w-3 h-3 sm:w-4 sm:h-4" />
@@ -561,7 +565,7 @@ export default function PosterDetailClient({
             {/* Thumbnails */}
             <div className="flex gap-2 mb-4 sm:mb-6 w-full overflow-x-auto">
               {images
-                .slice(0, window.innerWidth >= 1024 ? 5 : 3)
+                .slice(0, window.innerWidth >= 1024 ? 5 : 2)
                 .map((img, index) => (
                   <div
                     key={index}
@@ -753,7 +757,10 @@ export default function PosterDetailClient({
             </div>
 
             {/* Contact Section */}
-            <div id="contact-section" className="space-y-2 lg:mt-11 sm:space-y-3">
+            <div
+              id="contact-section"
+              className="space-y-2 lg:mt-11 sm:space-y-3"
+            >
               <div className="bg-white p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200">
                 <h3 className="font-semibold text-gray-700 mb-2 text-xs sm:text-sm md:text-base">
                   اطلاعات تماس
@@ -845,8 +852,6 @@ export default function PosterDetailClient({
 
         {/* Map Section - Full Width */}
         <div className="mt-4 sm:mt-6 md:mt-8">
-         
-
           {posterData.coordinates?.lat && posterData.coordinates?.lng && (
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
               <div className="h-56 sm:h-64 md:h-80 relative">
