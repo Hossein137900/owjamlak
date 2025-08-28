@@ -45,6 +45,13 @@ export default function PosterDetailClient({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [[currentImageIndex, direction], setCurrentImage] = useState([0, 0]);
+  
+  // Reset to index 0 when poster data changes to ensure video shows first
+  useEffect(() => {
+    if (posterData) {
+      setCurrentImage([0, 0]);
+    }
+  }, [posterData]);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -272,17 +279,17 @@ export default function PosterDetailClient({
   };
 
   const nextImage = () => {
-    if (posterData?.images && posterData.images.length > 0) {
-      const newIndex = (currentImageIndex + 1) % posterData.images.length;
+    if (mediaItems.length > 0) {
+      const newIndex = (currentImageIndex + 1) % mediaItems.length;
       setCurrentImage([newIndex, 1]);
     }
   };
 
   const prevImage = () => {
-    if (posterData?.images && posterData.images.length > 0) {
+    if (mediaItems.length > 0) {
       const newIndex =
-        (currentImageIndex - 1 + posterData.images.length) %
-        posterData.images.length;
+        (currentImageIndex - 1 + mediaItems.length) %
+        mediaItems.length;
       setCurrentImage([newIndex, -1]);
     }
   };
@@ -359,11 +366,17 @@ export default function PosterDetailClient({
         )
       : ["/assets/images/hero.jpg"];
 
-  // Get main image index for initial display
-  const mainImageIndex = posterData?.images?.findIndex((img) => img.mainImage) ?? -1;
-  
-  // Use main image index initially, then use currentImageIndex for navigation
-  const displayImageIndex = currentImageIndex === 0 && mainImageIndex !== -1 ? mainImageIndex : currentImageIndex;
+  // Create media array with video first (if exists) then images
+  const mediaItems = [];
+  if (posterData?.video && posterData.video !== 'undefined' && posterData.video.trim() !== '') {
+    mediaItems.push({ type: 'video', src: `/api/videos/${posterData.video}`, poster: images[0] });
+  }
+  images.forEach(img => {
+    mediaItems.push({ type: 'image', src: img });
+  });
+
+  // Always start with index 0 (video first if exists, otherwise first image)
+  const displayImageIndex = currentImageIndex;
 
   if (loading) {
     return (
@@ -518,23 +531,37 @@ export default function PosterDetailClient({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8 px-0 sm:px-2 md:px-0">
           {/* Left Section - Images */}
           <div>
-            {/* Main Image with Slider */}
+            {/* Main Media Slider (Video + Images) */}
             <div className="rounded-lg overflow-hidden mb-3 sm:mb-4 relative aspect-[16/9] sm:aspect-video w-full group">
               <div className="absolute w-full h-full">
-                <Image
-                  src={images[displayImageIndex] || "/assets/images/hero.jpg"}
-                  alt={`تصویر ${displayImageIndex + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, 50vw"
-                  priority
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "/assets/images/hero.jpg";
-                  }}
-                />
+                {mediaItems[displayImageIndex]?.type === 'video' ? (
+                  <video
+                    src={mediaItems[displayImageIndex].src}
+                    controls
+                    preload="metadata"
+                    className="w-full h-full object-cover"
+                    onLoadedMetadata={() => {
+                      console.log('Video loaded');
+                    }}
+                  >
+                    مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+                  </video>
+                ) : (
+                  <Image
+                    src={mediaItems[displayImageIndex]?.src || "/assets/images/hero.jpg"}
+                    alt={`تصویر ${displayImageIndex + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 80vw, 50vw"
+                    priority
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/assets/images/hero.jpg";
+                    }}
+                  />
+                )}
               </div>
-              {images.length > 1 && (
+              {mediaItems.length > 1 && (
                 <>
                   <button
                     className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/70 rounded-full p-1.5 sm:p-2 text-gray-800 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -551,7 +578,7 @@ export default function PosterDetailClient({
                 </>
               )}
               <div className="absolute bottom-2 right-2 bg-black/50 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">
-                {displayImageIndex + 1} / {images.length}
+                {displayImageIndex + 1} / {mediaItems.length}
               </div>
               <button
                 onClick={() => openGallery(displayImageIndex)}
@@ -564,9 +591,9 @@ export default function PosterDetailClient({
 
             {/* Thumbnails */}
             <div className="flex gap-2 mb-4 sm:mb-6 w-full overflow-x-auto">
-              {images
+              {mediaItems
                 .slice(0, window.innerWidth >= 1024 ? 5 : 2)
-                .map((img, index) => (
+                .map((item, index) => (
                   <div
                     key={index}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 cursor-pointer ${
@@ -576,27 +603,41 @@ export default function PosterDetailClient({
                     }`}
                     onClick={() => handleThumbnailClick(index)}
                   >
-                    <Image
-                      src={img || "/assets/images/hero.jpg"}
-                      alt={`تصویر ${index + 1}`}
-                      fill
-                      className="object-cover rounded-md"
-                      sizes="80px"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "/assets/images/hero.jpg";
-                      }}
-                    />
+                    {item.type === 'video' ? (
+                      <div className="relative w-full h-full">
+                        <video
+                          src={item.src}
+                          className="w-full h-full object-cover rounded-md"
+                          preload="metadata"
+                          muted
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-md">
+                          <div className="text-white text-lg">▶️</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <Image
+                        src={item.src || "/assets/images/hero.jpg"}
+                        alt={`تصویر ${index + 1}`}
+                        fill
+                        className="object-cover rounded-md"
+                        sizes="80px"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "/assets/images/hero.jpg";
+                        }}
+                      />
+                    )}
                   </div>
                 ))}
-              {images.length > 4 && (
+              {mediaItems.length > 4 && (
                 <div
                   className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 cursor-pointer bg-gray-100 flex items-center justify-center rounded-md"
                   onClick={() => openGallery(0)}
                 >
                   <div className="flex flex-col items-center text-gray-600">
                     <FaImages className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />
-                    <span className="text-xs">+{images.length - 4}</span>
+                    <span className="text-xs">+{mediaItems.length - 4}</span>
                   </div>
                 </div>
               )}

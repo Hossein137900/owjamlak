@@ -44,7 +44,7 @@ const Dashboard: React.FC = () => {
   if (!data) return <div className="p-8">اطلاعاتی یافت نشد</div>;
 
   const { userInfo } = data;
-  const isAdmin = userInfo. === "admin" || userInfo.role === "superadmin";
+  const isAdmin = userInfo.role === "admin" || userInfo.role === "superadmin";
 
   // Admin dashboard stats
   const adminStats = [

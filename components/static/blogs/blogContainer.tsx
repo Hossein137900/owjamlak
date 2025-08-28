@@ -3,12 +3,25 @@ import { FaSearch, FaCalendarAlt, FaClock } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import BlogGrid from "@/components/static/blogs/blogGrid";
-import { blogs } from "@/data/data";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Blog } from "@/data/data";
 
 const BlogContainer = () => {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("newest");
+
+  useEffect(() => {
+    fetch('/api/blog', {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
+      .then(res => res.json())
+      .then(data => setBlogs(data))
+      .catch(err => console.error('Failed to load blogs:', err));
+  }, []);
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const selectOption = (value: string) => {
@@ -58,6 +71,7 @@ const BlogContainer = () => {
           <h2 className="text-2xl font-bold mb-8 text-gray-800 border-r-4 border-[#66308d] pr-4">
             مقاله ویژه
           </h2>
+          {blogs.length > 0 ? (
           <div className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
             <div className="grid grid-cols-1 lg:grid-cols-5">
               <div className="lg:col-span-3 relative h-64 lg:h-auto">
@@ -122,6 +136,11 @@ const BlogContainer = () => {
               </div>
             </div>
           </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              هنوز مقاله‌ای منتشر نشده است
+            </div>
+          )}
         </div>
 
         {/* Filter and Sort */}
@@ -177,7 +196,7 @@ const BlogContainer = () => {
         </div>
 
         {/* Blog Grid */}
-        <BlogGrid blogs={blogs.slice(1)} />
+        <BlogGrid blogs={blogs.length > 1 ? blogs.slice(1) : []} />
 
         {/* Newsletter */}
         <div className="mt-20 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-8 md:p-12">

@@ -9,7 +9,7 @@ export const sanitizeFilename = (filename: string): string => {
 
 export const validateImageFile = (file: File): { valid: boolean; error?: string } => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  const maxSize = 30 * 1024 * 1024; // 30MB
 
   if (!allowedTypes.includes(file.type)) {
     return { valid: false, error: 'Invalid file type' };
@@ -24,7 +24,7 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
 
 export const validateVideoFile = (file: File): { valid: boolean; error?: string } => {
   const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
-  const maxSize = 5 * 1024 * 1024; // 100MB
+  const maxSize = 50 * 1024 * 1024; // 100MB
 
   if (!allowedTypes.includes(file.type)) {
     return { valid: false, error: 'نوع فایل ویدیو نامعتبر است' };

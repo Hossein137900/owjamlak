@@ -93,6 +93,7 @@ export interface Poster {
   createdAt: string;
   updatedAt: string;
   status: "active" | "pending" | "sold" | "rented";
+  video?: string; // Optional video filename
 }
 
 export interface Filters {

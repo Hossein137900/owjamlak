@@ -54,6 +54,9 @@ const PropertyListings: React.FC = () => {
   const [newImages, setNewImages] = useState<ImageItem[]>([]);
   const [imageUploading, setImageUploading] = useState(false);
   const [imageProgress, setImageProgress] = useState(0);
+  const [video, setVideo] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string>("");
+  const [videoUploading, setVideoUploading] = useState(false);
   const [posters, setPosters] = useState<Poster[]>([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -167,8 +170,11 @@ const PropertyListings: React.FC = () => {
       buildingDate: property.buildingDate,
       balcony: property.balcony,
       images: property.images,
+      video: property.video,
     });
     setNewImages([]);
+    setVideo(null);
+    setVideoPreview("");
     setIsEditModalOpen(true);
     document.body.style.overflow = "hidden";
   };
@@ -337,6 +343,63 @@ const PropertyListings: React.FC = () => {
     setEditFormData((prev) => ({ ...prev, images: updatedImages }));
   };
 
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+    const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('فرمت ویدیو مجاز نیست');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('حجم ویدیو نباید بیشتر از 50 مگابایت باشد');
+      return;
+    }
+
+    setVideoUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('video', file);
+      formData.append('title', `ویدیو آگهی ${Date.now()}`);
+      formData.append('description', 'ویدیو آگهی املاک');
+      formData.append('alt', 'ویدیو آگهی');
+
+      const response = await fetch('/api/videos', {
+        method: 'POST',
+        headers: {
+          token: localStorage.getItem('token') || '',
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        setVideo(file);
+        setVideoPreview(URL.createObjectURL(file));
+        setEditFormData(prev => ({ ...prev, video: result.video?.filename || result.filename }));
+        toast.success('ویدیو با موفقیت آپلود شد');
+      } else {
+        toast.error(result.error || 'خطا در آپلود ویدیو');
+      }
+    } catch (error) {
+      console.error('Video upload failed:', error);
+      toast.error('خطا در آپلود ویدیو');
+    } finally {
+      setVideoUploading(false);
+    }
+  };
+
+  const removeVideo = () => {
+    setVideo(null);
+    setVideoPreview("");
+    setEditFormData(prev => ({ ...prev, video: "" }));
+  };
+
   const handleUpdatePoster = async () => {
     if (!editFormData._id) return;
 
@@ -410,6 +473,8 @@ const PropertyListings: React.FC = () => {
       setSelectedProperty(null);
       setEditFormData({});
       setNewImages([]);
+      setVideo(null);
+      setVideoPreview("");
       document.body.style.overflow = "unset";
     } catch (error: unknown) {
       console.log("Error updating poster:", error);
@@ -915,6 +980,75 @@ const PropertyListings: React.FC = () => {
                       rows={4}
                       className="w-full px-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
+                  </div>
+
+                  {/* Video Upload */}
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      ویدیو (اختیاری)
+                    </h3>
+                    
+                    {editFormData.video && !videoPreview && (
+                      <div className="mb-4">
+                        <video
+                          src={`/api/videos/${editFormData.video}`}
+                          controls
+                          className="w-full h-48 object-cover rounded-lg mb-2"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          حذف ویدیو
+                        </button>
+                      </div>
+                    )}
+                    
+                    {videoPreview && (
+                      <div className="mb-4 relative">
+                        <video
+                          src={videoPreview}
+                          controls
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
+                        >
+                          <FiX size={16} />
+                        </button>
+                      </div>
+                    )}
+                    
+                    {!videoPreview && (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6">
+                        <input
+                          type="file"
+                          id="videoUpload"
+                          accept="video/mp4,video/webm,video/ogg,video/avi,video/mov"
+                          onChange={handleVideoUpload}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="videoUpload"
+                          className="cursor-pointer flex flex-col items-center justify-center"
+                        >
+                          <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500">
+                            برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
+                          </span>
+                        </label>
+                        
+                        {videoUploading && (
+                          <div className="mt-4">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                            <p className="text-sm text-gray-500 mt-2">در حال آپلود ویدیو...</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Property Type */}

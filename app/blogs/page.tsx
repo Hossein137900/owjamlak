@@ -1,6 +1,9 @@
  import { Metadata } from "next";
 import BlogContainer from "@/components/static/blogs/blogContainer";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "وبلاگ اوج | مقالات و راهنمای خرید و فروش ملک",
   description:

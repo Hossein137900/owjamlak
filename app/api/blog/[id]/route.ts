@@ -1,122 +1,103 @@
-import { NextRequest, NextResponse } from "next/server";
-import Blog from "@/models/blog";
-import connect from "@/lib/data";
+import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
+const BLOGS_FILE = path.join(process.cwd(), 'data', 'blogs.json');
 
-// GET - Get single blog by ID
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    await connect();
+    const { id: blogId } = await params;
+    const body = await request.json();
 
-    // Await the params Promise
-    const { id } = await params;
-
-    const blog = await Blog.findById(id).populate("userId", "name username");
-
-    if (!blog) {
-      return NextResponse.json(
-        { success: false, message: "Blog not found" },
-        { status: 404 }
-      );
+    // Read existing blogs
+    let blogs = [];
+    if (fs.existsSync(BLOGS_FILE)) {
+      const data = fs.readFileSync(BLOGS_FILE, 'utf8');
+      blogs = JSON.parse(data);
     }
 
-    return NextResponse.json({
-      success: true,
-      blog,
-    });
+    // Find and update the blog
+    const blogIndex = blogs.findIndex((blog: any) => blog.id === blogId);
+    if (blogIndex === -1) {
+      return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
+    }
+
+    blogs[blogIndex] = { ...blogs[blogIndex], ...body };
+
+    // Save updated blogs
+    fs.writeFileSync(BLOGS_FILE, JSON.stringify(blogs, null, 2));
+
+    return NextResponse.json({ message: 'Blog updated successfully', blog: blogs[blogIndex] });
   } catch (error) {
-    console.log("Error fetching blog:", error);
-    return NextResponse.json(
-      { success: false, message: "Error fetching blog" },
-      { status: 500 }
-    );
+    console.error('Error updating blog:', error);
+    return NextResponse.json({ error: 'Failed to update blog' }, { status: 500 });
   }
 }
 
-// PUT - Update blog by ID
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    await connect();
+    const { id: blogId } = await params;
 
-    // Await the params Promise
-    const { id } = await params;
-
-    const { title, content, seoTitle, description, tags } =
-      await request.json();
-
-    interface BlogUpdateData {
-      title?: string;
-      content?: string;
-      seoTitle?: string;
-      description?: string;
-      tags?: string[];
-      updatedAt: Date;
+    // Read existing blogs
+    let blogs = [];
+    if (fs.existsSync(BLOGS_FILE)) {
+      const data = fs.readFileSync(BLOGS_FILE, 'utf8');
+      blogs = JSON.parse(data);
     }
 
-    const updateData: BlogUpdateData = {
-      title,
-      content,
-      seoTitle,
-      description,
-      tags,
-      updatedAt: new Date(),
-    };
-
-    const blog = await Blog.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!blog) {
-      return NextResponse.json(
-        { success: false, message: "Blog not found" },
-        { status: 404 }
-      );
+    // Find the blog to delete
+    const blogIndex = blogs.findIndex((blog: any) => blog.id === blogId);
+    if (blogIndex === -1) {
+      return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Blog updated successfully",
-      blog,
+    const blogToDelete = blogs[blogIndex];
+
+    // Delete associated images
+    const imagesToDelete = [];
+    
+    // Add cover image
+    if (blogToDelete.coverImage && blogToDelete.coverImage.startsWith('/uploads/blog/')) {
+      imagesToDelete.push(blogToDelete.coverImage);
+    }
+    
+    // Add second image if exists
+    if (blogToDelete.secondImage && blogToDelete.secondImage.startsWith('/uploads/blog/')) {
+      imagesToDelete.push(blogToDelete.secondImage);
+    }
+    
+    // Add all images from images array
+    if (blogToDelete.images && Array.isArray(blogToDelete.images)) {
+      blogToDelete.images.forEach((img: string) => {
+        if (img.startsWith('/uploads/blog/')) {
+          imagesToDelete.push(img);
+        }
+      });
+    }
+
+    // Delete image files
+    imagesToDelete.forEach((imagePath: string) => {
+      const fullPath = path.join(process.cwd(), 'public', imagePath);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
     });
+
+    // Remove blog from array
+    blogs.splice(blogIndex, 1);
+
+    // Save updated blogs
+    fs.writeFileSync(BLOGS_FILE, JSON.stringify(blogs, null, 2));
+
+    return NextResponse.json({ message: 'Blog deleted successfully' });
   } catch (error) {
-    console.log("Error updating blog:", error);
-    return NextResponse.json(
-      { success: false, message: "Error updating blog" },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE - Delete blog by ID
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    await connect();
-
-    // Await the params Promise
-    const { id } = await params;
-
-    const blog = await Blog.findByIdAndDelete(id);
-
-    if (!blog) {
-      return NextResponse.json(
-        { success: false, message: "Blog not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Blog deleted successfully",
-    });
-  } catch (error) {
-    console.log("Error deleting blog:", error);
-    return NextResponse.json(
-      { success: false, message: "Error deleting blog" },
-      { status: 500 }
-    );
+    console.error('Error deleting blog:', error);
+    return NextResponse.json({ error: 'Failed to delete blog' }, { status: 500 });
   }
 }
