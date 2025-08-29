@@ -13,9 +13,11 @@ import OrderedList from "@tiptap/extension-ordered-list";
 import { motion } from "framer-motion";
 import { CustomEditor } from "@/types/editor";
 import Image from "@tiptap/extension-image";
+import { TextSelection } from "prosemirror-state";
 
 import toast from "react-hot-toast";
 import imageCompression from "browser-image-compression";
+import ResizableImage from "@/extensions/ResizableImage";
 
 const MenuButton = ({
   onClick,
@@ -92,9 +94,9 @@ const ColorPickerDropdown = ({
 
 export default function AddBlogPage() {
   const searchParams = useSearchParams();
-  const editId = searchParams.get('edit');
+  const editId = searchParams.get("edit");
   const isEditMode = !!editId;
-  
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
@@ -118,28 +120,87 @@ export default function AddBlogPage() {
       setTagInput("");
     }
   };
+  // آیا selection داخل یک بلاک (پاراگراف) واحده؟
+  const isWithinSingleBlock = (editor: CustomEditor) => {
+    const { $from, $to } = editor.state.selection;
+    return $from.sameParent($to);
+  };
+
+  // بخش انتخاب‌شده را به یک بلاک مستقل تبدیل می‌کند
+  const isolateSelectionToOwnBlock = (editor: CustomEditor) => {
+    const { state, view } = editor;
+    const { from, to, empty, $from } = state.selection;
+
+    // اگر انتخاب خالی است یا چند بلاک را شامل می‌شود یا کل بلاک انتخاب شده، نیازی به split نیست
+    if (empty) return false;
+    if (!isWithinSingleBlock(editor)) return false;
+    if (from === $from.start() && to === $from.end()) return false;
+
+    // یک ترنزاکشن می‌سازیم: ابتدا در انتهای انتخاب split، سپس در ابتدای انتخاب split
+    let tr = state.tr;
+
+    // split در انتهای selection
+    tr = tr.split(to);
+
+    // نگاشت موقعیت آغاز selection بعد از split اول
+    const mappedFrom = tr.mapping.map(from);
+
+    // split در ابتدای selection (بعد از نگاشت)
+    tr = tr.split(mappedFrom);
+
+    // اعمال ترنزاکشن splitها
+    view.dispatch(tr);
+
+    // حالا selection را روی بلاک میانی (بخش جداشده) قرار می‌دهیم
+    const middlePos = tr.mapping.map(from) + 1; // یک پوزیشن داخل بلاک میانی
+    const $pos = view.state.doc.resolve(
+      Math.min(middlePos, view.state.doc.content.size)
+    );
+    view.dispatch(view.state.tr.setSelection(TextSelection.near($pos)));
+
+    return true;
+  };
+
+  // هدینگ را طوری اعمال می‌کند که اگر انتخاب «داخل یک پاراگراف» باشد، اول جدا و بعد هدینگ شود
+  const toggleHeadingOnSelection = (
+    editor: CustomEditor,
+    level: 1 | 2 | 3 | 4 | 5 | 6
+  ) => {
+    // اگر انتخاب غیرخالی و داخل یک بلاک است، اول جداش کن
+    if (!editor.state.selection.empty && isWithinSingleBlock(editor)) {
+      isolateSelectionToOwnBlock(editor);
+    }
+    // حالا هدینگ فقط روی بلاک میانی (بخش انتخاب‌شده) اعمال می‌شود
+    editor.chain().focus().toggleHeading({ level }).run();
+  };
 
   const handleFileUpload = async (file: File) => {
     if (images.length >= 5) {
-      toast.error('حداکثر 5 تصویر میتوانید آپلود کنید');
+      toast.error("حداکثر 5 تصویر میتوانید آپلود کنید");
       return;
     }
-    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'];
+    const allowedTypes = [
+      "image/png",
+      "image/jpg",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      toast.error('فرمت فایل مجاز نیست');
+      toast.error("فرمت فایل مجاز نیست");
       return;
     }
 
     if (file.size > 30 * 1024 * 1024) {
-      toast.error('حجم فایل نباید بیشتر از 30 مگابایت باشد');
+      toast.error("حجم فایل نباید بیشتر از 30 مگابایت باشد");
       return;
     }
 
     setUploading(true);
-    
+
     try {
       let finalFile = file;
-      
+
       // Compress if over 100KB
       if (file.size > 100 * 1024) {
         const options = {
@@ -150,26 +211,28 @@ export default function AddBlogPage() {
         };
         finalFile = await imageCompression(file, options);
       }
-      
-      const formData = new FormData();
-      formData.append('image', finalFile);
-      formData.append('type', images.length === 0 ? 'main' : 'additional');
 
-      const response = await fetch('/api/blog/images', {
-        method: 'POST',
+      const formData = new FormData();
+      formData.append("image", finalFile);
+      formData.append("type", images.length === 0 ? "main" : "additional");
+
+      const response = await fetch("/api/blog/images", {
+        method: "POST",
         body: formData,
       });
-      
+
       const result = await response.json();
       if (result.success) {
-        setImages(prev => [...prev, result.url]);
-        toast.success(`تصویر ${images.length === 0 ? 'اصلی' : 'فرعی'} آپلود شد`);
+        setImages((prev) => [...prev, result.url]);
+        toast.success(
+          `تصویر ${images.length === 0 ? "اصلی" : "فرعی"} آپلود شد`
+        );
       } else {
-        toast.error(result.error || 'خطا در آپلود');
+        toast.error(result.error || "خطا در آپلود");
       }
     } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error('خطا در آپلود تصویر');
+      console.error("Upload failed:", error);
+      toast.error("خطا در آپلود تصویر");
     } finally {
       setUploading(false);
     }
@@ -182,6 +245,11 @@ export default function AddBlogPage() {
         paragraph: { HTMLAttributes: { dir: "auto" } },
         bulletList: false,
         orderedList: false,
+      }),
+      ResizableImage.configure({
+        HTMLAttributes: {
+          class: "rounded-lg my-4", // استایل پیش‌فرض عکس
+        },
       }),
       BulletList.configure({
         keepMarks: true,
@@ -234,17 +302,17 @@ export default function AddBlogPage() {
 
   const fetchBlogData = async () => {
     try {
-      const response = await fetch('/api/blog');
+      const response = await fetch("/api/blog");
       const blogs = await response.json();
       const blog = blogs.find((b: any) => b.id === editId);
-      
+
       if (blog) {
         setTitle(blog.title);
         setDescription(blog.excerpt);
         setSeoTitle(blog.seoTitle);
         setImages(blog.images || []);
         setTags(blog.tags || []);
-        
+
         // Set editor content after a small delay to ensure editor is ready
         setTimeout(() => {
           if (editor && blog.contentHtml) {
@@ -253,7 +321,7 @@ export default function AddBlogPage() {
         }, 100);
       }
     } catch (error) {
-      toast.error('خطا در بارگذاری بلاگ');
+      toast.error("خطا در بارگذاری بلاگ");
     } finally {
       setLoading(false);
     }
@@ -291,15 +359,15 @@ export default function AddBlogPage() {
         title,
         excerpt: description,
         seoTitle,
-        contentHtml: editor?.getHTML() || '',
+        contentHtml: editor?.getHTML() || "",
         images: images,
         coverImage: images.length > 0 ? images[0] : undefined,
         tags,
       };
 
-      const url = isEditMode ? `/api/blog/${editId}` : '/api/blog';
-      const method = isEditMode ? 'PUT' : 'POST';
-      
+      const url = isEditMode ? `/api/blog/${editId}` : "/api/blog";
+      const method = isEditMode ? "PUT" : "POST";
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -312,7 +380,9 @@ export default function AddBlogPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success(isEditMode ? "بلاگ با موفقیت بروزرسانی شد" : "بلاگ با موفقیت ایجاد شد");
+        toast.success(
+          isEditMode ? "بلاگ با موفقیت بروزرسانی شد" : "بلاگ با موفقیت ایجاد شد"
+        );
         if (!isEditMode) {
           setTitle("");
           setDescription("");
@@ -323,7 +393,10 @@ export default function AddBlogPage() {
           setWordCount(0);
         }
       } else {
-        toast.error(result.message || (isEditMode ? "خطا در بروزرسانی بلاگ" : "خطا در ایجاد بلاگ"));
+        toast.error(
+          result.message ||
+            (isEditMode ? "خطا در بروزرسانی بلاگ" : "خطا در ایجاد بلاگ")
+        );
       }
     } catch (error) {
       console.log("Error creating blog:", error);
@@ -338,14 +411,16 @@ export default function AddBlogPage() {
         animate={{ y: 0, opacity: 1 }}
         className="text-2xl md:text-4xl font-black my-4 text-center text-black"
       >
-        {isEditMode ? 'ویرایش بلاگ' : 'افزودن بلاگ جدید'}
+        {isEditMode ? "ویرایش بلاگ" : "افزودن بلاگ جدید"}
       </motion.h2>
       <motion.p
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="text-base md:text-xl font-medium mb-8 text-center text-[#000]/50"
       >
-        {isEditMode ? 'در این قسمت میتوانید بلاگ خود را ویرایش کنید' : 'در این قسمت میتوانید بلاگ جدید خود را ایجاد کنید'}
+        {isEditMode
+          ? "در این قسمت میتوانید بلاگ خود را ویرایش کنید"
+          : "در این قسمت میتوانید بلاگ جدید خود را ایجاد کنید"}
       </motion.p>
 
       <link
@@ -422,9 +497,11 @@ export default function AddBlogPage() {
         {/* Image Upload Section */}
         <div className="backdrop-blur-sm p-8 border border-[#e5d8d0]/20 shadow-lg rounded-xl">
           <label className="block mb-4 text-xl text-center">
-            <span className="text-[#000] font-bold">تصاویر بلاگ (حداکثر 5 تصویر)</span>
+            <span className="text-[#000] font-bold">
+              تصاویر بلاگ (حداکثر 5 تصویر)
+            </span>
           </label>
-          
+
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-4">
             <input
               type="file"
@@ -443,25 +520,29 @@ export default function AddBlogPage() {
             >
               <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
               <p className="text-lg">کلیک کنید یا فایل را بکشید</p>
-              <p className="text-sm text-gray-500 mt-2">{images.length}/5 تصویر آپلود شده</p>
+              <p className="text-sm text-gray-500 mt-2">
+                {images.length}/5 تصویر آپلود شده
+              </p>
             </label>
           </div>
-          
+
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
               {images.map((image, index) => (
                 <div key={index} className="relative group">
-                  <img 
-                    src={image} 
-                    alt={`تصویر ${index + 1}`} 
-                    className="w-full h-24 object-cover rounded-lg" 
+                  <img
+                    src={image}
+                    alt={`تصویر ${index + 1}`}
+                    className="w-full h-24 object-cover rounded-lg"
                   />
                   <div className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                    {index === 0 ? 'اصلی' : index + 1}
+                    {index === 0 ? "اصلی" : index + 1}
                   </div>
                   <button
                     type="button"
-                    onClick={() => setImages(prev => prev.filter((_, i) => i !== index))}
+                    onClick={() =>
+                      setImages((prev) => prev.filter((_, i) => i !== index))
+                    }
                     className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     ×
@@ -470,17 +551,20 @@ export default function AddBlogPage() {
               ))}
             </div>
           )}
-          
+
           {uploading && (
             <div className="mt-4 text-center text-blue-600">
               <i className="fas fa-spinner fa-spin mr-2"></i>
               در حال آپلود...
             </div>
           )}
-          
+
           <div className="mt-4 text-sm text-gray-600 space-y-1">
             <p>• اولین تصویر به عنوان تصویر اصلی بلاگ استفاده میشود</p>
-            <p>• برای درج تصاویر در محتوا، از منوی "درج تصویر" در نوار ابزار استفاده کنید</p>
+            <p>
+              • برای درج تصاویر در محتوا، از منوی "درج تصویر" در نوار ابزار
+              استفاده کنید
+            </p>
             <p>• فرمتهای مجاز: PNG, JPG, JPEG, GIF, WebP</p>
             <p>• حداکثر حجم: 30 مگابایت</p>
           </div>
@@ -531,21 +615,48 @@ export default function AddBlogPage() {
                   <i className="fas fa-unlink"></i>
                 </MenuButton>
 
-                {[2, 3, 4, 5].map((level) => (
-                  <MenuButton
-                    key={level}
-                    onClick={() =>
-                      editor
-                        ?.chain()
-                        .focus()
-                        .toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 })
-                        .run()
-                    }
-                    active={editor?.isActive("heading", { level })}
-                  >
-                    H{level}
-                  </MenuButton>
-                ))}
+                {/* Heading Buttons */}
+                <MenuButton
+                  onClick={() => editor && toggleHeadingOnSelection(editor, 1)}
+                  active={editor?.isActive("heading", { level: 1 })}
+                >
+                  H1
+                </MenuButton>
+
+                <MenuButton
+                  onClick={() => editor && toggleHeadingOnSelection(editor, 2)}
+                  active={editor?.isActive("heading", { level: 2 })}
+                >
+                  H2
+                </MenuButton>
+
+                <MenuButton
+                  onClick={() => editor && toggleHeadingOnSelection(editor, 3)}
+                  active={editor?.isActive("heading", { level: 3 })}
+                >
+                  H3
+                </MenuButton>
+
+                <MenuButton
+                  onClick={() => editor && toggleHeadingOnSelection(editor, 4)}
+                  active={editor?.isActive("heading", { level: 4 })}
+                >
+                  H4
+                </MenuButton>
+
+                <MenuButton
+                  onClick={() => editor && toggleHeadingOnSelection(editor, 5)}
+                  active={editor?.isActive("heading", { level: 5 })}
+                >
+                  H5
+                </MenuButton>
+
+                <MenuButton
+                  onClick={() => editor && toggleHeadingOnSelection(editor, 6)}
+                  active={editor?.isActive("heading", { level: 6 })}
+                >
+                  H6
+                </MenuButton>
 
                 <div className="relative">
                   <MenuButton
@@ -628,23 +739,61 @@ export default function AddBlogPage() {
                 {images.length > 0 && (
                   <div className="relative">
                     <select
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          const imageUrl = e.target.value;
-                          const imageIndex = images.indexOf(imageUrl);
-                          editor?.chain().focus().setImage({ 
-                            src: imageUrl, 
-                            alt: `تصویر ${imageIndex + 1}` 
-                          }).run();
-                          e.target.value = '';
-                        }
+                      onChange={async (e) => {
+                        if (!e.target.value) return;
+                        const imageUrl = e.target.value;
+                        const imageIndex = images.indexOf(imageUrl);
+
+                        // پرسش برای اندازه‌ها
+                        const widthDesktop = window.prompt(
+                          "عرض تصویر در دسکتاپ (مثلا 600px یا 70%):",
+                          "100%"
+                        );
+                        const heightDesktop = window.prompt(
+                          "ارتفاع تصویر در دسکتاپ (مثلا 400px یا auto):",
+                          "auto"
+                        );
+
+                        const widthMobile = window.prompt(
+                          "عرض تصویر در موبایل (مثلا 100% یا 300px):",
+                          "100%"
+                        );
+                        const heightMobile = window.prompt(
+                          "ارتفاع تصویر در موبایل (مثلا 200px یا auto):",
+                          "auto"
+                        );
+
+                        // ساختن style inline با Tailwind-friendly
+                        const styleString = `
+          width: ${widthDesktop};
+          height: ${heightDesktop};
+        `;
+
+                        const mobileStyle = `
+          @media (max-width: 768px) {
+            width: ${widthMobile};
+            height: ${heightMobile};
+          }
+        `;
+
+                        editor
+                          .chain()
+                          .focus()
+                          .setImage({
+                            src: imageUrl,
+                            alt: `تصویر ${imageIndex + 1}`,
+                          })
+                          .run();
+                          
+
+                        e.target.value = "";
                       }}
                       className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700"
                     >
                       <option value="">درج تصویر</option>
                       {images.map((image, index) => (
                         <option key={index} value={image}>
-                          تصویر {index + 1} {index === 0 ? '(اصلی)' : ''}
+                          تصویر {index + 1} {index === 0 ? "(اصلی)" : ""}
                         </option>
                       ))}
                     </select>
@@ -687,7 +836,7 @@ export default function AddBlogPage() {
             type="submit"
             className="bg-transparent text-black px-8 py-2.5 border hover:bg-gray-50 w-full rounded-lg hover:shadow-lg transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isEditMode ? 'بروزرسانی' : 'ثبت'}
+            {isEditMode ? "بروزرسانی" : "ثبت"}
           </button>
         </div>
       </form>

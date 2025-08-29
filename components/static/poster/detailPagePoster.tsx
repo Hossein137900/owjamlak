@@ -22,7 +22,7 @@ import {
   FaEye,
 } from "react-icons/fa";
 import { MdBalcony } from "react-icons/md";
-import { FiLoader } from "react-icons/fi";
+import { FiLoader, FiPlay } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import GalleryModal from "@/components/static/poster/galleryModal";
@@ -45,7 +45,7 @@ export default function PosterDetailClient({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [[currentImageIndex, direction], setCurrentImage] = useState([0, 0]);
-  
+
   // Reset to index 0 when poster data changes to ensure video shows first
   useEffect(() => {
     if (posterData) {
@@ -176,7 +176,6 @@ export default function PosterDetailClient({
     }
   };
 
-
   useEffect(() => {
     fetchPosterData();
   }, [id]);
@@ -288,8 +287,7 @@ export default function PosterDetailClient({
   const prevImage = () => {
     if (mediaItems.length > 0) {
       const newIndex =
-        (currentImageIndex - 1 + mediaItems.length) %
-        mediaItems.length;
+        (currentImageIndex - 1 + mediaItems.length) % mediaItems.length;
       setCurrentImage([newIndex, -1]);
     }
   };
@@ -368,11 +366,19 @@ export default function PosterDetailClient({
 
   // Create media array with video first (if exists) then images
   const mediaItems = [];
-  if (posterData?.video && posterData.video !== 'undefined' && posterData.video.trim() !== '') {
-    mediaItems.push({ type: 'video', src: `/api/videos/${posterData.video}`, poster: images[0] });
+  if (
+    posterData?.video &&
+    posterData.video !== "undefined" &&
+    posterData.video.trim() !== ""
+  ) {
+    mediaItems.push({
+      type: "video",
+      src: `/api/videos/${posterData.video}`,
+      poster: images[0],
+    });
   }
-  images.forEach(img => {
-    mediaItems.push({ type: 'image', src: img });
+  images.forEach((img) => {
+    mediaItems.push({ type: "image", src: img });
   });
 
   // Always start with index 0 (video first if exists, otherwise first image)
@@ -534,21 +540,24 @@ export default function PosterDetailClient({
             {/* Main Media Slider (Video + Images) */}
             <div className="rounded-lg overflow-hidden mb-3 sm:mb-4 relative aspect-[16/9] sm:aspect-video w-full group">
               <div className="absolute w-full h-full">
-                {mediaItems[displayImageIndex]?.type === 'video' ? (
+                {mediaItems[displayImageIndex]?.type === "video" ? (
                   <video
                     src={mediaItems[displayImageIndex].src}
                     controls
                     preload="metadata"
                     className="w-full h-full object-cover"
                     onLoadedMetadata={() => {
-                      console.log('Video loaded');
+                      console.log("Video loaded");
                     }}
                   >
                     مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
                   </video>
                 ) : (
                   <Image
-                    src={mediaItems[displayImageIndex]?.src || "/assets/images/hero.jpg"}
+                    src={
+                      mediaItems[displayImageIndex]?.src ||
+                      "/assets/images/hero.jpg"
+                    }
                     alt={`تصویر ${displayImageIndex + 1}`}
                     fill
                     className="object-cover"
@@ -592,33 +601,35 @@ export default function PosterDetailClient({
             {/* Thumbnails */}
             <div className="flex gap-2 mb-4 sm:mb-6 w-full overflow-x-auto">
               {mediaItems
-                .slice(0, window.innerWidth >= 1024 ? 5 : 2)
+                .slice(0, window.innerWidth >= 1024 ? 5 : 3)
                 .map((item, index) => (
                   <div
                     key={index}
                     className={`relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 cursor-pointer ${
                       currentImageIndex === index
-                        ? "ring-2 ring-green-500 ring-offset-2"
-                        : ""
+                        ? " opacity-100  "
+                        : "opacity-70 hover:opacity-100 transition-opacity"
                     }`}
                     onClick={() => handleThumbnailClick(index)}
                   >
-                    {item.type === 'video' ? (
+                    {item.type === "video" ? (
                       <div className="relative w-full h-full">
                         <video
                           src={item.src}
                           className="w-full h-full object-cover rounded-md"
                           preload="metadata"
-                          muted
+                          aria-label={posterData.title || "ویدیو از ملک"}
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-md">
-                          <div className="text-white text-lg">▶️</div>
+                          <div className="text-white text-lg">
+                            <FiPlay />
+                          </div>
                         </div>
                       </div>
                     ) : (
                       <Image
                         src={item.src || "/assets/images/hero.jpg"}
-                        alt={`تصویر ${index + 1}`}
+                        alt={`تصویر ${posterData.title || "ملک"} ${index + 1}`}
                         fill
                         className="object-cover rounded-md"
                         sizes="80px"

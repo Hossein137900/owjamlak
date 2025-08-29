@@ -24,7 +24,7 @@ export const validateImageFile = (file: File): { valid: boolean; error?: string 
 
 export const validateVideoFile = (file: File): { valid: boolean; error?: string } => {
   const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
-  const maxSize = 50 * 1024 * 1024; // 100MB
+  const maxSize = 10 * 1024 * 1024; // 100MB
 
   if (!allowedTypes.includes(file.type)) {
     return { valid: false, error: 'نوع فایل ویدیو نامعتبر است' };

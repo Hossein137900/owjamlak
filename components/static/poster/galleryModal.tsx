@@ -48,7 +48,7 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex flex-col justify-center items-center"
+      className="fixed inset-0 bg-black/30 backdrop-blur-sm z-500 flex flex-col justify-center items-center"
     >
       {/* Header with close button and counter */}
       <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4 bg-gradient-to-b from-black/70 to-transparent z-10">
@@ -129,7 +129,7 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
       </div>
 
       {/* Thumbnails with active indicator and smooth scrolling */}
-      <div className="w-full mb-12 bg-black/70 py-3 mt-auto">
+      <div className="w-full  bg-black/70 py-3 mt-auto">
         <div className="w-full max-w-5xl mx-auto overflow-x-auto hide-scrollbar px-4">
           <div className="flex gap-2 py-2" dir="rtl">
             {images.map((img, index) => (

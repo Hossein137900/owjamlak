@@ -76,7 +76,7 @@ body {
 }
 
 /* Custom scrollbar styles */
-.scrollbar-thin {
+/* .scrollbar-thin {
   scrollbar-width: thin;
 }
 
@@ -109,4 +109,10 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+} */
+.prose a {
+  text-decoration: none !important;
+}
+.prose a:hover {
+  text-decoration: none !important;
 }
