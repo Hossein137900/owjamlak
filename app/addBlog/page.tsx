@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -9,12 +10,12 @@ import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
-import Image from "@tiptap/extension-image";
 import { motion } from "framer-motion";
 import { CustomEditor } from "@/types/editor";
-import BlogImageUpload from "../components/(admin)/BlogImageUpload";
-import { type FileState } from "../components/MultiImageDropzone";
+import Image from "@tiptap/extension-image";
+
 import toast from "react-hot-toast";
+import imageCompression from "browser-image-compression";
 
 const MenuButton = ({
   onClick,
@@ -89,207 +90,26 @@ const ColorPickerDropdown = ({
   );
 };
 
-const ImageUploadModal = ({
-  isOpen,
-  onClose,
-  onImageSelect,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onImageSelect: (url: string, alt?: string) => void;
-}) => {
-  const [imageUrl, setImageUrl] = useState("");
-  const [altText, setAltText] = useState("");
-  const [fileStates, setFileStates] = useState<FileState[]>([]);
-  // const { edgestore } = useEdgeStore();
-
-  // function updateFileProgress(key: string, progress: FileState["progress"]) {
-  //   setFileStates((fileStates) => {
-  //     const newFileStates = structuredClone(fileStates);
-  //     const fileState = newFileStates.find(
-  //       (fileState) => fileState.key === key
-  //     );
-  //     if (fileState) {
-  //       fileState.progress = progress;
-  //     }
-  //     return newFileStates;
-  //   });
-  // }
-
-  const handleUrlSubmit = () => {
-    if (imageUrl.trim()) {
-      onImageSelect(imageUrl.trim(), altText.trim() || "تصویر بلاگ");
-      setImageUrl("");
-      setAltText("");
-      setFileStates([]);
-      onClose();
-    }
-  };
-
-  // const handleFilesAdded = async (addedFiles: FileState[]) => {
-  //   setFileStates([...fileStates, ...addedFiles]);
-
-  //   await Promise.all(
-  //     addedFiles.map(async (addedFileState) => {
-  //       try {
-  //         const res = await edgestore.publicFiles.upload({
-  //           file: addedFileState.file as File,
-  //           onProgressChange: async (progress) => {
-  //             updateFileProgress(addedFileState.key, progress);
-  //             if (progress === 100) {
-  //               await new Promise((resolve) => setTimeout(resolve, 1000));
-  //               updateFileProgress(addedFileState.key, "COMPLETE");
-  //             }
-  //           },
-  //         });
-
-  //         // Insert image into editor
-  //         onImageSelect(res.url, altText.trim() || (addedFileState.file as File).name);
-
-  //         // Reset and close after successful upload
-  //         setTimeout(() => {
-  //           setFileStates([]);
-  //           setAltText("");
-  //           onClose();
-  //         }, 1500);
-
-  //         toast.success('تصویر با موفقیت آپلود شد');
-  //       } catch (err) {
-  //         console.log("Upload error:", err);
-  //         updateFileProgress(addedFileState.key, "ERROR");
-  //         toast.error('خطا در آپلود تصویر');
-  //       }
-  //     })
-  //   );
-  // };
-
-  // const handleFileStatesChange = (newFileStates: FileState[]) => {
-  //   setFileStates(newFileStates);
-  // };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white/10 backdrop-blur-sm rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-[#e5d8d0]/20"
-        dir="rtl"
-      >
-        <h3 className="text-xl font-bold mb-6 text-white text-center">
-          افزودن تصویر به محتوا
-        </h3>
-
-        <div className="space-y-6">
-          {/* Multi Image Dropzone */}
-          <div>
-            <label className="block text-sm font-medium mb-3 text-white">
-              آپلود تصویر
-            </label>
-            {/* <div className="bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-[#e5d8d0]/20">
-              <MultiImageDropzone
-                value={fileStates}
-                dropzoneOptions={{
-                  maxFiles: 1,
-                  maxSize: 5 * 1024 * 1024, // 5MB
-                  accept: {
-                    'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp']
-                  }
-                }}
-                onChange={handleFileStatesChange}
-                onFilesAdded={handleFilesAdded}
-                className="w-full"
-              />
-            </div> */}
-          </div>
-
-          <div className="text-center text-white/70 relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/20"></div>
-            </div>
-            <div className="relative bg-transparent px-4">یا</div>
-          </div>
-
-          {/* URL Input */}
-          <div>
-            <label className="block text-sm font-medium mb-3 text-white">
-              لینک تصویر
-            </label>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://example.com/image.jpg"
-              className="w-full px-4 py-3 text-black rounded-lg border border-[#e5d8d0] bg-white/80 focus:outline-none focus:border-[#a37462] transition-all duration-300"
-            />
-          </div>
-
-          {/* Alt Text */}
-          <div>
-            <label className="block text-sm font-medium mb-3 text-white">
-              متن جایگزین (Alt)
-            </label>
-            <input
-              type="text"
-              value={altText}
-              onChange={(e) => setAltText(e.target.value)}
-              placeholder="توضیح تصویر"
-              className="w-full px-4 py-3 text-black rounded-lg border border-[#e5d8d0] bg-white/80 focus:outline-none focus:border-[#a37462] transition-all duration-300"
-            />
-          </div>
-
-          {/* Upload Instructions */}
-          <div className="text-sm text-white/60 space-y-1 bg-white/5 p-4 rounded-lg">
-            <p>• تصویر در محل نشانگر متن درج خواهد شد</p>
-            <p>• فرمت‌های مجاز: PNG, JPG, JPEG, GIF, WebP</p>
-            <p>• حداکثر حجم فایل: 5 مگابایت</p>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={handleUrlSubmit}
-            disabled={!imageUrl.trim() && fileStates.length === 0}
-            className="flex-1 bg-[#a37462] text-white py-3 px-4 rounded-lg hover:bg-[#a37462]/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-medium"
-          >
-            افزودن تصویر
-          </button>
-          <button
-            onClick={() => {
-              setFileStates([]);
-              setImageUrl("");
-              setAltText("");
-              onClose();
-            }}
-            className="flex-1 bg-white/20 text-white py-3 px-4 rounded-lg hover:bg-white/30 transition-all duration-300 font-medium"
-          >
-            لغو
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
-
 export default function AddBlogPage() {
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
+  const isEditMode = !!editId;
+  
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [seoTitle, setSeoTitle] = useState("");
-  const [mainImage, setMainImage] = useState("");
-  const [secondImage, setSecondImage] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [showTextColorPicker, setShowTextColorPicker] = useState(false);
   const [showBgColorPicker, setShowBgColorPicker] = useState(false);
-  const [showImageModal, setShowImageModal] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(isEditMode);
 
   const handleAddTag = () => {
     if (tags.length >= 3) {
-      toast.error("شما فقط می‌توانید ۳ برچسب اضافه کنید");
+      toast.error("شما فقط میتوانید ۳ برچسب اضافه کنید");
       return;
     }
 
@@ -299,16 +119,60 @@ export default function AddBlogPage() {
     }
   };
 
-  const handleImageUpload = (imageUrl: string, type: "main" | "second") => {
-    if (type === "main") {
-      setMainImage(imageUrl);
-    } else {
-      setSecondImage(imageUrl);
+  const handleFileUpload = async (file: File) => {
+    if (images.length >= 5) {
+      toast.error('حداکثر 5 تصویر میتوانید آپلود کنید');
+      return;
     }
-  };
+    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('فرمت فایل مجاز نیست');
+      return;
+    }
 
-  const handleInsertImage = (url: string, alt: string = "تصویر بلاگ") => {
-    editor?.chain().focus().setImage({ src: url, alt }).run();
+    if (file.size > 30 * 1024 * 1024) {
+      toast.error('حجم فایل نباید بیشتر از 30 مگابایت باشد');
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      let finalFile = file;
+      
+      // Compress if over 100KB
+      if (file.size > 100 * 1024) {
+        const options = {
+          maxSizeMB: 0.1, // ~100KB
+          maxWidthOrHeight: 1280,
+          fileType: "image/webp",
+          useWebWorker: true,
+        };
+        finalFile = await imageCompression(file, options);
+      }
+      
+      const formData = new FormData();
+      formData.append('image', finalFile);
+      formData.append('type', images.length === 0 ? 'main' : 'additional');
+
+      const response = await fetch('/api/blog/images', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        setImages(prev => [...prev, result.url]);
+        toast.success(`تصویر ${images.length === 0 ? 'اصلی' : 'فرعی'} آپلود شد`);
+      } else {
+        toast.error(result.error || 'خطا در آپلود');
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('خطا در آپلود تصویر');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const editor = useEditor({
@@ -343,9 +207,8 @@ export default function AddBlogPage() {
       }),
       Image.configure({
         HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg my-4 mx-auto block shadow-md",
+          class: "w-full h-64 object-cover rounded-lg my-4",
         },
-        allowBase64: true,
       }),
     ],
     editorProps: {
@@ -353,7 +216,6 @@ export default function AddBlogPage() {
         class: "prose prose-lg max-w-none focus:outline-none min-h-[200px] rtl",
       },
     },
-
     onUpdate: ({ editor }: { editor: CustomEditor }) => {
       const text = editor.getText();
       const words: string[] = text
@@ -363,6 +225,39 @@ export default function AddBlogPage() {
       setWordCount(words.length);
     },
   }) as CustomEditor;
+
+  useEffect(() => {
+    if (isEditMode && editId && editor) {
+      fetchBlogData();
+    }
+  }, [isEditMode, editId, editor]);
+
+  const fetchBlogData = async () => {
+    try {
+      const response = await fetch('/api/blog');
+      const blogs = await response.json();
+      const blog = blogs.find((b: any) => b.id === editId);
+      
+      if (blog) {
+        setTitle(blog.title);
+        setDescription(blog.excerpt);
+        setSeoTitle(blog.seoTitle);
+        setImages(blog.images || []);
+        setTags(blog.tags || []);
+        
+        // Set editor content after a small delay to ensure editor is ready
+        setTimeout(() => {
+          if (editor && blog.contentHtml) {
+            editor.commands.setContent(blog.contentHtml);
+          }
+        }, 100);
+      }
+    } catch (error) {
+      toast.error('خطا در بارگذاری بلاگ');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const setLink = () => {
     const previousUrl = editor?.getAttributes("link").href;
@@ -394,16 +289,19 @@ export default function AddBlogPage() {
 
       const blogData = {
         title,
-        description,
+        excerpt: description,
         seoTitle,
-        content: editor?.getHTML(),
-        image: mainImage || null,
-        secondImage: secondImage || null,
+        contentHtml: editor?.getHTML() || '',
+        images: images,
+        coverImage: images.length > 0 ? images[0] : undefined,
         tags,
       };
 
-      const response = await fetch("/api/blog", {
-        method: "POST",
+      const url = isEditMode ? `/api/blog/${editId}` : '/api/blog';
+      const method = isEditMode ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           token: token,
@@ -414,18 +312,18 @@ export default function AddBlogPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("بلاگ با موفقیت ایجاد شد");
-        // Reset form
-        setTitle("");
-        setDescription("");
-        setSeoTitle("");
-        setMainImage("");
-        setSecondImage("");
-        setTags([]);
-        editor?.commands.clearContent();
-        setWordCount(0);
+        toast.success(isEditMode ? "بلاگ با موفقیت بروزرسانی شد" : "بلاگ با موفقیت ایجاد شد");
+        if (!isEditMode) {
+          setTitle("");
+          setDescription("");
+          setSeoTitle("");
+          setImages([]);
+          setTags([]);
+          editor?.commands.clearContent();
+          setWordCount(0);
+        }
       } else {
-        toast.error(result.message || "خطا در ایجاد بلاگ");
+        toast.error(result.message || (isEditMode ? "خطا در بروزرسانی بلاگ" : "خطا در ایجاد بلاگ"));
       }
     } catch (error) {
       console.log("Error creating blog:", error);
@@ -440,14 +338,14 @@ export default function AddBlogPage() {
         animate={{ y: 0, opacity: 1 }}
         className="text-2xl md:text-4xl font-black my-4 text-center text-black"
       >
-        افزودن بلاگ جدید
+        {isEditMode ? 'ویرایش بلاگ' : 'افزودن بلاگ جدید'}
       </motion.h2>
       <motion.p
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         className="text-base md:text-xl font-medium mb-8 text-center text-[#000]/50"
       >
-        در این قسمت می‌توانید بلاگ جدید خود را ایجاد کنید
+        {isEditMode ? 'در این قسمت میتوانید بلاگ خود را ویرایش کنید' : 'در این قسمت میتوانید بلاگ جدید خود را ایجاد کنید'}
       </motion.p>
 
       <link
@@ -457,7 +355,7 @@ export default function AddBlogPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
         {/* SEO Section */}
-        <div className="   backdrop-blur-sm p-8 border border-[#e5d8d0]/20 shadow-lg rounded-xl">
+        <div className="backdrop-blur-sm p-8 border border-[#e5d8d0]/20 shadow-lg rounded-xl">
           <label className="block mb-4 text-xl text-center text-gray-100">
             <span className="text-[#000] font-bold">قسمت سئو</span>
           </label>
@@ -488,7 +386,7 @@ export default function AddBlogPage() {
                   e.key === "Enter" && (e.preventDefault(), handleAddTag())
                 }
                 className="w-full px-6 py-4 text-[#000] rounded-xl border border-[#e4e4e4] bg-white/80 outline-none focus:border-[#000]"
-                placeholder="برچسب‌ها را وارد کنید..."
+                placeholder="برچسبها را وارد کنید..."
               />
               <button
                 type="button"
@@ -522,14 +420,74 @@ export default function AddBlogPage() {
         </div>
 
         {/* Image Upload Section */}
-        <BlogImageUpload
-          onImageUpload={handleImageUpload}
-          currentMainImage={mainImage}
-          currentSecondImage={secondImage}
-        />
+        <div className="backdrop-blur-sm p-8 border border-[#e5d8d0]/20 shadow-lg rounded-xl">
+          <label className="block mb-4 text-xl text-center">
+            <span className="text-[#000] font-bold">تصاویر بلاگ (حداکثر 5 تصویر)</span>
+          </label>
+          
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-4">
+            <input
+              type="file"
+              accept=".png,.jpg,.jpeg,.gif,.webp"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileUpload(file);
+              }}
+              disabled={uploading || images.length >= 5}
+              className="hidden"
+              id="imageUpload"
+            />
+            <label
+              htmlFor="imageUpload"
+              className="cursor-pointer block p-4 text-gray-600 hover:text-gray-800"
+            >
+              <i className="fas fa-cloud-upload-alt text-3xl mb-2"></i>
+              <p className="text-lg">کلیک کنید یا فایل را بکشید</p>
+              <p className="text-sm text-gray-500 mt-2">{images.length}/5 تصویر آپلود شده</p>
+            </label>
+          </div>
+          
+          {images.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-4">
+              {images.map((image, index) => (
+                <div key={index} className="relative group">
+                  <img 
+                    src={image} 
+                    alt={`تصویر ${index + 1}`} 
+                    className="w-full h-24 object-cover rounded-lg" 
+                  />
+                  <div className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                    {index === 0 ? 'اصلی' : index + 1}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setImages(prev => prev.filter((_, i) => i !== index))}
+                    className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {uploading && (
+            <div className="mt-4 text-center text-blue-600">
+              <i className="fas fa-spinner fa-spin mr-2"></i>
+              در حال آپلود...
+            </div>
+          )}
+          
+          <div className="mt-4 text-sm text-gray-600 space-y-1">
+            <p>• اولین تصویر به عنوان تصویر اصلی بلاگ استفاده میشود</p>
+            <p>• برای درج تصاویر در محتوا، از منوی "درج تصویر" در نوار ابزار استفاده کنید</p>
+            <p>• فرمتهای مجاز: PNG, JPG, JPEG, GIF, WebP</p>
+            <p>• حداکثر حجم: 30 مگابایت</p>
+          </div>
+        </div>
 
         {/* Content Section */}
-        <div className="  backdrop-blur-sm p-8 border border-[#e5d8d0]/20 shadow-lg rounded-xl">
+        <div className="backdrop-blur-sm p-8 border border-[#e5d8d0]/20 shadow-lg rounded-xl">
           <label className="block text-2xl font-bold text-[#000] text-center mb-6">
             عنوان بلاگ
           </label>
@@ -571,14 +529,6 @@ export default function AddBlogPage() {
                   active={false}
                 >
                   <i className="fas fa-unlink"></i>
-                </MenuButton>
-
-                {/* Image Button */}
-                <MenuButton
-                  onClick={() => setShowImageModal(true)}
-                  active={false}
-                >
-                  <i className="fas fa-image"></i>
                 </MenuButton>
 
                 {[2, 3, 4, 5].map((level) => (
@@ -673,9 +623,55 @@ export default function AddBlogPage() {
                 >
                   <i className="fas fa-list-ol"></i>
                 </MenuButton>
+
+                {/* Image Insertion Dropdown */}
+                {images.length > 0 && (
+                  <div className="relative">
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const imageUrl = e.target.value;
+                          const imageIndex = images.indexOf(imageUrl);
+                          editor?.chain().focus().setImage({ 
+                            src: imageUrl, 
+                            alt: `تصویر ${imageIndex + 1}` 
+                          }).run();
+                          e.target.value = '';
+                        }
+                      }}
+                      className="px-3 py-2 text-sm border border-gray-300 rounded-md bg-white text-gray-700"
+                    >
+                      <option value="">درج تصویر</option>
+                      {images.map((image, index) => (
+                        <option key={index} value={image}>
+                          تصویر {index + 1} {index === 0 ? '(اصلی)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div className="p-6 text-black bg-white/90">
+                <style>{`
+                  .ProseMirror img {
+                    width: 200px;
+                    height: 40px;
+                    background: #e5e7eb;
+                    border: 2px dashed #9ca3af;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    color: #374151;
+                    position: relative;
+                  }
+                  .ProseMirror img::before {
+                    content: "📷 " attr(alt);
+                    position: absolute;
+                  }
+                `}</style>
                 <EditorContent editor={editor} />
               </div>
 
@@ -691,17 +687,10 @@ export default function AddBlogPage() {
             type="submit"
             className="bg-transparent text-black px-8 py-2.5 border hover:bg-gray-50 w-full rounded-lg hover:shadow-lg transition-all duration-300 font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ثبت
+            {isEditMode ? 'بروزرسانی' : 'ثبت'}
           </button>
         </div>
       </form>
-
-      {/* Image Upload Modal */}
-      <ImageUploadModal
-        isOpen={showImageModal}
-        onClose={() => setShowImageModal(false)}
-        onImageSelect={handleInsertImage}
-      />
     </div>
   );
 }

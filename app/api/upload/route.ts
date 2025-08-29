@@ -10,7 +10,7 @@ type TokenPayload = {
 };
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 30 * 1024 * 1024; // 5MB
 
 export async function POST(request: NextRequest) {
   try {

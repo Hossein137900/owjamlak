@@ -1,77 +1,85 @@
-import connect from "@/lib/data";
-import { NextResponse } from "next/server";
-import Blog from "@/models/blog";
-import User from "@/models/user";
-
+import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, readFile } from 'fs/promises';
+import path from 'path';
+import fs from 'fs';
 export async function GET() {
   try {
-    await connect();
-    const blogs = await Blog.find().populate({
-      path: "userId",
-      model: User,
-      select: "username name",
-    }).sort({ createdAt: -1 });
-    return NextResponse.json({ blogs }, { status: 200 });
+    const dataPath = path.join(process.cwd(), 'data', 'blogs.json');
+    const fs = require('fs');
+    
+    if (!fs.existsSync(dataPath)) {
+      return NextResponse.json([]);
+    }
+    
+    const fileContent = fs.readFileSync(dataPath, 'utf8');
+    const blogs = JSON.parse(fileContent);
+    
+    return NextResponse.json(blogs);
   } catch (error) {
-    console.log("Error fetching blogs:", error);
-    return NextResponse.json(
-      { message: "Error fetching blogs" },
-      { status: 500 }
-    );
+    return NextResponse.json([]);
   }
 }
 
-export async function POST(request: Request) {
-  // const token = request.headers.get("token");
-  // if (!token) {
-  //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  // }
-  
-  // interface JwtPayloadWithId {
-  //   id: string;
-  // }
-  
-  // const decodedToken = jwt.verify(
-  //   token,
-  //   process.env.JWT_SECRET || "msl"
-  // ) as JwtPayloadWithId;
-  
-  // if (!decodedToken) {
-  //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  // }
-  
-  // const userId = decodedToken.id;
-  // if (!userId) {
-  //   return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  // }
-  
-  const { title, description, image, secondImage, tags, seoTitle, content } =
-    await request.json();
-    
+export async function POST(request: NextRequest) {
   try {
-    await connect();
-    const newBlog = new Blog({
-      title,
-      seoTitle,
-      content,
-      tags,
-      description,
-      image,
-      secondImage,
-      userId: "654702904c320b4300d71406",
-      readTime: Math.ceil(content.split(" ").length / 200),
-    });
+    const { title, excerpt, description, seoTitle, content, contentHtml, images, tags } = await request.json();
+    
+    // Use the correct field names
+    const finalExcerpt = excerpt || description;
+    const finalContent = contentHtml || content;
+    
+    // Validate required fields
+    if (!title || !finalExcerpt || !seoTitle || !finalContent) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
 
-    await newBlog.save();
-    return NextResponse.json(
-      { message: "Blog created successfully", blog: newBlog },
-      { status: 201 }
-    );
+    // Generate blog data
+    const blogId = `blog_${Date.now()}`;
+    const blogData = {
+      id: blogId,
+      title,
+      excerpt: finalExcerpt,
+      coverImage: images && images.length > 0 ? images[0] : '/assets/images/hero4.jpg',
+      author: 'مدیر سایت',
+      date: new Date().toLocaleDateString('fa-IR'),
+      readTime: `${Math.ceil(finalContent.split(' ').length / 200)} دقیقه`,
+      category: 'عمومی',
+      contentHtml: finalContent,
+      seoTitle,
+      images: images || [],
+      tags: tags || [],
+      tableOfContents: []
+    };
+
+    // Save to data file (you can replace this with database later)
+    const dataPath = path.join(process.cwd(), 'data', 'blogs.json');
+    
+    try {
+      const fs = require('fs');
+      let existingBlogs = [];
+      
+      if (fs.existsSync(dataPath)) {
+        const fileContent = fs.readFileSync(dataPath, 'utf8');
+        existingBlogs = JSON.parse(fileContent);
+      }
+      
+      existingBlogs.push(blogData);
+      
+      await writeFile(dataPath, JSON.stringify(existingBlogs, null, 2));
+      
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Blog created successfully',
+        blogId 
+      });
+      
+    } catch (fileError) {
+      console.error('File operation error:', fileError);
+      return NextResponse.json({ error: 'Failed to save blog' }, { status: 500 });
+    }
+
   } catch (error) {
-    console.log("Error creating blog:", error);
-    return NextResponse.json(
-      { message: "Error creating blog" },
-      { status: 500 }
-    );
+    console.error('Blog creation error:', error);
+    return NextResponse.json({ error: 'Failed to create blog' }, { status: 500 });
   }
 }

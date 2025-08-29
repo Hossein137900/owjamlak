@@ -135,6 +135,7 @@ export async function POST(request: NextRequest) {
       consultant: formData.get("consultant"),
       status: formData.get("status"),
       images: uploadedImages,
+      video: formData.get("video") || "",
     };
 
     // Connect to database and save poster
