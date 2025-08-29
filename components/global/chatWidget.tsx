@@ -25,8 +25,7 @@ export default function Chat() {
   const [sessionCreated, setSessionCreated] = useState<boolean>(false);
   const [lastAuthState, setLastAuthState] = useState<string | null>(null);
 
-  console.log(isConnected)
-
+ 
   // Form states
   const [name, setName] = useState<string>("");
   const [token, setToken] = useState<string>("");
