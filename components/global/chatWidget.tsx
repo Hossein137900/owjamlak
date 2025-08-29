@@ -2,20 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import Head from "next/head";
-import {
-  Message,
-  User,
-  RoomData,
-  JWTPayload,
-  ChatSocket,
-} from "../../types/chat";
+import { Message, User, JWTPayload, ChatSocket } from "../../types/chat";
 
 export default function Chat() {
   const [socket, setSocket] = useState<ChatSocket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [showChat, setShowChat] = useState<boolean>(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [activity, setActivity] = useState<string>("");
@@ -24,24 +16,23 @@ export default function Chat() {
   const [shouldShowWidget, setShouldShowWidget] = useState<boolean>(true);
   const [sessionCreated, setSessionCreated] = useState<boolean>(false);
   const [lastAuthState, setLastAuthState] = useState<string | null>(null);
-
- 
+  console.log(isConnected);
+  console.log(shouldShowWidget);
   // Form states
-  const [name, setName] = useState<string>("");
   const [token, setToken] = useState<string>("");
-  const [room, setRoom] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<NodeJS.Timeout | null>(null);
   const socketRef = useRef<ChatSocket | null>(null);
 
+ 
   const resetChatSession = () => {
-    if (socket) {
+     if (socket) {
       socket.disconnect();
       setSocket(null);
-    }
-    setMessages([]);
+     }
+     setMessages([]);
     setUsers([]);
     setActivity("");
     setCurrentRoom("");
@@ -52,18 +43,25 @@ export default function Chat() {
   const checkAuthState = () => {
     const savedToken = localStorage.getItem("token");
     const currentAuthState = savedToken || "guest";
-    
+
     if (lastAuthState !== currentAuthState) {
-      console.log("Auth state changed from", lastAuthState, "to", currentAuthState);
+      console.log(
+        "Auth state changed from",
+        lastAuthState,
+        "to",
+        currentAuthState
+      );
       resetChatSession();
       setLastAuthState(currentAuthState);
-      
+
       if (savedToken) {
         setToken(savedToken);
         try {
-          const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
+          const payload: JWTPayload = JSON.parse(
+            atob(savedToken.split(".")[1])
+          );
           const allowedRoles = ["user", "guest"];
-          
+
           if (payload.role && allowedRoles.includes(payload.role)) {
             setShouldShowWidget(true);
             initializeChat();
@@ -72,6 +70,7 @@ export default function Chat() {
             setShouldShowWidget(false);
           }
         } catch (error) {
+          console.log(error)
           setShouldShowWidget(true);
           setToken("");
         }
@@ -86,19 +85,21 @@ export default function Chat() {
     const savedToken = localStorage.getItem("token");
     const currentAuthState = savedToken || "guest";
     setLastAuthState(currentAuthState);
-    
+
     if (savedToken) {
       setToken(savedToken);
       try {
         const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
         const allowedRoles = ["user", "guest"];
-        
+
         if (payload.role && allowedRoles.includes(payload.role)) {
           setShouldShowWidget(true);
         } else {
           setShouldShowWidget(false);
         }
       } catch (error) {
+                  console.log(error)
+
         setShouldShowWidget(true);
         setToken("");
       }
@@ -120,7 +121,7 @@ export default function Chat() {
 
   const initializeChat = (): void => {
     connectSocket();
-    setCurrentRoom("Support Chat");
+    setCurrentRoom("پشتیبانی");
     setHasNewMessages(false);
     loadChatHistory();
   };
@@ -178,10 +179,21 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isModalOpen]);
+
   const connectSocket = (): void => {
     // Prevent multiple connections
     if (socket && socket.connected) return;
-    
+
     const newSocket = io(
       process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500",
       {
@@ -190,7 +202,7 @@ export default function Chat() {
         },
       }
     ) as ChatSocket;
-    
+
     setSocket(newSocket);
     socketRef.current = newSocket;
   };
@@ -202,11 +214,13 @@ export default function Chat() {
     }
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"}/api/messages/current`,
+        `${
+          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"
+        }/api/messages/current`,
         {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (response.ok) {
@@ -258,11 +272,16 @@ export default function Chat() {
   const getCurrentUserName = (): string => {
     // Always check localStorage for the latest token
     const currentToken = token || localStorage.getItem("token");
-    
+
     if (currentToken) {
       try {
-        const payload: JWTPayload = JSON.parse(atob(currentToken.split(".")[1]));
-        console.log("getCurrentUserNameasdfasdfasdfasdfasdfas - payload:", payload.name);
+        const payload: JWTPayload = JSON.parse(
+          atob(currentToken.split(".")[1])
+        );
+        console.log(
+          "getCurrentUserNameasdfasdfasdfasdfasdfas - payload:",
+          payload.name
+        );
         return payload.name || "Guest";
       } catch (error) {
         console.log("getCurrentUserName - token decode error:", error);
@@ -272,13 +291,12 @@ export default function Chat() {
     return "Guest";
   };
 
-
-
   const getMessageClass = (msgName: string): string => {
     const currentUser = getCurrentUserName();
     console.log("Current user:", currentUser, "Message from:", msgName);
     if (msgName === currentUser) return "flex justify-end mb-4";
-    if (msgName === "Admin" || msgName === "WhatsApp") return "flex justify-start mb-4";
+    if (msgName === "Admin" || msgName === "WhatsApp")
+      return "flex justify-start mb-4";
     return "flex justify-start mb-4";
   };
 
@@ -286,32 +304,25 @@ export default function Chat() {
     const currentUser = getCurrentUserName();
     if (msgName === currentUser)
       return "bg-gradient-to-r from-blue-600 to-blue-500 text-white";
-    if (msgName === "Admin")
-      return "bg-gray-800/80 text-blue-100";
+    if (msgName === "Admin") return "bg-gray-800/80 text-blue-100";
     if (msgName === "WhatsApp")
       return "bg-gradient-to-r from-gray-700 to-gray-600 text-blue-300";
     return "bg-gray-800/80 text-blue-100";
   };
 
   // Don't render widget for admin roles
-  if (!shouldShowWidget) {
-    return null;
-  }
-
+  // if (!shouldShowWidget) {
+  //   return null;
+  // }
   return (
     <>
-      <Head>
-        <title>Chat App</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-
       {/* Chat Icon Button */}
       <button
         onClick={() => {
           setIsModalOpen(true);
           setHasNewMessages(false);
         }}
-        className="fixed bottom-16 right-6 z-50 w-16 h-16 bg-gradient-to-r from-gray-900 to-blue-500 text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group border border-blue-400/30"
+        className="fixed bottom-16 right-3 z-50 w-16 h-16 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group border border-blue-400/30"
       >
         <svg
           className="w-8 h-8 group-hover:scale-110 transition-transform duration-200"
@@ -335,30 +346,18 @@ export default function Chat() {
 
       {/* Modal Overlay */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-md"
             onClick={() => setIsModalOpen(false)}
           />
 
-          <div className="relative w-full max-w-md h-[600px] bg-gradient-to-br from-black via-gray-900 to-black rounded-2xl shadow-2xl border border-blue-400/30 overflow-hidden">
+          <div className="relative w-full max-w-md h-[600px] bg-gradient-to-b from-[#66308d]/80   to-[#01ae9b]/80 rounded-2xl shadow-2xl border border-gray-400 overflow-y-auto">
             <div className="flex flex-col h-full">
-              <div className="p-4 border-b border-blue-400/20 flex justify-between items-center bg-gradient-to-r from-black to-gray-900">
-                <div>
-                  <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    {currentRoom}
-                  </h3>
-                  <p className="text-sm text-blue-300/70">
-                    {users.length > 0
-                      ? `${users.length} participant${
-                          users.length > 1 ? "s" : ""
-                        }`
-                      : "No participants"}
-                  </p>
-                </div>
+              <div className="p-4 border-b border-blue-400/20 flex justify-between items-center bg-white">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="text-white/70 hover:text-white transition-colors"
+                  className="text-black/70 hover:text-black transition-colors"
                 >
                   <svg
                     className="w-6 h-6"
@@ -374,6 +373,18 @@ export default function Chat() {
                     />
                   </svg>
                 </button>
+                <div>
+                  <h3 className="text-lg font-semibold text-black">
+                    {currentRoom}
+                  </h3>
+                  <p className="text-sm text-black">
+                    {users.length > 0
+                      ? `${users.length} participant${
+                          users.length > 1 ? "s" : ""
+                        }`
+                      : "بدون شرکت کننده"}
+                  </p>
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-blue-500/50 scrollbar-track-transparent bg-black/50">
@@ -412,25 +423,29 @@ export default function Chat() {
                 )}
               </div>
 
-              <div className="p-4 border-t border-blue-400/20 bg-gradient-to-r from-black to-gray-900">
-                <form onSubmit={handleSendMessage} className="flex gap-2">
+              <div className="p-4 border-t border-blue-400/20 bg-white/80">
+                <form
+                  onSubmit={handleSendMessage}
+                  className="flex   gap-2"
+                  dir="rtl"
+                >
                   <input
                     type="text"
-                    placeholder="Type a message..."
+                    placeholder="پیام خود را بنویسید"
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setMessage(e.target.value)
                     }
                     onInput={handleTyping}
-                    className="flex-1 px-4 py-3 bg-gray-900/80 border border-blue-400/30 rounded-xl text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 backdrop-blur-sm"
+                    className="flex-1 px-4 py-3   border border-gray-400 rounded-xl placeholder:text-gray-400 text-black  focus:outline-none focus:ring-2 focus:ring-[#01ae9b]   backdrop-blur-sm"
                     required
                   />
                   <button
                     type="submit"
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 shadow-lg border border-blue-400/30"
+                    className="px-6 py-3 bg-gradient-to-r from-[#01ae9b] to-[#66308d] text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 shadow-lg border border-blue-400/30"
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-5 h-5 rotate-270"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

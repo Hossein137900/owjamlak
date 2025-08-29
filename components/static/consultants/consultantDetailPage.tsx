@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import   { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -82,7 +82,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01ae9b] mx-auto mb-4"></div>
-          <p className="text-gray-600">در حال بارگذاری...</p>
+          <p className="text-gray-600">درحال بارگذاری</p>
         </div>
       </div>
     );

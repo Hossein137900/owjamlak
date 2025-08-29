@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import   { useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMapPin, FiX } from "react-icons/fi";
 import { SiGooglemaps } from "react-icons/si";

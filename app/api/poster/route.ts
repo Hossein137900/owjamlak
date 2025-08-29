@@ -5,7 +5,7 @@ import { existsSync } from "fs";
 import { jwtDecode } from "jwt-decode";
 import connect from "@/lib/data";
 import Poster from "@/models/poster";
-import { validateImageFile, sanitizeFilename } from "@/lib/validation";
+import { validateImageFile } from "@/lib/validation";
 import { getAllPosters, updatePoster } from "@/hooks/middlewares/poster";
 
 type TokenPayload = {

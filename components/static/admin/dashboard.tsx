@@ -1,4 +1,4 @@
- import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   FiUsers,
   FiFileText,
@@ -11,7 +11,11 @@ import {
 } from "react-icons/fi";
 import { useDashboardStats } from "@/hooks/useDashboardStats";
 
-const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onNavigate?: (section: string) => void;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { data, isLoading, error, refetch } = useDashboardStats();
 
   // Loading state
@@ -20,7 +24,7 @@ const Dashboard: React.FC = () => {
       <div className="h-64 bg-transparent flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">در حال بارگذاری ...</p>
+          <p className="text-gray-600"> ... در حال بارگذاری </p>
         </div>
       </div>
     );
@@ -49,42 +53,42 @@ const Dashboard: React.FC = () => {
   // Admin dashboard stats
   const adminStats = [
     {
-      id: 1,
-      name: "آگهیهای ملک",
+      id: "properties",
+      name: "آگهی های ملک",
       value: data.propertyListings?.toString() || "0",
       icon: <FiLayers className="h-6 w-6" />,
       color: "bg-blue-500",
     },
     {
-      id: 2,
+      id: "real-estate-requests",
       name: "درخواستهای املاک",
       value: data.realEstateRequests?.toString() || "0",
       icon: <FiFileText className="h-6 w-6" />,
       color: "bg-green-500",
     },
     {
-      id: 3,
+      id: "legal-requests",
       name: "درخواستهای حقوقی",
       value: data.legalRequests?.toString() || "0",
       icon: <FiFileText className="h-6 w-6" />,
       color: "bg-purple-500",
     },
     {
-      id: 4,
+      id: "employment-requests",
       name: "درخواستهای همکاری",
       value: data.employmentRequests?.toString() || "0",
       icon: <FiBriefcase className="h-6 w-6" />,
       color: "bg-yellow-500",
     },
     {
-      id: 5,
+      id: "users",
       name: "کاربران",
       value: data.users?.toString() || "0",
       icon: <FiUsers className="h-6 w-6" />,
       color: "bg-red-500",
     },
     {
-      id: 6,
+      id: "newsletter",
       name: "مشترکین خبرنامه",
       value: data.newsletterSubscribers?.toString() || "0",
       icon: <FiMail className="h-6 w-6" />,
@@ -95,14 +99,14 @@ const Dashboard: React.FC = () => {
   // User/Consultant dashboard stats
   const userStats = [
     {
-      id: 1,
+      id: "Myproperties",
       name: "آگهی های من",
       value: data.myPosters?.toString() || "0",
       icon: <FiLayers className="h-6 w-6" />,
       color: "bg-blue-500",
     },
     {
-      id: 2,
+      id: "favorite",
       name: "علاقه مندی های من",
       value: data.myFavorites?.toString() || "0",
       icon: <FiHeart className="h-6 w-6" />,
@@ -116,7 +120,8 @@ const Dashboard: React.FC = () => {
     <div>
       <div className="mb-8">
         <p className="text-gray-500 text-sm">
-          خوش آمدید <strong className="text-blue-400">{userInfo.name}</strong> عزیز
+          خوش آمدید <strong className="text-blue-400">{userInfo.name}</strong>{" "}
+          عزیز
         </p>
         {userInfo.createdAt && (
           <p className="text-xs text-yellow-500 flex items-center mt-1">
@@ -132,8 +137,9 @@ const Dashboard: React.FC = () => {
             key={stat.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: stat.id * 0.1 }}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            onClick={() => onNavigate && onNavigate(stat.id)}
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all cursor-pointer transform hover:scale-105"
           >
             <div className="p-5">
               <div className="flex items-center">

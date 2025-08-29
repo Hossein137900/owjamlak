@@ -467,7 +467,7 @@ const Footer = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-4 h-4 border-2 border-[#01ae9b] border-t-transparent rounded-full animate-spin" />
-                      در حال ارسال...
+                      ... در حال ارسال
                     </>
                   ) : (
                     "عضویت"

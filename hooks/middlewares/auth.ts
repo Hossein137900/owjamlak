@@ -134,7 +134,7 @@ export const checkAdminAccess = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (err) {
-    console.error("Error in admin-check:", err);
+    console.log("Error in admin-check:", err);
     return NextResponse.json(
       { message: "Invalid or expired token" },
       { status: 401 }

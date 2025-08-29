@@ -19,6 +19,11 @@ interface Blog {
 const BlogManagement = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [blogToDelete, setBlogToDelete] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchBlogs();
@@ -26,11 +31,11 @@ const BlogManagement = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await fetch('/api/blog');
+      const response = await fetch("/api/blog");
       const data = await response.json();
       setBlogs(data || []);
     } catch (error) {
-      console.error('Error fetching blogs:', error);
+      console.error("Error fetching blogs:", error);
       setBlogs([]);
     } finally {
       setLoading(false);
@@ -38,36 +43,36 @@ const BlogManagement = () => {
   };
 
   const handleCreateBlog = () => {
-    window.open('/addBlog', '_blank');
+    window.open("/addBlog", "_blank");
   };
 
   const handleViewBlog = (blogId: string) => {
-    window.open(`/blogs/${blogId}`, '_blank');
+    window.open(`/blogs/${blogId}`, "_blank");
   };
 
   const handleEditBlog = (blogId: string) => {
-    window.open(`/addBlog?edit=${blogId}`, '_blank');
+    window.open(`/addBlog?edit=${blogId}`, "_blank");
   };
 
-  const handleDeleteBlog = async (blogId: string, blogTitle: string) => {
-    if (!confirm(`آیا از حذف بلاگ "${blogTitle}" اطمینان دارید؟`)) {
-      return;
-    }
+  const handleDeleteBlog = async () => {
+    if (!blogToDelete) return;
 
     try {
-      const response = await fetch(`/api/blog/${blogId}`, {
-        method: 'DELETE',
+      const response = await fetch(`/api/blog/${blogToDelete.id}`, {
+        method: "DELETE",
       });
 
       if (response.ok) {
-        toast.success('بلاگ با موفقیت حذف شد');
-        fetchBlogs(); // Refresh the list
+        toast.success("بلاگ با موفقیت حذف شد");
+        fetchBlogs();
+        setShowDeleteModal(false);
+        setBlogToDelete(null);
       } else {
-        toast.error('خطا در حذف بلاگ');
+        toast.error("خطا در حذف بلاگ");
       }
     } catch (error) {
-      console.error('Error deleting blog:', error);
-      toast.error('خطا در حذف بلاگ');
+      console.error("Error deleting blog:", error);
+      toast.error("خطا در حذف بلاگ");
     }
   };
 
@@ -75,7 +80,7 @@ const BlogManagement = () => {
     return (
       <div className="p-8 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">در حال بارگذاری...</p>
+        <p className="mt-4 text-gray-600">درحال بارگذاری</p>
       </div>
     );
   }
@@ -83,7 +88,7 @@ const BlogManagement = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">مدیریت وبلاگ</h1>
+        <h1 className="text-2xl font-bold text-gray-600">مدیریت وبلاگ</h1>
         <button
           onClick={handleCreateBlog}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
@@ -118,8 +123,12 @@ const BlogManagement = () => {
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
-                <h3 className="font-bold text-lg mb-2 line-clamp-2">{blog.title}</h3>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{blog.excerpt}</p>
+                <h3 className="font-bold text-black text-lg mb-2 line-clamp-2">
+                  {blog.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                  {blog.excerpt.slice(0, 30)} ...
+                </p>
                 <div className="flex justify-between items-center text-xs text-gray-500 mb-4">
                   <span>{blog.date}</span>
                   <span>{blog.readTime}</span>
@@ -139,7 +148,10 @@ const BlogManagement = () => {
                     <FiEdit size={14} />
                   </button>
                   <button
-                    onClick={() => handleDeleteBlog(blog.id, blog.title)}
+                    onClick={() => {
+                      setBlogToDelete({ id: blog.id, title: blog.title });
+                      setShowDeleteModal(true);
+                    }}
                     className="bg-red-600 text-white py-2 px-3 rounded text-sm hover:bg-red-700 flex items-center justify-center"
                   >
                     <FiTrash2 size={14} />
@@ -148,6 +160,47 @@ const BlogManagement = () => {
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg shadow-xl max-w-md w-full p-6"
+          >
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <FiTrash2 className="text-red-600 text-xl" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                حذف بلاگ
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                آیا از حذف بلاگ {blogToDelete?.title} اطمینان دارید؟ این عمل
+                قابل بازگشت نیست.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setBlogToDelete(null);
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  انصراف
+                </button>
+                <button
+                  onClick={handleDeleteBlog}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                >
+                  حذف
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>

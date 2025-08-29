@@ -183,10 +183,10 @@ const PosterForm = ({}) => {
 
         // Check 30MB limit first
         if (file.size > 30 * 1024 * 1024) {
-          toast.error('حجم فایل نباید بیشتر از 30 مگابایت باشد');
+          toast.error("حجم فایل نباید بیشتر از 30 مگابایت باشد");
           continue;
         }
-        
+
         // اگر بالای 100KB بود فشرده کن
         if (file.size > 100 * 1024) {
           const options = {
@@ -239,51 +239,59 @@ const PosterForm = ({}) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-    const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
-    
+    const allowedTypes = [
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/avi",
+      "video/mov",
+    ];
+
     if (!allowedTypes.includes(file.type)) {
-      toast.error('فرمت ویدیو مجاز نیست. فرمتهای مجاز: MP4, WebM, OGG, AVI, MOV');
+      toast.error(
+        "فرمت ویدیو مجاز نیست. فرمتهای مجاز: MP4, WebM, OGG, AVI, MOV"
+      );
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('حجم ویدیو نباید بیشتر از 50 مگابایت باشد');
+      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
       return;
     }
 
     setVideoUploading(true);
-    
+
     try {
       const formData = new FormData();
-      formData.append('video', file);
-      formData.append('title', `ویدیو آگهی ${Date.now()}`);
-      formData.append('description', 'ویدیو آگهی املاک');
-      formData.append('alt', 'ویدیو آگهی');
+      formData.append("video", file);
+      formData.append("title", `ویدیو آگهی ${Date.now()}`);
+      formData.append("description", "ویدیو آگهی املاک");
+      formData.append("alt", "ویدیو آگهی");
 
-      const response = await fetch('/api/videos', {
-        method: 'POST',
+      const response = await fetch("/api/videos", {
+        method: "POST",
         headers: {
-          token: localStorage.getItem('token') || '',
+          token: localStorage.getItem("token") || "",
         },
         body: formData,
       });
 
       const result = await response.json();
-      console.log('Video upload result:', result);
-      
+      console.log("Video upload result:", result);
+
       if (response.ok) {
         const filename = result.video?.filename || result.filename;
-        console.log('Video filename:', filename);
+        console.log("Video filename:", filename);
         setVideo(file);
         setVideoPreview(URL.createObjectURL(file));
-        setFormData(prev => ({ ...prev, video: filename || '' }));
-        toast.success('ویدیو با موفقیت آپلود شد');
+        setFormData((prev) => ({ ...prev, video: filename || "" }));
+        toast.success("ویدیو با موفقیت آپلود شد");
       } else {
-        toast.error(result.error || 'خطا در آپلود ویدیو');
+        toast.error(result.error || "خطا در آپلود ویدیو");
       }
     } catch (error) {
-      console.error('Video upload failed:', error);
-      toast.error('خطا در آپلود ویدیو');
+      console.error("Video upload failed:", error);
+      toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);
     }
@@ -292,7 +300,7 @@ const PosterForm = ({}) => {
   const removeVideo = () => {
     setVideo(null);
     setVideoPreview("");
-    setFormData(prev => ({ ...prev, video: "" }));
+    setFormData((prev) => ({ ...prev, video: "" }));
   };
 
   useEffect(() => {
@@ -428,7 +436,7 @@ const PosterForm = ({}) => {
         toast.success("آگهی با موفقیت ایجاد شد");
 
         // Smooth scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
 
         // Trigger event to refresh posterById component
         window.dispatchEvent(new CustomEvent("posterCreated"));
@@ -564,59 +572,6 @@ const PosterForm = ({}) => {
             />
           </div>
 
-          {/* Video Upload */}
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ویدیو (اختیاری)
-            </label>
-            
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <input
-                type="file"
-                id="video"
-                accept="video/mp4,video/webm,video/ogg,video/avi,video/mov"
-                onChange={handleVideoUpload}
-                className="hidden"
-              />
-              <label
-                htmlFor="video"
-                className="cursor-pointer flex flex-col items-center justify-center"
-              >
-                <FiUpload className="w-10 h-10 text-gray-400 mb-2" />
-                <span className="text-sm text-gray-500">
-                  برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
-                </span>
-                <span className="text-xs text-gray-400 mt-1">
-                  فرمت‌های مجاز: MP4, WebM, OGG, AVI, MOV
-                </span>
-              </label>
-
-              {videoUploading && (
-                <div className="mt-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="text-sm text-gray-500 mt-2">در حال آپلود ویدیو...</p>
-                </div>
-              )}
-            </div>
-
-            {videoPreview && (
-              <div className="mt-4 relative">
-                <video
-                  src={videoPreview}
-                  controls
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={removeVideo}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
-                >
-                  <FiX size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-
           {/* Images */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -646,7 +601,7 @@ const PosterForm = ({}) => {
               {uploading && (
                 <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
                   <div
-                    className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                    className="bg-[#01ae9b]  h-3 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
@@ -665,7 +620,7 @@ const PosterForm = ({}) => {
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1  transition-opacity"
                     >
                       <FiX size={12} />
                     </button>
@@ -675,13 +630,67 @@ const PosterForm = ({}) => {
                       className={`absolute bottom-1 left-1 px-2 py-1 text-xs rounded ${
                         image.mainImage
                           ? "bg-blue-500 text-white"
-                          : "bg-gray-200 text-gray-700 opacity-0 group-hover:opacity-100"
+                          : "bg-gray-200 text-gray-700 "
                       } transition-opacity`}
                     >
                       {image.mainImage ? "اصلی" : "انتخاب"}
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+          {/* Video Upload */}
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              ویدیو (اختیاری)
+            </label>
+
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <input
+                type="file"
+                id="video"
+                accept="video/mp4,video/webm,video/ogg,video/avi,video/mov"
+                onChange={handleVideoUpload}
+                className="hidden"
+              />
+              <label
+                htmlFor="video"
+                className="cursor-pointer flex flex-col items-center justify-center"
+              >
+                <FiUpload className="w-10 h-10 text-gray-400 mb-2" />
+                <span className="text-sm text-gray-500">
+                  برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
+                </span>
+                <span className="text-xs text-gray-400 mt-1">
+                  فرمت‌های مجاز: MP4, WebM, OGG, AVI, MOV
+                </span>
+              </label>
+
+              {videoUploading && (
+                <div className="mt-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="text-sm text-gray-500 mt-2">
+                    در حال آپلود ویدیو...
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {videoPreview && (
+              <div className="mt-4 relative">
+                <video
+                  src={videoPreview}
+                  controls
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={removeVideo}
+                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                >
+                  <FiX size={16} />
+                </button>
               </div>
             )}
           </div>

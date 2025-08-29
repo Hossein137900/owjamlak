@@ -27,8 +27,6 @@ const OffersPage = () => {
   const [isTextExpanded, setIsTextExpanded] = useState(false);
   const LIMIT = 20;
 
-  const expandableContentRef = useRef<HTMLDivElement>(null);
-
   const fetchInvestmentPosters = async (page = 1, append = false) => {
     try {
       if (page === 1) setLoading(true);
@@ -206,9 +204,9 @@ const OffersPage = () => {
           </div>
 
           <p className="text-gray-700 text-lg leading-relaxed mb-4">
-            سرمایه گذاری در بخش املاک یکی از مطمئنترین و پرسودترین روشهای
-            سرمایه گذاری محسوب میشود. با رشد مداوم جمعیت و توسعه شهری، تقاضا برای
-            املاک همواره در حال افزایش است.
+            سرمایه گذاری در بخش املاک یکی از مطمئنترین و پرسودترین روشهای سرمایه
+            گذاری محسوب میشود. با رشد مداوم جمعیت و توسعه شهری، تقاضا برای املاک
+            همواره در حال افزایش است.
           </p>
 
           <motion.div
@@ -359,7 +357,7 @@ const OffersPage = () => {
               {loadingMore ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  در حال بارگذاری...
+                  درحال بارگذاری
                 </>
               ) : (
                 `مشاهده بیشتر (${Math.min(

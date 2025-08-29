@@ -36,7 +36,6 @@ const VideoManagement: React.FC = () => {
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
 
   const getToken = () => localStorage.getItem("token");
 
@@ -47,8 +46,6 @@ const VideoManagement: React.FC = () => {
       setVideos(data.videos || []);
     } catch (error) {
       console.error("Error fetching videos:", error);
-    } finally {
-      setLoading(false);
     }
   };
 

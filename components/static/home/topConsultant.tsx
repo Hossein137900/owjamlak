@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import   { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -36,7 +36,7 @@ const TopConsultant: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">در حال بارگذاری...</p>
+            <p className="mt-4 text-gray-600">درحال بارگذاری</p>
           </div>
         </div>
       </section>

@@ -44,7 +44,7 @@ export default function PosterDetailClient({
   const [posterData, setPosterData] = useState<Poster | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [[currentImageIndex, direction], setCurrentImage] = useState([0, 0]);
+  const [[currentImageIndex], setCurrentImage] = useState([0, 0]);
 
   // Reset to index 0 when poster data changes to ensure video shows first
   useEffect(() => {
@@ -389,9 +389,7 @@ export default function PosterDetailClient({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-10 h-10 sm:w-12 sm:h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 text-sm sm:text-base">
-            در حال بارگذاری ...
-          </p>
+          <p className="text-gray-600 text-sm sm:text-base">درحال بارگذاری</p>
         </div>
       </div>
     );

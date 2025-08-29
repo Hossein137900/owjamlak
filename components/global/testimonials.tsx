@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import  { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { FaUserCircle, FaStar } from "react-icons/fa";
@@ -131,7 +131,7 @@ const Testimonials = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
           <p className="text-gray-600">در حال بارگذاری نظرات...</p>
         </div>
-      </section>
+      </section>  
     );
   }
 

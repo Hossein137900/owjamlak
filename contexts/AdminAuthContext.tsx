@@ -2,9 +2,10 @@
 
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { FiLoader } from "react-icons/fi";
 
 interface User {
   id: string;
@@ -42,7 +43,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          localStorage.setItem('adminRedirect', 'true');
+          localStorage.setItem("adminRedirect", "true");
           toast.error("ابتدا وارد حساب کاربری خود شوید");
           router.push("/auth");
           return;
@@ -58,7 +59,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         if (!res.ok) {
           localStorage.removeItem("token");
-          localStorage.setItem('adminRedirect', 'true');
+          localStorage.setItem("adminRedirect", "true");
           toast.error("دسترسی غیرمجاز! لطفاً دوباره وارد شوید");
           router.push("/auth");
           return;
@@ -68,7 +69,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setUser(data.user);
       } catch (err) {
         localStorage.removeItem("token");
-        localStorage.setItem('adminRedirect', 'true');
+        localStorage.setItem("adminRedirect", "true");
         toast.error("خطا در بررسی دسترسی! لطفاً دوباره تلاش کنید");
         router.push("/auth");
       } finally {
@@ -92,8 +93,11 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600" />
+      <div className="h-screen bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <span className="text-black/70"> ... درحال بارگذاری </span>
+        </div>
       </div>
     );
   }

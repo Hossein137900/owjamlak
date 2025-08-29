@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   FiHome,
   FiUsers,
@@ -13,9 +13,13 @@ import {
   FiLayers,
   FiMail,
   FiVideo,
-  FiUser,
-  FiBook,
+   FiBook,
   FiHeart,
+  FiPlus,
+  FiUserCheck,
+  FiStar,
+  FiPhone,
+  FiEdit,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAdminAuth } from "../../../contexts/AdminAuthContext";
@@ -35,6 +39,7 @@ import AdminFavoritesPage from "./favorites/page";
 import MessagesPage from "./contactForm/messagesPage";
 import PosterById from "./posters/posterById";
 import ChatAdminList from "./chat/adminChatList";
+import Link from "next/link";
 
 const AdminLayout: React.FC = () => {
   const { hasAccess, logout } = useAdminAuth();
@@ -112,19 +117,19 @@ const AdminLayout: React.FC = () => {
     },
     {
       id: "Myproperties",
-      icon: <FiLayers />,
+      icon: <FiEdit />,
       label: "آگهی های من",
       roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "Addposter",
-      icon: <FiHome />,
+      icon: <FiPlus />,
       label: "ساخت آگهی",
       roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "real-estate-requests",
-      icon: <FiMessageSquare />,
+      icon: <FiHome />,
       label: "درخواستهای مشاوره املاک",
       roles: ["admin", "superadmin", "consultant", "user"],
     },
@@ -148,7 +153,7 @@ const AdminLayout: React.FC = () => {
     },
     {
       id: "contact",
-      icon: <FiBook />,
+      icon: <FiPhone />,
       label: "پیام های ارتباط",
       roles: ["admin", "superadmin", "consultant", "user"],
     },
@@ -166,13 +171,13 @@ const AdminLayout: React.FC = () => {
     },
     {
       id: "ConsultantChampion",
-      icon: <FiUser />,
+      icon: <FiStar />,
       label: "مشاور برتر",
       roles: ["superadmin"],
     },
     {
       id: "Consultant",
-      icon: <FiUser />,
+      icon: <FiUserCheck />,
       label: "مشاورین",
       roles: ["superadmin"],
     },
@@ -205,7 +210,7 @@ const AdminLayout: React.FC = () => {
 
     switch (activeSection) {
       case "dashboard":
-        return <Dashboard />;
+        return <Dashboard onNavigate={setActiveSection} />;
       case "properties":
         return hasAccess(["admin", "superadmin", "user"]) ? (
           <PropertyListings />
@@ -397,6 +402,14 @@ const AdminLayout: React.FC = () => {
             </div>
 
             <div className="flex items-center space-x-4 space-x-reverse">
+              <button
+                className={`p-2 rounded-full ${hoverBgClass} transition-colors duration-200`}
+                aria-label="Navigate to home"
+              >
+                <Link href="/">
+                  <FiHome className={`w-5 h-5 ${textClass}`} />
+                </Link>
+              </button>
               <button
                 onClick={toggleDarkMode}
                 className={`p-2 rounded-full ${hoverBgClass} transition-colors duration-200`}

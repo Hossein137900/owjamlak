@@ -1,4 +1,4 @@
- import { Metadata } from "next";
+import { Metadata } from "next";
 import AdminLayout from "@/components/static/admin/adminLayout";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 

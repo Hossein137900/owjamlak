@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
@@ -347,48 +347,57 @@ const PropertyListings: React.FC = () => {
     if (!e.target.files || e.target.files.length === 0) return;
 
     const file = e.target.files[0];
-    const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/mov'];
-    
+    const allowedTypes = [
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/avi",
+      "video/mov",
+    ];
+
     if (!allowedTypes.includes(file.type)) {
-      toast.error('فرمت ویدیو مجاز نیست');
+      toast.error("فرمت ویدیو مجاز نیست");
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('حجم ویدیو نباید بیشتر از 50 مگابایت باشد');
+      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
       return;
     }
 
     setVideoUploading(true);
-    
+
     try {
       const formData = new FormData();
-      formData.append('video', file);
-      formData.append('title', `ویدیو آگهی ${Date.now()}`);
-      formData.append('description', 'ویدیو آگهی املاک');
-      formData.append('alt', 'ویدیو آگهی');
+      formData.append("video", file);
+      formData.append("title", `ویدیو آگهی ${Date.now()}`);
+      formData.append("description", "ویدیو آگهی املاک");
+      formData.append("alt", "ویدیو آگهی");
 
-      const response = await fetch('/api/videos', {
-        method: 'POST',
+      const response = await fetch("/api/videos", {
+        method: "POST",
         headers: {
-          token: localStorage.getItem('token') || '',
+          token: localStorage.getItem("token") || "",
         },
         body: formData,
       });
 
       const result = await response.json();
-      
+
       if (response.ok) {
         setVideo(file);
         setVideoPreview(URL.createObjectURL(file));
-        setEditFormData(prev => ({ ...prev, video: result.video?.filename || result.filename }));
-        toast.success('ویدیو با موفقیت آپلود شد');
+        setEditFormData((prev) => ({
+          ...prev,
+          video: result.video?.filename || result.filename,
+        }));
+        toast.success("ویدیو با موفقیت آپلود شد");
       } else {
-        toast.error(result.error || 'خطا در آپلود ویدیو');
+        toast.error(result.error || "خطا در آپلود ویدیو");
       }
     } catch (error) {
-      console.error('Video upload failed:', error);
-      toast.error('خطا در آپلود ویدیو');
+      console.error("Video upload failed:", error);
+      toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);
     }
@@ -397,7 +406,7 @@ const PropertyListings: React.FC = () => {
   const removeVideo = () => {
     setVideo(null);
     setVideoPreview("");
-    setEditFormData(prev => ({ ...prev, video: "" }));
+    setEditFormData((prev) => ({ ...prev, video: "" }));
   };
 
   const handleUpdatePoster = async () => {
@@ -412,10 +421,15 @@ const PropertyListings: React.FC = () => {
         // Use FormData for new image uploads
         const formData = new FormData();
         formData.append("id", selectedProperty?._id || "");
-        
+
         // Add all form fields
         Object.entries(editFormData).forEach(([key, value]) => {
-          if (key !== "images" && key !== "_id" && value !== undefined && value !== null) {
+          if (
+            key !== "images" &&
+            key !== "_id" &&
+            value !== undefined &&
+            value !== null
+          ) {
             if (typeof value === "object") {
               formData.append(key, JSON.stringify(value));
             } else {
@@ -428,10 +442,13 @@ const PropertyListings: React.FC = () => {
         newImages.forEach((img, index) => {
           if (img.file) {
             formData.append("images", img.file);
-            formData.append(`imageData_${index}`, JSON.stringify({
-              alt: img.alt,
-              mainImage: img.mainImage
-            }));
+            formData.append(
+              `imageData_${index}`,
+              JSON.stringify({
+                alt: img.alt,
+                mainImage: img.mainImage,
+              })
+            );
           }
         });
 
@@ -663,7 +680,7 @@ const PropertyListings: React.FC = () => {
           {loading && (
             <div className="flex items-center justify-center py-10">
               <FiLoader className="animate-spin text-green-600 text-2xl ml-2" />
-              <span className="text-gray-600">در حال بارگذاری...</span>
+              <span className="text-gray-600">درحال بارگذاری</span>
             </div>
           )}
 
@@ -982,75 +999,6 @@ const PropertyListings: React.FC = () => {
                     />
                   </div>
 
-                  {/* Video Upload */}
-                  <div className="col-span-2">
-                    <h3 className="text-lg font-medium text-gray-800 mb-4">
-                      ویدیو (اختیاری)
-                    </h3>
-                    
-                    {editFormData.video && !videoPreview && (
-                      <div className="mb-4">
-                        <video
-                          src={`/api/videos/${editFormData.video}`}
-                          controls
-                          className="w-full h-48 object-cover rounded-lg mb-2"
-                        />
-                        <button
-                          type="button"
-                          onClick={removeVideo}
-                          className="text-red-600 hover:text-red-800 text-sm"
-                        >
-                          حذف ویدیو
-                        </button>
-                      </div>
-                    )}
-                    
-                    {videoPreview && (
-                      <div className="mb-4 relative">
-                        <video
-                          src={videoPreview}
-                          controls
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={removeVideo}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
-                        >
-                          <FiX size={16} />
-                        </button>
-                      </div>
-                    )}
-                    
-                    {!videoPreview && (
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6">
-                        <input
-                          type="file"
-                          id="videoUpload"
-                          accept="video/mp4,video/webm,video/ogg,video/avi,video/mov"
-                          onChange={handleVideoUpload}
-                          className="hidden"
-                        />
-                        <label
-                          htmlFor="videoUpload"
-                          className="cursor-pointer flex flex-col items-center justify-center"
-                        >
-                          <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
-                          <span className="text-sm text-gray-500">
-                            برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
-                          </span>
-                        </label>
-                        
-                        {videoUploading && (
-                          <div className="mt-4">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="text-sm text-gray-500 mt-2">در حال آپلود ویدیو...</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
                   {/* Property Type */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1357,7 +1305,7 @@ const PropertyListings: React.FC = () => {
                                 height={100}
                                 className="w-full h-20 object-cover rounded-lg border"
                               />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                              <div className="absolute inset-0 bg-black/50 opacity-80 md:opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
                                 <button
                                   type="button"
                                   onClick={() => setMainImage(index)}
@@ -1372,7 +1320,7 @@ const PropertyListings: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => removeExistingImage(index)}
-                                  className="p-1 bg-red-600 text-white rounded"
+                                  className="p-1 absolute top-1 right-1 bg-red-600 text-white rounded"
                                 >
                                   <FiTrash2 className="w-3 h-3" />
                                 </button>
@@ -1427,6 +1375,76 @@ const PropertyListings: React.FC = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+                  {/* Video Upload */}
+                  <div className="col-span-2">
+                    <h3 className="text-lg font-medium text-gray-800 mb-4">
+                      ویدیو (اختیاری)
+                    </h3>
+
+                    {editFormData.video && !videoPreview && (
+                      <div className="mb-4">
+                        <video
+                          src={`/api/videos/${editFormData.video}`}
+                          controls
+                          className="w-full h-48 object-cover rounded-lg mb-2"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          حذف ویدیو
+                        </button>
+                      </div>
+                    )}
+
+                    {videoPreview && (
+                      <div className="mb-4 relative">
+                        <video
+                          src={videoPreview}
+                          controls
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600"
+                        >
+                          <FiX size={16} />
+                        </button>
+                      </div>
+                    )}
+
+                    {!videoPreview && (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6">
+                        <input
+                          type="file"
+                          id="videoUpload"
+                          accept="video/mp4,video/webm,video/ogg,video/avi,video/mov"
+                          onChange={handleVideoUpload}
+                          className="hidden"
+                        />
+                        <label
+                          htmlFor="videoUpload"
+                          className="cursor-pointer flex flex-col items-center justify-center"
+                        >
+                          <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500">
+                            برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
+                          </span>
+                        </label>
+
+                        {videoUploading && (
+                          <div className="mt-4">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                            <p className="text-sm text-gray-500 mt-2">
+                              در حال آپلود ویدیو...
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Amenities Section */}

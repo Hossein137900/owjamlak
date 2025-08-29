@@ -31,7 +31,7 @@ export interface Poster {
     alt: string;
     url: string;
     mainImage: boolean;
-    _id:string
+    _id: string;
   }>;
   buildingDate: string | number; // Date as string from API
   area: number;
@@ -80,8 +80,8 @@ export interface Poster {
   floor?: number; // Optional
   parking: boolean;
   lift: boolean;
-  balcony: boolean; 
-  isApproved: boolean; 
+  balcony: boolean;
+  isApproved: boolean;
   tag: string;
   user: {
     _id: string;
@@ -189,4 +189,19 @@ export interface LegalRequest {
   email?: string;
   description: string;
   type: "Contract" | "Solve" | "DocumentReview" | "Other";
+}
+export interface Blog {
+  id: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  author: string;
+  date: string;
+  readTime: string;
+  category: string;
+  contentHtml: string;
+  seoTitle: string;
+  images: string[];
+  tags: string[];
+  tableOfContents: string[];
 }

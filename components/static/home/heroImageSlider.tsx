@@ -1,37 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { HiOutlineEye, HiOutlineLocationMarker } from "react-icons/hi";
-import { Poster } from "@/types/type";
 import { FiLoader } from "react-icons/fi";
+import { usePosters } from "@/hooks/usePosters";
 
 const HeroImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
-  const [posters, setPosters] = useState<Poster[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchPosters = async () => {
-      try {
-        const res = await fetch("/api/poster");
-        if (!res.ok) throw new Error("Failed to fetch posters");
-        const data = await res.json();
-        setPosters(data.posters.slice(0, 5));
-      } catch (err: unknown) {
-        console.log(err);
-        setError("خطا در بارگیری بنرها");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosters();
-  }, []);
+  const { posters, loading, error } = usePosters();
 
   useEffect(() => {
     if (posters.length > 1) {
@@ -91,14 +71,18 @@ const HeroImageSlider = () => {
     );
   }
 
-  if (error) {
+  if (error || !posters.length) {
     return (
-      <div className="col-span-8 row-span-6 flex items-center justify-center bg-red-100 text-red-700 rounded-tr-3xl rounded-br-3xl">
-        <p>Error: {error}</p>
+      <div className="px-4 py-6" dir="rtl">
+        <div className="h-80 flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-3xl">
+          <p className="text-red-600 font-medium mb-2">
+            خطا در بارگیری آگهی‌ها
+          </p>
+          <p className="text-red-500 text-sm">لطفاً دوباره تلاش کنید</p>
+        </div>
       </div>
     );
   }
-
   return (
     <motion.div className="col-span-8 row-span-6 relative " dir="rtl">
       {/* Base background to prevent flashing */}
@@ -117,8 +101,16 @@ const HeroImageSlider = () => {
             className="absolute  inset-0 w-full h-full"
           >
             <Image
-              src={currentPoster.images[0]?.url || "/assets/images/hero4.jpg"}
-              alt={currentPoster.images[0]?.alt || currentPoster.title}
+              src={
+                currentPoster.images?.find((img) => img.mainImage)?.url ||
+                currentPoster.images[0]?.url ||
+                "/assets/images/hero4.jpg"
+              }
+              alt={
+                currentPoster.images?.find((img) => img.mainImage)?.alt ||
+                currentPoster.images[0]?.alt ||
+                currentPoster.title
+              }
               fill
               className="object-cover  rounded-tr-3xl rounded-br-3xl"
               priority
@@ -133,7 +125,7 @@ const HeroImageSlider = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-2xl font-bold mb-2"
+                className="text-xl font-bold mb-2"
               >
                 {currentPoster.title}
               </motion.h2>
@@ -143,18 +135,18 @@ const HeroImageSlider = () => {
                 transition={{ delay: 0.3, duration: 0.5 }}
                 className="text-sm text-gray-200 mb-4 line-clamp-2"
               >
-                {currentPoster.description}
+                {currentPoster.description.slice(0, 30)}...
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
-                className="flex items-center gap-4 text-xs"
+                className="flex items-center justify-between gap-4 text-xs"
               >
                 {/* Location badge */}
                 <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md">
                   <HiOutlineLocationMarker className="text-white text-base" />
-                  <span>{currentPoster.location}</span>
+                  <span>{currentPoster.location.slice(0, 30)}...</span>
                 </div>
 
                 {/* View button */}
@@ -165,7 +157,7 @@ const HeroImageSlider = () => {
       bg-white/20 backdrop-blur-sm
       text-white font-medium
       px-3 py-1.5 rounded-md
-      shadow-md
+      shadow-md cursor-pointer
       hover:from-[#02c2ad] hover:to-[#7c3aed]
       transition-all duration-300
       text-sm
@@ -174,16 +166,6 @@ const HeroImageSlider = () => {
                   <HiOutlineEye className="text-lg" />
                   <span>مشاهده</span>
                 </Link>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-                className="mt-4 text-lg font-semibold"
-              >
-                {/* <span>
-                    {currentPoster.totalPrice.toLocaleString("fa-IR")} تومان
-                  </span> */}
               </motion.div>
             </div>
           </motion.div>
@@ -208,7 +190,7 @@ const HeroImageSlider = () => {
           </button>
 
           {/* Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-20">
             {posters.map((_, index) => (
               <button
                 key={index}

@@ -1340,7 +1340,7 @@ function PosterListLoading() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-        <p className="text-gray-600">در حال بارگذاری...</p>
+        <p className="text-gray-600">درحال بارگذاری</p>
       </div>
     </div>
   );

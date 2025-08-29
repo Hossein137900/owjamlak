@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Consultant } from "@/types/type";
 import { FaUsers } from "react-icons/fa";
@@ -108,8 +108,6 @@ const ConsultantsList = () => {
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
   };
-
-
 
   return (
     <div className="container mx-auto mt-20 px-4 py-8" dir="rtl">

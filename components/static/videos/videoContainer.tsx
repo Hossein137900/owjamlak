@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiPlay,
@@ -407,12 +408,17 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
         </motion.div>
 
         {/* Video Modal */}
-        <VideoModal
-          isOpen={isModalOpen}
-          video={selectedVideo}
-          onClose={closeModal}
-          allVideos={filteredVideos}
-        />
+        {isModalOpen &&
+          typeof window !== "undefined" &&
+          createPortal(
+            <VideoModal
+              isOpen={isModalOpen}
+              video={selectedVideo}
+              onClose={closeModal}
+              allVideos={filteredVideos}
+            />,
+            document.body
+          )}
 
         {/* Schema.org structured data for SEO */}
         <script
@@ -535,7 +541,6 @@ const VideoModal: React.FC<VideoModalProps> = ({
 
   const handleNextVideo = () => {
     if (currentVideoIndex < allVideos.length - 1) {
-      const nextVideo = allVideos[currentVideoIndex + 1];
       setCurrentVideoIndex(currentVideoIndex + 1);
       // Update the video prop by calling parent's handler
       // This would need to be passed as a prop
@@ -544,7 +549,6 @@ const VideoModal: React.FC<VideoModalProps> = ({
 
   const handlePrevVideo = () => {
     if (currentVideoIndex > 0) {
-      const prevVideo = allVideos[currentVideoIndex - 1];
       setCurrentVideoIndex(currentVideoIndex - 1);
       // Update the video prop by calling parent's handler
     }
@@ -609,173 +613,190 @@ const VideoModal: React.FC<VideoModalProps> = ({
   if (!isOpen || !video) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-9000 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
+    <div
+      className="fixed inset-0 w-screen h-screen bg-black/50 z-[99999] flex items-center justify-center"
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 99999,
+      }}
+    >
+      <AnimatePresence>
         <motion.div
-          ref={containerRef}
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.9, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative bg-black rounded-xl overflow-hidden shadow-2xl w-full max-w-6xl lg:max-h-[90vh] xl:min-h-full   aspect-video"
-          onClick={(e) => e.stopPropagation()}
-          onMouseMove={showControlsTemporarily}
-          onMouseEnter={() => setShowControls(true)}
-          onMouseLeave={() => !isPlaying && setShowControls(false)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute inset-0 w-full h-full bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={onClose}
         >
-          {/* Close Button */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={onClose}
-            className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+          <motion.div
+            ref={containerRef}
+            initial={{ scale: 0.8, opacity: 0, y: 50 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, y: 50 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative bg-black rounded-2xl overflow-hidden shadow-2xl w-full max-w-5xl aspect-video mx-auto"
+            style={{ maxHeight: "80vh" }}
+            onClick={(e) => e.stopPropagation()}
+            onMouseMove={showControlsTemporarily}
+            onMouseEnter={() => setShowControls(true)}
+            onMouseLeave={() => !isPlaying && setShowControls(false)}
           >
-            <FiX className="text-xl" />
-          </motion.button>
+            {/* Close Button */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={onClose}
+              className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+            >
+              <FiX className="text-xl" />
+            </motion.button>
 
-          {/* Video Element */}
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            src={video.src}
-            preload="metadata"
-            title={video.title}
-            aria-label={video.alt}
-            autoPlay
-          />
+            {/* Video Element */}
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              src={video.src}
+              preload="metadata"
+              title={video.title}
+              aria-label={video.alt}
+              autoPlay
+            />
 
-          {/* Loading Overlay */}
-          <AnimatePresence>
-            {isVideoLoading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center backdrop-blur-sm"
-              >
+            {/* Loading Overlay */}
+            <AnimatePresence>
+              {isVideoLoading && (
                 <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="p-4 bg-white bg-opacity-20 rounded-full"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center backdrop-blur-sm"
                 >
-                  <FiLoader className="text-4xl text-white" />
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                    className="p-4 bg-white bg-opacity-20 rounded-full"
+                  >
+                    <FiLoader className="text-4xl text-white" />
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              )}
+            </AnimatePresence>
 
-          {/* Video Controls */}
-          <AnimatePresence>
-            {showControls && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6"
-              >
-                {/* Progress Bar */}
-                <div
-                  ref={progressRef}
-                  className="w-full h-2 bg-white/30 rounded-full mb-4 cursor-pointer group/progress"
-                  onClick={handleProgressClick}
+            {/* Video Controls */}
+            <AnimatePresence>
+              {showControls && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6"
                 >
-                  <div className="relative h-full">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-[#66308d] to-[#01ae9b] rounded-full"
-                      style={{ width: `${progress}%` }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 0.1 }}
-                    />
+                  {/* Progress Bar */}
+                  <div
+                    ref={progressRef}
+                    className="w-full h-2 bg-white/30 rounded-full mb-4 cursor-pointer group/progress"
+                    onClick={handleProgressClick}
+                  >
+                    <div className="relative h-full">
+                      <motion.div
+                        className="h-full bg-[#01ae9b] rounded-full"
+                        style={{ width: `${progress}%` }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 0.1 }}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                {/* Control Buttons */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handlePlayPause}
-                      className="text-white hover:text-[#01ae9b] transition-colors duration-200"
-                    >
-                      {isPlaying ? (
-                        <FiPause className="text-2xl" />
-                      ) : (
-                        <FiPlay className="text-2xl" />
-                      )}
-                    </motion.button>
-
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handlePrevVideo}
-                      disabled={currentVideoIndex === 0}
-                      className="text-white hover:text-[#01ae9b] transition-colors duration-200 disabled:opacity-50"
-                    >
-                      <FiSkipBack className="text-xl" />
-                    </motion.button>
-
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handleNextVideo}
-                      disabled={currentVideoIndex === allVideos.length - 1}
-                      className="text-white hover:text-[#01ae9b] transition-colors duration-200 disabled:opacity-50"
-                    >
-                      <FiSkipForward className="text-xl" />
-                    </motion.button>
-
-                    {/* Volume Control */}
-                    <div className="relative flex items-center group/volume">
+                  {/* Control Buttons */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        onClick={handleMute}
+                        onClick={handlePlayPause}
                         className="text-white hover:text-[#01ae9b] transition-colors duration-200"
                       >
-                        {isMuted || volume === 0 ? (
-                          <FiVolumeX className="text-xl" />
+                        {isPlaying ? (
+                          <FiPause className="text-2xl" />
                         ) : (
-                          <FiVolume2 className="text-xl" />
+                          <FiPlay className="text-2xl" />
                         )}
                       </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={handlePrevVideo}
+                        disabled={currentVideoIndex === 0}
+                        className="text-white hover:text-[#01ae9b] transition-colors duration-200 disabled:opacity-50"
+                      >
+                        <FiSkipBack className="text-xl" />
+                      </motion.button>
+
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={handleNextVideo}
+                        disabled={currentVideoIndex === allVideos.length - 1}
+                        className="text-white hover:text-[#01ae9b] transition-colors duration-200 disabled:opacity-50"
+                      >
+                        <FiSkipForward className="text-xl" />
+                      </motion.button>
+
+                      {/* Volume Control */}
+                      <div className="relative flex items-center group/volume">
+                        <motion.button
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                          onClick={handleMute}
+                          className="text-white hover:text-[#01ae9b] transition-colors duration-200"
+                        >
+                          {isMuted || volume === 0 ? (
+                            <FiVolumeX className="text-xl" />
+                          ) : (
+                            <FiVolume2 className="text-xl" />
+                          )}
+                        </motion.button>
+                      </div>
+
+                      {/* Time Display */}
+                      <div className="text-white text-sm flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full">
+                        <FiClock className="text-sm" />
+                        <span>
+                          {formatTime(currentTime)} / {formatTime(duration)}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Time Display */}
-                    <div className="text-white text-sm flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full">
-                      <FiClock className="text-sm" />
-                      <span>
-                        {formatTime(currentTime)} / {formatTime(duration)}
-                      </span>
-                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={handleFullscreen}
+                      className="text-white hover:text-[#01ae9b] transition-colors duration-200"
+                    >
+                      {isFullscreen ? (
+                        <FiMinimize className="text-xl" />
+                      ) : (
+                        <FiMaximize className="text-xl" />
+                      )}
+                    </motion.button>
                   </div>
-
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleFullscreen}
-                    className="text-white hover:text-[#01ae9b] transition-colors duration-200"
-                  >
-                    {isFullscreen ? (
-                      <FiMinimize className="text-xl" />
-                    ) : (
-                      <FiMaximize className="text-xl" />
-                    )}
-                  </motion.button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </AnimatePresence>
+      </AnimatePresence>
+    </div>
   );
 };
 
