@@ -506,7 +506,7 @@ const PosterById: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className=" ">
       <div className="pb-4 m-4 text-gray-500">
         <h1 className="text-3xl font-bold mb-3">آگهی‌های من</h1>
         <p className="text-gray-600 text-lg">{posters.length} آگهی فعال</p>

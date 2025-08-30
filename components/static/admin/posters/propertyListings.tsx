@@ -1014,11 +1014,11 @@ const PropertyListings: React.FC = () => {
 
       {/* Edit Modal */}
       {isEditModalOpen && selectedProperty && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-90000 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[70vh] overflow-y-auto"
+            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">ویرایش آگهی</h3>
@@ -1041,7 +1041,7 @@ const PropertyListings: React.FC = () => {
                   handleUpdatePoster();
                 }}
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1  md:grid-cols-2 gap-6">
                   {/* Title */}
                   <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1073,7 +1073,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Property Type */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       نوع ملک *
                     </label>
@@ -1097,7 +1097,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Trade Type */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       نوع معامله *
                     </label>
@@ -1121,7 +1121,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Building Date */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       تاریخ ساخت *
                     </label>
@@ -1140,7 +1140,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Area */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       متراژ (متر مربع) *
                     </label>
@@ -1156,7 +1156,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Rooms */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       تعداد اتاق *
                     </label>
@@ -1172,7 +1172,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Floor */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       طبقه
                     </label>
@@ -1189,7 +1189,7 @@ const PropertyListings: React.FC = () => {
                   {!isRentType ? (
                     <>
                       {/* Total Price for Buy/Sell */}
-                      <div>
+                      <div className="col-span-2"> 
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           قیمت کل (تومان) *
                         </label>
@@ -1205,7 +1205,7 @@ const PropertyListings: React.FC = () => {
                       </div>
 
                       {/* Price Per Meter */}
-                      <div>
+                      <div className="col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           قیمت هر متر (تومان)
                         </label>
@@ -1307,7 +1307,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Contact */}
-                  <div>
+                  <div className="col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       شماره تماس *
                     </label>
@@ -1525,7 +1525,7 @@ const PropertyListings: React.FC = () => {
                     <h3 className="text-lg font-medium text-gray-800 mb-4">
                       امکانات
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       {/* Storage */}
                       <div className="flex items-center">
                         <input
@@ -1586,7 +1586,7 @@ const PropertyListings: React.FC = () => {
                 </div>
 
                 {/* Submit Buttons */}
-                <div className="mt-8 flex justify-end gap-3">
+                <div className="mt-8 flex justify-start gap-3">
                   <button
                     type="button"
                     onClick={() => {
@@ -1626,11 +1626,11 @@ const PropertyListings: React.FC = () => {
 
       {/* View Property Detail Modal */}
       {isModalOpen && selectedProperty && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-90000 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg text-black shadow-xl max-w-4xl w-full max-h-[70vh] overflow-y-auto"
+            className="bg-white rounded-lg text-black shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">جزئیات آگهی</h3>
@@ -1936,7 +1936,7 @@ const PropertyListings: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && selectedProperty && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-90000 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
