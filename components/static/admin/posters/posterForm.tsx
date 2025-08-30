@@ -238,6 +238,10 @@ const PosterForm = ({}) => {
 
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
+    if (!userId) {
+      toast.error("لطفا ابتدا وارد شوید");
+      return;
+    }
 
     const file = e.target.files[0];
     const allowedTypes = [
@@ -265,11 +269,9 @@ const PosterForm = ({}) => {
     try {
       const formData = new FormData();
       formData.append("video", file);
-      formData.append("title", `ویدیو آگهی ${Date.now()}`);
-      formData.append("description", "ویدیو آگهی املاک");
-      formData.append("alt", "ویدیو آگهی");
+      formData.append("userId", userId);
 
-      const response = await fetch("/api/videos", {
+      const response = await fetch("/api/poster/video", {
         method: "POST",
         headers: {
           token: localStorage.getItem("token") || "",
@@ -278,14 +280,11 @@ const PosterForm = ({}) => {
       });
 
       const result = await response.json();
-      console.log("Video upload result:", result);
 
       if (response.ok) {
-        const filename = result.video?.filename || result.filename;
-        console.log("Video filename:", filename);
         setVideo(file);
         setVideoPreview(URL.createObjectURL(file));
-        setFormData((prev) => ({ ...prev, video: filename || "" }));
+        setFormData((prev) => ({ ...prev, video: result.filename }));
         toast.success("ویدیو با موفقیت آپلود شد");
       } else {
         toast.error(result.error || "خطا در آپلود ویدیو");
