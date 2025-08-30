@@ -72,39 +72,43 @@ export async function DELETE(
       );
     }
 
-    // 🔹 حذف تصاویر
+    // 🔹 حذف تصاویر و ویدیو
+    const userUploadsDir = join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "posters",
+      userId
+    );
+
+    // حذف تصاویر
     if (poster.images && poster.images.length > 0) {
       for (const image of poster.images) {
         if (image.url) {
           const filename = image.url.split("/").pop();
           if (filename) {
-            const imagePath = join(
-              process.cwd(),
-              "public",
-              "uploads",
-              "posters",
-              userId,
-              filename
-            );
+            const imagePath = join(userUploadsDir, filename);
             if (existsSync(imagePath)) {
               await unlink(imagePath);
             }
           }
         }
       }
+    }
 
-      const userUploadsDir = join(
-        process.cwd(),
-        "public",
-        "uploads",
-        "posters",
-        userId
-      );
-      if (existsSync(userUploadsDir)) {
-        const remainingFiles = readdirSync(userUploadsDir);
-        if (remainingFiles.length === 0) {
-          await rmdir(userUploadsDir);
-        }
+    // حذف ویدیو
+    if (poster.video) {
+      const videoPath = join(userUploadsDir, poster.video);
+      if (existsSync(videoPath)) {
+        await unlink(videoPath);
+      }
+    }
+
+    // حذف پوشه کاربر اگر خالی است
+    if (existsSync(userUploadsDir)) {
+      const remainingFiles = readdirSync(userUploadsDir);
+      if (remainingFiles.length === 0) {
+        await rmdir(userUploadsDir);
       }
     }
 

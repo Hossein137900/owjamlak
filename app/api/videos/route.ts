@@ -93,10 +93,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check file size (50MB limit)
-    const maxSize = 10 * 1024 * 1024; // 50MB
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (videoFile.size > maxSize) {
       return NextResponse.json(
-        { success: false, message: "حجم فایل نباید بیشتر از 10 مگابایت باشد" },
+        { success: false, message: "حجم فایل نباید بیشتر از 50 مگابایت باشد" },
         { status: 400 }
       );
     }

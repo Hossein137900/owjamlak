@@ -15,6 +15,12 @@ import {
   FiCheck,
 } from "react-icons/fi";
 import imageCompression from "browser-image-compression";
+import { jwtDecode } from "jwt-decode";
+
+type TokenPayload = {
+  id?: string;
+  _id?: string;
+};
 
 import Image from "next/image";
 import { Poster } from "@/types/type";
@@ -58,6 +64,7 @@ const PropertyListings: React.FC = () => {
   console.log(video)
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [videoUploading, setVideoUploading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [posters, setPosters] = useState<Poster[]>([]);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -116,6 +123,20 @@ const PropertyListings: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [page, parentType, tradeType]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const decoded = jwtDecode<TokenPayload>(token);
+      const idFromToken = decoded.id ?? decoded._id ?? null;
+      setUserId(idFromToken);
+    } catch (err) {
+      console.log("Invalid token:", err);
+      setUserId(null);
+    }
+  }, []);
 
   // handle infinite scroll
   useEffect(() => {
@@ -329,10 +350,39 @@ const PropertyListings: React.FC = () => {
     setImageUploading(false);
   };
 
-  const removeExistingImage = (index: number) => {
-    const updatedImages =
-      editFormData.images?.filter((_, i) => i !== index) || [];
-    setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+  const removeExistingImage = async (index: number) => {
+    if (!editFormData.images || !selectedProperty) return;
+    
+    const imageToDelete = editFormData.images[index];
+    const updatedImages = editFormData.images.filter((_, i) => i !== index);
+    
+    try {
+      // Delete from server if it's an existing image (has URL but no file)
+      if (imageToDelete.url && !('file' in imageToDelete)) {
+        const response = await fetch('/api/images', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'token': localStorage.getItem('token') || ''
+          },
+          body: JSON.stringify({
+            posterId: selectedProperty._id,
+            imageUrl: imageToDelete.url
+          })
+        });
+        
+        if (!response.ok) {
+          toast.error('خطا در حذف تصویر از سرور');
+          return;
+        }
+      }
+      
+      setEditFormData((prev) => ({ ...prev, images: updatedImages }));
+      toast.success('تصویر حذف شد');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('خطا در حذف تصویر');
+    }
   };
 
   const setMainImage = (index: number) => {
@@ -371,11 +421,9 @@ const PropertyListings: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("video", file);
-      formData.append("title", `ویدیو آگهی ${Date.now()}`);
-      formData.append("description", "ویدیو آگهی املاک");
-      formData.append("alt", "ویدیو آگهی");
+      formData.append("posterId", selectedProperty?._id || "");
 
-      const response = await fetch("/api/videos", {
+      const response = await fetch("/api/poster/video", {
         method: "POST",
         headers: {
           token: localStorage.getItem("token") || "",
@@ -390,11 +438,11 @@ const PropertyListings: React.FC = () => {
         setVideoPreview(URL.createObjectURL(file));
         setEditFormData((prev) => ({
           ...prev,
-          video: result.video?.filename || result.filename,
+          video: result.filename,
         }));
         toast.success("ویدیو با موفقیت آپلود شد");
       } else {
-        toast.error(result.error || "خطا در آپلود ویدیو");
+        toast.error(result.message || "خطا در آپلود ویدیو");
       }
     } catch (error) {
       console.error("Video upload failed:", error);
@@ -404,10 +452,39 @@ const PropertyListings: React.FC = () => {
     }
   };
 
-  const removeVideo = () => {
-    setVideo(null);
-    setVideoPreview("");
-    setEditFormData((prev) => ({ ...prev, video: "" }));
+  const removeVideo = async () => {
+    if (!selectedProperty || !editFormData.video) {
+      setVideo(null);
+      setVideoPreview("");
+      setEditFormData((prev) => ({ ...prev, video: "" }));
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/poster/video', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'token': localStorage.getItem('token') || ''
+        },
+        body: JSON.stringify({
+          posterId: selectedProperty._id,
+          filename: editFormData.video
+        })
+      });
+
+      if (response.ok) {
+        setVideo(null);
+        setVideoPreview("");
+        setEditFormData((prev) => ({ ...prev, video: "" }));
+        toast.success('ویدیو حذف شد');
+      } else {
+        toast.error('خطا در حذف ویدیو');
+      }
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      toast.error('خطا در حذف ویدیو');
+    }
   };
 
   const handleUpdatePoster = async () => {
@@ -1381,7 +1458,7 @@ const PropertyListings: React.FC = () => {
                     {editFormData.video && !videoPreview && (
                       <div className="mb-4">
                         <video
-                          src={`/api/videos/${editFormData.video}`}
+                          src={`/api/poster/video/${userId || 'user'}/${editFormData.video}`}
                           controls
                           className="w-full h-48 object-cover rounded-lg mb-2"
                         />
