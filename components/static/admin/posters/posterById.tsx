@@ -354,7 +354,7 @@ const PosterById: React.FC = () => {
       formData.append("description", "ویدیو آگهی املاک");
       formData.append("alt", "ویدیو آگهی");
 
-      const response = await fetch("/api/videos", {
+      const response = await fetch("/api/poster", {
         method: "POST",
         headers: {
           token: localStorage.getItem("token") || "",
@@ -873,7 +873,7 @@ const PosterById: React.FC = () => {
                     {editFormData.video && !videoPreview && (
                       <div className="mb-4">
                         <video
-                          src={`/api/videos/${editFormData.video}`}
+                          src={`/api/poster/${editFormData.video}`}
                           controls
                           className="w-full h-48 object-cover rounded-lg mb-2"
                         />

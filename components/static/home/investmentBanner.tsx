@@ -46,7 +46,7 @@ export default function InvestmentBanner() {
             whileTap={{ scale: 0.95 }}
             className="mt-8 px-8 py-4 bg-[#7D3AC1] text-white cursor-pointer font-semibold rounded-xl shadow-lg hover:bg-[#2DD4BF] transition-all duration-300"
           >
-            مشاهده آگهیها
+            مشاهده آگهی ها
           </motion.button>
         </Link>
       </motion.div>
