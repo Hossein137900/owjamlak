@@ -12,15 +12,15 @@ const BlogContainer = () => {
   const [selectedOption, setSelectedOption] = useState("newest");
 
   useEffect(() => {
-    fetch('/api/blog', {
-      cache: 'no-store',
+    fetch("/api/blog", {
+      cache: "no-store",
       headers: {
-        'Cache-Control': 'no-cache'
-      }
+        "Cache-Control": "no-cache",
+      },
     })
-      .then(res => res.json())
-      .then(data => setBlogs(data))
-      .catch(err => console.error('Failed to load blogs:', err));
+      .then((res) => res.json())
+      .then((data) => setBlogs(data))
+      .catch((err) => console.error("Failed to load blogs:", err));
   }, []);
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -48,20 +48,6 @@ const BlogContainer = () => {
             آخرین مقالات، راهنماها و تحلیل‌های تخصصی در زمینه خرید، فروش، اجاره
             و سرمایه‌گذاری در بازار املاک ایران
           </p>
-
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto relative">
-            <div className="flex items-center bg-white rounded-full overflow-hidden p-1 shadow-lg">
-              <input
-                type="text"
-                placeholder="جستجو در مقالات..."
-                className="w-full px-5 py-3 text-gray-700 focus:outline-none rtl:text-right"
-              />
-              <button className="bg-[#66308d] hover:bg-blue-700 text-white px-6 py-3 rounded-full transition-colors">
-                <FaSearch />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -72,70 +58,60 @@ const BlogContainer = () => {
             مقاله ویژه
           </h2>
           {blogs.length > 0 ? (
-          <div className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
-            <div className="grid grid-cols-1 lg:grid-cols-5">
-              <div className="lg:col-span-3 relative h-64 lg:h-auto">
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url('${blogs[0].coverImage}')` }}
-                ></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 p-6 text-white lg:hidden">
-                  <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold inline-block mb-3">
-                    {blogs[0].category}
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{blogs[0].title}</h3>
-                  <p className="text-sm text-gray-200 mb-2">
-                    {blogs[0].excerpt}
-                  </p>
-                </div>
-              </div>
-              <div className="lg:col-span-2 p-8">
-                <div className="hidden lg:block">
-                  <div className="bg-[#66308d] text-white px-3 py-1 rounded-full text-xs font-semibold inline-block mb-3">
-                    {blogs[0].category}
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-gray-800">
-                    {blogs[0].title}
-                  </h3>
-                  <p className="text-gray-600 mb-6">{blogs[0].excerpt}</p>
-                </div>
-                <div className="flex items-center text-gray-500 text-sm mb-6 space-x-4 rtl:space-x-reverse">
-                  <div className="flex items-center">
-                    <FaCalendarAlt className="ml-1 rtl:ml-0 rtl:mr-1" />
-                    <span>{blogs[0].date}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaClock className="ml-1 rtl:ml-0 rtl:mr-1" />
-                    <span>{blogs[0].readTime}</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-gray-300 overflow-hidden relative">
-                      <Image
-                        src={`/images/authors/${blogs[0].author
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}.jpg`}
-                        alt={blogs[0].author}
-                        fill
-                        className="object-cover"
-                      />
+            <div className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
+              <div className="grid grid-cols-1 lg:grid-cols-5">
+                <div className="lg:col-span-3 relative h-64 lg:h-auto">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url('${blogs[0].coverImage}')` }}
+                  ></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 p-6 text-white lg:hidden">
+                    <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold inline-block mb-3">
+                      {blogs[0].category}
                     </div>
-                    <span className="text-sm font-medium text-gray-700 mr-2">
-                      {blogs[0].author}
-                    </span>
+                    <h3 className="text-xl font-bold mb-2">{blogs[0].title}</h3>
+                    <p className="text-sm text-gray-200 mb-2">
+                      {blogs[0].excerpt}
+                    </p>
                   </div>
-                  <Link
-                    href={`/blogs/${blogs[0].id}`}
-                    className="bg-[#66308d] hover:bg-[#66308d]/80 text-white px-5 py-2 rounded-lg transition-colors text-sm font-medium"
-                  >
-                    ادامه مطلب
-                  </Link>
+                </div>
+                <div className="lg:col-span-2 p-8">
+                  <div className="hidden lg:block">
+                    <div className="bg-[#66308d] text-white px-3 py-1 rounded-full text-xs font-semibold inline-block mb-3">
+                      {blogs[0].category}
+                    </div>
+                    <h3 className="text-2xl font-bold mb-4 text-gray-800">
+                      {blogs[0].title}
+                    </h3>
+                    <p className="text-gray-600 mb-6">{blogs[0].excerpt}</p>
+                  </div>
+                  <div className="flex items-center text-gray-500 text-sm mb-6 space-x-4 rtl:space-x-reverse">
+                    <div className="flex items-center">
+                      <FaCalendarAlt className="ml-1 rtl:ml-0 rtl:mr-1" />
+                      <span>{blogs[0].date}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FaClock className="ml-1 rtl:ml-0 rtl:mr-1" />
+                      <span>{blogs[0].readTime}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-gray-700 mr-2">
+                        {blogs[0].author}
+                      </span>
+                    </div>
+                    <Link
+                      href={`/blogs/${blogs[0].id}`}
+                      className="bg-[#66308d] hover:bg-[#66308d]/80 text-white px-5 py-2 rounded-lg transition-colors text-sm font-medium"
+                    >
+                      ادامه مطلب
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
           ) : (
             <div className="text-center py-12 text-gray-500">
               هنوز مقاله‌ای منتشر نشده است
