@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connect from "@/lib/data";
 import Consultant from "@/models/consultant";
+import mongoose from "mongoose";
 
 export async function GET(req: NextRequest) {
   await connect();
@@ -77,7 +78,8 @@ export async function POST(req: NextRequest) {
       !name ||
       !phone ||
       !whatsapp ||
-      !experienceYears ||
+      experienceYears === undefined ||
+      experienceYears === null ||
       !workAreas?.length
     ) {
       return NextResponse.json(
@@ -104,21 +106,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const consultant = new Consultant({
+    const consultantData: any = {
       name,
       phone,
       whatsapp,
-      email,
-      image,
       experienceYears,
       workAreas: workAreas.filter((area: string) => area.trim()),
       specialties:
         specialties?.filter((specialty: string) => specialty.trim()) || [],
-      description,
-      rating,
       isActive,
       posterCount: 0,
-    });
+      user: new mongoose.Types.ObjectId(), // Temporary user ID
+    };
+
+    // Add optional fields only if they have values
+    if (email) consultantData.email = email;
+    if (image) consultantData.image = image;
+    if (description) consultantData.description = description;
+    if (rating && rating >= 1 && rating <= 5) consultantData.rating = rating;
+
+    const consultant = new Consultant(consultantData);
 
     await consultant.save();
 
@@ -131,6 +138,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    console.error('Consultant creation error:', error);
     return NextResponse.json(
       {
         success: false,

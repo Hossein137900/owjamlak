@@ -19,6 +19,7 @@ const ConsultantManager = () => {
     useState<Consultant | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [totalPoster, setTotalPoster] = useState<number | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -582,13 +583,14 @@ const ConsultantManager = () => {
                       type="number"
                       required
                       min="0"
-                      value={formData.experienceYears}
+                      value={formData.experienceYears === 0 ? '' : formData.experienceYears}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
                           experienceYears: parseInt(e.target.value) || 0,
                         }))
                       }
+                      placeholder="سال تجربه را وارد کنید"
                       className="w-full p-3 border text-black placeholder:text-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b]"
                     />
                   </div>
@@ -602,13 +604,14 @@ const ConsultantManager = () => {
                       min="1"
                       max="5"
                       step="0.1"
-                      value={formData.rating}
+                      value={formData.rating === 0 ? '' : formData.rating}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
                           rating: parseFloat(e.target.value) || 0,
                         }))
                       }
+                      placeholder="امتیاز بین 1 تا 5"
                       className="w-full p-3 border text-black placeholder:text-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b]"
                     />
                   </div>
@@ -616,20 +619,88 @@ const ConsultantManager = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    آدرس تصویر
+                    تصویر مشاور
                   </label>
-                  <input
-                    type="url"
-                    value={formData.image}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        image: e.target.value,
-                      }))
-                    }
-                    className="w-full p-3 border text-black placeholder:text-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b]"
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <div className="space-y-3">
+                    {formData.image && (
+                      <div className="relative inline-block">
+                        <Image
+                          src={formData.image}
+                          alt="تصویر مشاور"
+                          width={100}
+                          height={100}
+                          className="w-20 h-20 rounded-full object-cover border"
+                        />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await fetch('/api/consultants/image', {
+                                method: 'DELETE',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ imageUrl: formData.image })
+                              });
+                              setFormData(prev => ({ ...prev, image: '' }));
+                            } catch (error) {
+                              console.error('Error deleting image:', error);
+                            }
+                          }}
+                          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <input
+                        type="file"
+                        id="consultantImage"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          
+                          setImageUploading(true);
+                          try {
+                            const formDataUpload = new FormData();
+                            formDataUpload.append('image', file);
+                            
+                            const response = await fetch('/api/consultants/image', {
+                              method: 'POST',
+                              body: formDataUpload
+                            });
+                            
+                            const result = await response.json();
+                            if (response.ok) {
+                              setFormData(prev => ({ ...prev, image: result.imageUrl }));
+                              toast.success('تصویر با موفقیت آپلود شد');
+                            } else {
+                              toast.error(result.message || 'خطا در آپلود تصویر');
+                            }
+                          } catch (error) {
+                            console.error('Error uploading image:', error);
+                            toast.error('خطا در آپلود تصویر');
+                          } finally {
+                            setImageUploading(false);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="consultantImage"
+                        className="cursor-pointer flex flex-col items-center justify-center"
+                      >
+                        {imageUploading ? (
+                          <FiLoader className="w-8 h-8 text-gray-400 mb-2 animate-spin" />
+                        ) : (
+                          <FaPlus className="w-8 h-8 text-gray-400 mb-2" />
+                        )}
+                        <span className="text-sm text-gray-500">
+                          {imageUploading ? 'در حال آپلود...' : 'انتخاب تصویر'}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
                 <div>

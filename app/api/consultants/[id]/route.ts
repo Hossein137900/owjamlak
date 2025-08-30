@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import connect from "@/lib/data";
 import Consultant from "@/models/consultant";
 import mongoose from "mongoose";
+import { unlink } from "fs/promises";
+import { join } from "path";
+import { existsSync } from "fs";
 
 export async function GET(
   req: NextRequest,
@@ -178,7 +181,8 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const consultant = await Consultant.findByIdAndDelete(id);
+    // First find the consultant to get image path
+    const consultant = await Consultant.findById(id);
 
     if (!consultant) {
       return NextResponse.json(
@@ -189,6 +193,24 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    // Delete image file if exists
+    if (consultant.image && consultant.image.startsWith('/uploads/consultants/')) {
+      const filename = consultant.image.split('/').pop();
+      if (filename) {
+        const filePath = join(process.cwd(), "public", "uploads", "consultants", filename);
+        if (existsSync(filePath)) {
+          try {
+            await unlink(filePath);
+          } catch (error) {
+            console.error('Error deleting consultant image:', error);
+          }
+        }
+      }
+    }
+
+    // Delete consultant from database
+    await Consultant.findByIdAndDelete(id);
 
     return NextResponse.json({
       success: true,
