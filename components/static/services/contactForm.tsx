@@ -3,9 +3,6 @@ import { useState, useRef, useEffect, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaCheck, FaPaperPlane } from "react-icons/fa";
 
-// import { FaPaperPlane, FaCheck } from "react-icons/fa";
-
-// Rename to avoid conflict with browser's FormData
 interface CustomFormData {
   [key: string]: string | number | boolean | null;
 }

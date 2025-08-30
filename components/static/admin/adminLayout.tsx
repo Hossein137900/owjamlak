@@ -4,7 +4,7 @@ import {
   FiHome,
   FiUsers,
   FiFileText,
-  FiSettings,
+  // FiSettings,
   FiLogOut,
   FiMenu,
   FiX,
@@ -188,12 +188,12 @@ const AdminLayout: React.FC = () => {
       label: "ویدیو ها",
       roles: ["admin", "superadmin"],
     },
-    {
-      id: "settings",
-      icon: <FiSettings />,
-      label: "تنظیمات",
-      roles: ["admin", "superadmin", "consultant", "user"],
-    },
+    // {
+    //   id: "settings",
+    //   icon: <FiSettings />,
+    //   label: "تنظیمات",
+    //   roles: ["admin", "superadmin", "consultant", "user"],
+    // },
   ];
 
   const menuItems = allMenuItems.filter((item) => hasAccess(item.roles));
