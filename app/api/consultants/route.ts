@@ -3,6 +3,22 @@ import connect from "@/lib/data";
 import Consultant from "@/models/consultant";
 import mongoose from "mongoose";
 
+interface ConsultantData {
+  name: string;
+  phone: string;
+  whatsapp: string;
+  email?: string;
+  image?: string;
+  experienceYears: number;
+  workAreas: string[];
+  specialties?: string[];
+  description?: string;
+  rating?: number; // 1 تا 5
+  isActive: boolean;
+  posterCount: number;
+  user: mongoose.Types.ObjectId;
+}
+
 export async function GET(req: NextRequest) {
   await connect();
 
@@ -106,7 +122,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const consultantData: any = {
+    const consultantData: ConsultantData = {
       name,
       phone,
       whatsapp,
@@ -138,7 +154,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Consultant creation error:', error);
+    console.error("Consultant creation error:", error);
     return NextResponse.json(
       {
         success: false,

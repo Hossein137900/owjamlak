@@ -1,39 +1,32 @@
 "use client";
-import { FaSearch, FaCalendarAlt, FaClock } from "react-icons/fa";
+import { FaCalendarAlt, FaClock } from "react-icons/fa";
 import Link from "next/link";
-import Image from "next/image";
 import BlogGrid from "@/components/static/blogs/blogGrid";
 import { useState, useEffect } from "react";
 import { Blog } from "@/data/data";
 
 const BlogContainer = () => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("newest");
+  // const [isOpen, setIsOpen] = useState(false);
+  // const [selectedOption, setSelectedOption] = useState("newest");
 
   useEffect(() => {
     fetch("/api/blog", {
-      cache: "no-store",
+      method: "GET",
       headers: {
-        "Cache-Control": "no-cache",
+        "Content-Type": "application/json",
       },
     })
       .then((res) => res.json())
       .then((data) => setBlogs(data))
       .catch((err) => console.error("Failed to load blogs:", err));
   }, []);
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  // const toggleDropdown = () => setIsOpen(!isOpen);
 
-  const selectOption = (value: string) => {
-    setSelectedOption(value);
-    setIsOpen(false);
-  };
-
-  const options = [
-    { value: "newest", label: "جدیدترین" },
-    { value: "popular", label: "محبوب‌ترین" },
-    { value: "trending", label: "پربازدیدترین" },
-  ];
+  // const selectOption = (value: string) => {
+  //   setSelectedOption(value);
+  //   setIsOpen(false);
+  // };
 
   return (
     <div className="container mx-auto mt-20 px-4 py-12" dir="rtl">
@@ -124,58 +117,13 @@ const BlogContainer = () => {
           <h2 className="text-2xl font-bold text-gray-800 border-r-4 border-gray-500 pr-4 mb-4 md:mb-0">
             آخرین مقالات
           </h2>
-          <div className="flex gap-3">
-            <div className="relative">
-              <button
-                onClick={toggleDropdown}
-                className="flex items-center justify-between bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#66308d] hover:border-[#66308d] transition-all cursor-pointer shadow-sm w-40"
-              >
-                <span>
-                  {options.find((opt) => opt.value === selectedOption)?.label}
-                </span>
-                <svg
-                  className={`h-5 w-5 text-gray-500 transition-transform duration-200 ${
-                    isOpen ? "transform rotate-180" : ""
-                  }`}
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-
-              {isOpen && (
-                <div className="absolute right-0 z-50 mt-1 w-40 bg-white/70 backdrop-blur-sm border border-gray-300 rounded-lg shadow-lg  py-1 overflow-hidden">
-                  {options.map((option) => (
-                    <div
-                      key={option.value}
-                      onClick={() => selectOption(option.value)}
-                      className={`px-4 py-2.5 cursor-pointer hover:bg-gray-100 transition-colors ${
-                        selectedOption === option.value
-                          ? "bg-[#66308d]/10 text-[#66308d] font-medium"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {option.label}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         {/* Blog Grid */}
         <BlogGrid blogs={blogs.length > 1 ? blogs.slice(1) : []} />
 
         {/* Newsletter */}
-        <div className="mt-20 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-8 md:p-12">
+        {/* <div className="mt-20 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-8 md:p-12">
           <div className="max-w-3xl mx-auto text-center">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">
               عضویت در خبرنامه املاک
@@ -195,7 +143,7 @@ const BlogContainer = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const videoFile = formData.get("video") as File;
     const posterId = formData.get("posterId") as string;
-    const userIdFromForm = formData.get("userId") as string;
 
     if (!videoFile || videoFile.size === 0) {
       return NextResponse.json(
@@ -48,7 +47,13 @@ export async function POST(request: NextRequest) {
     const tempId = posterId || `temp_${Date.now()}`;
 
     // Validate video file
-    const allowedTypes = ["video/mp4", "video/webm", "video/ogg", "video/avi", "video/quicktime"];
+    const allowedTypes = [
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/avi",
+      "video/quicktime",
+    ];
     if (!allowedTypes.includes(videoFile.type)) {
       return NextResponse.json(
         { success: false, message: "فرمت ویدیو پشتیبانی نمیشود" },
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate filename
-    const extension = videoFile.name.split('.').pop() || 'mp4';
+    const extension = videoFile.name.split(".").pop() || "mp4";
     const filename = `poster_${tempId}_video.${extension}`;
     const filepath = join(userDir, filename);
 
@@ -83,9 +88,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "ویدیو با موفقیت آپلود شد",
-      filename
+      filename,
     });
-
   } catch (error) {
     console.error("Error uploading video:", error);
     return NextResponse.json(
@@ -118,7 +122,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { posterId, filename } = await request.json();
+    const { filename } = await request.json();
 
     if (!filename) {
       return NextResponse.json(
@@ -138,9 +142,8 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "ویدیو با موفقیت حذف شد"
+      message: "ویدیو با موفقیت حذف شد",
     });
-
   } catch (error) {
     console.error("Error deleting video:", error);
     return NextResponse.json(
