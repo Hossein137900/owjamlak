@@ -55,6 +55,7 @@ const PropertyListings: React.FC = () => {
   const [imageUploading, setImageUploading] = useState(false);
   const [imageProgress, setImageProgress] = useState(0);
   const [video, setVideo] = useState<File | null>(null);
+  console.log(video)
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [videoUploading, setVideoUploading] = useState(false);
   const [posters, setPosters] = useState<Poster[]>([]);
@@ -726,7 +727,7 @@ const PropertyListings: React.FC = () => {
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className=" py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 موقعیت
               </th>
@@ -804,16 +805,11 @@ const PropertyListings: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 max-w-xs truncate">
-                      {property.location.slice(0, 80) || "موقعیت نامشخص"}
+                  <td className=" py-4  pl-6">
+                    <div className="text-sm text-gray-500 max-w-xs  ">
+                      {property.location.slice(0, 30) || "موقعیت نامشخص"}
                     </div>
-                    {property.coordinates?.lat && property.coordinates?.lng && (
-                      <div className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                        <FiMapPin className="w-3 h-3" />
-                        {formatCoordinates(property.coordinates)}
-                      </div>
-                    )}
+                 
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">

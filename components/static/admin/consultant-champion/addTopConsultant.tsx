@@ -55,7 +55,7 @@ const CreateConsultantForm: React.FC = () => {
     setMessage("");
 
     try {
-      const res = await fetch("/api/consultant", {
+      const res = await fetch("/api/consultant-champion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -228,20 +228,6 @@ const CreateConsultantForm: React.FC = () => {
 
         {/* Avatar + Top Consultant */}
         <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm text-black font-medium mb-1">
-              لینک تصویر آواتار
-            </label>
-            <input
-              type="text"
-              name="avatar"
-              value={formData.avatar}
-              onChange={handleChange}
-              placeholder="https://..."
-              className="w-full text-black p-3 border border-gray-300 focus:outline-none focus:border-[#01ae9b] focus:border rounded-xl"
-            />
-          </div>
-
           <div className="flex items-center gap-2 mt-7">
             <input
               type="checkbox"

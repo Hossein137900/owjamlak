@@ -4,6 +4,7 @@ export interface Message {
   name: string;
   text: string;
   time: string;
+  room?: string; // چون تو چندتا ایونت room می‌فرستی
 }
 
 export interface User {
@@ -31,7 +32,7 @@ export interface AdminRoomData {
   messages: Message[];
   userCount: number;
   inputValue: string;
-  hasNewMessage?: boolean;
+  hasNewMessage: boolean;
   userName: string;
   isOnline: boolean;
 }
@@ -39,10 +40,13 @@ export interface AdminRoomData {
 export interface ServerToClientEvents {
   connect: () => void;
   disconnect: () => void;
-  message: (data: Message & { room?: string }) => void;
+  message: (data: Message) => void;
   activity: (name: string) => void;
   userList: (data: { users: User[]; room?: string }) => void;
   roomList: (data: { rooms: string[] }) => void;
+  newUserMessage: (data: { room: string; userName?: string }) => void;
+  adminMessageUpdate: (data: Message) => void;
+  removeGuestRoom: (data: { room: string }) => void;
 }
 
 export interface ClientToServerEvents {

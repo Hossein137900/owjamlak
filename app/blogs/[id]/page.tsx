@@ -30,9 +30,9 @@ async function getBlog(id: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
   const blog = await getBlog(id);
   console.log(blog);
 
@@ -75,8 +75,12 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function BlogPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   const blog = await getBlog(id);
 
   if (!blog) {

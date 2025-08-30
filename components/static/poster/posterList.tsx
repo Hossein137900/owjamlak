@@ -30,7 +30,7 @@ function PosterListContent() {
   const [page, setPage] = useState<number>(
     parseInt(searchParams.get("page") || "1")
   );
-  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "9"));
+  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "3"));
   const [filters, setFilters] = useState<Filters>({
     search: searchParams.get("query") || "",
     parentType: searchParams.get("parentType") || "",
@@ -378,7 +378,7 @@ function PosterListContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">در حال بارگذاری آگهی‌ها...</p>
+          <p className="text-gray-600">... در حال بارگذاری آگهی‌ها</p>
         </div>
       </div>
     );
@@ -421,10 +421,10 @@ function PosterListContent() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#00BC9B] text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg"
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#00BC9B] text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg"
                   >
                     <FiTag size={14} />
-                    <span>جستجو برای: {filters.search}</span>
+                    <span>جستجو برای: {filters.search.slice(0, 20)}...</span>
                   </motion.div>
                 )}
               </div>
@@ -986,7 +986,7 @@ function PosterListContent() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.5 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black z-40"
+                className="fixed inset-0  bg-black z-40"
                 onClick={() => setShowFiltersMobile(false)}
               />
 
@@ -995,7 +995,7 @@ function PosterListContent() {
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
-                transition={{ type: "spring", damping: 30 }}
+                transition={{ type: "spring", damping: 20, duration: 0.2 }}
                 className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-xl max-h-[85vh] overflow-y-auto"
               >
                 {/* Handle indicator */}

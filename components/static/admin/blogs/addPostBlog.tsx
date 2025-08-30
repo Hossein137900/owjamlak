@@ -107,7 +107,7 @@ export default function AddPostBlog() {
   const [wordCount, setWordCount] = useState(0);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
- 
+
   const handleAddTag = () => {
     if (tags.length >= 3) {
       toast.error("شما فقط میتوانید ۳ برچسب اضافه کنید");
@@ -320,9 +320,10 @@ export default function AddPostBlog() {
         }, 100);
       }
     } catch (error) {
+      console.log(error);
       toast.error("خطا در بارگذاری بلاگ");
     } finally {
-     }
+    }
   };
 
   const setLink = () => {
@@ -741,38 +742,6 @@ export default function AddPostBlog() {
                         if (!e.target.value) return;
                         const imageUrl = e.target.value;
                         const imageIndex = images.indexOf(imageUrl);
-
-                        // پرسش برای اندازه‌ها
-                        const widthDesktop = window.prompt(
-                          "عرض تصویر در دسکتاپ (مثلا 600px یا 70%):",
-                          "100%"
-                        );
-                        const heightDesktop = window.prompt(
-                          "ارتفاع تصویر در دسکتاپ (مثلا 400px یا auto):",
-                          "auto"
-                        );
-
-                        const widthMobile = window.prompt(
-                          "عرض تصویر در موبایل (مثلا 100% یا 300px):",
-                          "100%"
-                        );
-                        const heightMobile = window.prompt(
-                          "ارتفاع تصویر در موبایل (مثلا 200px یا auto):",
-                          "auto"
-                        );
-
-                        // ساختن style inline با Tailwind-friendly
-                        const styleString = `
-          width: ${widthDesktop};
-          height: ${heightDesktop};
-        `;
-
-                        const mobileStyle = `
-          @media (max-width: 768px) {
-            width: ${widthMobile};
-            height: ${heightMobile};
-          }
-        `;
 
                         editor
                           .chain()

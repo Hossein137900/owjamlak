@@ -39,6 +39,7 @@ const PosterForm = ({}) => {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [video, setVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>("");
+  console.log(video)
 
   const [uploading, setUploading] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);

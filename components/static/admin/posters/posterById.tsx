@@ -31,12 +31,13 @@ const PosterById: React.FC = () => {
   const [editFormData, setEditFormData] = useState<Partial<Poster>>({});
   const [isUpdating, setIsUpdating] = useState(false);
   const [newImages, setNewImages] = useState<File[]>([]);
-  const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [video, setVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [videoUploading, setVideoUploading] = useState(false);
+  console.log(video);
 
   useEffect(() => {
     const fetchUserPosters = async () => {
@@ -213,7 +214,9 @@ const PosterById: React.FC = () => {
       }
 
       const updatedImages = editFormData.images || [];
-      const hasNewImages = updatedImages.some((img: any) => img.file);
+      const hasNewImages = updatedImages.some(
+        (img: Poster["images"][0] & { file?: File }) => img.file
+      );
 
       if (hasNewImages) {
         // Use FormData for new image uploads
@@ -238,7 +241,7 @@ const PosterById: React.FC = () => {
 
         // Add new image files
         let imageIndex = 0;
-        updatedImages.forEach((img: any) => {
+        updatedImages.forEach((img: Poster["images"][0] & { file?: File }) => {
           if (img.file) {
             formData.append("images", img.file);
             formData.append(
@@ -425,13 +428,13 @@ const PosterById: React.FC = () => {
   }
 
   return (
-    <div className="h-screen">
+    <div className="min-h-screen">
       <div className="pb-4 m-4 text-gray-500">
         <h1 className="text-3xl font-bold mb-3">آگهی‌های من</h1>
         <p className="text-gray-600 text-lg">{posters.length} آگهی فعال</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 m-4">
         {posters.map((poster) => {
           const mainImage =
             poster.images.find((img) => img.mainImage) || poster.images[0];
@@ -509,7 +512,7 @@ const PosterById: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[70vh] overflow-y-auto"
+            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">ویرایش آگهی</h3>
@@ -526,7 +529,7 @@ const PosterById: React.FC = () => {
               </button>
             </div>
 
-            <div className="px-6 py-4">
+            <div className="px-6 py-4 max-h-[calc(90vh-120px)] overflow-y-auto">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();

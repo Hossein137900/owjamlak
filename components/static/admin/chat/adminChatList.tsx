@@ -17,6 +17,15 @@ interface ChatSession {
   hasUnreadMessages: boolean;
 }
 
+interface NewUserMessageData {
+  room: string;
+  userName?: string;
+}
+
+interface RemoveGuestRoomData {
+  room: string;
+}
+
 export default function ChatAdminList() {
   const { hasAccess } = useAdminAuth();
   const [socket, setSocket] = useState<AdminSocket | null>(null);
@@ -40,7 +49,7 @@ export default function ChatAdminList() {
       loadRecentChats();
     });
 
-    newSocket.on("newUserMessage" as any, (data: any) => {
+    newSocket.on("newUserMessage", (data: NewUserMessageData) => {
       console.log("New user message notification:", data);
       if (!activeRooms.has(data.room)) {
         // Create room for new message (even if older than 24h)
@@ -101,7 +110,7 @@ export default function ChatAdminList() {
     });
 
     newSocket.on(
-      "adminMessageUpdate" as any,
+      "adminMessageUpdate",
       (data: Message & { room?: string }) => {
         if (data.room) {
           setActiveRooms((prev) => {
@@ -132,7 +141,7 @@ export default function ChatAdminList() {
       }
     );
 
-    newSocket.on("removeGuestRoom" as any, (data: { room: string }) => {
+    newSocket.on("removeGuestRoom", (data: RemoveGuestRoomData) => {
       setActiveRooms((prev) => {
         const newRooms = new Map(prev);
         newRooms.delete(data.room);

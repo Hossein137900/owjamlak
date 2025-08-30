@@ -14,10 +14,7 @@ const ConsultantSchema = new mongoose.Schema(
       type: String,
       required: [true, "Description is required"],
     },
-    avatar: {
-      type: String,
-      required: [true, "Avatar is required"],
-    },
+   
     rating: {
       type: Number,
       required: [true, "Rating is required"],

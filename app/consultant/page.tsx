@@ -1,4 +1,5 @@
 import ConsultantsList from "@/components/static/consultants/consultantsList";
+import TopConsultant from "@/components/static/home/topConsultant";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -50,6 +51,7 @@ const ConsultantsPage = () => {
   return (
     <div className="">
       <ConsultantsList />
+      <TopConsultant />
     </div>
   );
 };

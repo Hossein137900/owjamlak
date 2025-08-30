@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
+import fs from "fs";
 import path from "path";
+
 export async function GET() {
   try {
     const dataPath = path.join(process.cwd(), "data", "blogs.json");
-    const fs = require("fs");
 
     if (!fs.existsSync(dataPath)) {
       return NextResponse.json([]);
@@ -15,7 +16,7 @@ export async function GET() {
 
     return NextResponse.json(blogs);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json([]);
   }
 }
@@ -33,11 +34,9 @@ export async function POST(request: NextRequest) {
       tags,
     } = await request.json();
 
-    // Use the correct field names
     const finalExcerpt = excerpt || description;
     const finalContent = contentHtml || content;
 
-    // Validate required fields
     if (!title || !finalExcerpt || !seoTitle || !finalContent) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -45,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate blog data
     const blogId = `blog_${Date.now()}`;
     const blogData = {
       id: blogId,
@@ -64,36 +62,26 @@ export async function POST(request: NextRequest) {
       tableOfContents: [],
     };
 
-    // Save to data file (you can replace this with database later)
     const dataPath = path.join(process.cwd(), "data", "blogs.json");
 
-    try {
-      const fs = require("fs");
-      let existingBlogs = [];
+    let existingBlogs = [];
 
-      if (fs.existsSync(dataPath)) {
-        const fileContent = fs.readFileSync(dataPath, "utf8");
-        existingBlogs = JSON.parse(fileContent);
-      }
-
-      existingBlogs.push(blogData);
-
-      await writeFile(dataPath, JSON.stringify(existingBlogs, null, 2));
-
-      return NextResponse.json({
-        success: true,
-        message: "Blog created successfully",
-        blogId,
-      });
-    } catch (fileError) {
-      console.error("File operation error:", fileError);
-      return NextResponse.json(
-        { error: "Failed to save blog" },
-        { status: 500 }
-      );
+    if (fs.existsSync(dataPath)) {
+      const fileContent = fs.readFileSync(dataPath, "utf8");
+      existingBlogs = JSON.parse(fileContent);
     }
+
+    existingBlogs.push(blogData);
+
+    await writeFile(dataPath, JSON.stringify(existingBlogs, null, 2));
+
+    return NextResponse.json({
+      success: true,
+      message: "Blog created successfully",
+      blogId,
+    });
   } catch (error) {
-    console.error("Blog creation error:", error);
+    console.log("Blog creation error:", error);
     return NextResponse.json(
       { error: "Failed to create blog" },
       { status: 500 }

@@ -79,6 +79,8 @@ const VideoManagement: React.FC = () => {
         alert(data.message || "خطا در حذف ویدیو");
       }
     } catch (error) {
+      console.log(error);
+
       alert("خطا در حذف ویدیو");
     }
   };
@@ -127,6 +129,8 @@ const VideoManagement: React.FC = () => {
         toast.error(data.message || "خطا در بهروزرسانی ویدیو");
       }
     } catch (error) {
+      console.log(error);
+
       alert("خطا در بهروزرسانی ویدیو");
     }
   };

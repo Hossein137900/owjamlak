@@ -1,7 +1,7 @@
 import OwjAdComponent from "@/components/static/about/aboutHero";
 import AboutUsHero from "@/components/static/about/aboutUsHero";
 import AboutUsStats from "@/components/static/about/aboutUsStats";
-import { Metadata } from "next";
+ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: " درباره  ما | اوج",
@@ -14,6 +14,7 @@ export default function AboutPage() {
       <OwjAdComponent />
       <div className="px-4 md:px-20">
         <AboutUsHero />
+       
         <AboutUsStats />
       </div>
     </section>

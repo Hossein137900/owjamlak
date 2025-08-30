@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ReportageBox from "@/components/static/poster/posterBox";
 import { Poster } from "@/types/type";
