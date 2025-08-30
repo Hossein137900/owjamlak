@@ -30,7 +30,7 @@ function PosterListContent() {
   const [page, setPage] = useState<number>(
     parseInt(searchParams.get("page") || "1")
   );
-  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "3"));
+  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "9"));
   const [filters, setFilters] = useState<Filters>({
     search: searchParams.get("query") || "",
     parentType: searchParams.get("parentType") || "",
@@ -75,6 +75,7 @@ function PosterListContent() {
   const [isScrolling, setIsScrolling] = useState(false);
   const [cameFromSearch, setCameFromSearch] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const lastScrollY = useRef<number>(0); // برای جلوگیری از trigger چندباره
 
   // detecte the page scrolling or Not and set the isScrolling state for filter button
   useEffect(() => {
@@ -216,6 +217,8 @@ function PosterListContent() {
     };
 
     const fetchData = async () => {
+      if (isFetchingMore || !hasNextPage) return;
+
       setLoading(page === 1);
       setIsFetchingMore(page > 1);
 
@@ -226,15 +229,27 @@ function PosterListContent() {
           ...(filters.parentType && { parentType: filters.parentType }),
           ...(filters.tradeType && { tradeType: filters.tradeType }),
           ...(filters.search && { query: filters.search }),
+          ...(filters.minPrice && { minPrice: filters.minPrice }),
+          ...(filters.maxPrice && { maxPrice: filters.maxPrice }),
+          ...(filters.minArea && { minArea: filters.minArea }),
+          ...(filters.maxArea && { maxArea: filters.maxArea }),
+          ...(filters.rooms && { rooms: filters.rooms }),
+          ...(filters.location && { location: filters.location }),
         });
 
-        const res = await fetch(`/api/poster?${query.toString()}`);
-        const data = await res.json();
+        console.log("Fetching posters with query:", query.toString());
 
-        // Check if response has pagination (normal mode) vs suggestions mode
+        const res = await fetch(`/api/poster?${query.toString()}`, {});
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("API response:", data);
+
         if (data.pagination) {
           setHasNextPage(data.pagination.hasNextPage);
-
           if (page === 1) {
             setPosters(data.posters || []);
           } else {
@@ -243,25 +258,39 @@ function PosterListContent() {
             );
           }
         } else {
-          // Handle error case or suggestions mode
           setHasNextPage(false);
           if (page === 1) {
             setPosters([]);
           }
         }
       } catch (err) {
-        console.error("❌ Fetch error:", err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
         setIsFetchingMore(false);
       }
     };
 
-    const timeoutId = setTimeout(fetchData, 300);
-    return () => clearTimeout(timeoutId);
-  }, [page, limit, filters.parentType, filters.tradeType, filters.search]);
+    fetchData();
+  }, [
+    page,
+    limit,
+    filters,
+    filters.tradeType,
+    filters.parentType,
+    filters.search,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.minArea,
+    filters.maxArea,
+    filters.rooms,
+    filters.location,
+  ]);
 
+  // Debounce برای اسکرول
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const handleScroll = () => {
       if (isFetchingMore || loading || !hasNextPage) return;
 
@@ -269,15 +298,32 @@ function PosterListContent() {
       const windowHeight = window.innerHeight;
       const fullHeight = document.documentElement.scrollHeight;
 
-      // اگر کاربر به 300px مونده به آخر صفحه رسید
-      if (scrollTop + windowHeight >= fullHeight - 500) {
-        setPage((prev) => prev + 1);
+      // تنظیم فاصله تشخیص اسکرول برای موبایل و دسکتاپ
+      const isMobile = window.innerWidth < 768; // تشخیص موبایل (می‌تونی عدد رو تنظیم کنی)
+      const scrollThreshold = isMobile ? 1350 : 800; // 400px برای موبایل، 800px برای دسکتاپ
+
+      if (
+        scrollTop + windowHeight >= fullHeight - scrollThreshold &&
+        scrollTop > lastScrollY.current
+      ) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(
+          () => {
+            console.log("Triggering next page load:", page + 1);
+            setPage((prev) => prev + 1);
+          },
+          isMobile ? 150 : 100
+        ); // debounce کمی بیشتر برای موبایل به خاطر اینرسی اسکرول
       }
+      lastScrollY.current = scrollTop;
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isFetchingMore, loading, hasNextPage]);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeoutId);
+    };
+  }, [isFetchingMore, loading, hasNextPage, page]);
 
   const handleFilterChange = (key: keyof Filters, value: string) => {
     const updated = { ...filters, [key]: value };
@@ -378,7 +424,7 @@ function PosterListContent() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">... در حال بارگذاری آگهی‌ها</p>
+          <p className="text-gray-600">در حال بارگذاری آگهی‌ها</p>
         </div>
       </div>
     );
@@ -421,10 +467,10 @@ function PosterListContent() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#00BC9B] text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg"
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#00BC9B] text-white px-3 py-1 rounded-full text-sm font-medium shadow-lg"
                   >
                     <FiTag size={14} />
-                    <span>جستجو برای: {filters.search.slice(0, 20)}...</span>
+                    <span>جستجو برای: {filters.search}</span>
                   </motion.div>
                 )}
               </div>
@@ -986,7 +1032,7 @@ function PosterListContent() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 0.5 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0  bg-black z-40"
+                className="fixed inset-0 bg-black z-40"
                 onClick={() => setShowFiltersMobile(false)}
               />
 
@@ -995,7 +1041,7 @@ function PosterListContent() {
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
-                transition={{ type: "spring", damping: 20, duration: 0.2 }}
+                transition={{ type: "spring", damping: 30 }}
                 className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-xl max-h-[85vh] overflow-y-auto"
               >
                 {/* Handle indicator */}

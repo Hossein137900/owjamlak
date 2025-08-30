@@ -2,16 +2,18 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaCheck, FaPaperPlane } from "react-icons/fa";
-import {
-  // MultiImageDropzone,
-  type FileState,
-} from "@/app/components/MultiImageDropzone";
+
 // import { FaPaperPlane, FaCheck } from "react-icons/fa";
 
 // Rename to avoid conflict with browser's FormData
 interface CustomFormData {
   [key: string]: string | number | boolean | null;
 }
+export type FileState = {
+  file: File | string;
+  key: string; // used to identify the file in the progress callback
+  progress: "PENDING" | "COMPLETE" | "ERROR" | number;
+};
 
 interface FormErrors {
   [key: string]: string;
@@ -77,7 +79,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>("");
 
   const formRef = useRef<HTMLFormElement>(null);
-  console.log(isSubmitting, focusedField , fileStates);
+  console.log(isSubmitting, focusedField, fileStates);
 
   // Sync external errors with local errors state
   useEffect(() => {
@@ -121,8 +123,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
   const handleBlur = () => {
     setFocusedField(null);
   };
-
- 
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -224,63 +224,6 @@ const ContactForm: React.FC<ContactFormProps> = ({
       }
     }
   };
-
-
-  // const handleFilesAdded = async (addedFiles: FileState[]) => {
-  //   setFileStates(addedFiles);
-
-  //   if (addedFiles.length > 0) {
-  //     const file = addedFiles[0].file;
-
-  //     if (file instanceof File) {
-  //       try {
-  //         // Start upload to EdgeStore
-  //         setFileStates((prev) =>
-  //           prev.map((fileState) =>
-  //             fileState.key === addedFiles[0].key
-  //               ? { ...fileState, progress: 0 }
-  //               : fileState
-  //           )
-  //         );
-
-  //         const res = await edgestore.publicFiles.upload({
-  //           file,
-  //           onProgressChange: (progress) => {
-  //             setFileStates((prev) =>
-  //               prev.map((fileState) =>
-  //                 fileState.key === addedFiles[0].key
-  //                   ? { ...fileState, progress }
-  //                   : fileState
-  //               )
-  //             );
-  //           },
-  //         });
-
-  //         // Upload completed
-  //         setFileStates((prev) =>
-  //           prev.map((fileState) =>
-  //             fileState.key === addedFiles[0].key
-  //               ? { ...fileState, progress: "COMPLETE" }
-  //               : fileState
-  //           )
-  //         );
-
-  //         setUploadedFileUrl(res.url);
-  //         setFormData((prev) => ({ ...prev, file: res.url }));
-  //       } catch (error) {
-  //         console.log("Upload error:", error);
-  //         setFileStates((prev) =>
-  //           prev.map((fileState) =>
-  //             fileState.key === addedFiles[0].key
-  //               ? { ...fileState, progress: "ERROR" }
-  //               : fileState
-  //           )
-  //         );
-  //         setErrors((prev) => ({ ...prev, file: "خطا در آپلود فایل" }));
-  //       }
-  //     }
-  //   }
-  // };
 
   const handleFileRemove = (index: number) => {
     setFileStates((prev) => prev.filter((_, i) => i !== index));
