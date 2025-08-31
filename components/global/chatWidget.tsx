@@ -215,7 +215,7 @@ export default function Chat() {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3500"
         }/messages/current`,
         {
           headers: {
