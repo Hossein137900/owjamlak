@@ -151,8 +151,8 @@ export default function ChatAdminList() {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"
-        }/api/chat-sessions/recent?limit=5`
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
+        }/chat-sessions/recent?limit=5`
       );
       const sessions: ChatSession[] = await response.json();
       sessions.forEach((session) => {
@@ -173,8 +173,8 @@ export default function ChatAdminList() {
       const skip = activeRooms.size;
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"
-        }/api/chat-sessions/history?skip=${skip}&limit=5`
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
+        }/chat-sessions/history?skip=${skip}&limit=5`
       );
       const sessions: ChatSession[] = await response.json();
 
@@ -220,8 +220,8 @@ export default function ChatAdminList() {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"
-        }/api/messages/${roomName}`
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
+        }/messages/${roomName}`
       );
       const messages: Message[] = await response.json();
       setActiveRooms((prev) => {
