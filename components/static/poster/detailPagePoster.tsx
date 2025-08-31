@@ -429,7 +429,7 @@ export default function PosterDetailClient({
               return breadcrumbItems.map((item, index) => {
                 const isLast = index === breadcrumbItems.length - 1;
                 return (
-                  <li key={item.href} className="flex items-center">
+                  <li key={item.href} className="flex mt-5 md:mt-0 items-center">
                     {isLast ? (
                       <span className="flex items-center font-medium text-gray-600 cursor-default">
                         <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-[160px] lg:max-w-[200px]">
@@ -470,7 +470,7 @@ export default function PosterDetailClient({
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="mb-4 sm:mb-6 mt-4 sm:mt-6"
+        className="mb-4 sm:mb-6 mt-8 sm:mt-6"
         id="main-content"
       >
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 sm:mb-4">

@@ -311,9 +311,9 @@ export default function Chat() {
   };
 
   // Don't render widget for admin roles
-  // if (!shouldShowWidget) {
-  //   return null;
-  // }
+  if (!shouldShowWidget) {
+    return null;
+  }
   return (
     <>
       {/* Chat Icon Button */}

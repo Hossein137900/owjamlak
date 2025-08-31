@@ -42,9 +42,7 @@ const TopConsultant: React.FC = () => {
     return (
       <section className="py-16 px-4 mt-20 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <p className="text-gray-600">خطا در بارگذاری اطلاعات مشاور</p>
-          </div>
+          <div className="text-center"></div>
         </div>
       </section>
     );

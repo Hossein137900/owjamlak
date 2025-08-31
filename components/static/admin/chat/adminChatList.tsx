@@ -2,11 +2,7 @@ import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import Head from "next/head";
 import { useAdminAuth } from "../../../../contexts/AdminAuthContext";
-import {
-  AdminSocket,
-  AdminRoomData,
-  Message,
- } from "../../../../types/chat";
+import { AdminSocket, AdminRoomData, Message } from "../../../../types/chat";
 
 interface ChatSession {
   sessionId: string;
@@ -109,37 +105,34 @@ export default function ChatAdminList() {
       }
     });
 
-    newSocket.on(
-      "adminMessageUpdate",
-      (data: Message & { room?: string }) => {
-        if (data.room) {
-          setActiveRooms((prev) => {
-            const newRooms = new Map(prev);
-            if (newRooms.has(data.room!)) {
-              const roomData = newRooms.get(data.room!)!;
-              // Check if message already exists to prevent duplicates
-              const messageExists = roomData.messages.some(
-                (msg) =>
-                  msg.text === data.text &&
-                  msg.time === data.time &&
-                  msg.name === data.name
-              );
-              if (!messageExists) {
-                newRooms.set(data.room!, {
-                  ...roomData,
-                  messages: [...roomData.messages, data],
-                  hasNewMessage: data.name !== "Admin",
-                });
-              }
-            } else if (data.name === "Guest") {
-              // Create room for guest if it doesn't exist
-              createRoomCard(data.room!, "Guest", true);
+    newSocket.on("adminMessageUpdate", (data: Message & { room?: string }) => {
+      if (data.room) {
+        setActiveRooms((prev) => {
+          const newRooms = new Map(prev);
+          if (newRooms.has(data.room!)) {
+            const roomData = newRooms.get(data.room!)!;
+            // Check if message already exists to prevent duplicates
+            const messageExists = roomData.messages.some(
+              (msg) =>
+                msg.text === data.text &&
+                msg.time === data.time &&
+                msg.name === data.name
+            );
+            if (!messageExists) {
+              newRooms.set(data.room!, {
+                ...roomData,
+                messages: [...roomData.messages, data],
+                hasNewMessage: data.name !== "Admin",
+              });
             }
-            return newRooms;
-          });
-        }
+          } else if (data.name === "Guest") {
+            // Create room for guest if it doesn't exist
+            createRoomCard(data.room!, "Guest", true);
+          }
+          return newRooms;
+        });
       }
-    );
+    });
 
     newSocket.on("removeGuestRoom", (data: RemoveGuestRoomData) => {
       setActiveRooms((prev) => {
@@ -336,28 +329,33 @@ export default function ChatAdminList() {
         <title>Admin Chat Panel</title>
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col md:flex-row">
         {/* Chat List Sidebar */}
-        <div className="w-80 bg-gray-800/50 border-r border-gray-700 flex flex-col">
-          <div className="p-6 border-b border-gray-700">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+        <div
+          className={`w-full md:w-80 bg-gray-800/50 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col transition-all ${
+            selectedRoom ? "hidden md:flex" : "flex"
+          }`}
+        >
+          <div className="p-4 sm:p-6 border-b border-gray-700">
+            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               چت های فعال
             </h1>
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-gray-400 text-xs sm:text-sm mt-1">
               {activeRooms.size} گفتگو
             </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto max-h-96">
+          <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
             {activeRooms.size === 0 ? (
-              <div className="p-6 text-center">
-                <p className="text-gray-400">هنوز چیزی برای نمایش نیست</p>
+              <div className="p-4 sm:p-6 text-center">
+                <p className="text-gray-400 text-sm sm:text-base">
+                  هنوز چیزی برای نمایش نیست
+                </p>
               </div>
             ) : (
               <>
                 {Array.from(activeRooms.entries())
                   .sort(([, a], [, b]) => {
-                    // Sort by online status first, then by new messages, then by last message time
                     if (a.isOnline !== b.isOnline) return b.isOnline ? 1 : -1;
                     if (a.hasNewMessage !== b.hasNewMessage)
                       return b.hasNewMessage ? 1 : -1;
@@ -367,16 +365,16 @@ export default function ChatAdminList() {
                     <div
                       key={roomName}
                       onClick={() => openChat(roomName)}
-                      className={`p-4 border-b border-gray-700/50 cursor-pointer hover:bg-gray-700/30 transition-all ${
+                      className={`p-3 sm:p-4 border-b border-gray-700/50 cursor-pointer hover:bg-gray-700/30 transition-all ${
                         selectedRoom === roomName
                           ? "bg-blue-600/20 border-l-4 border-l-blue-500"
                           : ""
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-white font-medium truncate">
+                            <h3 className="text-white font-medium truncate text-sm sm:text-base">
                               {roomData.userName}
                             </h3>
                             <div
@@ -388,7 +386,7 @@ export default function ChatAdminList() {
                             ></div>
                           </div>
                           {roomData.messages.length > 0 && (
-                            <p className="text-gray-400 text-sm truncate mt-1">
+                            <p className="text-gray-400 text-xs sm:text-sm truncate mt-1">
                               {
                                 roomData.messages[roomData.messages.length - 1]
                                   .text
@@ -401,7 +399,7 @@ export default function ChatAdminList() {
                         </div>
                         <div className="flex flex-col items-end ml-3">
                           {roomData.hasNewMessage && (
-                            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                            <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full animate-pulse"></div>
                           )}
                         </div>
                       </div>
@@ -409,7 +407,7 @@ export default function ChatAdminList() {
                   ))}
 
                 {hasMoreHistory && (
-                  <div className="p-4">
+                  <div className="p-3 sm:p-4">
                     <button
                       onClick={loadMoreHistory}
                       disabled={loadingMore}
@@ -427,36 +425,60 @@ export default function ChatAdminList() {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 flex flex-col">
+        <div
+          className={`flex-1 flex flex-col ${
+            selectedRoom ? "flex" : "hidden md:flex"
+          }`}
+        >
           {selectedRoom && selectedRoomData ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 bg-gray-800/50 border-b border-gray-700 flex justify-between items-center">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-semibold text-white">
-                      {selectedRoomData.userName}
-                    </h2>
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        selectedRoomData.isOnline
-                          ? "bg-green-400"
-                          : "bg-gray-500"
-                      }`}
-                    ></div>
+              <div className="p-4 bg-gray-800/50 border-b border-gray-700 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSelectedRoom(null)}
+                    className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 md:hidden"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                  </button>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg sm:text-xl font-semibold text-white truncate">
+                        {selectedRoomData.userName}
+                      </h2>
+                      <div
+                        className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
+                          selectedRoomData.isOnline
+                            ? "bg-green-400"
+                            : "bg-gray-500"
+                        }`}
+                      ></div>
+                    </div>
+                    <p className="text-gray-400 text-xs sm:text-sm">
+                      {selectedRoomData.isOnline
+                        ? "آنلاین"
+                        : "آخرین بار اخیرا دیده شده است"}
+                    </p>
                   </div>
-                  <p className="text-gray-400 text-sm">
-                    {selectedRoomData.isOnline
-                      ? "آنلاین"
-                      : "آخرین بار اخیرا دیده شده است"}
-                  </p>
                 </div>
                 <button
                   onClick={() => setSelectedRoom(null)}
-                  className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50"
+                  className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700/50 hidden md:block"
                 >
                   <svg
-                    className="w-6 h-6"
+                    className="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -472,7 +494,7 @@ export default function ChatAdminList() {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3">
                 {selectedRoomData.messages.map((msg, index) => (
                   <div
                     key={index}
@@ -481,28 +503,28 @@ export default function ChatAdminList() {
                     }`}
                   >
                     <div
-                      className={`max-w-xs px-4 py-2 rounded-2xl ${
+                      className={`max-w-[80%] sm:max-w-xs px-3 sm:px-4 py-2 rounded-2xl ${
                         msg.name === "Admin"
                           ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white"
                           : "bg-gray-700 text-white"
                       }`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs opacity-70 font-medium mr-3">
+                      <div className="flex justify-between items-start mb-1 sm:mb-2">
+                        <span className="text-xs opacity-70 font-medium mr-2 sm:mr-3">
                           {msg.name}
                         </span>
-                        <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
+                        <span className="text-xs opacity-70 whitespace-nowrap">
                           {msg.time}
                         </span>
                       </div>
-                      <p className="text-sm leading-relaxed mt-1">{msg.text}</p>
+                      <p className="text-sm leading-relaxed">{msg.text}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* Input */}
-              <div className="p-4 bg-gray-800/50 border-t border-gray-700">
+              <div className="p-3 sm:p-4 bg-gray-800/50 border-t border-gray-700">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -514,11 +536,11 @@ export default function ChatAdminList() {
                     onKeyPress={(e) =>
                       e.key === "Enter" && sendAdminMessage(selectedRoom)
                     }
-                    className="flex-1 px-4 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:border-blue-500 focus:outline-none"
+                    className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:border-blue-500 focus:outline-none text-sm sm:text-base"
                   />
                   <button
                     onClick={() => sendAdminMessage(selectedRoom)}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all"
+                    className="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl hover:from-blue-700 hover:to-blue-600 transition-all text-sm sm:text-base"
                   >
                     ارسال
                   </button>
@@ -526,10 +548,10 @@ export default function ChatAdminList() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center p-4">
               <div className="text-center">
                 <svg
-                  className="w-16 h-16 text-gray-600 mx-auto mb-4"
+                  className="w-12 h-12 sm:w-16 sm:h-16 text-gray-600 mx-auto mb-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -541,10 +563,10 @@ export default function ChatAdminList() {
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                   />
                 </svg>
-                <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-400 mb-2">
                   یک چت را انتخاب کنید
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-gray-500 text-sm sm:text-base">
                   برای شروع چت، یک مکالمه را از نوار کناری انتخاب کنید
                 </p>
               </div>
