@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="fa">
       <Head>
-         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link
           rel="icon"
           type="image/png"
@@ -56,7 +56,14 @@ export default function RootLayout({
       <body className={ray.className}>
         <Navbar />
         <ChatWidget />
-        <Toaster position="top-center" />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              zIndex: 999999,  
+            },
+          }}
+        />{" "}
         {children}
         <FooterMobile />
         <Footer />
