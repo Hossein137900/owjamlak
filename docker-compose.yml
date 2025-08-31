@@ -6,7 +6,7 @@ services:
     environment:
       - NODE_ENV=production
     env_file:
-      - .env
+      - .env.production
     restart: unless-stopped
     volumes:
       - ./public/uploads:/app/public/uploads
@@ -31,6 +31,7 @@ services:
       - "80:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # - ./ssl:/etc/ssl/cloudflare
     depends_on:
       - app
       - chat

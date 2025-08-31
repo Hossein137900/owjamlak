@@ -215,8 +215,8 @@ export default function Chat() {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500"
-        }/api/messages/current`,
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
+        }/messages/current`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
