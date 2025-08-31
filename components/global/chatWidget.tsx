@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-import { Message, User, JWTPayload, ChatSocket } from "../../types/chat";
+import { Message, User, ChatSocket } from "../../types/chat";
 
 export default function Chat() {
   const [socket, setSocket] = useState<ChatSocket | null>(null);
@@ -26,13 +26,12 @@ export default function Chat() {
   const typingTimer = useRef<NodeJS.Timeout | null>(null);
   const socketRef = useRef<ChatSocket | null>(null);
 
- 
   const resetChatSession = () => {
-     if (socket) {
+    if (socket) {
       socket.disconnect();
       setSocket(null);
-     }
-     setMessages([]);
+    }
+    setMessages([]);
     setUsers([]);
     setActivity("");
     setCurrentRoom("");
@@ -70,7 +69,7 @@ export default function Chat() {
             setShouldShowWidget(false);
           }
         } catch (error) {
-          console.log(error)
+          console.log(error);
           setShouldShowWidget(true);
           setToken("");
         }
@@ -98,7 +97,7 @@ export default function Chat() {
           setShouldShowWidget(false);
         }
       } catch (error) {
-                  console.log(error)
+        console.log(error);
 
         setShouldShowWidget(true);
         setToken("");
@@ -127,7 +126,36 @@ export default function Chat() {
   };
 
   // Remove auto-initialization for guests
+  const getCurrentUserName = (): string => {
+    const currentToken = token || localStorage.getItem("token");
+    if (currentToken) {
+      try {
+        // JWT structure: header.payload.signature
+        const base64Url = currentToken.split(".")[1];
+        if (!base64Url) return "Guest";
 
+        // Convert Base64Url → Base64
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+
+        // Decode Base64 → UTF-8 string
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
+
+        const payload: JWTPayload = JSON.parse(jsonPayload);
+
+        console.log(payload); // should show persian name correctly
+        return payload.name || "Guest";
+      } catch (error) {
+        console.log("getCurrentUserName - token decode error:", error);
+        return "Guest";
+      }
+    }
+    return "Guest";
+  };
   useEffect(() => {
     if (socket) {
       const handleConnect = () => {
@@ -269,26 +297,13 @@ export default function Chat() {
     }, 1000);
   };
 
-  const getCurrentUserName = (): string => {
-    // Always check localStorage for the latest token
-    const currentToken = token || localStorage.getItem("token");
-
-    if (currentToken) {
-      try {
-        const payload: JWTPayload = JSON.parse(
-          atob(currentToken.split(".")[1])
-        );
-        console.log(
-          "getCurrentUserNameasdfasdfasdfasdfasdfas - payload:",
-          payload.name
-        );
-        return payload.name || "Guest";
-      } catch (error) {
-        console.log("getCurrentUserName - token decode error:", error);
-        return "Guest";
-      }
-    }
-    return "Guest";
+  type JWTPayload = {
+    name?: string;
+    id?: string;
+    phoneNumber?: string;
+    role?: string;
+    iat?: number;
+    exp?: number;
   };
 
   const getMessageClass = (msgName: string): string => {

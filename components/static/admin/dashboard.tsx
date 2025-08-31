@@ -163,7 +163,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       {/* Additional info section */}
       <div className="mt-8  border-b border-gray-600/70 p-4">
         <p className="text-sm text-gray-500">
-          آخرین بهروزرسانی: {new Date().toLocaleDateString("fa-IR")}
+          آخرین به روزرسانی: {new Date().toLocaleDateString("fa-IR")}
         </p>
       </div>
     </div>

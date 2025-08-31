@@ -131,7 +131,7 @@ const VideoManagement: React.FC = () => {
     } catch (error) {
       console.log(error);
 
-      alert("خطا در بهروزرسانی ویدیو");
+      alert("خطا در به روزرسانی ویدیو");
     }
   };
 

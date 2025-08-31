@@ -63,7 +63,7 @@ const HeroImageSlider = () => {
 
   const currentPoster = posters[currentIndex];
 
-  if (loading || !currentPoster) {
+  if (loading) {
     return (
       <div className="col-span-8 row-span-6 flex items-center justify-center  rounded-tr-3xl rounded-br-3xl">
         <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />{" "}
@@ -71,14 +71,20 @@ const HeroImageSlider = () => {
     );
   }
 
-  if (error || !posters.length) {
+  if (error || !currentPoster) {
     return (
-      <div className="px-4 py-6" dir="rtl">
-        <div className="h-80 flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-3xl">
-          <p className="text-red-600 font-medium mb-2">
-            خطا در بارگیری آگهی‌ها
-          </p>
-          <p className="text-red-500 text-sm">لطفاً دوباره تلاش کنید</p>
+      <div className="col-span-8 row-span-6 relative rounded-tr-3xl rounded-br-3xl overflow-hidden">
+        <Image
+          src="/assets/images/hero4.jpg"
+          alt="Fallback Hero"
+          fill
+          className="object-cover rounded-tr-3xl rounded-br-3xl"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+        <div className="absolute bottom-0 right-0 p-6 text-white w-full">
+          <h2 className="text-xl font-bold mb-2">به اوج خوش آمدید</h2>
+          <p className="text-sm text-gray-200">منتظر آگهی‌های جدید باشید ✨</p>
         </div>
       </div>
     );

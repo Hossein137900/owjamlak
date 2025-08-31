@@ -56,14 +56,37 @@ const SliderMobile = () => {
     );
   }
 
-  if (error || !posters.length) {
+  if (error) {
     return (
-      <div className="  py-6" dir="rtl">
+      <div className="py-6" dir="rtl">
         <div className="h-80 flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-3xl">
           <p className="text-red-600 font-medium mb-2">
             خطا در بارگیری آگهی‌ها
           </p>
           <p className="text-red-500 text-sm">لطفاً دوباره تلاش کنید</p>
+        </div>
+      </div>
+    );
+  }
+
+   if (!posters.length) {
+    return (
+      <div className="py-6" dir="rtl">
+        <div className="relative h-80  overflow-hidden shadow-xl">
+          <Image
+            src="/assets/images/hero4.jpg"
+            alt="آگهی پیش‌فرض"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="absolute bottom-0 p-6 text-white">
+            <h3 className="text-lg font-bold">به زودی آگهی‌های جدید</h3>
+            <p className="text-sm text-gray-200 mt-2">
+              آگهی‌ها در حال آماده‌سازی هستند...
+            </p>
+          </div>
         </div>
       </div>
     );
