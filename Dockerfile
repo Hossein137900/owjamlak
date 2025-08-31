@@ -29,7 +29,12 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy the public folder
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# Create uploads directories and set permissions
+RUN mkdir -p ./public/uploads/posters ./public/uploads/blog ./public/uploads/consultants ./public/uploads/videos
+RUN chown -R nextjs:nodejs ./public/uploads
+RUN chmod -R 777 ./public/uploads
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
