@@ -1,18 +1,53 @@
+import type { Metadata } from "next";
 import CollaborationPage from "@/components/static/services/collaboration";
-import { Metadata } from "next";
- 
+
 export const metadata: Metadata = {
-  title: " همکاری",
+  title: "همکاری با اوج املاک | فرصت‌های مشارکت در بازار ملک",
   description:
-    "آخرین مقالات و راهنماهای تخصصی در زمینه خرید، فروش، اجاره و سرمایه‌گذاری در بازار املاک ایران",
+    "صفحه همکاری اوج املاک برای مشارکت و همکاری با مشاوران، سرمایه‌گذاران و شرکت‌های فعال در زمینه خرید، فروش و اجاره ملک در ایران.",
+  keywords: [
+    "همکاری املاک",
+    "فرصت همکاری در املاک",
+    "مشارکت در خرید ملک",
+    "سرمایه گذاری املاک",
+    "همکاری با مشاور املاک",
+  ],
+  openGraph: {
+    title: "همکاری با اوج املاک | فرصت‌های مشارکت در بازار ملک",
+    description:
+      "همکاری و مشارکت با اوج املاک برای مشاوران، سرمایه‌گذاران و شرکت‌های فعال در حوزه ملک. فرصت‌های طلایی برای همکاری.",
+    url: "https://oujamlak.com/services/Collaboration",
+    siteName: "Ouj Amlak",
+    type: "website",
+    images: [
+      {
+        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی همکاری
+        width: 1200,
+        height: 630,
+        alt: "همکاری با اوج املاک",
+      },
+    ],
+    locale: "fa_IR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "همکاری با اوج املاک | فرصت‌های مشارکت در بازار ملک",
+    description:
+      "همکاری و مشارکت با اوج املاک برای مشاوران، سرمایه‌گذاران و شرکت‌های فعال در حوزه ملک.",
+    images: ["https://oujamlak.com/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://oujamlak.com/services/Collaboration",
+  },
+  metadataBase: new URL("https://oujamlak.com"),
 };
 
-const LegalConsultation = () => {
+const Collaboration = () => {
   return (
     <main>
-      <CollaborationPage />{" "}
+      <CollaborationPage />
     </main>
   );
 };
 
-export default LegalConsultation;
+export default Collaboration;

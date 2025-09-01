@@ -202,6 +202,7 @@ export interface Blog {
   contentHtml: string;
   seoTitle: string;
   images: string[];
+  updatedAt: string;
   tags: string[];
   tableOfContents: string[];
 }
