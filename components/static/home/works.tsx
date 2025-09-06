@@ -277,13 +277,13 @@ export default function OurApproachPage() {
 
       {/* Call to Action */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="  ">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#66308d]/95 to-[#01ae9b]/95 p-10 md:p-16 shadow-xl"
+            className="relative overflow-hidden  bg-gradient-to-br from-[#66308d]/95 to-[#01ae9b]/95 p-10 md:p-16 shadow-xl"
           >
             {/* Decorative elements */}
             <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-white/10 -translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
@@ -318,7 +318,7 @@ export default function OurApproachPage() {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="flex flex-col sm:flex-row gap-5 justify-center"
               >
-                <Link href="/contact">
+                <Link href="/contactUs">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

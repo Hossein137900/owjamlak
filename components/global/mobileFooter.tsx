@@ -95,7 +95,7 @@ const FooterMobile = () => {
             <button
               key={idx}
               onClick={() => handleNavigation(item)}
-              className={`flex flex-col items-center justify-center text-xs flex-1 py-1 ${
+              className={`flex flex-col cursor-pointer items-center justify-center text-xs flex-1 py-1 ${
                 active ? "text-[#66308d] font-bold" : "text-gray-500"
               }`}
             >

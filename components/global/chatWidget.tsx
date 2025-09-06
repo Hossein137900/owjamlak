@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { Message, User, ChatSocket } from "../../types/chat";
+import { usePathname } from "next/navigation";
 
 export default function Chat() {
   const [socket, setSocket] = useState<ChatSocket | null>(null);
@@ -21,7 +22,7 @@ export default function Chat() {
   // Form states
   const [token, setToken] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-
+  const pathname = usePathname();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimer = useRef<NodeJS.Timeout | null>(null);
   const socketRef = useRef<ChatSocket | null>(null);
@@ -327,6 +328,9 @@ export default function Chat() {
 
   // Don't render widget for admin roles
   if (!shouldShowWidget) {
+    return null;
+  }
+  if (pathname === "/auth") {
     return null;
   }
   return (

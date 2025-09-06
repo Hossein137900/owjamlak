@@ -20,8 +20,6 @@ import {
   FiChevronDown,
   FiMenu,
   FiX,
-  FiPhone,
-  FiMapPin,
   FiUser,
   FiLogOut,
   FiSettings,
@@ -52,7 +50,7 @@ const Navbar = () => {
   const mapButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenDrop, setIsOpenDrop] = useState(false);
+
   const [scrolled, setScrolled] = useState(false);
   const [activeItem, setActiveItem] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -65,10 +63,6 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userDropdownRef = useRef<HTMLDivElement>(null);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
-
-  const handleMapClick = () => {
-    setIsMapModalOpen(true);
-  };
 
   const closeMapModal = () => {
     setIsMapModalOpen(false);
@@ -222,6 +216,7 @@ const Navbar = () => {
   if (pathname === "/auth" || pathname === "/admin") {
     return null;
   }
+  
 
   return (
     <>
@@ -269,29 +264,19 @@ const Navbar = () => {
             >
               <Link href="/" className="flex items-center gap-3 group">
                 <motion.div
-                  className="relative h-10 w-10 lg:h-12 lg:w-12 overflow-hidden rounded-xl"
+                  className="relative h-10 w-10 lg:h-12 lg:w-12 overflow-hidden"
                   whileHover={{ scale: 1.05, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Image
                     src="/assets/images/logo (2).png"
                     alt="املاک لوگو"
-                    width={48}
-                    height={48}
+                    width={80}
+                    height={80}
                     className="object-contain"
                     priority
                   />
                 </motion.div>
-                <div className="flex flex-col">
-                  <motion.span
-                    className={`text-xl lg:text-2xl font-bold transition-all duration-300 ${
-                      scrolled ? "text-[#01ae9b]" : "text-gray-800"
-                    }`}
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    املاک
-                  </motion.span>
-                </div>
               </Link>
             </motion.div>
 
@@ -618,7 +603,7 @@ const Navbar = () => {
               <div className="flex-shrink-0 flex items-center justify-center p-4 bg-gradient-to-r from-[#01ae9b] to-[#66308d] shadow-lg relative">
                 {/* Centered Logo and Brand */}
                 <div className="flex items-center gap-2">
-                  <div className="relative h-8 w-8 overflow-hidden rounded-lg">
+                  <div className="relative h-8 w-8 overflow-hidden  ">
                     <Image
                       src="/assets/images/logo (2).png"
                       alt="املاک لوگو"
@@ -650,41 +635,21 @@ const Navbar = () => {
                 {/* User Section - If logged in */}
                 {user && (
                   <div className="flex-shrink-0 p-3 bg-gray-50 border-b border-gray-100">
-                    <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                      <div className="w-10 h-10 bg-gradient-to-r from-[#01ae9b] to-[#66308d] rounded-full flex items-center justify-center">
-                        <FiUser className="text-white" size={16} />
+                    <Link href="/admin" onClick={() => setIsOpen(false)}>
+                      <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                        <div className="w-10 h-10 bg-gradient-to-r from-[#01ae9b] to-[#66308d] rounded-full flex items-center justify-center">
+                          <FiUser className="text-white" size={16} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-800">
+                            {user.name}
+                          </p>
+                          <p className="text-xs text-gray-500">کاربر سایت</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-800">
-                          {user.name}
-                        </p>
-                        <p className="text-xs text-gray-500">کاربر سایت</p>
-                      </div>
-                    </div>
+                    </Link>
                   </div>
                 )}
-
-                {/* Contact Info - Compact */}
-                <div className="flex-shrink-0 p-3 bg-gray-50 border-b border-gray-100">
-                  <div className="grid grid-cols-2 gap-2">
-                    <motion.a
-                      href="tel:02188776655"
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      <FiPhone className="w-3 h-3 text-[#01ae9b]" />
-                      <span className="text-xs text-gray-600">تماس</span>
-                    </motion.a>
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                      onClick={handleMapClick}
-                    >
-                      <FiMapPin className="w-3 h-3 text-[#01ae9b]" />
-                      <span className="text-xs text-gray-600">آدرس</span>
-                    </motion.button>
-                  </div>
-                </div>
 
                 {/* Scrollable Menu Items */}
                 <div className="py-2">
@@ -699,8 +664,9 @@ const Navbar = () => {
                           <div>
                             <motion.button
                               onClick={() => {
-                                toggleDropdown(item.href);
-                                setIsOpenDrop(!isOpenDrop);
+                                setOpenDropdown((prev) =>
+                                  prev === item.href ? null : item.href
+                                );
                               }}
                               className={`flex items-center justify-between w-full text-sm py-3 px-4 rounded-xl transition-all duration-200 ${
                                 activeItem.startsWith(item.href) ||
@@ -806,18 +772,18 @@ const Navbar = () => {
                       </motion.div>
                     ))}
                     {/* Bottom Action Section - Fixed at bottom */}
-                    <div className="flex-shrink-0 p-3 border-t border-gray-100 bg-white">
-                      <motion.div variants={itemVariants} className="space-y-2">
+                    <div className="w-full p-3 border-t border-gray-100 bg-white">
+                      <motion.div variants={itemVariants}>
                         {isLoadingUser ? (
                           <div className="flex justify-center py-4">
                             <div className="w-6 h-6 border-2 border-[#01ae9b] border-t-transparent rounded-full animate-spin"></div>
                           </div>
                         ) : user ? (
-                          <div className="space-y-2">
+                          <div className="flex items-center w-full justify-around gap-1">
                             <Link href="/admin">
                               <motion.button
                                 whileTap={{ scale: 0.98 }}
-                                className="w-full bg-[#01ae9b] hover:bg-[#01ae9b]/80 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                                className=" bg-[#01ae9b] px-6 hover:bg-[#01ae9b]/80 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                                 onClick={() => setIsOpen(false)}
                               >
                                 <FiSettings size={16} />
@@ -828,7 +794,7 @@ const Navbar = () => {
                             <motion.button
                               onClick={handleLogout}
                               whileTap={{ scale: 0.98 }}
-                              className="w-full bg-red-500 mt-2 hover:bg-red-600 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+                              className=" bg-red-500 px-6  hover:bg-red-600 text-white py-3 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
                             >
                               <FiLogOut size={16} />
                               خروج از حساب
