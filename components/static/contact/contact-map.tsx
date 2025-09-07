@@ -5,8 +5,8 @@ import { FiMapPin, FiPhone } from "react-icons/fi";
 
 const branch = {
   name: "دفتر مرکزی",
-  address: "تهران، میدان حفت حوض، کوچه سجاد، پلاک 6",
-  phone: "021-88776655",
+  address: "تهران، میدان حفت حوض، کوچه سجاد، پلاک 6 واحد1",
+  phone: "021-77222007",
   lat: 35.7575,
   lng: 51.4106,
 };
@@ -57,7 +57,7 @@ const ContactMap = () => {
                 <FiPhone size={18} />
               </div>
               <Link
-                href="tel:021-88776655"
+                href="tel:02177222007"
                 className="text-gray-800 font-medium"
               >
                 {branch.phone}

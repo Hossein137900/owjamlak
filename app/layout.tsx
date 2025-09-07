@@ -88,27 +88,27 @@ export default function RootLayout({
         {/* Android / PWA */}
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#ffffff" />
-        <Script id="structured-data" type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "RealEstateAgent",
-            name: "املاک اوج",
-            url: "https://oujamlak.com/",
-            logo: "https://oujamlak.com/logo.png",
-            description: "مرجع خرید و فروش ملک در تهران و کرج",
-            address: {
-              "@type": "PostalAddress",
-              addressLocality: "تهران",
-              addressCountry: "IR",
-            },
-            contactPoint: {
-              "@type": "ContactPoint",
-              telephone: "+989122266681",
-              contactType: "مشاوره فروش",
-            },
-          })}
-        </Script>
       </Head>
+      <Script id="structured-data" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "RealEstateAgent",
+          name: "املاک اوج",
+          url: "https://oujamlak.com/",
+          logo: "https://oujamlak.com/logo.png",
+          description: "مرجع خرید و فروش ملک در تهران و کرج",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: "تهران",
+            addressCountry: "IR",
+          },
+          contactPoint: {
+            "@type": "ContactPoint",
+            telephone: "+989122266681",
+            contactType: "مشاوره فروش",
+          },
+        })}
+      </Script>
       <body className={ray.className}>
         <Navbar />
         <CanonicalUrl />

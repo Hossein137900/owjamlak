@@ -183,8 +183,8 @@ const PosterForm = ({}) => {
         let finalFile = file;
 
         // Check 30MB limit first
-        if (file.size > 30 * 1024 * 1024) {
-          toast.error("حجم فایل نباید بیشتر از 30 مگابایت باشد");
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error("حجم فایل نباید بیشتر از 5 مگابایت باشد");
           continue;
         }
 

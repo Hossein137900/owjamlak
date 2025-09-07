@@ -6,8 +6,6 @@ import {
   FiMail,
   FiClock,
   FiInstagram,
-  FiTwitter,
-  FiLinkedin,
 } from "react-icons/fi";
 import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
 
@@ -15,38 +13,40 @@ const contactDetails = [
   {
     icon: FiMapPin,
     title: "آدرس دفتر مرکزی",
-    details: "تهران، میدان حفت حوض، کوچه سجاد، پلاک 6",
+    details: "تهران، میدان حفت حوض، کوچه سجاد، پلاک 6 واحد1",
   },
   {
     icon: FiPhone,
     title: "شماره تماس",
     details: [
-      { label: "دفتر مرکزی", value: "021-88776655" },
-      { label: "موبایل", value: "09121212123" },
+      { label: "دفتر مرکزی", value: "02177222007" },
+      { label: "موبایل", value: "09122266681" },
     ],
   },
   {
     icon: FiMail,
     title: "ایمیل",
     details: [
-      { label: "اطلاعات عمومی", value: "info@amalak.com" },
-      { label: "پشتیبانی", value: "support@amalak.com" },
+      { label: "اطلاعات عمومی", value: "amlakoujj@gmail.com" },
+      { label: "پشتیبانی", value: "amlakoujj@gmail.com" },
     ],
   },
   {
     icon: FiClock,
     title: "ساعات کاری",
     details:
-      "شنبه تا چهارشنبه: ۸ صبح تا ۶ عصر\nپنجشنبه: ۸ صبح تا ۱ بعد از ظهر\nجمعه: تعطیل",
+      "ساعت کاری از 9:00 صبح تا ساعت 20:00 / پنجشنبه ها از ساعت 9:00 تا 19:00",
   },
 ];
 
 const socialLinks = [
-  { icon: FiInstagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: FiTwitter, href: "https://twitter.com", label: "Twitter" },
-  { icon: FiLinkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: FaTelegramPlane, href: "https://telegram.org", label: "Telegram" },
-  { icon: FaWhatsapp, href: "https://whatsapp.com", label: "WhatsApp" },
+  {
+    icon: FiInstagram,
+    href: "https://www.instagram.com/amlakouj?igsh=bWYwa3htem5nYzcz",
+    label: "Instagram",
+  },
+  { icon: FaTelegramPlane, href: "https://t.me/Amlakoujj", label: "Telegram" },
+  { icon: FaWhatsapp, href: "https://wa.me/989122266681", label: "WhatsApp" },
 ];
 
 const ContactInfo = () => {

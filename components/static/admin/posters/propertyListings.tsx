@@ -316,7 +316,7 @@ const PropertyListings: React.FC = () => {
       try {
         let finalFile = file;
 
-        if (file.size > 100 * 1024) {
+        if (file.size > 500 * 1024) {
           // اگر بزرگتر از 100KB
           const options = {
             maxSizeMB: 0.1,

@@ -210,7 +210,7 @@ export default function RealEstateConsultationPage() {
         // Handle different error scenarios
         const errorMessage = result.message || "خطا در ثبت درخواست";
         toast.error(errorMessage);
-        
+
         return {
           success: false,
           errors: result.errors || { general: errorMessage },
@@ -218,14 +218,15 @@ export default function RealEstateConsultationPage() {
       }
     } catch (error) {
       console.log("Error submitting form:", error);
-      
+
       // Show user-friendly error message
-      const errorMessage = error instanceof Error 
-        ? `خطا در ارسال فرم: ${error.message}` 
-        : "خطای غیرمنتظره در ارسال فرم";
-      
+      const errorMessage =
+        error instanceof Error
+          ? `خطا در ارسال فرم: ${error.message}`
+          : "خطای غیرمنتظره در ارسال فرم";
+
       toast.error(errorMessage);
-      
+
       return {
         success: false,
         errors: {
@@ -235,7 +236,7 @@ export default function RealEstateConsultationPage() {
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <main className="p-4 md:p-10 max-w-7xl mx-auto mt-20" dir="rtl">
@@ -593,8 +594,8 @@ export default function RealEstateConsultationPage() {
             <p className="text-gray-600">
               سوال دیگری دارید؟{" "}
               <a
-                href="tel:09120000000"
-                className="text-[#01ae9b] font-medium hover:underline transition-all duration-200"
+                href="tel:02177222007"
+                className="text-[#01ae9b] font-medium hover:underline"
               >
                 با مشاوران املاک ما تماس بگیرید
               </a>

@@ -3,14 +3,7 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  FiMail,
-  FiPhone,
-  FiMapPin,
-  FiInstagram,
-  FiTwitter,
-  FiLinkedin,
-} from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin, FiInstagram } from "react-icons/fi";
 import { FaTelegramPlane, FaWhatsapp } from "react-icons/fa";
 // import IranFlag from "../static/ui/iranFlag";
 import toast from "react-hot-toast";
@@ -112,11 +105,13 @@ const footerLinks = [
 ];
 
 const socialLinks = [
-  { icon: FiInstagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: FiTwitter, href: "https://twitter.com", label: "Twitter" },
-  { icon: FiLinkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: FaTelegramPlane, href: "https://telegram.org", label: "Telegram" },
-  { icon: FaWhatsapp, href: "https://whatsapp.com", label: "WhatsApp" },
+  {
+    icon: FiInstagram,
+    href: "https://www.instagram.com/amlakouj?igsh=bWYwa3htem5nYzcz",
+    label: "Instagram",
+  },
+  { icon: FaTelegramPlane, href: "https://t.me/Amlakoujj", label: "Telegram" },
+  { icon: FaWhatsapp, href: "https://wa.me/989122266681", label: "WhatsApp" },
 ];
 
 // Animation variants
@@ -161,21 +156,21 @@ const Footer = () => {
   const contactInfo = [
     {
       icon: FiPhone,
-      text: "۰۲۱-۱۲۳۴۵۶۷۸",
-      href: "tel:+982112345678",
+      text: "021-77222007",
+      href: "tel:02177222007",
       isClickable: true,
       onClick: null,
     },
     {
       icon: FiMail,
-      text: "info@amalak.com",
-      href: "mailto:info@amalak.com",
+      text: "amlakoujj@gmail.com",
+      href: "mailto:amlakoujj@gmail.com",
       isClickable: true,
       onClick: null,
     },
     {
       icon: FiMapPin,
-      text: "تهران، خیابان ولیعصر، پلاک ۱۲۳",
+      text: "تهران، میدان نارمک کوچه سجاد پلاک 6 واحد1",
       href: "#",
       isClickable: true,
       onClick: handleMapClick,

@@ -159,7 +159,7 @@ const HeroImageSlider = () => {
                 <Link
                   href={`/poster/${currentPoster._id}`}
                   className="
-      flex items-center gap-2
+      flex items-center gap-2 z-500
       bg-white/20 backdrop-blur-sm
       text-white font-medium
       px-3 py-1.5 rounded-md

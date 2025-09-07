@@ -914,9 +914,9 @@ export default function CollaborationPage() {
             <p className="text-gray-600">
               سوال دیگری دارید؟{" "}
               <a
-                href="tel:09120000000"
-                className="text-[#01ae9b] font-medium hover:underline transition-all duration-200"
-              >
+              href="tel:02177222007"
+              className="text-[#01ae9b] font-medium hover:underline"
+            >
                 با تیم منابع انسانی ما تماس بگیرید
               </a>
             </p>

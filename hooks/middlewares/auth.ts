@@ -51,16 +51,14 @@ export const login = async (request: NextRequest) => {
     const user = await User.findOne({ phone });
 
     if (!user) {
-      console.log("User not found");
       return NextResponse.json({ message: "User not found" }, { status: 401 });
     }
-    console.log("User found:", user);
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
       console.log("Invalid password");
       return NextResponse.json(
-        { message: " رمز عبور اشتباه" },
+        { message: "رمز عبور یا شماره اشتباه است" },
         { status: 401 }
       );
     }
@@ -328,7 +326,7 @@ export const getUserByToken = async (request: NextRequest) => {
       // phoneNumber: user.phone,
       id: user._id,
       role: user.role,
-      favorite: user.favorite || []
+      favorite: user.favorite || [],
     });
   } catch (error) {
     console.log("Error:", error);

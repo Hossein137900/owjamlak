@@ -17,18 +17,16 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.com";
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/poster/${id}`, // ✅ مسیر درست
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: "no-store", // ✅ جلوگیری از کش شدن
-      }
-    );
+    const response = await fetch(`${baseUrl}/api/poster/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       return {
@@ -47,7 +45,7 @@ export async function generateMetadata({
       };
     }
 
-    // 🔹 لیبل‌ها
+    // لیبل‌ها
     const typeLabels: Record<string, string> = {
       residentialRent: "اجاره مسکونی",
       residentialSale: "فروش مسکونی",
@@ -71,7 +69,7 @@ export async function generateMetadata({
     const getParentTypeLabel = (type: string) => typeLabels[type] || type;
     const getTradeTypeLabel = (type: string) => tradeLabels[type] || type;
 
-    // 🔹 فرمت قیمت
+    // فرمت قیمت
     const formatPrice = (amount: number) => {
       if (amount === 0) return "توافقی";
       if (amount >= 1_000_000_000)
@@ -92,7 +90,7 @@ export async function generateMetadata({
         )} تومان`
       : `قیمت: ${formatPrice(poster.totalPrice || 0)} تومان`;
 
-    // 🔹 متا دیتا
+    // متا دیتا
     const title = `${poster.title} | ${getParentTypeLabel(
       poster.parentType || ""
     )} ${getTradeTypeLabel(poster.tradeType || "")} | اوج املاک`;
@@ -105,11 +103,15 @@ export async function generateMetadata({
       poster.description ? poster.description.substring(0, 100) + "..." : ""
     }`;
 
-    const images = poster.images?.length
-      ? poster.images.map((img) =>
-          typeof img === "string" ? img : img.url || "/assets/images/hero.jpg"
-        )
-      : ["/assets/images/hero.jpg"];
+    // انتخاب تصویر مستقیم از Cloudinary
+    const defaultImage = `${baseUrl}/assets/images/hero.jpg`;
+    const imageUrl = poster.images?.length
+      ? typeof poster.images[0] === "string"
+        ? (poster.images[0] as string).startsWith("http")
+          ? (poster.images[0] as string) // مستقیم از Cloudinary
+          : `${baseUrl}${poster.images[0] as string}`
+        : poster.images[0]?.url || defaultImage
+      : defaultImage;
 
     const keywords = [
       poster.title,
@@ -135,36 +137,27 @@ export async function generateMetadata({
         title,
         description,
         type: "article",
-        url: `${process.env.NEXT_PUBLIC_BASE_URL}/poster/${poster._id}`,
+        url: `${baseUrl}/poster/${poster._id}`,
         siteName: "اوج املاک",
         locale: "fa_IR",
         images: [
           {
-            url: images[0],
-            width: 1200,
+            url: imageUrl,
+            width: 1200, // سایز واقعی تصویر رو چک کن
             height: 630,
             alt: poster.title,
             type: "image/jpeg",
           },
-          ...images.slice(1, 4).map((img) => ({
-            url: img,
-            width: 800,
-            height: 600,
-            alt: `تصویر ${poster.title}`,
-            type: "image/jpeg",
-          })),
         ],
       },
       twitter: {
         card: "summary_large_image",
         title,
         description,
-        images: [images[0]],
-        creator: "@owjamlak",
-        site: "@owjamlak",
+        images: [imageUrl],
       },
       alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/poster/${poster._id}`,
+        canonical: `${baseUrl}/poster/${poster._id}`,
       },
       robots: {
         index: true,

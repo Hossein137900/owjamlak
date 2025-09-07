@@ -1,6 +1,8 @@
 import OwjAdComponent from "@/components/static/about/aboutHero";
 import AboutUsHero from "@/components/static/about/aboutUsHero";
 import AboutUsStats from "@/components/static/about/aboutUsStats";
+import CertificateMarquee from "@/components/static/about/marquee";
+import PdfDownload from "@/components/static/about/pdfDownload";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -60,6 +62,26 @@ export default function AboutPage() {
         <AboutUsHero />
 
         <AboutUsStats />
+        <CertificateMarquee
+          images={[
+            "/assets/images/hero.jpg",
+            "/assets/images/hero4.jpg",
+            "/assets/images/hero1.jpg",
+            // اضافه کردن تصاویر بیشتر
+          ]}
+          speed={60} // سرعت بالاتر
+          direction="left" // جهت حرکت
+          pauseOnHover={true}
+        />
+
+        <div className="py-12">
+          <PdfDownload
+            bookImage="/assets/images/bookimage.jpg"
+            pdfUrl="/assets/files/book.pdf"
+            title="راهنمای جامع خرید و فروش املاک"
+            description="با این کتاب، یاد بگیرید چگونه داستان‌های جذاب برای مشتریان خود بسازید و فروش خود را افزایش دهید!"
+          />
+        </div>
       </div>
     </section>
   );

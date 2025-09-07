@@ -22,7 +22,7 @@ async function getBlog(id: string) {
 
     return blogs.find((blog: Blog) => blog.id === id) || null;
   } catch (error) {
-    console.log(error);
+    console.error("Error reading blog data:", error);
     return null;
   }
 }
@@ -34,14 +34,22 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const blog = await getBlog(id);
-  console.log(blog);
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.com";
 
   if (!blog) {
     return {
-      title: "بلاگ یافت نشد",
-      description: "بلاگ مورد نظر یافت نشد",
+      title: "بلاگ یافت نشد | اوج املاک",
+      description: "بلاگ مورد نظر یافت نشد.",
     };
   }
+
+  // اطمینان از URL مطلق برای تصویر
+  const defaultImage = `${baseUrl}/assets/images/hero4.jpg`; // تصویر پیش‌فرض
+  const imageUrl = blog.coverImage
+    ? blog.coverImage.startsWith("http")
+      ? blog.coverImage // اگر URL کامل است (مثل Cloudinary)
+      : `${baseUrl}${blog.coverImage}` // تبدیل مسیر نسبی به مطلق
+    : defaultImage;
 
   return {
     title: blog.seoTitle || blog.title,
@@ -53,13 +61,17 @@ export async function generateMetadata({
       description: blog.excerpt,
       images: [
         {
-          url: blog.coverImage,
-          width: 1200,
+          url: imageUrl,
+          width: 1200, // سایز واقعی تصویر رو چک کن
           height: 630,
           alt: blog.title,
+          type: "image/jpeg",
         },
       ],
       type: "article",
+      url: `${baseUrl}/blogs/${id}`,
+      siteName: "اوج املاک",
+      locale: "fa_IR",
       publishedTime: blog.date,
       authors: [blog.author],
     },
@@ -67,10 +79,10 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: blog.title,
       description: blog.excerpt,
-      images: [blog.coverImage],
+      images: [imageUrl],
     },
     alternates: {
-      canonical: `/blogs/${id}`,
+      canonical: `${baseUrl}/blogs/${id}`,
     },
   };
 }
@@ -87,12 +99,19 @@ export default async function BlogPage({
     notFound();
   }
 
+  // تصویر برای رندر در صفحه
+  const imageUrl = blog.coverImage
+    ? blog.coverImage.startsWith("http")
+      ? blog.coverImage
+      : `${process.env.NEXT_PUBLIC_BASE_URL}${blog.coverImage}`
+    : `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/default-blog.jpg`;
+
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Hero Section */}
-      <div className="relative   h-screen mb-8">
+      <div className="relative h-screen mb-8">
         <Image
-          src={blog.coverImage}
+          src={imageUrl}
           alt={blog.title}
           fill
           className="object-cover"

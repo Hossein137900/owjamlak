@@ -48,11 +48,10 @@ export async function POST(request: NextRequest) {
 
     // Validate video file
     const allowedTypes = [
-      "video/mp4",
-      "video/webm",
-      "video/ogg",
-      "video/avi",
-      "video/quicktime",
+      "video/mp4", // H.264, MPEG-4, HEVC
+      "video/quicktime", // MOV با H.264 یا MJPEG
+      "video/mov", // MOV (مشابه quicktime)
+      "video/hevc",
     ];
     if (!allowedTypes.includes(videoFile.type)) {
       return NextResponse.json(

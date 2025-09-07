@@ -1,8 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
-
+ 
 const ContactHero = () => {
   return (
     <div className="relative h-screen  pt-20  bg-gradient-to-t from-[#01ae9b]/5 to-white">
@@ -31,8 +30,8 @@ const ContactHero = () => {
               className="flex flex-col sm:flex-row gap-5 justify-end"
             >
               {/* Phone */}
-              <Link
-                href="tel:02112345678"
+              <a
+                href="tel:02177222007"
                 className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
@@ -48,14 +47,14 @@ const ContactHero = () => {
                 <div>
                   <div className="text-xs text-gray-500">تماس مستقیم</div>
                   <div className="text-base font-bold text-gray-800">
-                    ۰۲۱-۱۲۳۴۵۶۷۸
+                    021-77222007
                   </div>
                 </div>
-              </Link>
+              </a>
 
               {/* Email */}
-              <Link
-                href="mailto:info@amalak.com"
+              <a
+                href="mailto:amlakoujj@gmail.com"
                 className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
@@ -72,10 +71,10 @@ const ContactHero = () => {
                 <div>
                   <div className="text-xs text-gray-500">ایمیل</div>
                   <div className="text-base font-bold text-gray-800">
-                    info@amalak.com
+                    amlakoujj@gmail.com
                   </div>
                 </div>
-              </Link>
+              </a>
             </motion.div>
           </motion.div>
 

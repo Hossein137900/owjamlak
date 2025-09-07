@@ -11,13 +11,17 @@ export const validateImageFile = (
   file: File
 ): { valid: boolean; error?: string } => {
   const allowedTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/gif",
-    "image/webp",
+    "image/jpeg", // JPEG (رایج در هر دو)
+    "image/png", // PNG (رایج برای شفافیت)
+    "image/gif", // GIF (برای تصاویر متحرک)
+    "image/webp", // WebP (اندروید و iOS 14+)
+    "image/heic", // HEIC (آیفون iOS 11+)
+    "image/heif", // HEIF (آیفون و اندروید 10+)
+    "image/tiff", // TIFF (اختیاری، کمتر رایج)
+    "image/bmp", // BMP (اختیاری، کمتر رایج)
+    "image/avif", // AVIF (اختیاری، اندروید 12+ و iOS 16+)
   ];
-  const maxSize = 10 * 1024 * 1024; // 30MB
+  const maxSize = 5 * 1024 * 1024; // 30MB
 
   if (!allowedTypes.includes(file.type)) {
     return { valid: false, error: "نوع فایل تصویر نامعتبر است" };

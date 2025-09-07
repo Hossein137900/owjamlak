@@ -9,7 +9,6 @@ import {
   RiInstagramLine,
 } from "react-icons/ri";
 import MapModal from "../ui/mapModal";
-import Link from "next/link";
 
 interface TopBarProps {
   scrolled: boolean;
@@ -41,7 +40,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <FiPhone className="w-4 h-4" />
-                <Link href="tel:021-88776655">021-88776655</Link>{" "}
+                <a href="tel:02177222007">021-77222007</a>{" "}
               </div>
               <button
                 ref={mapButtonRef}
@@ -50,44 +49,45 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
                 aria-label="نشان"
               >
                 <FiMapPin className="w-4 h-4" />
-                <span>تهران، میدان نارمک، پلاک 123</span>
+                <span>تهران، میدان نارمک،کوچه سجاد پلاک6 واحد 1</span>
               </button>
             </div>
 
             <div className="flex items-center gap-4">
               <div className="text-xs">
-                ساعات کاری: شنبه تا پنج‌شنبه 9:00 - 20:00
+                ساعت کاری از 9:00 صبح تا ساعت 20:00 پنجشنبه ها از ساعت
+                9:00 تا 19:00
               </div>
 
               {/* Social Media Icons */}
               <div className="flex items-center gap-2">
-                <Link
-                  href="https://t.me/yourusername"
+                <a
+                  href="https://t.me/Amlakoujj"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group"
                   aria-label="تلگرام"
                 >
                   <RiTelegramLine className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                </Link>
-                <Link
-                  href="https://wa.me/989123456789"
+                </a>
+                <a
+                  href="https://wa.me/989122266681"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group"
                   aria-label="واتساپ"
                 >
                   <RiWhatsappLine className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                </Link>
-                <Link
-                  href="https://instagram.com/yourusername"
+                </a>
+                <a
+                  href="https://www.instagram.com/amlakouj?igsh=bWYwa3htem5nYzcz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group"
                   aria-label="اینستاگرام"
                 >
                   <RiInstagramLine className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
             <div className="flex items-center gap-2 justify-between text-[8px]">
               <div className="flex items-center gap-2">
                 <FiPhone className="w-3 h-3" />
-                <Link href="tel:021-88776655">021-88776655</Link>
+                <a href="tel:02177222007">021-77222007</a>
               </div>
             </div>
             <span className="mx-2">|</span>
@@ -106,7 +106,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
             {/* Second Row - Working Hours and Social Media */}
             <div className="flex items-center justify-between">
               <div className="text-center text-[10px] opacity-90 ">
-                ساعات کاری: شنبه تا پنج‌شنبه 9:00 - 20:00
+                ساعت کاری از 9:00 صبح تا ساعت 20:00
               </div>
               <span className="mx-2">|</span>
 
@@ -121,33 +121,33 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
                 >
                   <FiMapPin className="w-3 h-3" />
                 </button>
-                <Link
-                  href="https://t.me/yourusername"
+                <a
+                  href="https://t.me/Amlakoujj"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
                   aria-label="تلگرام"
                 >
                   <RiTelegramLine className="w-3 h-3" />
-                </Link>
-                <Link
-                  href="https://wa.me/989123456789"
+                </a>
+                <a
+                  href="https://wa.me/989122266681"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
                   aria-label="واتساپ"
                 >
                   <RiWhatsappLine className="w-3 h-3" />
-                </Link>
-                <Link
-                  href="https://instagram.com/yourusername"
+                </a>
+                <a
+                  href="https://www.instagram.com/amlakouj?igsh=bWYwa3htem5nYzcz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
                   aria-label="اینستاگرام"
                 >
                   <RiInstagramLine className="w-3 h-3" />
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -157,7 +157,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <FiPhone className="w-4 h-4" />
-                <Link href="tel:021-88776655">021-88776655</Link>{" "}
+                <a href="tel:02177222007">021-77222007</a>{" "}
               </div>
               <button
                 onClick={handleMapClick}
@@ -165,7 +165,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
                 aria-label="نشان"
               >
                 <FiMapPin className="w-4 h-4" />
-                <span className="text-sm">تهران، ولیعصر</span>
+                <span className="text-sm">تهران، نارمک</span>
               </button>
             </div>
 
@@ -174,33 +174,33 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
 
               {/* Social Media Icons for Tablet */}
               <div className="flex items-center gap-1">
-                <Link
-                  href="https://t.me/yourusername"
+                <a
+                  href="https://t.me/Amlakoujj"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group"
                   aria-label="تلگرام"
                 >
                   <RiTelegramLine className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-200" />
-                </Link>
-                <Link
-                  href="https://wa.me/989123456789"
+                </a>
+                <a
+                  href="https://wa.me/989122266681"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group"
                   aria-label="واتساپ"
                 >
                   <RiWhatsappLine className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-200" />
-                </Link>
-                <Link
-                  href="https://instagram.com/yourusername"
+                </a>
+                <a
+                  href="https://www.instagram.com/amlakouj?igsh=bWYwa3htem5nYzcz"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 rounded-full hover:bg-white/10 transition-colors duration-200 group"
                   aria-label="اینستاگرام"
                 >
                   <RiInstagramLine className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-200" />
-                </Link>
+                </a>
               </div>
             </div>
           </div>
