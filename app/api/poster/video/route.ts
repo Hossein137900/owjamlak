@@ -52,6 +52,11 @@ export async function POST(request: NextRequest) {
       "video/quicktime", // MOV با H.264 یا MJPEG
       "video/mov", // MOV (مشابه quicktime)
       "video/hevc",
+      "video/HEVC",
+      "video/x-matroska", // MKV با H.264 یا HEVC
+      "video/webm", // VP8/VP9
+      "video/avi", // AVI با کدک‌های مختلف
+      "video/mpeg", // MPEG-2
     ];
     if (!allowedTypes.includes(videoFile.type)) {
       return NextResponse.json(
@@ -61,10 +66,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check file size (50MB limit)
-    const maxSize = 50 * 1024 * 1024;
+    const maxSize = 10 * 1024 * 1024;
     if (videoFile.size > maxSize) {
       return NextResponse.json(
-        { success: false, message: "حجم فایل نباید بیشتر از 50 مگابایت باشد" },
+        { success: false, message: "حجم فایل نباید بیشتر از 10 مگابایت باشد" },
         { status: 400 }
       );
     }

@@ -51,7 +51,7 @@ export const login = async (request: NextRequest) => {
     const user = await User.findOne({ phone });
 
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 401 });
+      return NextResponse.json({ message: "کاربر پیدا نشد" }, { status: 401 });
     }
     const isValidPassword = await bcrypt.compare(password, user.password);
 
@@ -112,7 +112,7 @@ export const checkAdminAccess = async (request: NextRequest) => {
     const user = await User.findById(decoded.id).select("name role _id");
 
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 401 });
+      return NextResponse.json({ message: "کاربر پیدا نشد" }, { status: 401 });
     }
 
     const allowedRoles = ["admin", "superadmin", "consultant", "user"];
@@ -286,7 +286,7 @@ export const updateUserRole = async (request: Request) => {
       { new: true }
     );
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json({ message: "کاربر پیدا نشد" }, { status: 404 });
     }
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
@@ -318,7 +318,7 @@ export const getUserByToken = async (request: NextRequest) => {
     const userId = decodedToken.id;
     const user = await User.findById(userId);
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "کاربر پیدا نشد" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -377,7 +377,7 @@ export const updateUserByToken = async (request: NextRequest) => {
 
     await User.findByIdAndUpdate(id, newUser);
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ error: "کاربر پیدا نشد" }, { status: 404 });
     }
     return NextResponse.json({ user });
   } catch (error) {

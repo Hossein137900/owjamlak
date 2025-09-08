@@ -102,11 +102,11 @@ export default function AdminFavoritesPage() {
       {/* Content */}
       {favorites.length === 0 ? (
         <div className="text-center py-16">
-          <FiHeart className="text-6xl text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+          <FiHeart className="text-3xl md:text-5xl text-red-500 mx-auto mb-4" />
+          <h3 className="text-sm md:text-lg font-semibold text-gray-600 mb-2">
             هیچ آگهی علاقه‌مندی وجود ندارد
           </h3>
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-xs md:text-base">
             آگهی‌های مورد علاقه خود را به این لیست اضافه کنید
           </p>
         </div>

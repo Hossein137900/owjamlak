@@ -19,8 +19,8 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { icon: <FiHome size={20} />, label: "خانه", adminSection: "dashboard" },
   { icon: <FiSearch size={20} />, label: "آگهی‌ها", href: "/poster" },
+  { icon: <FiHome size={20} />, label: "داشبورد", adminSection: "dashboard" },
 
   {
     icon: <FiPlusCircle size={22} />,

@@ -13,7 +13,7 @@ import {
   FiLayers,
   FiMail,
   FiVideo,
-   FiBook,
+  FiBook,
   FiHeart,
   FiPlus,
   FiUserCheck,
@@ -43,7 +43,7 @@ import Link from "next/link";
 
 const AdminLayout: React.FC = () => {
   const { hasAccess, logout } = useAdminAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -77,10 +77,55 @@ const AdminLayout: React.FC = () => {
     }
   }, [activeSection]);
 
+  // Handle URL hash changes and browser navigation
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // Set initial section from URL hash
+      const initialHash = window.location.hash.slice(1);
+      if (initialHash && allMenuItems.some((item) => item.id === initialHash)) {
+        setActiveSection(initialHash);
+      }
+
+      // Handle browser back/forward navigation
+      const handlePopState = () => {
+        const hash = window.location.hash.slice(1);
+        if (hash && allMenuItems.some((item) => item.id === hash)) {
+          setActiveSection(hash);
+        } else {
+          setActiveSection("dashboard");
+        }
+      };
+
+      window.addEventListener("popstate", handlePopState);
+      return () => window.removeEventListener("popstate", handlePopState);
+    }
+  }, []);
+
+  // Update URL when activeSection changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && activeSection) {
+      const currentHash = window.location.hash.slice(1);
+      if (currentHash !== activeSection) {
+        window.history.pushState(null, "", `#${activeSection}`);
+      }
+    }
+  }, [activeSection]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       setIsDarkMode(isDark);
+
+      // Auto-collapse sidebar on mobile
+      const handleResize = () => {
+        if (window.innerWidth < 1024) {
+          setIsSidebarOpen(false);
+        }
+      };
+
+      handleResize();
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
 
@@ -198,6 +243,11 @@ const AdminLayout: React.FC = () => {
 
   const menuItems = allMenuItems.filter((item) => hasAccess(item.roles));
 
+  // Handle menu item click with URL update
+  const handleMenuClick = (sectionId: string) => {
+    setActiveSection(sectionId);
+  };
+
   const renderActiveComponent = () => {
     const currentItem = allMenuItems.find((item) => item.id === activeSection);
     if (currentItem && !hasAccess(currentItem.roles)) {
@@ -295,14 +345,13 @@ const AdminLayout: React.FC = () => {
   };
 
   const sidebarVariants = {
-    open: { width: "16rem", transition: { duration: 0.3, ease: "easeInOut" } },
-    closed: { width: "5rem", transition: { duration: 0.3, ease: "easeInOut" } },
-  };
-
-  const menuItemVariants = {
-    hover: {
-      scale: 1.03,
-      transition: { duration: 0.2 },
+    open: {
+      width: "280px",
+      transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+    },
+    closed: {
+      width: "72px",
+      transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
     },
   };
 
@@ -310,25 +359,35 @@ const AdminLayout: React.FC = () => {
     open: {
       opacity: 1,
       x: 0,
-      display: "block",
-      transition: { delay: 0.1, duration: 0.2 },
+      scale: 1,
+      transition: { delay: 0.15, duration: 0.3, ease: "easeOut" },
     },
     closed: {
       opacity: 0,
-      x: -10,
-      transitionEnd: { display: "none" },
-      transition: { duration: 0.2 },
+      x: -20,
+      scale: 0.8,
+      transition: { duration: 0.2, ease: "easeIn" },
     },
   };
 
-  const textClass = isDarkMode ? "text-gray-200" : "text-gray-800";
-  const borderClass = isDarkMode ? "border-gray-700" : "border-gray-200";
-  const headerBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
-  const sidebarBgClass = isDarkMode ? "bg-gray-800" : "bg-white";
-  const mainBgClass = isDarkMode ? "bg-gray-900" : "bg-gray-100";
-  const hoverBgClass = isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100";
-  const activeBgClass = isDarkMode ? "bg-blue-900/30" : "bg-blue-100";
+  const textClass = isDarkMode ? "text-gray-100" : "text-gray-700";
+  const borderClass = isDarkMode ? "border-gray-700/50" : "border-gray-200/80";
+  const headerBgClass = isDarkMode
+    ? "bg-gray-900/20 backdrop-blur-lg"
+    : "bg-white/20 backdrop-blur-lg";
+  const sidebarBgClass = isDarkMode
+    ? "bg-gray-900/98 backdrop-blur-xl"
+    : "bg-white/98 backdrop-blur-xl";
+  const mainBgClass = isDarkMode ? "bg-gray-950" : "bg-gray-50";
+  const hoverBgClass = isDarkMode
+    ? "hover:bg-gray-800/80"
+    : "hover:bg-gray-100/80";
+  const activeBgClass = isDarkMode
+    ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20"
+    : "bg-gradient-to-r from-blue-50 to-indigo-50";
   const activeTextClass = isDarkMode ? "text-blue-400" : "text-blue-600";
+  const iconActiveClass = isDarkMode ? "text-blue-400" : "text-blue-600";
+  const iconInactiveClass = isDarkMode ? "text-gray-400" : "text-gray-500";
 
   return (
     <div
@@ -510,11 +569,6 @@ const AdminLayout: React.FC = () => {
                         key={item.id}
                         initial={{ x: 50, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
-                        transition={{
-                          duration: 0.3,
-                          delay:
-                            menuItems.findIndex((i) => i.id === item.id) * 0.05,
-                        }}
                         whileHover={{
                           scale: 1.02,
                           transition: { duration: 0.2 },
@@ -526,7 +580,7 @@ const AdminLayout: React.FC = () => {
                             : `${textClass} ${hoverBgClass}`
                         }`}
                         onClick={() => {
-                          setActiveSection(item.id);
+                          handleMenuClick(item.id);
                           setIsMobileSidebarOpen(false);
                         }}
                       >
@@ -573,52 +627,50 @@ const AdminLayout: React.FC = () => {
           variants={sidebarVariants}
           initial={false}
           animate={isSidebarOpen ? "open" : "closed"}
-          className={`hidden md:flex md:flex-col ${sidebarBgClass} border-l ${borderClass} transition-colors duration-300 relative z-10`}
+          className={`hidden md:flex md:flex-col ${sidebarBgClass} border-l ${borderClass} transition-all duration-500 relative z-10 shadow-2xl`}
           style={{
             boxShadow: isDarkMode
-              ? "1px 0 5px rgba(0,0,0,0.1)"
-              : "1px 0 5px rgba(0,0,0,0.05)",
+              ? "4px 0 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)"
+              : "4px 0 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)",
           }}
         >
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-            <div className="flex items-center flex-shrink-0 px-4 mb-5">
-              <AnimatePresence>
-                {isSidebarOpen && (
-                  <motion.h2
-                    variants={labelVariants}
-                    initial="closed"
-                    animate="open"
-                    exit="closed"
-                    className={`mr-3 text-xl font-semibold ${textClass} tracking-wide`}
-                  >
-                    املاک اوج
-                  </motion.h2>
-                )}
-              </AnimatePresence>
-            </div>
-            <nav className="mt-5 flex-1 px-2 space-y-1.5">
+          <div className="flex-1 flex flex-col pt-6 pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+            <nav className="flex-1 px-3 mt-12 space-y-2">
               {menuItems.map((item) => (
                 <div key={item.id} className="relative group">
                   <motion.button
-                    variants={menuItemVariants}
-                    whileHover="hover"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    whileHover={{
+                      scale: 1.02,
+                      x: isSidebarOpen ? 4 : 0,
+                    }}
                     whileTap={{ scale: 0.98 }}
-                    className={`group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    className={`group flex items-center w-full px-4 py-3.5 text-sm font-medium rounded-2xl transition-all duration-300 relative overflow-hidden ${
                       activeSection === item.id
-                        ? `${activeBgClass} ${activeTextClass} shadow-sm`
-                        : `${textClass} ${hoverBgClass}`
+                        ? `${activeBgClass} ${activeTextClass} shadow-lg border border-blue-200/50 dark:border-blue-500/30`
+                        : `${textClass} ${hoverBgClass} hover:shadow-md    `
                     }`}
-                    onClick={() => setActiveSection(item.id)}
+                    onClick={() => handleMenuClick(item.id)}
                   >
-                    <span
-                      className={`ml-3 ${
+                    <motion.div
+                      className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${
                         activeSection === item.id
-                          ? activeTextClass
-                          : "text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400"
-                      } transition-colors duration-200`}
+                          ? "  shadow-sm"
+                          : "group-hover:text-blue-500 dark:group-hover:text-blue-500"
+                      }`}
                     >
-                      {item.icon}
-                    </span>
+                      <span
+                        className={`transition-all duration-300 ${
+                          activeSection === item.id
+                            ? iconActiveClass
+                            : `${iconInactiveClass} group-hover:text-gray-600 dark:group-hover:text-gray-300`
+                        }`}
+                      >
+                        {item.icon}
+                      </span>
+                    </motion.div>
+
                     <AnimatePresence>
                       {isSidebarOpen && (
                         <motion.span
@@ -626,50 +678,67 @@ const AdminLayout: React.FC = () => {
                           initial="closed"
                           animate="open"
                           exit="closed"
-                          className="font-medium"
+                          className="mr-3 font-semibold text-sm tracking-wide"
                         >
                           {item.label}
                         </motion.span>
                       )}
                     </AnimatePresence>
-                    {activeSection === item.id && (
+
+                    {activeSection === item.id && isSidebarOpen && (
                       <motion.div
-                        layoutId="activeSidebarIndicator"
-                        className="absolute right-0 w-1 h-6 bg-blue-500 rounded-l-md"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.1, duration: 0.3 }}
+                        className="absolute left-3 w-2 h-2 bg-blue-500 rounded-full shadow-sm"
                       />
                     )}
                   </motion.button>
 
                   {!isSidebarOpen && (
-                    <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                    <motion.div
+                      className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
+                      initial={{ x: -10, opacity: 0 }}
+                      whileHover={{ x: 0, opacity: 1 }}
+                    >
                       <div
-                        className={`px-2 py-1 text-xs font-medium rounded ${
+                        className={`px-3 py-2 text-sm font-semibold rounded-xl shadow-2xl border backdrop-blur-sm ${
                           isDarkMode
-                            ? "bg-gray-700 text-gray-100"
-                            : "bg-gray-800 text-white"
-                        } shadow-lg whitespace-nowrap`}
+                            ? "bg-gray-800/95 text-gray-100 border-gray-700/50"
+                            : "bg-white/95 text-gray-800 border-gray-200/50"
+                        } whitespace-nowrap`}
                       >
                         {item.label}
-                        <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 bg-inherit"></div>
+                        <div
+                          className={`absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 border-r border-b ${
+                            isDarkMode
+                              ? "bg-gray-800/95 border-gray-700/50"
+                              : "bg-white/95 border-gray-200/50"
+                          }`}
+                        ></div>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
               ))}
             </nav>
           </div>
-          <div className="flex-shrink-0 flex border-t border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex-shrink-0 border-t border-gray-200/50 dark:border-gray-700/50 p-4">
             <div className="relative group w-full">
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{
+                  scale: 1.02,
+                  x: isSidebarOpen ? 4 : 0,
+                  transition: { duration: 0.2 },
+                }}
                 whileTap={{ scale: 0.95 }}
                 onClick={logout}
-                className="flex items-center text-gray-400 hover:text-red-500 transition-colors duration-200 group w-full"
+                className={`flex items-center w-full px-4 py-3.5 rounded-2xl transition-all duration-300 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-md group border border-transparent hover:border-red-200/50 dark:hover:border-red-500/30`}
               >
-                <FiLogOut className="h-5 w-5 group-hover:text-red-500 transition-colors duration-200" />
+                <motion.div className="flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 group-hover:bg-red-100 dark:group-hover:bg-red-900/30">
+                  <FiLogOut className="h-5 w-5 transition-all duration-300" />
+                </motion.div>
+
                 <AnimatePresence>
                   {isSidebarOpen && (
                     <motion.span
@@ -677,7 +746,7 @@ const AdminLayout: React.FC = () => {
                       initial="closed"
                       animate="open"
                       exit="closed"
-                      className="mr-2 text-sm font-medium group-hover:text-red-500 transition-colors duration-200"
+                      className="mr-3 text-sm font-semibold tracking-wide"
                     >
                       خروج
                     </motion.span>
@@ -686,14 +755,16 @@ const AdminLayout: React.FC = () => {
               </motion.button>
 
               {!isSidebarOpen && (
-                <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <div
-                    className={`px-2 py-1 text-xs font-medium rounded bg-red-500 text-white shadow-lg whitespace-nowrap`}
-                  >
+                <motion.div
+                  className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
+                  initial={{ x: -10, opacity: 0 }}
+                  whileHover={{ x: 0, opacity: 1 }}
+                >
+                  <div className="px-3 py-2 text-sm font-semibold rounded-xl bg-red-500 text-white shadow-2xl border border-red-400/50 backdrop-blur-sm whitespace-nowrap">
                     خروج
-                    <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 bg-inherit"></div>
+                    <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 bg-red-500 border-r border-b border-red-400/50"></div>
                   </div>
-                </div>
+                </motion.div>
               )}
             </div>
           </div>

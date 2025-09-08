@@ -11,6 +11,16 @@ export default async function PosterDetail({ params }: PageProps) {
   return <PosterDetailClient posterId={id} />;
 }
 
+function getImageUrl(
+  imagePath: string | null | undefined,
+  baseUrl: string
+): string {
+  if (!imagePath) return `${baseUrl}/assets/images/hero.jpg`;
+  if (imagePath.startsWith("http")) return imagePath; // اگر URL خارجی باشه
+  const cleanPath = imagePath.startsWith("/") ? imagePath : "/" + imagePath;
+  return `${baseUrl}${cleanPath}`; // مثلاً https://oujamlak.com/api/images/...
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -45,7 +55,7 @@ export async function generateMetadata({
       };
     }
 
-    // لیبل‌ها
+    // لیبل‌ها و فرمت قیمت
     const typeLabels: Record<string, string> = {
       residentialRent: "اجاره مسکونی",
       residentialSale: "فروش مسکونی",
@@ -69,9 +79,8 @@ export async function generateMetadata({
     const getParentTypeLabel = (type: string) => typeLabels[type] || type;
     const getTradeTypeLabel = (type: string) => tradeLabels[type] || type;
 
-    // فرمت قیمت
     const formatPrice = (amount: number) => {
-      if (amount === 0) return "توافقی";
+      if (amount === 0 || amount < 1000) return "توافقی"; // فرض خطا در دیتای 3
       if (amount >= 1_000_000_000)
         return `${(amount / 1_000_000_000).toFixed(1)} میلیارد`;
       if (amount >= 1_000_000)
@@ -98,34 +107,38 @@ export async function generateMetadata({
     const description = `${getParentTypeLabel(
       poster.parentType || ""
     )} ${getTradeTypeLabel(poster.tradeType || "")} در ${
-      poster.location || "تهران"
-    } - ${poster.area} متر - ${poster.rooms} خواب - ${priceText}. ${
-      poster.description ? poster.description.substring(0, 100) + "..." : ""
-    }`;
+      poster.locationDetails?.city || poster.location || "تهران"
+    } - ${poster.area || "نامشخص"} متر - ${
+      poster.rooms || "نامشخص"
+    } خواب - ${priceText}. ${
+      poster.description
+        ? poster.description
+            .replace(/\r\n/g, " ")
+            .replace(/•/g, "")
+            .substring(0, 100)
+            .trim() + "..."
+        : ""
+    }`.trim();
 
-    // انتخاب تصویر مستقیم از Cloudinary
-    const defaultImage = `${baseUrl}/assets/images/hero.jpg`;
-    const imageUrl = poster.images?.length
-      ? typeof poster.images[0] === "string"
-        ? (poster.images[0] as string).startsWith("http")
-          ? (poster.images[0] as string) // مستقیم از Cloudinary
-          : `${baseUrl}${poster.images[0] as string}`
-        : poster.images[0]?.url || defaultImage
-      : defaultImage;
+    // URL تصویر (خام و مطلق)
+    const imageUrl = getImageUrl(
+      poster.images?.[0]?.url || null, // از url درون images استفاده می‌کنیم
+      baseUrl
+    );
 
     const keywords = [
       poster.title,
       getParentTypeLabel(poster.parentType || ""),
       getTradeTypeLabel(poster.tradeType || ""),
-      poster.location || "",
+      poster.locationDetails?.city || poster.location || "",
       "املاک",
       "خرید",
       "فروش",
       "اجاره",
       "رهن",
       "اوج املاک",
-      `${poster.area} متر`,
-      `${poster.rooms} خواب`,
+      `${poster.area || "نامشخص"} متر`,
+      `${poster.rooms || "نامشخص"} خواب`,
     ].filter(Boolean);
 
     return {
@@ -136,17 +149,19 @@ export async function generateMetadata({
       openGraph: {
         title,
         description,
-        type: "article",
+        type: "website",
         url: `${baseUrl}/poster/${poster._id}`,
         siteName: "اوج املاک",
         locale: "fa_IR",
         images: [
           {
-            url: imageUrl,
-            width: 1200, // سایز واقعی تصویر رو چک کن
+            url: imageUrl, // حالا مستقیم https://oujamlak.com/api/images/...
+            width: 1200,
             height: 630,
             alt: poster.title,
-            type: "image/jpeg",
+            type: poster.images?.[0]?.url?.endsWith(".webp")
+              ? "image/webp"
+              : "image/jpeg", // تشخیص فرمت
           },
         ],
       },
@@ -172,7 +187,7 @@ export async function generateMetadata({
       },
     };
   } catch (error) {
-    console.error("Error generating metadata:", error);
+    console.log("Error generating metadata:", error);
     return {
       title: "خطا در بارگذاری آگهی | اوج املاک",
       description: "متأسفانه در بارگذاری اطلاعات آگهی خطایی رخ داده است.",

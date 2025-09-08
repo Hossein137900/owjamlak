@@ -39,7 +39,7 @@ const PosterForm = ({}) => {
   const [images, setImages] = useState<ImageItem[]>([]);
   const [video, setVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>("");
-  console.log(video)
+  console.log(video);
 
   const [uploading, setUploading] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
@@ -528,6 +528,9 @@ const PosterForm = ({}) => {
           <li>• برای آگهی‌های اجاره، مبلغ ودیعه و اجاره ماهانه الزامی است</li>
           <li>• برای آگهی‌های خرید/فروش، قیمت کل الزامی است</li>
           <li>• حداقل یک تصویر برای آگهی آپلود کنید</li>
+          <li className="font-bold text-red-600">
+            • در صورت آپلود نکردن عکس از عکس تزئینی استفاده می‌شود
+          </li>
           <li>• تصویر اول به عنوان تصویر اصلی انتخاب می‌شود</li>
         </ul>
       </div>
@@ -547,6 +550,7 @@ const PosterForm = ({}) => {
               id="title"
               name="title"
               value={formData.title}
+              placeholder="عنوان اصلی آگهی"
               onChange={handleChange}
               required
               className="w-full px-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -566,6 +570,7 @@ const PosterForm = ({}) => {
               name="description"
               value={formData.description}
               onChange={handleChange}
+              placeholder="توضیحات تکمیلی آگهی"
               required
               rows={4}
               className="w-full px-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -660,10 +665,10 @@ const PosterForm = ({}) => {
               >
                 <FiUpload className="w-10 h-10 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">
-                  برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
+                  برای آپلود ویدیو کلیک کنید (حداکثر 10)
                 </span>
                 <span className="text-xs text-gray-400 mt-1">
-                  فرمت‌های مجاز: MP4, WebM, OGG, AVI, MOV
+                  فرمت‌های مجاز: MP4, WebM, OGG, AVI, MOV , Hevc
                 </span>
               </label>
 
@@ -762,6 +767,7 @@ const PosterForm = ({}) => {
               id="buildingDate"
               name="buildingDate"
               value={formData.buildingDate}
+              placeholder="مثال: 1398"
               onChange={handleChange}
               required
               className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -780,6 +786,7 @@ const PosterForm = ({}) => {
               type="number"
               id="area"
               name="area"
+              placeholder="مثال:66"
               value={formData.area}
               onChange={handleChange}
               required
@@ -803,6 +810,7 @@ const PosterForm = ({}) => {
               value={formData.rooms}
               onChange={handleChange}
               required
+              placeholder="مثال:2"
               min="0"
               className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -820,6 +828,7 @@ const PosterForm = ({}) => {
               type="number"
               id="floor"
               name="floor"
+              placeholder="مثال:3"
               value={formData.floor}
               onChange={handleChange}
               className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -841,6 +850,7 @@ const PosterForm = ({}) => {
                   type="number"
                   id="totalPrice"
                   name="totalPrice"
+                  placeholder="مثال:500000000"
                   value={formData.totalPrice}
                   onChange={handleChange}
                   required={!isRentType}
@@ -861,6 +871,7 @@ const PosterForm = ({}) => {
                   type="number"
                   id="pricePerMeter"
                   name="pricePerMeter"
+                  placeholder="مثال:7500000"
                   value={formData.pricePerMeter}
                   onChange={handleChange}
                   min="0"
@@ -883,6 +894,7 @@ const PosterForm = ({}) => {
                   id="depositRent"
                   name="depositRent"
                   value={formData.depositRent}
+                  placeholder="مثال:200000000"
                   onChange={handleChange}
                   required={isRentType}
                   min="0"
@@ -902,6 +914,7 @@ const PosterForm = ({}) => {
                   type="number"
                   id="rentPrice"
                   name="rentPrice"
+                  placeholder="مثال:2000000"
                   value={formData.rentPrice}
                   onChange={handleChange}
                   required={isRentType}
@@ -946,8 +959,8 @@ const PosterForm = ({}) => {
                 onChange={handleChange}
                 required
                 rows={2}
-                className="flex-1 px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="آدرس کامل ملک را وارد کنید..."
+                className="flex-1 px-4 py-2 text-black rounded-lg border   border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="آدرس ملک"
               />
               <button
                 type="button"
@@ -958,6 +971,7 @@ const PosterForm = ({}) => {
                 انتخاب از نقشه
               </button>
             </div>
+            <small className="text-red-600"> بعد از انتخاب از نقشه میتوانید ادرس را ویرایش کنید</small>
 
             {/* Location Details Display */}
             {formData.coordinates.lat !== 0 &&
@@ -1178,7 +1192,7 @@ const PosterForm = ({}) => {
           {/* Amenities Section */}
           <div className="col-span-2">
             <h3 className="text-lg font-medium text-gray-800 mb-4">امکانات</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Storage */}
               <div className="flex items-center">
                 <input

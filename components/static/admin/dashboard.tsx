@@ -54,7 +54,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const adminStats = [
     {
       id: "properties",
-      name: "آگهی های ملک",
+      name: "آگهی های املاک",
       value: data.propertyListings?.toString() || "0",
       icon: <FiLayers className="h-6 w-6" />,
       color: "bg-blue-500",
@@ -82,7 +82,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     },
     {
       id: "users",
-      name: "کاربران",
+      name: "همه کاربران سایت",
       value: data.users?.toString() || "0",
       icon: <FiUsers className="h-6 w-6" />,
       color: "bg-red-500",
@@ -131,7 +131,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statsToShow.map((stat) => (
           <motion.div
             key={stat.id}
@@ -143,11 +143,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           >
             <div className="p-5">
               <div className="flex items-center">
-                <div className={`flex-shrink-0 rounded-md p-3 ${stat.color}`}>
+                <div className={`flex-shrink-0 rounded-md p-2 md:p-3 ${stat.color}`}>
                   <div className="text-white">{stat.icon}</div>
                 </div>
                 <div className="mr-5">
-                  <p className="text-sm font-medium text-gray-500">
+                  <p className="text-xs md:text-sm font-medium text-gray-500">
                     {stat.name}
                   </p>
                   <p className="text-2xl font-semibold text-gray-900">
