@@ -16,7 +16,7 @@ export default function CanonicalUrl() {
     }
 
     // Set the href attribute to the current page URL
-    const baseUrl = "https://www.tiranstyle.com";
+    const baseUrl = "https://oujamlak.com";
     link.setAttribute("href", `${baseUrl}${pathname}`);
   }, [pathname]);
 
