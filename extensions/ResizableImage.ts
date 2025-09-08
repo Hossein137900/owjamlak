@@ -5,10 +5,10 @@ const ResizableImage = Image.extend({
     return {
       ...this.parent?.(),
       width: {
-        default: "100%",
+        default: "300px",
         parseHTML: (el) => el.getAttribute("width") || el.style.width,
         renderHTML: (attrs) => ({
-          style: `width:${attrs.width}; height:auto;`,
+          style: `width:${attrs.width}; height:auto; max-width: 100%;`,
         }),
       },
       height: {

@@ -139,9 +139,11 @@ export default function BlogTOC({ htmlContent }: { htmlContent: string }) {
         prose-a:no-underline 
         prose-a:text-blue-600 
         prose-a:hover:text-blue-800
-        prose-img:object-fill
+        prose-img:object-cover
         prose-img:rounded-2xl 
         prose-img:my-8
+        prose-img:max-w-full
+        prose-img:h-auto
         prose-headings:text-gray-800
         prose-p:text-gray-700
         prose-p:leading-relaxed"

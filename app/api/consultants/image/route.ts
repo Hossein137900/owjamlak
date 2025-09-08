@@ -25,10 +25,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 8 * 1024 * 1024;
     if (imageFile.size > maxSize) {
       return NextResponse.json(
-        { success: false, message: "حجم فایل نباید بیشتر از 5 مگابایت باشد" },
+        { success: false, message: "حجم فایل نباید بیشتر از 8 مگابایت باشد" },
         { status: 400 }
       );
     }
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate filename
-    const extension = imageFile.name.split('.').pop() || 'jpg';
+    const extension = imageFile.name.split('.').pop() || 'webp';
     const filename = `consultant_${Date.now()}.${extension}`;
     const filepath = join(consultantsDir, filename);
 

@@ -18,7 +18,7 @@ const ConsultantManager = () => {
   const [consultantToDelete, setConsultantToDelete] =
     useState<Consultant | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [totalPoster, setTotalPoster] = useState<number | null>(null);
+  const [totalPoster] = useState<number | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -36,7 +36,7 @@ const ConsultantManager = () => {
   });
 
   useEffect(() => {
-    fetchUserPosters();
+    // fetchUserPosters();
     fetchConsultants();
   }, []);
 
@@ -51,42 +51,42 @@ const ConsultantManager = () => {
       setLoading(false);
     }
   };
-  const fetchUserPosters = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token"); // ✅ توکن که بعد از لاگین ذخیره کردی
+  // const fetchUserPosters = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const token = localStorage.getItem("token"); // ✅ توکن که بعد از لاگین ذخیره کردی
 
-      if (!token) {
-        setLoading(false);
-        return;
-      }
+  //     if (!token) {
+  //       setLoading(false);
+  //       return;
+  //     }
 
-      const res = await fetch("/api/posters-by-user", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 👈 توکن در هدر
-        },
-      });
+  //     const res = await fetch("/api/posters-by-user", {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`, // 👈 توکن در هدر
+  //       },
+  //     });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "مشکلی پیش آمد");
-      }
+  //     if (!res.ok) {
+  //       const errData = await res.json();
+  //       throw new Error(errData.message || "مشکلی پیش آمد");
+  //     }
 
-      const data = await res.json();
-      // 👇 ریسپانس سرور
-      console.log("✅ ریسپانس API:", data);
+  //     const data = await res.json();
+  //     // 👇 ریسپانس سرور
+  //     console.log("✅ ریسپانس API:", data);
 
-      setTotalPoster(data.total); // تعداد کل آگهی‌ها
-      // اگر لیست هم برگردونی می‌تونی بگذاری تو state دیگه
-      // setPosters(data.posters);
-    } catch (err) {
-      console.log("❌ خطا در گرفتن آگهی‌ها:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setTotalPoster(data.total); // تعداد کل آگهی‌ها
+  //     // اگر لیست هم برگردونی می‌تونی بگذاری تو state دیگه
+  //     // setPosters(data.posters);
+  //   } catch (err) {
+  //     console.log("❌ خطا در گرفتن آگهی‌ها:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

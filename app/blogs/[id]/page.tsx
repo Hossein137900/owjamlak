@@ -27,6 +27,12 @@ async function getBlog(id: string) {
   }
 }
 
+function getImageUrl(imagePath: string | null, baseUrl: string): string {
+  if (!imagePath) return `${baseUrl}/assets/images/hero4.jpg`;
+  if (imagePath.startsWith("http")) return imagePath;
+  return `${baseUrl}${imagePath.startsWith("/") ? imagePath : "/" + imagePath}`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -43,13 +49,7 @@ export async function generateMetadata({
     };
   }
 
-  // اطمینان از URL مطلق برای تصویر
-  const defaultImage = `${baseUrl}/assets/images/hero4.jpg`; // تصویر پیش‌فرض
-  const imageUrl = blog.coverImage
-    ? blog.coverImage.startsWith("http")
-      ? blog.coverImage // اگر URL کامل است (مثل Cloudinary)
-      : `${baseUrl}${blog.coverImage}` // تبدیل مسیر نسبی به مطلق
-    : defaultImage;
+  const imageUrl = getImageUrl(blog.coverImage, baseUrl);
 
   return {
     title: blog.seoTitle || blog.title,
@@ -62,7 +62,7 @@ export async function generateMetadata({
       images: [
         {
           url: imageUrl,
-          width: 1200, // سایز واقعی تصویر رو چک کن
+          width: 1200,
           height: 630,
           alt: blog.title,
           type: "image/jpeg",
@@ -99,17 +99,13 @@ export default async function BlogPage({
     notFound();
   }
 
-  // تصویر برای رندر در صفحه
-  const imageUrl = blog.coverImage
-    ? blog.coverImage.startsWith("http")
-      ? blog.coverImage
-      : `${process.env.NEXT_PUBLIC_BASE_URL}${blog.coverImage}`
-    : `${process.env.NEXT_PUBLIC_BASE_URL}/assets/images/default-blog.jpg`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.com";
+  const imageUrl = getImageUrl(blog.coverImage, baseUrl);
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Hero Section */}
-      <div className="relative h-screen mb-8">
+      <div className="relative h-64 md:h-80 mb-8">
         <Image
           src={imageUrl}
           alt={blog.title}
@@ -139,7 +135,7 @@ export default async function BlogPage({
       {/* Tags Section */}
       <div className="bg-white border-t px-4 py-8">
         <div className="max-w-7xl mx-auto">
-          <h3 className="text-lg text-black font-semibold mb-4">برچسب‌ها</h3>
+          <h3 className="text-lg text-black font-semibold mb-4">برچسبها</h3>
           <div className="flex flex-wrap gap-2">
             {blog.tags.map((tag: string, index: number) => (
               <span

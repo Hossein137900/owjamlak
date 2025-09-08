@@ -770,22 +770,17 @@ export default function AddPostBlog() {
               <div className="p-6 text-black bg-white/90">
                 <style>{`
                   .ProseMirror img {
-                    width: 200px;
-                    height: 40px;
-                    background: #e5e7eb;
-                    border: 2px dashed #9ca3af;
+                    max-width: 150px;
+                    height: auto;
                     border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 14px;
-                    color: #374151;
-                    position: relative;
+                    margin: 8px 0;
+                    cursor: pointer;
+                    display: block;
                   }
-                  .ProseMirror img::before {
-                    content: "📷 " attr(alt);
-                    position: absolute;
+                  .ProseMirror img + * {
+                    margin-top: 16px;
                   }
+
                 `}</style>
                 <EditorContent editor={editor} />
               </div>
