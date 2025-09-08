@@ -1,180 +1,201 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { FiX } from "react-icons/fi";
+import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-interface CertificateMarqueeProps {
-  images: string[]; // آرایه URL تصاویر گواهینامه‌ها
-  speed?: number; // سرعت حرکت (پیکسل در ثانیه)
-  direction?: "left" | "right"; // جهت حرکت (پیش‌فرض: left)
-  pauseOnHover?: boolean; // متوقف کردن روی هاور (پیش‌فرض: true)
+interface MarqueeProps {
+  images: string[];
+  /**
+   * Duration (in seconds) to move one full cycle (one full set -> -50%).
+   * Smaller = faster. Default 20s.
+   */
+  speed?: number;
+  pauseOnHover?: boolean;
+  imageHeight?: number;
+  title?: string;
+  description?: string;
 }
 
-export default function CertificateMarquee({
+export default function InfiniteMarquee({
   images,
-  speed = 50,
-  direction = "left",
+  speed = 20,
   pauseOnHover = true,
-}: CertificateMarqueeProps) {
-  const [isPaused, setIsPaused] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const marqueeRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(0);
+  imageHeight = 220,
+  title = "گواهینامه‌ها و مدارک رسمی ما",
+  description = "در این بخش می‌توانید بخشی از گواهینامه‌ها، مجوزها و افتخارات مجموعه ما را مشاهده کنید. برای دیدن جزئیات هر مدرک کافیست روی آن کلیک کنید.",
+}: MarqueeProps) {
+  const [hoverPaused, setHoverPaused] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
-  // محاسبه عرض لیست تصاویر برای لووپ
+  // unique animation name to prevent collision if multiple components on page
+  const animNameRef = useRef(
+    `marquee_${Math.random().toString(36).slice(2, 9)}`
+  );
+
   useEffect(() => {
-    if (marqueeRef.current) {
-      setWidth(marqueeRef.current.scrollWidth / 2);
+    // respect prefers-reduced-motion
+    if (typeof window !== "undefined" && "matchMedia" in window) {
+      const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      setReduceMotion(mq.matches);
+      const handler = () => setReduceMotion(mq.matches);
+      mq.addEventListener?.("change", handler);
+      return () => mq.removeEventListener?.("change", handler);
     }
-  }, [images]);
+  }, []);
 
-  // انیمیشن لووپ بی‌نهایت
-  const marqueeVariants = {
-    animate: {
-      x: direction === "left" ? [0, -width] : [-width, 0],
-      transition: {
-        x: {
-          repeat: Infinity,
-          repeatType: "loop",
-          duration: width / speed,
-          ease: "linear",
-        },
-      },
-    },
-    paused: { x: direction === "left" ? 0 : -width },
-  };
+  const paused = hoverPaused || selectedIndex !== null || reduceMotion;
 
-  // انیمیشن‌های هدر
-  const headerVariants = {
-    hidden: { opacity: 0, y: -50 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: "easeOut" },
-    },
-  };
-
-  // باز کردن مودال
-  const openModal = (img: string) => {
-    setSelectedImage(img);
-    setIsPaused(true);
-  };
-
-  // بستن مودال
-  const closeModal = () => {
-    setSelectedImage(null);
-    setIsPaused(false);
-  };
+  // keyboard for modal
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (selectedIndex === null) return;
+      if (e.key === "Escape") setSelectedIndex(null);
+      if (e.key === "ArrowLeft")
+        setSelectedIndex((s) =>
+          s === null ? null : (s - 1 + images.length) % images.length
+        );
+      if (e.key === "ArrowRight")
+        setSelectedIndex((s) => (s === null ? null : (s + 1) % images.length));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedIndex, images.length]);
 
   return (
-    <div className="w-full py-12 bg-gradient-to-br from-[#f5f7fa] to-[#e2e8f0] relative overflow-hidden">
-      {/* هدر با تایتل و دیسکریپشن */}
-      <motion.div
-        className="max-w-7xl mx-auto mb-8 text-center flex flex-col items-center px-4"
-        variants={headerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <h2 className="text-2xl md:text-4xl font-extrabold text-gray-900">
-            گواهینامه‌ها و افتخارات اوج املاک
-          </h2>
-        </div>
-        <p className="text-sm md:text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
-          ما در اوج املاک به حرفه‌ای بودن و اعتماد شما افتخار می‌کنیم.
-          گواهینامه‌های ما نشان‌دهنده تعهد ما به ارائه خدمات باکیفیت در حوزه
-          املاک است. برای مشاهده جزئیات، روی هر گواهینامه کلیک کنید!
-        </p>
-      </motion.div>
+    <section
+      aria-label={title}
+      className="relative w-full overflow-hidden py-12"
+    >
+      {/* inject unique keyframes for this instance */}
+      <style>{`
+        @keyframes ${animNameRef.current} {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
 
-      {/* مارکی تصاویر */}
-      <div
-        className="w-full overflow-hidden relative"
-        onMouseEnter={() => pauseOnHover && setIsPaused(true)}
-        onMouseLeave={() => pauseOnHover && setIsPaused(false)}
-        onTouchStart={() => pauseOnHover && setIsPaused(true)}
-        onTouchEnd={() => pauseOnHover && setIsPaused(false)}
-      >
-        <motion.div
-          className="flex whitespace-nowrap"
-          variants={marqueeVariants}
-          animate={isPaused ? "paused" : "animate"}
-          ref={marqueeRef}
-        >
-          {/* لیست اول */}
-          {images.map((img, index) => (
-            <motion.div
-              key={`first-${index}`}
-              className="inline-block mx-4 cursor-pointer transform transition-all duration-300  hover:shadow-2xl"
-              whileTap={{ scale: 0.95 }}
-              onClick={() => openModal(img)}
-            >
-              <Image
-                src={img}
-                alt={`گواهینامه ${index + 1}`}
-                width={1000}
-                height={1000}
-                className="object-contain rounded-xl shadow-lg border border-gray-300 max-h-48"
-              />
-            </motion.div>
-          ))}
-          {/* لیست دوم برای لووپ */}
-          {images.map((img, index) => (
-            <motion.div
-              key={`second-${index}`}
-              className="inline-block mx-4 cursor-pointer transform transition-all duration-300  hover:shadow-2xl"
-              whileTap={{ scale: 0.95 }}
-              onClick={() => openModal(img)}
-            >
-              <Image
-                src={img}
-                alt={`گواهینامه ${index + 1}`}
-                width={1000}
-                height={1000}
-                className="object-contain rounded-xl shadow-lg border border-gray-300 max-h-48"
-              />
-            </motion.div>
-          ))}
-        </motion.div>
+      {/* header */}
+      <div className="text-center max-w-3xl mx-auto mb-8 px-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          {title}
+        </h2>
+        <p className="text-gray-600">{description}</p>
       </div>
 
-      {/* مودال بزرگ‌نمایی تصویر */}
+      {/* viewport */}
+      <div
+        className="relative w-full overflow-hidden"
+        onMouseEnter={() => pauseOnHover && setHoverPaused(true)}
+        onMouseLeave={() => pauseOnHover && setHoverPaused(false)}
+      >
+        {/* gradient edges (optional) */}
+        <div className="absolute left-0 top-0 h-full w-24 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 h-full w-24 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+
+        {/* marquee track: two copies of images */}
+        {/* marquee track: چند نسخه از لیست تصاویر برای پوشش کامل */}
+        <div
+          style={{
+            animation: `${animNameRef.current} ${speed}s linear infinite`,
+            animationPlayState: paused ? "paused" : "running",
+          }}
+          className="flex gap-6 items-center whitespace-nowrap"
+        >
+          {[...images, ...images, ...images].map((src, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedIndex(i % images.length)}
+              className="flex-shrink-0 rounded-2xl overflow-hidden bg-white p-1 shadow hover:shadow-lg transition"
+              style={{
+                height: imageHeight,
+                width: Math.round(imageHeight * 0.7),
+              }}
+              aria-label={`باز کردن تصویر ${(i % images.length) + 1}`}
+            >
+              <Image
+                src={src}
+                alt={`certificate-${i % images.length}`}
+                width={600}
+                height={800}
+                className="h-full w-full object-cover rounded-lg"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* modal */}
       <AnimatePresence>
-        {selectedImage && (
+        {selectedIndex !== null && (
           <motion.div
-            className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
+            onClick={() => setSelectedIndex(null)}
           >
+            <div className="absolute inset-0 bg-black/70" />
             <motion.div
-              className="relative w-11/12 h-11/12 md:w-3/4 md:h-3/4 lg:w-2/3 lg:h-4/5"
-              initial={{ scale: 0.5, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              exit={{ scale: 0.5, rotate: 10 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="relative max-w-4xl w-full z-10"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <Image
-                src={selectedImage}
-                alt="گواهینامه بزرگ‌شده"
-                fill
-                className="object-contain rounded-2xl shadow-2xl"
-              />
-              <motion.button
-                className="absolute top-4 right-4 bg-white/90 text-black p-3 rounded-full hover:bg-white hover:shadow-lg transition-all duration-300"
-                onClick={closeModal}
-                aria-label="بستن مودال"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <FiX size={28} />
-              </motion.button>
+              <div className=" rounded-2xl   overflow-hidden">
+                <div className="relative">
+                  <Image
+                    src={images[selectedIndex]}
+                    alt={`certificate-large-${selectedIndex}`}
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto max-h-[80vh] object-contain "
+                  />
+                  <button
+                    onClick={() => setSelectedIndex(null)}
+                    className="absolute top-4 right-4 bg-white/90 p-2 rounded-full  "
+                    aria-label="بستن"
+                  >
+                    <FiX className="text-black" size={20} />
+                  </button>
+
+                  {images.length > 1 && (
+                    <>
+                      <button
+                        onClick={() =>
+                          setSelectedIndex((s) =>
+                            s === null
+                              ? null
+                              : (s - 1 + images.length) % images.length
+                          )
+                        }
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow"
+                        aria-label="عکس قبلی"
+                      >
+                        <FiChevronLeft className="text-black" size={20} />
+                      </button>
+                      <button
+                        onClick={() =>
+                          setSelectedIndex((s) =>
+                            s === null ? null : (s + 1) % images.length
+                          )
+                        }
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow"
+                        aria-label="عکس بعدی"
+                      >
+                        <FiChevronRight className="text-black" size={20} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </section>
   );
 }

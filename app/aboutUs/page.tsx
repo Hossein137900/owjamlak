@@ -1,7 +1,7 @@
 import OwjAdComponent from "@/components/static/about/aboutHero";
 import AboutUsHero from "@/components/static/about/aboutUsHero";
 import AboutUsStats from "@/components/static/about/aboutUsStats";
-import CertificateMarquee from "@/components/static/about/marquee";
+import SimpleMarquee from "@/components/static/about/marquee";
 import PdfDownload from "@/components/static/about/pdfDownload";
 import type { Metadata } from "next";
 
@@ -62,16 +62,19 @@ export default function AboutPage() {
         <AboutUsHero />
 
         <AboutUsStats />
-        <CertificateMarquee
+        <SimpleMarquee
           images={[
-            "/assets/images/hero.jpg",
-            "/assets/images/hero4.jpg",
-            "/assets/images/hero1.jpg",
-            // اضافه کردن تصاویر بیشتر
+            "/assets/images/madarek/madrak1.jpg",
+            "/assets/images/madarek/madrak2.jpg",
+            "/assets/images/madarek/madrak3.jpg",
+            "/assets/images/madarek/madrak4.jpg",
+            "/assets/images/madarek/madrak5.jpg",
+            "/assets/images/madarek/madrak6.jpg",
+            "/assets/images/madarek/madrak7.jpg",
           ]}
-          speed={60} // سرعت بالاتر
-          direction="left" // جهت حرکت
-          pauseOnHover={true}
+          speed={10} // هر چی عدد کمتر باشه سریع‌تر میشه
+          pauseOnHover={false}
+          imageHeight={250}
         />
 
         <div className="py-12">
