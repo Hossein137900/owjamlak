@@ -30,7 +30,10 @@ async function getBlog(id: string) {
 function getImageUrl(imagePath: string | null, baseUrl: string): string {
   if (!imagePath) return `${baseUrl}/assets/images/hero4.jpg`;
   if (imagePath.startsWith("http")) return imagePath;
-  return `${baseUrl}${imagePath.startsWith("/") ? imagePath : "/" + imagePath}`;
+  
+  // Ensure proper URL construction for production
+  const cleanPath = imagePath.startsWith("/") ? imagePath : "/" + imagePath;
+  return `${baseUrl}${cleanPath}`;
 }
 
 export async function generateMetadata({
@@ -112,6 +115,7 @@ export default async function BlogPage({
           fill
           className="object-cover"
           priority
+          unoptimized={imageUrl.startsWith('http') && !imageUrl.includes('oujamlak.com')}
         />
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-white">
