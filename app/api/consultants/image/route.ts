@@ -16,7 +16,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate image file
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/HEIC",
+      "image/heic",
+      "image/HEIF",
+    ];
     if (!allowedTypes.includes(imageFile.type)) {
       return NextResponse.json(
         { success: false, message: "فرمت تصویر پشتیبانی نمیشود" },
@@ -34,13 +42,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Create consultants directory
-    const consultantsDir = join(process.cwd(), "public", "uploads", "consultants");
+    const consultantsDir = join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "consultants"
+    );
     if (!existsSync(consultantsDir)) {
       await mkdir(consultantsDir, { recursive: true });
     }
 
     // Generate filename
-    const extension = imageFile.name.split('.').pop() || 'webp';
+    const extension = imageFile.name.split(".").pop() || "webp";
     const filename = `consultant_${Date.now()}.${extension}`;
     const filepath = join(consultantsDir, filename);
 
@@ -53,9 +66,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "تصویر با موفقیت آپلود شد",
-      imageUrl
+      imageUrl,
     });
-
   } catch (error) {
     console.error("Error uploading consultant image:", error);
     return NextResponse.json(
@@ -77,7 +89,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Extract filename from URL
-    const filename = imageUrl.split('/').pop();
+    const filename = imageUrl.split("/").pop();
     if (!filename) {
       return NextResponse.json(
         { success: false, message: "نام فایل نامعتبر است" },
@@ -86,7 +98,13 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Construct file path
-    const filePath = join(process.cwd(), "public", "uploads", "consultants", filename);
+    const filePath = join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "consultants",
+      filename
+    );
 
     // Delete file if it exists
     if (existsSync(filePath)) {
@@ -95,9 +113,8 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "تصویر با موفقیت حذف شد"
+      message: "تصویر با موفقیت حذف شد",
     });
-
   } catch (error) {
     console.error("Error deleting consultant image:", error);
     return NextResponse.json(

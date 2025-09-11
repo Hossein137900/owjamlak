@@ -4,7 +4,6 @@ import {
   FiHome,
   FiUsers,
   FiFileText,
-  // FiSettings,
   FiLogOut,
   FiMenu,
   FiX,
@@ -41,13 +40,12 @@ import PosterById from "./posters/posterById";
 import ChatAdminList from "./chat/adminChatList";
 import Link from "next/link";
 
-const AdminLayout: React.FC = () => {
+const AdminLayout = () => {
   const { hasAccess, logout } = useAdminAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("dashboard");
   const [isDarkMode, setIsDarkMode] = useState(false);
-
   useEffect(() => {
     const storedSection = sessionStorage.getItem("activeAdminSection");
     if (storedSection) {
@@ -77,16 +75,13 @@ const AdminLayout: React.FC = () => {
     }
   }, [activeSection]);
 
-  // Handle URL hash changes and browser navigation
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Set initial section from URL hash
       const initialHash = window.location.hash.slice(1);
       if (initialHash && allMenuItems.some((item) => item.id === initialHash)) {
         setActiveSection(initialHash);
       }
 
-      // Handle browser back/forward navigation
       const handlePopState = () => {
         const hash = window.location.hash.slice(1);
         if (hash && allMenuItems.some((item) => item.id === hash)) {
@@ -101,7 +96,6 @@ const AdminLayout: React.FC = () => {
     }
   }, []);
 
-  // Update URL when activeSection changes
   useEffect(() => {
     if (typeof window !== "undefined" && activeSection) {
       const currentHash = window.location.hash.slice(1);
@@ -116,7 +110,6 @@ const AdminLayout: React.FC = () => {
       const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       setIsDarkMode(isDark);
 
-      // Auto-collapse sidebar on mobile
       const handleResize = () => {
         if (window.innerWidth < 1024) {
           setIsSidebarOpen(false);
@@ -233,17 +226,10 @@ const AdminLayout: React.FC = () => {
       label: "ویدیو ها",
       roles: ["admin", "superadmin"],
     },
-    // {
-    //   id: "settings",
-    //   icon: <FiSettings />,
-    //   label: "تنظیمات",
-    //   roles: ["admin", "superadmin", "consultant", "user"],
-    // },
   ];
 
   const menuItems = allMenuItems.filter((item) => hasAccess(item.roles));
 
-  // Handle menu item click with URL update
   const handleMenuClick = (sectionId: string) => {
     setActiveSection(sectionId);
   };
@@ -346,12 +332,12 @@ const AdminLayout: React.FC = () => {
 
   const sidebarVariants = {
     open: {
-      width: "280px",
-      transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+      width: "240px",
+      transition: { duration: 0.25, ease: "easeInOut" },
     },
     closed: {
-      width: "72px",
-      transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+      width: "64px",
+      transition: { duration: 0.25, ease: "easeInOut" },
     },
   };
 
@@ -359,34 +345,35 @@ const AdminLayout: React.FC = () => {
     open: {
       opacity: 1,
       x: 0,
-      scale: 1,
-      transition: { delay: 0.15, duration: 0.3, ease: "easeOut" },
+      transition: { duration: 0.2, ease: "easeOut" },
     },
     closed: {
       opacity: 0,
-      x: -20,
-      scale: 0.8,
-      transition: { duration: 0.2, ease: "easeIn" },
+      x: -10,
+      transition: { duration: 0.15, ease: "easeIn" },
     },
   };
 
-  const textClass = isDarkMode ? "text-gray-100" : "text-gray-700";
-  const borderClass = isDarkMode ? "border-gray-700/50" : "border-gray-200/80";
+  const tooltipVariants = {
+    hidden: { opacity: 0, x: -5 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.2 } },
+  };
+
+  const textClass = isDarkMode ? "text-gray-200" : "text-gray-600";
+  const borderClass = isDarkMode ? "border-gray-700/50" : "border-gray-200/70";
   const headerBgClass = isDarkMode
-    ? "bg-gray-900/20 backdrop-blur-lg"
-    : "bg-white/20 backdrop-blur-lg";
+    ? "bg-gray-900/10 backdrop-blur-md"
+    : "bg-white/10 backdrop-blur-md";
   const sidebarBgClass = isDarkMode
-    ? "bg-gray-900/98 backdrop-blur-xl"
-    : "bg-white/98 backdrop-blur-xl";
+    ? "bg-gray-900/95 backdrop-blur-md"
+    : "bg-white/95 backdrop-blur-md";
   const mainBgClass = isDarkMode ? "bg-gray-950" : "bg-gray-50";
   const hoverBgClass = isDarkMode
-    ? "hover:bg-gray-800/80"
-    : "hover:bg-gray-100/80";
-  const activeBgClass = isDarkMode
-    ? "bg-gradient-to-r from-blue-600/20 to-purple-600/20"
-    : "bg-gradient-to-r from-blue-50 to-indigo-50";
-  const activeTextClass = isDarkMode ? "text-blue-400" : "text-blue-600";
-  const iconActiveClass = isDarkMode ? "text-blue-400" : "text-blue-600";
+    ? "hover:bg-gray-800/50"
+    : "hover:bg-gray-100/50";
+  const activeBgClass = isDarkMode ? "bg-blue-600/10" : "bg-blue-50/80";
+  const activeTextClass = isDarkMode ? "text-blue-300" : "text-blue-500";
+  const iconActiveClass = isDarkMode ? "text-blue-300" : "text-blue-500";
   const iconInactiveClass = isDarkMode ? "text-gray-400" : "text-gray-500";
 
   return (
@@ -397,11 +384,11 @@ const AdminLayout: React.FC = () => {
         className={`${headerBgClass} fixed top-0 w-full shadow-sm z-20 transition-colors duration-300`}
       >
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 ">
+          <div className="flex justify-between h-14">
             <div className="flex items-center">
               <button
                 onClick={toggleMobileSidebar}
-                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                className="md:hidden inline-flex items-center justify-center p-1.5 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
                 aria-label="Toggle mobile menu"
               >
                 <AnimatePresence mode="wait" initial={false}>
@@ -413,7 +400,7 @@ const AdminLayout: React.FC = () => {
                       exit={{ rotate: 90, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <FiX className="block h-6 w-6" />
+                      <FiX className="h-5 w-5" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -423,7 +410,7 @@ const AdminLayout: React.FC = () => {
                       exit={{ rotate: -90, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <FiMenu className="block h-6 w-6" />
+                      <FiMenu className="h-5 w-5" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -431,55 +418,55 @@ const AdminLayout: React.FC = () => {
 
               <button
                 onClick={toggleSidebar}
-                className="hidden md:inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                className="hidden md:inline-flex items-center justify-center p-1.5 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
                 aria-label="Toggle sidebar"
               >
                 <motion.div
                   animate={{ rotate: isSidebarOpen ? 0 : 180 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <FiMenu className="block h-6 w-6" />
+                  <FiMenu className="h-5 w-5" />
                 </motion.div>
               </button>
 
-              <div className="flex-shrink-0 flex items-center mr-4">
+              <div className="flex-shrink-0 flex items-center mr-3">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
                   <h1
-                    className={`text-xl font-bold ${textClass} transition-colors duration-300`}
+                    className={`text-lg font-semibold ${textClass} transition-colors duration-300`}
                   >
                     پنل مدیریت املاک
                   </h1>
-                  <div className={`text-xs ${textClass} font-bold opacity-40`}>
-                    امروز {new Date().toLocaleDateString("fa-IR")}
+                  <div className={`text-xs ${textClass} opacity-50`}>
+                    {new Date().toLocaleDateString("fa-IR")}
                   </div>
                 </motion.div>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 space-x-reverse">
+            <div className="flex items-center space-x-3 space-x-reverse">
               <button
-                className={`p-2 rounded-full ${hoverBgClass} transition-colors duration-200`}
+                className={`p-1.5 rounded-md ${hoverBgClass} transition-colors duration-200`}
                 aria-label="Navigate to home"
               >
                 <Link href="/">
-                  <FiHome className={`w-5 h-5 ${textClass}`} />
+                  <FiHome className={`w-4 h-4 ${textClass}`} />
                 </Link>
               </button>
               <button
                 onClick={toggleDarkMode}
-                className={`p-2 rounded-full ${hoverBgClass} transition-colors duration-200`}
+                className={`p-1.5 rounded-md ${hoverBgClass} transition-colors duration-200`}
                 aria-label={
                   isDarkMode ? "Switch to light mode" : "Switch to dark mode"
                 }
               >
                 <motion.svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -487,7 +474,7 @@ const AdminLayout: React.FC = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   animate={{ rotate: isDarkMode ? 40 : 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.3 }}
                   className={isDarkMode ? "text-yellow-300" : "text-gray-500"}
                 >
                   {isDarkMode ? (
@@ -512,16 +499,16 @@ const AdminLayout: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-x-hidden">
         <AnimatePresence>
           {isMobileSidebarOpen && (
             <>
               <motion.div
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
+                animate={{ opacity: 0.4 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="fixed inset-0 bg-black/70 backdrop-blur-md z-9999 md:hidden"
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-black/60 z-50 md:hidden"
                 onClick={toggleMobileSidebar}
               />
               <motion.div
@@ -532,51 +519,34 @@ const AdminLayout: React.FC = () => {
                 initial="closed"
                 animate="open"
                 exit="closed"
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                  mass: 1,
-                }}
-                className={`fixed inset-y-0 right-0 flex flex-col w-72 max-w-xs ${sidebarBgClass} shadow-2xl z-100000 md:hidden transition-colors duration-300 overflow-hidden`}
-                style={{
-                  borderTopLeftRadius: "16px",
-                  borderBottomLeftRadius: "16px",
-                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className={`fixed inset-y-0 right-0 flex flex-col w-64 ${sidebarBgClass} shadow-lg z-50 md:hidden rounded-l-lg`}
               >
-                <div className="flex flex-row-reverse items-center mt-2 justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex flex-row-reverse items-center justify-between h-14 px-3 border-b ${borderClass}">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={toggleMobileSidebar}
-                    className="p-2 rounded-full text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200"
+                    className="p-1.5 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     <FiX className="h-5 w-5" />
                   </motion.button>
-                  <motion.span
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={toggleMobileSidebar}
-                    className="p-2 rounded-full text-gray-500 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200"
-                  >
+                  <span className="text-sm font-semibold ${textClass}">
                     املاک اوج
-                  </motion.span>
+                  </span>
                 </div>
-                <div className="flex-1 overflow-y-auto pt-5 pb-4 px-1">
-                  <nav className="mt-2 px-2 space-y-1.5">
+                <div className="flex-1 overflow-y-auto pt-4 pb-3 px-2">
+                  <nav className="space-y-1.5">
                     {menuItems.map((item) => (
                       <motion.button
                         key={item.id}
-                        initial={{ x: 50, opacity: 0 }}
+                        initial={{ x: 20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
-                        whileHover={{
-                          scale: 1.02,
-                          transition: { duration: 0.2 },
-                        }}
+                        whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className={`group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                        className={`group flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                           activeSection === item.id
-                            ? `${activeBgClass} ${activeTextClass} shadow-sm`
+                            ? `${activeBgClass} ${activeTextClass}`
                             : `${textClass} ${hoverBgClass}`
                         }`}
                         onClick={() => {
@@ -585,11 +555,11 @@ const AdminLayout: React.FC = () => {
                         }}
                       >
                         <span
-                          className={`ml-3 ${
+                          className={`ml-2 text-base ${
                             activeSection === item.id
-                              ? activeTextClass
-                              : "text-gray-400 dark:text-gray-500 group-hover:text-gray-500 dark:group-hover:text-gray-400"
-                          } transition-colors duration-200`}
+                              ? iconActiveClass
+                              : iconInactiveClass
+                          } group-hover:${iconActiveClass}`}
                         >
                           {item.icon}
                         </span>
@@ -597,21 +567,21 @@ const AdminLayout: React.FC = () => {
                         {activeSection === item.id && (
                           <motion.div
                             layoutId="activeIndicator"
-                            className="absolute right-0 w-1 h-6 bg-blue-500 rounded-l-md"
+                            className="absolute right-0 w-1 h-6 bg-blue-500 rounded-l"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.2 }}
                           />
                         )}
                       </motion.button>
                     ))}
                   </nav>
-                  <div className="flex-shrink-0 flex mt-2 border-t pt-1 border-gray-400 dark:border-gray-700 px-2">
+                  <div className="flex-shrink-0 flex mt-3 border-t pt-3 px-2 ${borderClass}">
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={logout}
-                      className="flex items-center w-full px-3 py-2 rounded-lg text-red-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200"
+                      className="flex items-center w-full px-3 py-2 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-150"
                     >
                       <FiLogOut className="h-5 w-5" />
                       <span className="mr-2 text-sm font-medium">خروج</span>
@@ -627,45 +597,37 @@ const AdminLayout: React.FC = () => {
           variants={sidebarVariants}
           initial={false}
           animate={isSidebarOpen ? "open" : "closed"}
-          className={`hidden md:flex md:flex-col ${sidebarBgClass} border-l ${borderClass} transition-all duration-500 relative z-10 shadow-2xl`}
-          style={{
-            boxShadow: isDarkMode
-              ? "4px 0 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.05)"
-              : "4px 0 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)",
-          }}
+          className={`hidden md:flex md:flex-col ${sidebarBgClass} border-l ${borderClass} transition-all duration-300 shadow-md`}
         >
-          <div className="flex-1 flex flex-col pt-6 pb-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-            <nav className="flex-1 px-3 mt-12 space-y-2">
+          <div className="flex-1 flex flex-col pt-4 pb-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+            <nav className="flex-1 px-2 mt-10 space-y-1">
               {menuItems.map((item) => (
                 <div key={item.id} className="relative group">
                   <motion.button
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    whileHover={{
-                      scale: 1.02,
-                      x: isSidebarOpen ? 4 : 0,
-                    }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`group flex items-center w-full px-4 py-3.5 text-sm font-medium rounded-2xl transition-all duration-300 relative overflow-hidden ${
+                    className={`group flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                       activeSection === item.id
-                        ? `${activeBgClass} ${activeTextClass} shadow-lg border border-blue-200/50 dark:border-blue-500/30`
-                        : `${textClass} ${hoverBgClass} hover:shadow-md    `
+                        ? `${activeBgClass} ${activeTextClass}`
+                        : `${textClass} ${hoverBgClass}`
                     }`}
                     onClick={() => handleMenuClick(item.id)}
                   >
                     <motion.div
-                      className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 ${
+                      className={`flex items-center justify-center w-8 h-8 rounded-md ${
                         activeSection === item.id
-                          ? "  shadow-sm"
-                          : "group-hover:text-blue-500 dark:group-hover:text-blue-500"
+                          ? "bg-blue-100/30 dark:bg-blue-900/20"
+                          : "group-hover:bg-blue-100/20 dark:group-hover:bg-blue-900/10"
                       }`}
                     >
                       <span
-                        className={`transition-all duration-300 ${
+                        className={`text-base ${
                           activeSection === item.id
                             ? iconActiveClass
-                            : `${iconInactiveClass} group-hover:text-gray-600 dark:group-hover:text-gray-300`
-                        }`}
+                            : iconInactiveClass
+                        } group-hover:${iconActiveClass}`}
                       >
                         {item.icon}
                       </span>
@@ -678,7 +640,7 @@ const AdminLayout: React.FC = () => {
                           initial="closed"
                           animate="open"
                           exit="closed"
-                          className="mr-3 font-semibold text-sm tracking-wide"
+                          className="mr-2 font-medium text-sm"
                         >
                           {item.label}
                         </motion.span>
@@ -687,35 +649,36 @@ const AdminLayout: React.FC = () => {
 
                     {activeSection === item.id && isSidebarOpen && (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1, duration: 0.3 }}
-                        className="absolute left-3 w-2 h-2 bg-blue-500 rounded-full shadow-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute left-2 w-1.5 h-1.5 bg-blue-500 rounded-full"
                       />
                     )}
                   </motion.button>
 
                   {!isSidebarOpen && (
                     <motion.div
-                      className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
-                      initial={{ x: -10, opacity: 0 }}
-                      whileHover={{ x: 0, opacity: 1 }}
+                      variants={tooltipVariants}
+                      initial="hidden"
+                      whileHover="visible"
+                      className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-30 pointer-events-none"
                     >
                       <div
-                        className={`px-3 py-2 text-sm font-semibold rounded-xl shadow-2xl border backdrop-blur-sm ${
+                        className={`px-2.5 py-1 text-sm font-medium rounded-md shadow-md border ${
                           isDarkMode
-                            ? "bg-gray-800/95 text-gray-100 border-gray-700/50"
-                            : "bg-white/95 text-gray-800 border-gray-200/50"
+                            ? "bg-gray-800/90 text-gray-200 border-gray-700/40"
+                            : "bg-white/90 text-gray-600 border-gray-200/40"
                         } whitespace-nowrap`}
                       >
                         {item.label}
                         <div
-                          className={`absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 border-r border-b ${
+                          className={`absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-1.5 h-1.5 border-r border-b ${
                             isDarkMode
-                              ? "bg-gray-800/95 border-gray-700/50"
-                              : "bg-white/95 border-gray-200/50"
+                              ? "bg-gray-800/90 border-gray-700/40"
+                              : "bg-white/90 border-gray-200/40"
                           }`}
-                        ></div>
+                        />
                       </div>
                     </motion.div>
                   )}
@@ -723,22 +686,17 @@ const AdminLayout: React.FC = () => {
               ))}
             </nav>
           </div>
-          <div className="flex-shrink-0 border-t border-gray-200/50 dark:border-gray-700/50 p-4">
-            <div className="relative group w-full">
+          <div className="flex-shrink-0 border-t ${borderClass} p-2">
+            <div className="relative group">
               <motion.button
-                whileHover={{
-                  scale: 1.02,
-                  x: isSidebarOpen ? 4 : 0,
-                  transition: { duration: 0.2 },
-                }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={logout}
-                className={`flex items-center w-full px-4 py-3.5 rounded-2xl transition-all duration-300 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:shadow-md group border border-transparent hover:border-red-200/50 dark:hover:border-red-500/30`}
+                className={`flex items-center w-full px-3 py-2 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-all duration-150`}
               >
-                <motion.div className="flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-300 group-hover:bg-red-100 dark:group-hover:bg-red-900/30">
-                  <FiLogOut className="h-5 w-5 transition-all duration-300" />
+                <motion.div className="flex items-center justify-center w-8 h-8 rounded-md group-hover:bg-red-100/20 dark:group-hover:bg-red-900/10">
+                  <FiLogOut className="h-5 w-5" />
                 </motion.div>
-
                 <AnimatePresence>
                   {isSidebarOpen && (
                     <motion.span
@@ -746,23 +704,23 @@ const AdminLayout: React.FC = () => {
                       initial="closed"
                       animate="open"
                       exit="closed"
-                      className="mr-3 text-sm font-semibold tracking-wide"
+                      className="mr-2 text-sm font-medium"
                     >
                       خروج
                     </motion.span>
                   )}
                 </AnimatePresence>
               </motion.button>
-
               {!isSidebarOpen && (
                 <motion.div
-                  className="absolute right-full mr-3 top-1/2 transform -translate-y-1/2 z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none"
-                  initial={{ x: -10, opacity: 0 }}
-                  whileHover={{ x: 0, opacity: 1 }}
+                  variants={tooltipVariants}
+                  initial="hidden"
+                  whileHover="visible"
+                  className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-30 pointer-events-none"
                 >
-                  <div className="px-3 py-2 text-sm font-semibold rounded-xl bg-red-500 text-white shadow-2xl border border-red-400/50 backdrop-blur-sm whitespace-nowrap">
+                  <div className="px-2.5 py-1 text-sm font-medium rounded-md shadow-md bg-red-500/90 text-white border-red-400/40">
                     خروج
-                    <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 bg-red-500 border-r border-b border-red-400/50"></div>
+                    <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-1.5 h-1.5 bg-red-500 border-r border-b border-red-400/40" />
                   </div>
                 </motion.div>
               )}
@@ -771,19 +729,14 @@ const AdminLayout: React.FC = () => {
         </motion.div>
 
         <main
-          className={`flex-1 overflow-y-auto p-4 sm:p-6 mt-16 md:mt-10 lg:p-8 ${mainBgClass} transition-colors duration-300`}
+          className={`flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 mt-14 md:mt-14 lg:p-6 ${mainBgClass} transition-colors duration-300`}
         >
           <motion.div
             key={activeSection}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{
-              duration: 0.4,
-              type: "spring",
-              stiffness: 100,
-              damping: 15,
-            }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             className="h-full"
           >
             {renderActiveComponent()}

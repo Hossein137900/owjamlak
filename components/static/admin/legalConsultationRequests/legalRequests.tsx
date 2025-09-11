@@ -142,6 +142,7 @@ const LegalRequests: React.FC = () => {
         <div className="flex flex-col items-center justify-center h-64">
           <div className="text-red-600 mb-4">{error}</div>
           <button
+            aria-label="try"
             onClick={fetchRequests}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
           >
@@ -191,6 +192,7 @@ const LegalRequests: React.FC = () => {
             <FiFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
           <button
+            aria-label="refresh"
             onClick={fetchRequests}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2 space-x-reverse"
           >
@@ -236,12 +238,14 @@ const LegalRequests: React.FC = () => {
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center gap-3">
                     <button
+                      aria-label="view"
                       onClick={() => handleView(req)}
                       className="text-indigo-600 hover:text-indigo-900"
                     >
                       <FiEye className="w-5 h-5" />
                     </button>
                     <button
+                      aria-label="delete"
                       onClick={() => {
                         setRequestToDelete(req);
                         setDeleteModalOpen(true);
@@ -277,6 +281,7 @@ const LegalRequests: React.FC = () => {
                 جزئیات درخواست حقوقی
               </h3>
               <button
+                aria-label="view"
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-400 hover:text-gray-500"
               >
@@ -322,6 +327,7 @@ const LegalRequests: React.FC = () => {
 
               <div className="flex justify-start gap-3">
                 <button
+                  aria-label="close"
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 border text-gray-600 border-gray-300 rounded-md text-sm"
                 >
@@ -384,6 +390,7 @@ const LegalRequests: React.FC = () => {
 
               <div className="flex justify-start gap-3">
                 <button
+                  aria-label="deleting"
                   onClick={confirmDelete}
                   disabled={isDeleting}
                   className="px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 space-x-reverse"

@@ -217,12 +217,14 @@ const Testimonials = () => {
           {testimonials.length > 1 && (
             <>
               <button
+                aria-label="prev"
                 onClick={handlePrev}
                 className="absolute top-1/3 right-3 -translate-y-1/2 bg-white/70  backdrop-blur-sm text-[#66308d] hover:bg-[#66308d] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
                 <MdChevronRight size={28} />
               </button>
               <button
+                aria-label="next"
                 onClick={handleNext}
                 className="absolute top-1/3 left-3 -translate-y-1/2 bg-white/20 backdrop-blur-sm text-[#66308d] hover:bg-[#66308d] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
@@ -237,6 +239,7 @@ const Testimonials = () => {
           <div className="flex justify-center mt-6 gap-2">
             {testimonials.map((_, i) => (
               <button
+                aria-label="Indicators"
                 key={i}
                 onClick={() => {
                   setDirection(i > currentIndex ? 1 : -1);

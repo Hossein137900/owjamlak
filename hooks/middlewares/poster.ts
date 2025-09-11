@@ -18,7 +18,15 @@ interface ValidationResult {
 }
 
 const validateImageFile = (file: File): ValidationResult => {
-  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/HEIC",
+    "image/heic",
+    "image/HEIF",
+  ];
   const maxSize = 5 * 1024 * 1024; // 5MB
 
   if (!allowedTypes.includes(file.type)) {

@@ -16,6 +16,11 @@ import {
 } from "react-icons/fi";
 import imageCompression from "browser-image-compression";
 import { jwtDecode } from "jwt-decode";
+import {
+  isValidNumber,
+  isValidPhoneNumber,
+  persianToLatinDigits,
+} from "@/utils/digitConvertor";
 
 type TokenPayload = {
   id?: string;
@@ -61,7 +66,7 @@ const PropertyListings: React.FC = () => {
   const [imageUploading, setImageUploading] = useState(false);
   const [imageProgress, setImageProgress] = useState(0);
   const [video, setVideo] = useState<File | null>(null);
-  console.log(video)
+  console.log(video);
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [videoUploading, setVideoUploading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
@@ -352,36 +357,36 @@ const PropertyListings: React.FC = () => {
 
   const removeExistingImage = async (index: number) => {
     if (!editFormData.images || !selectedProperty) return;
-    
+
     const imageToDelete = editFormData.images[index];
     const updatedImages = editFormData.images.filter((_, i) => i !== index);
-    
+
     try {
       // Delete from server if it's an existing image (has URL but no file)
-      if (imageToDelete.url && !('file' in imageToDelete)) {
-        const response = await fetch('/api/images', {
-          method: 'DELETE',
+      if (imageToDelete.url && !("file" in imageToDelete)) {
+        const response = await fetch("/api/images", {
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
-            'token': localStorage.getItem('token') || ''
+            "Content-Type": "application/json",
+            token: localStorage.getItem("token") || "",
           },
           body: JSON.stringify({
             posterId: selectedProperty._id,
-            imageUrl: imageToDelete.url
-          })
+            imageUrl: imageToDelete.url,
+          }),
         });
-        
+
         if (!response.ok) {
-          toast.error('خطا در حذف تصویر از سرور');
+          toast.error("خطا در حذف تصویر از سرور");
           return;
         }
       }
-      
+
       setEditFormData((prev) => ({ ...prev, images: updatedImages }));
-      toast.success('تصویر حذف شد');
+      toast("تصویر حذف شد");
     } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error('خطا در حذف تصویر');
+      console.error("Error deleting image:", error);
+      toast.error("خطا در حذف تصویر");
     }
   };
 
@@ -399,11 +404,15 @@ const PropertyListings: React.FC = () => {
 
     const file = e.target.files[0];
     const allowedTypes = [
-      "video/mp4",
-      "video/webm",
-      "video/ogg",
-      "video/avi",
-      "video/mov",
+      "video/mp4", // H.264, MPEG-4, HEVC
+      "video/quicktime", // MOV با H.264 یا MJPEG
+      "video/mov", // MOV (مشابه quicktime)
+      "video/hevc",
+      "video/HEVC",
+      "video/x-matroska", // MKV با H.264 یا HEVC
+      "video/webm", // VP8/VP9
+      "video/avi", // AVI با کدک‌های مختلف
+      "video/mpeg", // MPEG-2
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -411,8 +420,8 @@ const PropertyListings: React.FC = () => {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 20 مگابایت باشد");
       return;
     }
 
@@ -461,29 +470,29 @@ const PropertyListings: React.FC = () => {
     }
 
     try {
-      const response = await fetch('/api/poster/video', {
-        method: 'DELETE',
+      const response = await fetch("/api/poster/video", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
-          'token': localStorage.getItem('token') || ''
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token") || "",
         },
         body: JSON.stringify({
           posterId: selectedProperty._id,
-          filename: editFormData.video
-        })
+          filename: editFormData.video,
+        }),
       });
 
       if (response.ok) {
         setVideo(null);
         setVideoPreview("");
         setEditFormData((prev) => ({ ...prev, video: "" }));
-        toast.success('ویدیو حذف شد');
+        toast.success("ویدیو حذف شد");
       } else {
-        toast.error('خطا در حذف ویدیو');
+        toast.error("خطا در حذف ویدیو");
       }
     } catch (error) {
-      console.error('Error deleting video:', error);
-      toast.error('خطا در حذف ویدیو');
+      console.error("Error deleting video:", error);
+      toast.error("خطا در حذف ویدیو");
     }
   };
 
@@ -493,6 +502,97 @@ const PropertyListings: React.FC = () => {
     setIsUpdating(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        localStorage.removeItem("token");
+        toast.error("لطفا وارد شوید");
+        return;
+      }
+
+      // Validate required fields
+      const requiredFields: (keyof Poster)[] = [
+        "title",
+        "description",
+        "buildingDate",
+        "area",
+        "rooms",
+        "parentType",
+        "tradeType",
+        "location",
+        "contact",
+      ];
+
+      for (const field of requiredFields) {
+        if (!editFormData[field]) {
+          throw new Error(`فیلد ${field} الزامی است`);
+        }
+      }
+
+      // Validate numeric fields
+      const numericFields: (keyof Poster)[] = [
+        "buildingDate",
+        "area",
+        "rooms",
+        "floor",
+        "totalPrice",
+        "pricePerMeter",
+        "depositRent",
+        "rentPrice",
+        "contact",
+      ];
+
+      for (const field of numericFields) {
+        if (
+          editFormData[field] &&
+          !isValidNumber(String(editFormData[field]))
+        ) {
+          throw new Error(`فیلد ${field} باید فقط شامل اعداد باشد`);
+        }
+      }
+
+      // Validate contact
+      if (!isValidPhoneNumber(editFormData.contact || "")) {
+        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+        throw new Error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+      }
+
+      // Prepare data with converted numbers
+      const submitData: Partial<Poster> = {
+        ...editFormData,
+        buildingDate: editFormData.buildingDate
+          ? Number(persianToLatinDigits(String(editFormData.buildingDate)))
+          : undefined,
+        area: editFormData.area
+          ? Number(persianToLatinDigits(String(editFormData.area)))
+          : undefined,
+        rooms: editFormData.rooms
+          ? Number(persianToLatinDigits(String(editFormData.rooms)))
+          : undefined,
+        floor: editFormData.floor
+          ? Number(persianToLatinDigits(String(editFormData.floor)))
+          : undefined,
+        totalPrice: editFormData.totalPrice
+          ? Number(persianToLatinDigits(String(editFormData.totalPrice)))
+          : undefined,
+        pricePerMeter: editFormData.pricePerMeter
+          ? Number(persianToLatinDigits(String(editFormData.pricePerMeter)))
+          : undefined,
+        depositRent: editFormData.depositRent
+          ? Number(persianToLatinDigits(String(editFormData.depositRent)))
+          : undefined,
+        rentPrice: editFormData.rentPrice
+          ? Number(persianToLatinDigits(String(editFormData.rentPrice)))
+          : undefined,
+        contact: editFormData.contact
+          ? persianToLatinDigits(editFormData.contact)
+          : undefined,
+        images: (editFormData.images || []).map((img) => ({
+          url: img.url,
+          alt: img.alt,
+          mainImage: img.mainImage,
+          _id: img._id,
+        })), // Remove extra fields like `file`
+      };
+
       const hasNewImages = newImages && newImages.length > 0;
 
       if (hasNewImages) {
@@ -501,7 +601,7 @@ const PropertyListings: React.FC = () => {
         formData.append("id", selectedProperty?._id || "");
 
         // Add all form fields
-        Object.entries(editFormData).forEach(([key, value]) => {
+        Object.entries(submitData).forEach(([key, value]) => {
           if (
             key !== "images" &&
             key !== "_id" &&
@@ -517,23 +617,25 @@ const PropertyListings: React.FC = () => {
         });
 
         // Add new image files
-        newImages.forEach((img, index) => {
+        let imageIndex = 0;
+        newImages.forEach((img) => {
           if (img.file) {
             formData.append("images", img.file);
             formData.append(
-              `imageData_${index}`,
+              `imageData_${imageIndex}`,
               JSON.stringify({
                 alt: img.alt,
                 mainImage: img.mainImage,
               })
             );
+            imageIndex++;
           }
         });
 
         const response = await fetch(`/api/poster`, {
           method: "PATCH",
           headers: {
-            token: token || "",
+            token: token,
           },
           body: formData,
         });
@@ -548,11 +650,11 @@ const PropertyListings: React.FC = () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
-            token: token || "",
+            token: token,
           },
           body: JSON.stringify({
             id: selectedProperty?._id,
-            ...editFormData,
+            ...submitData,
           }),
         });
 
@@ -585,12 +687,48 @@ const PropertyListings: React.FC = () => {
     >
   ) => {
     const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
+
+    const numericFields = [
+      "buildingDate",
+      "area",
+      "rooms",
+      "floor",
+      "totalPrice",
+      "pricePerMeter",
+      "depositRent",
+      "rentPrice",
+      "contact",
+    ];
 
     if (type === "checkbox") {
-      const checked = (e.target as HTMLInputElement).checked;
-      setEditFormData((prev) => ({ ...prev, [name]: checked }));
-    } else if (type === "number") {
-      setEditFormData((prev) => ({ ...prev, [name]: Number(value) || 0 }));
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: checked,
+      }));
+    } else if (numericFields.includes(name)) {
+      if (!isValidNumber(value)) {
+        toast.error("لطفاً فقط اعداد وارد کنید");
+        return;
+      }
+      const convertedValue = persianToLatinDigits(value);
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: convertedValue,
+      }));
+    } else if (name === "contact") {
+      if (!isValidNumber(value)) {
+        toast.error("لطفاً فقط اعداد وارد کنید");
+        return;
+      }
+      const convertedValue = persianToLatinDigits(value);
+      if (convertedValue && !isValidPhoneNumber(convertedValue)) {
+        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+      }
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: convertedValue,
+      }));
     } else {
       setEditFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -655,7 +793,7 @@ const PropertyListings: React.FC = () => {
 
   const getFirstImageUrl = (images: Poster["images"]) => {
     if (!images || !Array.isArray(images) || images.length === 0) {
-      return "/assets/images/hero4.jpg";
+      return "/assets/images/hero2.png";
     }
 
     const firstImage = images.find((image) => image.mainImage);
@@ -868,7 +1006,7 @@ const PropertyListings: React.FC = () => {
                           className="object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = "/assets/images/hero4.jpg";
+                            target.src = "/assets/images/hero.jpg";
                           }}
                         />
                       </div>
@@ -886,7 +1024,6 @@ const PropertyListings: React.FC = () => {
                     <div className="text-sm text-gray-500 max-w-xs  ">
                       {property.location.slice(0, 30) || "موقعیت نامشخص"}
                     </div>
-                 
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">
@@ -1014,7 +1151,7 @@ const PropertyListings: React.FC = () => {
 
       {/* Edit Modal */}
       {isEditModalOpen && selectedProperty && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-90000 p-4">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-800 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -1053,7 +1190,7 @@ const PropertyListings: React.FC = () => {
                       value={editFormData.title || ""}
                       onChange={handleEditFormChange}
                       required
-                      className="w-full px-4 py-2 rounded-lg text-black border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
 
@@ -1073,7 +1210,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Property Type */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       نوع ملک *
                     </label>
@@ -1097,7 +1234,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Trade Type */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       نوع معامله *
                     </label>
@@ -1121,12 +1258,12 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Building Date */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       تاریخ ساخت *
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="buildingDate"
                       value={
                         editFormData.buildingDate
@@ -1140,7 +1277,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Area */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       متراژ (متر مربع) *
                     </label>
@@ -1156,7 +1293,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Rooms */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       تعداد اتاق *
                     </label>
@@ -1172,7 +1309,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Floor */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       طبقه
                     </label>
@@ -1189,7 +1326,7 @@ const PropertyListings: React.FC = () => {
                   {!isRentType ? (
                     <>
                       {/* Total Price for Buy/Sell */}
-                      <div className="col-span-2"> 
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           قیمت کل (تومان) *
                         </label>
@@ -1205,7 +1342,7 @@ const PropertyListings: React.FC = () => {
                       </div>
 
                       {/* Price Per Meter */}
-                      <div className="col-span-2">
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           قیمت هر متر (تومان)
                         </label>
@@ -1222,7 +1359,8 @@ const PropertyListings: React.FC = () => {
                   ) : (
                     <>
                       {/* Deposit for Rent */}
-                      <div>
+                      <div className="col-span-2 lg:col-span-1">
+                        {" "}
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           مبلغ ودیعه (تومان) *
                         </label>
@@ -1238,7 +1376,8 @@ const PropertyListings: React.FC = () => {
                       </div>
 
                       {/* Monthly Rent */}
-                      <div>
+                      <div className="col-span-2 lg:col-span-1">
+                        {" "}
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           اجاره ماهانه (تومان) *
                         </label>
@@ -1307,7 +1446,7 @@ const PropertyListings: React.FC = () => {
                   </div>
 
                   {/* Contact */}
-                  <div className="col-span-2">
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       شماره تماس *
                     </label>
@@ -1458,7 +1597,9 @@ const PropertyListings: React.FC = () => {
                     {editFormData.video && !videoPreview && (
                       <div className="mb-4">
                         <video
-                          src={`/api/poster/video/${userId || 'user'}/${editFormData.video}`}
+                          src={`/api/poster/video/${userId || "user"}/${
+                            editFormData.video
+                          }`}
                           controls
                           className="w-full h-48 object-cover rounded-lg mb-2"
                         />
@@ -1525,7 +1666,7 @@ const PropertyListings: React.FC = () => {
                     <h3 className="text-lg font-medium text-gray-800 mb-4">
                       امکانات
                     </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                       {/* Storage */}
                       <div className="flex items-center">
                         <input
@@ -1626,7 +1767,7 @@ const PropertyListings: React.FC = () => {
 
       {/* View Property Detail Modal */}
       {isModalOpen && selectedProperty && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-90000 p-4">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-800 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

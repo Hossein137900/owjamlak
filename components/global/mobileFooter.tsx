@@ -93,6 +93,7 @@ const FooterMobile = () => {
           const active = isActive(item);
           return (
             <button
+              aria-label={item.label}
               key={idx}
               onClick={() => handleNavigation(item)}
               className={`flex flex-col cursor-pointer items-center justify-center text-xs flex-1 py-1 ${

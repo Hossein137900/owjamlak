@@ -29,6 +29,7 @@ const MenuButton = ({
   children: React.ReactNode;
 }) => (
   <button
+    aria-label="addblog"
     type="button"
     onClick={onClick}
     className={`p-2 rounded-md transition-colors ${
@@ -79,6 +80,7 @@ const ColorPickerDropdown = ({
         {colors.map((color) => (
           <button
             key={color}
+            aria-label="color"
             className="w-6 h-6 rounded-sm border border-gray-200 hover:scale-110 transition-transform"
             style={{ backgroundColor: color }}
             onClick={() => {
@@ -179,11 +181,13 @@ export default function AddPostBlog() {
       return;
     }
     const allowedTypes = [
-      "image/png",
-      "image/jpg",
       "image/jpeg",
-      "image/gif",
+      "image/jpg",
+      "image/png",
       "image/webp",
+      "image/HEIC",
+      "image/heic",
+      "image/HEIF",
     ];
     if (!allowedTypes.includes(file.type)) {
       toast.error("فرمت فایل مجاز نیست");

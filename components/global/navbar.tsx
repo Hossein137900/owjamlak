@@ -216,7 +216,6 @@ const Navbar = () => {
   if (pathname === "/auth" || pathname === "/admin") {
     return null;
   }
-  
 
   return (
     <>
@@ -505,6 +504,7 @@ const Navbar = () => {
                                   whileHover="hover"
                                 >
                                   <button
+                                    aria-label="logout"
                                     onClick={handleLogout}
                                     className="flex items-center gap-3 p-3 text-gray-700 hover:text-red-600 hover:bg-red-50 transition-all duration-200 rounded-xl m-1 w-full text-right"
                                   >

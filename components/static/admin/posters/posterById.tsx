@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaEye, FaExternalLinkAlt } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 import { motion } from "framer-motion";
 import {
   FiLoader,
@@ -17,6 +17,11 @@ import toast from "react-hot-toast";
 import { Poster } from "@/types/type";
 import imageCompression from "browser-image-compression";
 import { jwtDecode } from "jwt-decode";
+import {
+  isValidNumber,
+  isValidPhoneNumber,
+  persianToLatinDigits,
+} from "@/utils/digitConvertor";
 
 type TokenPayload = {
   id?: string;
@@ -166,10 +171,52 @@ const PosterById: React.FC = () => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
 
-    setEditFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const numericFields = [
+      "buildingDate",
+      "area",
+      "rooms",
+      "floor",
+      "totalPrice",
+      "pricePerMeter",
+      "depositRent",
+      "rentPrice",
+      "contact",
+    ];
+
+    if (type === "checkbox") {
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: checked,
+      }));
+    } else if (numericFields.includes(name)) {
+      if (!isValidNumber(value)) {
+        toast.error("لطفاً فقط اعداد وارد کنید");
+        return;
+      }
+      const convertedValue = persianToLatinDigits(value);
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: convertedValue,
+      }));
+    } else if (name === "contact") {
+      if (!isValidNumber(value)) {
+        toast.error("لطفاً فقط اعداد وارد کنید");
+        return;
+      }
+      const convertedValue = persianToLatinDigits(value);
+      if (convertedValue && !isValidPhoneNumber(convertedValue)) {
+        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+      }
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: convertedValue,
+      }));
+    } else {
+      setEditFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,8 +281,100 @@ const PosterById: React.FC = () => {
         return;
       }
 
-      const updatedImages = editFormData.images || [];
-      const hasNewImages = updatedImages.some(
+      // Validate required fields
+      const requiredFields: (keyof Poster)[] = [
+        "title",
+        "description",
+        "buildingDate",
+        "area",
+        "rooms",
+        "parentType",
+        "tradeType",
+        "location",
+        "contact",
+      ];
+
+      for (const field of requiredFields) {
+        if (!editFormData[field]) {
+          throw new Error(`فیلد ${field} الزامی است`);
+        }
+      }
+
+      // Validate numeric fields
+      const numericFields: (keyof Poster)[] = [
+        "buildingDate",
+        "area",
+        "rooms",
+        "floor",
+        "totalPrice",
+        "pricePerMeter",
+        "depositRent",
+        "rentPrice",
+        "contact",
+      ];
+
+      for (const field of numericFields) {
+        if (
+          editFormData[field] &&
+          !isValidNumber(String(editFormData[field]))
+        ) {
+          throw new Error(`فیلد ${field} باید فقط شامل اعداد باشد`);
+        }
+      }
+
+      // Validate contact
+      if (!isValidPhoneNumber(editFormData.contact || "")) {
+        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+
+        throw new Error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+      }
+
+      // Prepare data with converted numbers
+      const submitData: Partial<Poster> = {
+        ...editFormData,
+        buildingDate: editFormData.buildingDate
+          ? Number(persianToLatinDigits(String(editFormData.buildingDate)))
+          : undefined,
+        area: editFormData.area
+          ? Number(persianToLatinDigits(String(editFormData.area)))
+          : undefined,
+        rooms: editFormData.rooms
+          ? Number(persianToLatinDigits(String(editFormData.rooms)))
+          : undefined,
+        floor: editFormData.floor
+          ? Number(persianToLatinDigits(String(editFormData.floor)))
+          : undefined,
+        totalPrice: editFormData.totalPrice
+          ? Number(persianToLatinDigits(String(editFormData.totalPrice)))
+          : undefined,
+        pricePerMeter: editFormData.pricePerMeter
+          ? Number(persianToLatinDigits(String(editFormData.pricePerMeter)))
+          : undefined,
+        depositRent: editFormData.depositRent
+          ? Number(persianToLatinDigits(String(editFormData.depositRent)))
+          : undefined,
+        rentPrice: editFormData.rentPrice
+          ? Number(persianToLatinDigits(String(editFormData.rentPrice)))
+          : undefined,
+        contact: editFormData.contact
+          ? persianToLatinDigits(editFormData.contact)
+          : undefined,
+        images: (editFormData.images || []).map((img) => ({
+          url: img.url,
+          alt: img.alt,
+          mainImage: img.mainImage,
+          _id: img._id,
+        })), // Remove extra fields like `file`
+      };
+
+      const updatedImages = (editFormData.images || []).map((img) => ({
+        url: img.url,
+        alt: img.alt,
+        mainImage: img.mainImage,
+        _id: img._id,
+      }));
+
+      const hasNewImages = (editFormData.images || []).some(
         (img: Poster["images"][0] & { file?: File }) => img.file
       );
 
@@ -245,7 +384,7 @@ const PosterById: React.FC = () => {
         formData.append("id", selectedPoster._id);
 
         // Add all form fields
-        Object.entries(editFormData).forEach(([key, value]) => {
+        Object.entries(submitData).forEach(([key, value]) => {
           if (
             key !== "images" &&
             key !== "_id" &&
@@ -262,19 +401,21 @@ const PosterById: React.FC = () => {
 
         // Add new image files
         let imageIndex = 0;
-        updatedImages.forEach((img: Poster["images"][0] & { file?: File }) => {
-          if (img.file) {
-            formData.append("images", img.file);
-            formData.append(
-              `imageData_${imageIndex}`,
-              JSON.stringify({
-                alt: img.alt,
-                mainImage: img.mainImage,
-              })
-            );
-            imageIndex++;
+        (editFormData.images || []).forEach(
+          (img: Poster["images"][0] & { file?: File }) => {
+            if (img.file) {
+              formData.append("images", img.file);
+              formData.append(
+                `imageData_${imageIndex}`,
+                JSON.stringify({
+                  alt: img.alt,
+                  mainImage: img.mainImage,
+                })
+              );
+              imageIndex++;
+            }
           }
-        });
+        );
 
         const response = await fetch(`/api/poster`, {
           method: "PATCH",
@@ -298,7 +439,7 @@ const PosterById: React.FC = () => {
           },
           body: JSON.stringify({
             id: selectedPoster._id,
-            ...editFormData,
+            ...submitData,
           }),
         });
 
@@ -308,14 +449,35 @@ const PosterById: React.FC = () => {
         }
       }
 
-      toast.success("آگهی با موفقیت بروزرسانی شد");
+      // Update posters with validated data
       setPosters((prev) =>
         prev.map((p) =>
           p._id === selectedPoster._id
-            ? { ...p, ...editFormData, images: updatedImages }
+            ? {
+                ...p,
+                ...submitData,
+                images: updatedImages,
+                // Ensure required fields are filled with fallback values
+                _id: p._id,
+                title: submitData.title || p.title,
+                description: submitData.description || p.description,
+                buildingDate: submitData.buildingDate || p.buildingDate,
+                area: submitData.area || p.area,
+                rooms: submitData.rooms || p.rooms,
+                parentType: submitData.parentType || p.parentType,
+                tradeType: submitData.tradeType || p.tradeType,
+                location: submitData.location || p.location,
+                contact: submitData.contact || p.contact,
+                status: submitData.status || p.status,
+                views: p.views,
+                createdAt: p.createdAt,
+                user: p.user,
+              }
             : p
         )
       );
+
+      toast.success("آگهی با موفقیت بروزرسانی شد");
       setIsEditModalOpen(false);
       setEditFormData({});
       setSelectedPoster(null);
@@ -324,7 +486,6 @@ const PosterById: React.FC = () => {
       document.body.style.overflow = "unset";
     } catch (error) {
       console.log(error);
-
       toast.error("خطا در بروزرسانی آگهی");
     } finally {
       setIsUpdating(false);
@@ -334,36 +495,36 @@ const PosterById: React.FC = () => {
 
   const removeExistingImage = async (index: number) => {
     if (!editFormData.images || !selectedPoster) return;
-    
+
     const imageToDelete = editFormData.images[index];
     const updatedImages = editFormData.images.filter((_, i) => i !== index);
-    
+
     try {
       // Delete from server if it's an existing image (has URL but no file)
-      if (imageToDelete.url && !('file' in imageToDelete)) {
-        const response = await fetch('/api/images', {
-          method: 'DELETE',
+      if (imageToDelete.url && !("file" in imageToDelete)) {
+        const response = await fetch("/api/images", {
+          method: "DELETE",
           headers: {
-            'Content-Type': 'application/json',
-            'token': localStorage.getItem('token') || ''
+            "Content-Type": "application/json",
+            token: localStorage.getItem("token") || "",
           },
           body: JSON.stringify({
             posterId: selectedPoster._id,
-            imageUrl: imageToDelete.url
-          })
+            imageUrl: imageToDelete.url,
+          }),
         });
-        
+
         if (!response.ok) {
-          toast.error('خطا در حذف تصویر از سرور');
+          toast.error("خطا در حذف تصویر از سرور");
           return;
         }
       }
-      
+
       setEditFormData((prev) => ({ ...prev, images: updatedImages }));
-      toast.success('تصویر حذف شد');
+      toast("تصویر حذف شد");
     } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error('خطا در حذف تصویر');
+      console.error("Error deleting image:", error);
+      toast.error("خطا در حذف تصویر");
     }
   };
 
@@ -444,29 +605,29 @@ const PosterById: React.FC = () => {
     }
 
     try {
-      const response = await fetch('/api/poster/video', {
-        method: 'DELETE',
+      const response = await fetch("/api/poster/video", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
-          'token': localStorage.getItem('token') || ''
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token") || "",
         },
         body: JSON.stringify({
           posterId: selectedPoster._id,
-          filename: editFormData.video
-        })
+          filename: editFormData.video,
+        }),
       });
 
       if (response.ok) {
         setVideo(null);
         setVideoPreview("");
         setEditFormData((prev) => ({ ...prev, video: "" }));
-        toast.success('ویدیو حذف شد');
+        toast.success("ویدیو حذف شد");
       } else {
-        toast.error('خطا در حذف ویدیو');
+        toast.error("خطا در حذف ویدیو");
       }
     } catch (error) {
-      console.error('Error deleting video:', error);
-      toast.error('خطا در حذف ویدیو');
+      console.error("Error deleting video:", error);
+      toast.error("خطا در حذف ویدیو");
     }
   };
 
@@ -506,16 +667,19 @@ const PosterById: React.FC = () => {
   }
 
   return (
-    <div className=" ">
-      <div className="pb-4 m-4 text-gray-500">
+    <div className="">
+      <div className="p-4 text-gray-500">
         <h1 className="text-3xl font-bold mb-3">آگهی‌های من</h1>
         <p className="text-gray-600 text-lg">{posters.length} آگهی فعال</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 m-4">
         {posters.map((poster) => {
-          const mainImage =
-            poster.images.find((img) => img.mainImage) || poster.images[0];
+          const mainImage = poster.images?.find((img) => img.mainImage) ||
+            poster.images?.[0] || {
+              url: "/assets/images/hero2.png", // مسیر عکس دیفالت
+              alt: "پوستر پیش‌فرض",
+            };
 
           return (
             <div
@@ -547,6 +711,17 @@ const PosterById: React.FC = () => {
                       {formatPrice(poster.views)}
                     </span>
                   </div>
+                  <div className="flex items-center gap-1">
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        poster.isApproved
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {poster.isApproved ? "فعال" : "در انتظار"}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -556,14 +731,17 @@ const PosterById: React.FC = () => {
                   </div>
 
                   <div className="flex gap-2">
-                    <Link href={`/poster/${poster._id}`} target="_blank">
-                      <button className="text-black px-2 py-2   text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105  ">
-                        <FaExternalLinkAlt className="text-xs" />
-                      </button>
-                    </Link>
+                    {poster.isApproved && (
+                      <Link href={`/poster/${poster._id}`} target="_blank">
+                        <button className="text-green-500 border rounded-md px-2 py-2   text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105  ">
+                          <FaEye className="text-xs " />
+                        </button>
+                      </Link>
+                    )}
+
                     <button
                       onClick={() => handleEditPoster(poster)}
-                      className="text-blue-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-1"
+                      className="text-blue-600 px-2 py-2 border rounded-md  text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105 flex items-center gap-1"
                     >
                       <FiEdit className="text-xs" />
                     </button>
@@ -572,7 +750,7 @@ const PosterById: React.FC = () => {
                         setDeleteModal({ isOpen: true, posterId: poster._id });
                         document.body.style.overflow = "hidden";
                       }}
-                      className="text-red-600 px-2 py-2 text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105"
+                      className="text-red-600 px-2 py-2 border rounded-md  text-xs font-semibold cursor-pointer transition-all duration-300 hover:scale-105"
                     >
                       <FiTrash2 className="text-xs" />
                     </button>
@@ -586,7 +764,7 @@ const PosterById: React.FC = () => {
 
       {/* Edit Modal */}
       {isEditModalOpen && selectedPoster && (
-        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-90000 p-4">
+        <div className="fixed inset-0 bg-black/10 backdrop-blur-sm flex items-center justify-center z-800 p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -643,7 +821,7 @@ const PosterById: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       نوع ملک *
                     </label>
@@ -666,7 +844,7 @@ const PosterById: React.FC = () => {
                     </select>
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       نوع معامله *
                     </label>
@@ -689,12 +867,12 @@ const PosterById: React.FC = () => {
                     </select>
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       تاریخ ساخت *
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="buildingDate"
                       value={editFormData.buildingDate || ""}
                       onChange={handleEditFormChange}
@@ -703,12 +881,12 @@ const PosterById: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       متراژ (متر مربع) *
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="area"
                       value={editFormData.area || ""}
                       onChange={handleEditFormChange}
@@ -718,12 +896,12 @@ const PosterById: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       تعداد اتاق *
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="rooms"
                       value={editFormData.rooms || ""}
                       onChange={handleEditFormChange}
@@ -733,12 +911,12 @@ const PosterById: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       طبقه
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       name="floor"
                       value={editFormData.floor || ""}
                       onChange={handleEditFormChange}
@@ -748,12 +926,12 @@ const PosterById: React.FC = () => {
 
                   {!isRentType ? (
                     <>
-                      <div>
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           قیمت کل (تومان) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="totalPrice"
                           value={editFormData.totalPrice || ""}
                           onChange={handleEditFormChange}
@@ -762,12 +940,12 @@ const PosterById: React.FC = () => {
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
-                      <div>
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           قیمت هر متر (تومان)
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="pricePerMeter"
                           value={editFormData.pricePerMeter || ""}
                           onChange={handleEditFormChange}
@@ -778,12 +956,12 @@ const PosterById: React.FC = () => {
                     </>
                   ) : (
                     <>
-                      <div>
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           مبلغ ودیعه (تومان) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="depositRent"
                           value={editFormData.depositRent || ""}
                           onChange={handleEditFormChange}
@@ -792,12 +970,12 @@ const PosterById: React.FC = () => {
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
-                      <div>
+                      <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           اجاره ماهانه (تومان) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="rentPrice"
                           value={editFormData.rentPrice || ""}
                           onChange={handleEditFormChange}
@@ -823,12 +1001,12 @@ const PosterById: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       شماره تماس *
                     </label>
                     <input
-                      type="tel"
+                      type="text"
                       name="contact"
                       value={editFormData.contact || ""}
                       onChange={handleEditFormChange}
@@ -837,7 +1015,7 @@ const PosterById: React.FC = () => {
                     />
                   </div>
 
-                  <div>
+                  <div className="col-span-2 lg:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       وضعیت
                     </label>
@@ -954,7 +1132,9 @@ const PosterById: React.FC = () => {
                     {editFormData.video && !videoPreview && (
                       <div className="mb-4">
                         <video
-                          src={`/api/poster/video/${userId || 'user'}/${editFormData.video}`}
+                          src={`/api/poster/video/${userId || "user"}/${
+                            editFormData.video
+                          }`}
                           controls
                           className="w-full h-48 object-cover rounded-lg mb-2"
                         />
@@ -1020,7 +1200,7 @@ const PosterById: React.FC = () => {
                     <h3 className="text-lg font-medium text-gray-800 mb-4">
                       امکانات
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                       <div className="flex items-center">
                         <input
                           type="checkbox"
@@ -1115,7 +1295,7 @@ const PosterById: React.FC = () => {
 
       {/* Delete Modal */}
       {deleteModal.isOpen && (
-        <div className="fixed inset-0 z-9000 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-800 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={() => {

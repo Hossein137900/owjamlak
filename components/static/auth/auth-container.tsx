@@ -6,6 +6,11 @@ import { FaUser, FaLock, FaPhone, FaEye, FaEyeSlash } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  isValidNumber,
+  isValidPhoneNumber,
+  persianToLatinDigits,
+} from "@/utils/digitConvertor";
 
 type FormMode = "login" | "signup";
 
@@ -77,10 +82,31 @@ export default function AuthPageContainer() {
     setSuccessMessage("");
   };
 
+  // Validate password (only letters and numbers)
+  const isValidPassword = (password: string): boolean => {
+    return /^[a-zA-Z0-9]+$/.test(password);
+  };
+
   // Handle login form changes
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setLoginForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "phone") {
+      if (!isValidNumber(value)) {
+        toast.error("لطفاً فقط اعداد وارد کنید");
+        return;
+      }
+      const convertedValue = persianToLatinDigits(value);
+      setLoginForm((prev) => ({ ...prev, [name]: convertedValue }));
+    } else if (name === "password") {
+      if (value && !isValidPassword(value)) {
+        toast.error("رمز عبور فقط باید شامل حروف و اعداد باشد");
+        return;
+      }
+      setLoginForm((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setLoginForm((prev) => ({ ...prev, [name]: value }));
+    }
 
     // Clear error when user types
     if (loginErrors[name]) {
@@ -99,7 +125,23 @@ export default function AuthPageContainer() {
   // Handle signup form changes
   const handleSignupChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setSignupForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "phone") {
+      if (!isValidNumber(value)) {
+        toast.error("لطفاً فقط اعداد وارد کنید");
+        return;
+      }
+      const convertedValue = persianToLatinDigits(value);
+      setSignupForm((prev) => ({ ...prev, [name]: convertedValue }));
+    } else if (name === "password" || name === "confirmPassword") {
+      if (value && !isValidPassword(value)) {
+        toast.error("رمز عبور فقط باید شامل حروف و اعداد باشد");
+        return;
+      }
+      setSignupForm((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setSignupForm((prev) => ({ ...prev, [name]: value }));
+    }
 
     // Clear error when user types
     if (signupErrors[name]) {
@@ -122,15 +164,17 @@ export default function AuthPageContainer() {
     // Phone validation
     if (!loginForm.phone) {
       errors.phone = "شماره موبایل الزامی است";
-    } else if (!/^(09|\+989)\d{9}$/.test(loginForm.phone)) {
-      errors.phone = "شماره موبایل نامعتبر است";
+    } else if (!isValidPhoneNumber(loginForm.phone)) {
+      errors.phone = "شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود";
     }
 
     // Password validation
     if (!loginForm.password) {
       errors.password = "رمز عبور الزامی است";
     } else if (loginForm.password.length < 6) {
-      errors.password = "رمز عبور باید حداقل 6 کاراکتر باشد";
+      errors.password = "رمز عبور باید حداقل ۶ کاراکتر باشد";
+    } else if (!isValidPassword(loginForm.password)) {
+      errors.password = "رمز عبور فقط باید شامل حروف و اعداد باشد";
     }
 
     setLoginErrors(errors);
@@ -145,27 +189,23 @@ export default function AuthPageContainer() {
     if (!signupForm.name.trim()) {
       errors.name = "نام و نام خانوادگی الزامی است";
     } else if (signupForm.name.trim().length < 2) {
-      errors.name = "نام باید حداقل 2 کاراکتر باشد";
+      errors.name = "نام باید حداقل ۲ کاراکتر باشد";
     }
 
     // Phone validation
     if (!signupForm.phone) {
       errors.phone = "شماره موبایل الزامی است";
-    } else if (!/^(09|\+989)\d{9}$/.test(signupForm.phone)) {
-      errors.phone = "شماره موبایل نامعتبر است";
+    } else if (!isValidPhoneNumber(signupForm.phone)) {
+      errors.phone = "شماره موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود";
     }
 
     // Password validation
     if (!signupForm.password) {
       errors.password = "رمز عبور الزامی است";
     } else if (signupForm.password.length < 6) {
-      errors.password = "رمز عبور باید حداقل 6 کاراکتر باشد";
-    } else if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{6,}$/.test(
-        signupForm.password
-      )
-    ) {
-      errors.password = "رمز عبور باید شامل حروف بزرگ، کوچک و اعداد باشد";
+      errors.password = "رمز عبور باید حداقل ۶ کاراکتر باشد";
+    } else if (!isValidPassword(signupForm.password)) {
+      errors.password = "رمز عبور فقط باید شامل حروف و اعداد باشد";
     }
 
     // Confirm password validation
@@ -173,6 +213,8 @@ export default function AuthPageContainer() {
       errors.confirmPassword = "تکرار رمز عبور الزامی است";
     } else if (signupForm.confirmPassword !== signupForm.password) {
       errors.confirmPassword = "رمز عبور مطابقت ندارد";
+    } else if (!isValidPassword(signupForm.confirmPassword)) {
+      errors.confirmPassword = "رمز عبور فقط باید شامل حروف و اعداد باشد";
     }
 
     // Terms validation

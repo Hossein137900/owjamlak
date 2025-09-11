@@ -7,11 +7,18 @@ import {
   FiCheck,
   FiAlertCircle,
   FiMapPin,
+  FiChevronUp,
+  FiChevronDown,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import dynamic from "next/dynamic";
 import { jwtDecode } from "jwt-decode";
 import imageCompression from "browser-image-compression";
+import {
+  isValidNumber,
+  isValidPhoneNumber,
+  persianToLatinDigits,
+} from "@/utils/digitConvertor";
 interface ImageItem {
   alt: string;
   url: string;
@@ -40,7 +47,7 @@ const PosterForm = ({}) => {
   const [video, setVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>("");
   console.log(video);
-
+  const [isLocationDetailsOpen, setIsLocationDetailsOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -96,7 +103,39 @@ const PosterForm = ({}) => {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      const numericFields = [
+        "buildingDate",
+        "area",
+        "rooms",
+        "floor",
+        "totalPrice",
+        "pricePerMeter",
+        "depositRent",
+        "rentPrice",
+        "contact",
+      ];
+      // Validate contact
+
+      if (numericFields.includes(name)) {
+        if (!isValidNumber(value)) {
+          toast.error("لطفاً فقط اعداد وارد کنید");
+          return;
+        }
+        const convertedValue = persianToLatinDigits(value);
+        setFormData((prev) => ({ ...prev, [name]: convertedValue }));
+      } else if (name === "contact") {
+        if (!isValidNumber(value)) {
+          toast.error("لطفاً فقط اعداد وارد کنید");
+          return;
+        }
+        const convertedValue = persianToLatinDigits(value);
+        // فقط اگر شماره معتبر است یا خالی است، state را به‌روزرسانی کنید
+        if (convertedValue === "" || isValidPhoneNumber(convertedValue)) {
+          setFormData((prev) => ({ ...prev, [name]: convertedValue }));
+        }
+      } else {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      }
     }
   };
 
@@ -245,11 +284,15 @@ const PosterForm = ({}) => {
 
     const file = e.target.files[0];
     const allowedTypes = [
-      "video/mp4",
-      "video/webm",
-      "video/ogg",
-      "video/avi",
-      "video/mov",
+      "video/mp4", // H.264, MPEG-4, HEVC
+      "video/quicktime", // MOV با H.264 یا MJPEG
+      "video/mov", // MOV (مشابه quicktime)
+      "video/hevc",
+      "video/HEVC",
+      "video/x-matroska", // MKV با H.264 یا HEVC
+      "video/webm", // VP8/VP9
+      "video/avi", // AVI با کدک‌های مختلف
+      "video/mpeg", // MPEG-2
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -332,17 +375,20 @@ const PosterForm = ({}) => {
         "buildingDate",
         "area",
         "rooms",
-        "parentType", // Changed from propertyType
+        "parentType",
         "tradeType",
         "location",
         "contact",
-        // "tag",
       ];
 
       for (const field of requiredFields) {
         if (!formData[field as keyof typeof formData]) {
           throw new Error(`فیلد ${field} الزامی است`);
         }
+      }
+      if (!isValidPhoneNumber(formData.contact)) {
+        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+        throw new Error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
       }
 
       // Validate location coordinates
@@ -372,20 +418,24 @@ const PosterForm = ({}) => {
       const submitData = {
         ...formData,
         images,
-        area: Number(formData.area),
-        rooms: Number(formData.rooms),
-        floor: formData.floor ? Number(formData.floor) : undefined,
+        area: Number(persianToLatinDigits(formData.area)),
+        rooms: Number(persianToLatinDigits(formData.rooms)),
+        floor: formData.floor
+          ? Number(persianToLatinDigits(formData.floor))
+          : undefined,
         totalPrice: formData.totalPrice
-          ? Number(formData.totalPrice)
+          ? Number(persianToLatinDigits(formData.totalPrice))
           : undefined,
         pricePerMeter: formData.pricePerMeter
-          ? Number(formData.pricePerMeter)
+          ? Number(persianToLatinDigits(formData.pricePerMeter))
           : undefined,
         depositRent: formData.depositRent
-          ? Number(formData.depositRent)
+          ? Number(persianToLatinDigits(formData.depositRent))
           : undefined,
-        rentPrice: formData.rentPrice ? Number(formData.rentPrice) : undefined,
-        buildingDate: Number(formData.buildingDate),
+        rentPrice: formData.rentPrice
+          ? Number(persianToLatinDigits(formData.rentPrice))
+          : undefined,
+        buildingDate: Number(persianToLatinDigits(formData.buildingDate)),
         user: userId,
         consultant: userId,
         status: "pending",
@@ -447,7 +497,7 @@ const PosterForm = ({}) => {
           buildingDate: "",
           area: "",
           rooms: "",
-          parentType: "", // Changed from propertyType
+          parentType: "",
           tradeType: "",
           totalPrice: "",
           pricePerMeter: "",
@@ -469,7 +519,6 @@ const PosterForm = ({}) => {
           parking: false,
           lift: false,
           balcony: false,
-          // tag: "",
           type: "normal",
           user: "",
           video: "",
@@ -763,7 +812,7 @@ const PosterForm = ({}) => {
               تاریخ ساخت *
             </label>
             <input
-              type="number"
+              type="text"
               id="buildingDate"
               name="buildingDate"
               value={formData.buildingDate}
@@ -783,7 +832,7 @@ const PosterForm = ({}) => {
               متراژ (متر مربع) *
             </label>
             <input
-              type="number"
+              type="text"
               id="area"
               name="area"
               placeholder="مثال:66"
@@ -804,7 +853,7 @@ const PosterForm = ({}) => {
               تعداد اتاق *
             </label>
             <input
-              type="number"
+              type="text"
               id="rooms"
               name="rooms"
               value={formData.rooms}
@@ -825,7 +874,7 @@ const PosterForm = ({}) => {
               طبقه
             </label>
             <input
-              type="number"
+              type="text"
               id="floor"
               name="floor"
               placeholder="مثال:3"
@@ -847,7 +896,7 @@ const PosterForm = ({}) => {
                   قیمت کل (تومان) *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="totalPrice"
                   name="totalPrice"
                   placeholder="مثال:500000000"
@@ -868,7 +917,7 @@ const PosterForm = ({}) => {
                   قیمت هر متر (تومان)
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="pricePerMeter"
                   name="pricePerMeter"
                   placeholder="مثال:7500000"
@@ -890,7 +939,7 @@ const PosterForm = ({}) => {
                   مبلغ ودیعه (تومان) *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="depositRent"
                   name="depositRent"
                   value={formData.depositRent}
@@ -911,7 +960,7 @@ const PosterForm = ({}) => {
                   اجاره ماهانه (تومان) *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="rentPrice"
                   name="rentPrice"
                   placeholder="مثال:2000000"
@@ -971,7 +1020,10 @@ const PosterForm = ({}) => {
                 انتخاب از نقشه
               </button>
             </div>
-            <small className="text-red-600"> بعد از انتخاب از نقشه میتوانید ادرس را ویرایش کنید</small>
+            <small className="text-red-600">
+              {" "}
+              بعد از انتخاب از نقشه میتوانید ادرس را ویرایش کنید
+            </small>
 
             {/* Location Details Display */}
             {formData.coordinates.lat !== 0 &&
@@ -1016,138 +1068,165 @@ const PosterForm = ({}) => {
                 </div>
               )}
           </div>
-
-          {/* Manual Location Details (Optional) */}
           <div className="col-span-2">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">
-              جزئیات موقعیت (اختیاری)
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div>
-                <label
-                  htmlFor="province"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  استان
-                </label>
-                <input
-                  type="text"
-                  id="province"
-                  value={formData.locationDetails.province}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      locationDetails: {
-                        ...prev.locationDetails,
-                        province: e.target.value,
-                      },
-                    }))
-                  }
-                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="تهران"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  شهر
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  value={formData.locationDetails.city}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      locationDetails: {
-                        ...prev.locationDetails,
-                        city: e.target.value,
-                      },
-                    }))
-                  }
-                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="تهران"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="district"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  منطقه
-                </label>
-                <input
-                  type="text"
-                  id="district"
-                  value={formData.locationDetails.district}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      locationDetails: {
-                        ...prev.locationDetails,
-                        district: e.target.value,
-                      },
-                    }))
-                  }
-                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="منطقه 5"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="neighborhood"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  محله
-                </label>
-                <input
-                  type="text"
-                  id="neighborhood"
-                  value={formData.locationDetails.neighborhood}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      locationDetails: {
-                        ...prev.locationDetails,
-                        neighborhood: e.target.value,
-                      },
-                    }))
-                  }
-                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="سعادت آباد"
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              <label
-                htmlFor="fullAddress"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                آدرس کامل
-              </label>
-              <textarea
-                id="fullAddress"
-                value={formData.locationDetails.fullAddress}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    locationDetails: {
-                      ...prev.locationDetails,
-                      fullAddress: e.target.value,
-                    },
-                  }))
-                }
-                rows={2}
-                className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="تهران، سعادت آباد، میدان کاج، برج تجاری پارسیان، طبقه 8"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsLocationDetailsOpen(!isLocationDetailsOpen)}
+              className="flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {isLocationDetailsOpen ? (
+                <>
+                  <FiChevronUp className="w-4 h-4" />
+                  مخفی کردن جزئیات موقعیت
+                </>
+              ) : (
+                <>
+                  <FiChevronDown className="w-4 h-4" />
+                  نمایش جزئیات موقعیت (اختیاری)
+                </>
+              )}
+            </button>
           </div>
 
+          {/* Manual Location Details (Optional) */}
+          {isLocationDetailsOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="col-span-2 overflow-hidden"
+            >
+              <h3 className="text-lg font-medium text-gray-800 mb-4">
+                جزئیات موقعیت (اختیاری)
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <label
+                    htmlFor="province"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    استان
+                  </label>
+                  <input
+                    type="text"
+                    id="province"
+                    value={formData.locationDetails.province}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        locationDetails: {
+                          ...prev.locationDetails,
+                          province: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="تهران"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="city"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    شهر
+                  </label>
+                  <input
+                    type="text"
+                    id="city"
+                    value={formData.locationDetails.city}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        locationDetails: {
+                          ...prev.locationDetails,
+                          city: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="تهران"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="district"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    منطقه
+                  </label>
+                  <input
+                    type="text"
+                    id="district"
+                    value={formData.locationDetails.district}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        locationDetails: {
+                          ...prev.locationDetails,
+                          district: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="منطقه 5"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="neighborhood"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    محله
+                  </label>
+                  <input
+                    type="text"
+                    id="neighborhood"
+                    value={formData.locationDetails.neighborhood}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        locationDetails: {
+                          ...prev.locationDetails,
+                          neighborhood: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="سعادت آباد"
+                  />
+                </div>
+              </div>
+              <div className="mt-4">
+                <label
+                  htmlFor="fullAddress"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  آدرس کامل
+                </label>
+                <textarea
+                  id="fullAddress"
+                  value={formData.locationDetails.fullAddress}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      locationDetails: {
+                        ...prev.locationDetails,
+                        fullAddress: e.target.value,
+                      },
+                    }))
+                  }
+                  rows={2}
+                  className="w-full px-3 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="تهران، سعادت آباد، میدان کاج، برج تجاری پارسیان، طبقه 8"
+                />
+              </div>
+            </motion.div>
+          )}
+
           {/* Contact */}
-          <div>
+          <div className="col-span-2">
             <label
               htmlFor="contact"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -1155,14 +1234,14 @@ const PosterForm = ({}) => {
               شماره تماس *
             </label>
             <input
-              type="tel"
+              type="text"
               id="contact"
               name="contact"
               value={formData.contact}
               onChange={handleChange}
+              pattern="[۰۱۲۳۴۵۶۷۸۹0-9]{11}"
+              placeholder="09123456789 یا ۰۹۱۲۳۴۵۶۷۸۹"
               required
-              pattern="[0-9]{11}"
-              placeholder="09123456789"
               className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -1170,7 +1249,7 @@ const PosterForm = ({}) => {
           {/* Tag */}
 
           {/* Type */}
-          <div>
+          <div className="col-span-2">
             <label
               htmlFor="type"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -1268,7 +1347,7 @@ const PosterForm = ({}) => {
         </div>
 
         {/* Submit Button */}
-        <div className="mt-8 flex justify-start">
+        <div className="mt-8 flex justify-center">
           <button
             type="submit"
             disabled={isSubmitting}

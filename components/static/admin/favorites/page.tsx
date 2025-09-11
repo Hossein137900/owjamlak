@@ -118,7 +118,7 @@ export default function AdminFavoritesPage() {
             const imageUrl =
               typeof mainImage === "string"
                 ? mainImage
-                : mainImage?.url || "/assets/images/hero.jpg";
+                : mainImage?.url || "/assets/images/hero2.png";
 
             return (
               <div
@@ -157,11 +157,15 @@ export default function AdminFavoritesPage() {
                     <div className="flex gap-1">
                       {" "}
                       <Link href={`/poster/${poster._id}`} target="_blank">
-                        <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-500 cursor-pointer hover:text-white transition-colors">
+                        <button
+                          aria-label="view"
+                          className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-blue-500 cursor-pointer hover:text-white transition-colors"
+                        >
                           <FiEye className="text-sm" />
                         </button>
                       </Link>
                       <button
+                        aria-label="delete"
                         onClick={() => confirmDelete(poster._id)}
                         className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-red-600 cursor-pointer hover:text-white transition-colors"
                       >
@@ -207,12 +211,14 @@ export default function AdminFavoritesPage() {
                 </p>
                 <div className="flex gap-3">
                   <button
+                    aria-label="cancel"
                     onClick={() => setShowDeleteModal(false)}
                     className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
                   >
                     انصراف
                   </button>
                   <button
+                    aria-label="delete"
                     onClick={() => {
                       if (itemToDelete) {
                         handleRemoveFavorite(itemToDelete);

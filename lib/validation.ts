@@ -20,6 +20,7 @@ export const validateImageFile = (
     "image/tiff", // TIFF (اختیاری، کمتر رایج)
     "image/bmp", // BMP (اختیاری، کمتر رایج)
     "image/avif", // AVIF (اختیاری، اندروید 12+ و iOS 16+)
+    
   ];
   const maxSize = 5 * 1024 * 1024; // 30MB
 
@@ -38,11 +39,15 @@ export const validateVideoFile = (
   file: File
 ): { valid: boolean; error?: string } => {
   const allowedTypes = [
-    "video/mp4",
-    "video/webm",
-    "video/ogg",
-    "video/avi",
-    "video/mov",
+    "video/mp4", // H.264, MPEG-4, HEVC
+    "video/quicktime", // MOV با H.264 یا MJPEG
+    "video/mov", // MOV (مشابه quicktime)
+    "video/hevc",
+    "video/HEVC",
+    "video/x-matroska", // MKV با H.264 یا HEVC
+    "video/webm", // VP8/VP9
+    "video/avi", // AVI با کدک‌های مختلف
+    "video/mpeg", // MPEG-2
   ];
   const maxSize = 10 * 1024 * 1024; // 100MB
 

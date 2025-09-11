@@ -17,7 +17,7 @@ function checkAdminAccess(token: string): { isValid: boolean; role?: string } {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
     const role = decoded.role;
-    
+
     if (role === "admin" || role === "superadmin") {
       return { isValid: true, role };
     }
@@ -32,7 +32,7 @@ export async function GET() {
   try {
     await connectDB();
     const videos = await Video.find().sort({ createdAt: -1 });
-    
+
     return NextResponse.json({ videos });
   } catch (error) {
     console.error("Error listing videos:", error);
@@ -84,7 +84,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate video file
-    const allowedTypes = ["video/mp4", "video/webm", "video/ogg", "video/avi", "video/quicktime"];
+    const allowedTypes = [
+      "video/mp4", // H.264, MPEG-4, HEVC
+      "video/quicktime", // MOV با H.264 یا MJPEG
+      "video/mov", // MOV (مشابه quicktime)
+      "video/hevc",
+      "video/HEVC",
+      "video/x-matroska", // MKV با H.264 یا HEVC
+      "video/webm", // VP8/VP9
+      "video/avi", // AVI با کدک‌های مختلف
+      "video/mpeg", // MPEG-2
+    ];
     if (!allowedTypes.includes(videoFile.type)) {
       return NextResponse.json(
         { success: false, message: "فرمت ویدیو پشتیبانی نمیشود" },
@@ -93,10 +103,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check file size (50MB limit)
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    const maxSize = 20 * 1024 * 1024; // 50MB
     if (videoFile.size > maxSize) {
       return NextResponse.json(
-        { success: false, message: "حجم فایل نباید بیشتر از 50 مگابایت باشد" },
+        { success: false, message: "حجم فایل نباید بیشتر از 20 مگابایت باشد" },
         { status: 400 }
       );
     }
@@ -109,8 +119,8 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const timestamp = Date.now();
-    const originalName = videoFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const extension = originalName.split('.').pop() || 'mp4';
+    const originalName = videoFile.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const extension = originalName.split(".").pop() || "mp4";
     const filename = `video_${timestamp}.${extension}`;
     const filepath = join(videosDir, filename);
 
@@ -128,17 +138,16 @@ export async function POST(request: NextRequest) {
       filename,
       originalName: videoFile.name,
       size: videoFile.size,
-      uploadedBy: role
+      uploadedBy: role,
     });
-    
+
     await video.save();
 
     return NextResponse.json({
       success: true,
       message: "ویدیو با موفقیت آپلود شد",
-      video
+      video,
     });
-
   } catch (error) {
     console.error("Error uploading video:", error);
     return NextResponse.json(
@@ -169,7 +178,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { id } = await request.json();
-    
+
     if (!id) {
       return NextResponse.json(
         { success: false, message: "شناسه ویدیو مورد نیاز است" },
@@ -179,7 +188,7 @@ export async function DELETE(request: NextRequest) {
 
     await connectDB();
     const video = await Video.findById(id);
-    
+
     if (!video) {
       return NextResponse.json(
         { success: false, message: "ویدیو یافت نشد" },
@@ -200,9 +209,8 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "ویدیو با موفقیت حذف شد"
+      message: "ویدیو با موفقیت حذف شد",
     });
-
   } catch (error) {
     console.error("Error deleting video:", error);
     return NextResponse.json(
@@ -233,7 +241,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const { id, title, description, alt } = await request.json();
-    
+
     if (!id) {
       return NextResponse.json(
         { success: false, message: "شناسه ویدیو مورد نیاز است" },
@@ -254,7 +262,7 @@ export async function PATCH(request: NextRequest) {
       { title, description, alt },
       { new: true }
     );
-    
+
     if (!video) {
       return NextResponse.json(
         { success: false, message: "ویدیو یافت نشد" },
@@ -265,9 +273,8 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "اطلاعات ویدیو با موفقیت به‌روزرسانی شد",
-      video
+      video,
     });
-
   } catch (error) {
     console.error("Error updating video:", error);
     return NextResponse.json(
