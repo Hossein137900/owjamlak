@@ -13,12 +13,6 @@ interface ChatSession {
   hasUnreadMessages: boolean;
 }
 
-interface NewUserMessageData {
-  room: string;
-  userName?: string;
-}
-
-
 
 export default function ChatAdminList() {
   const { hasAccess } = useAdminAuth();
@@ -28,7 +22,7 @@ export default function ChatAdminList() {
   );
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadingMore] = useState(false);
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
 
   useEffect(() => {
@@ -51,11 +45,11 @@ export default function ChatAdminList() {
       loadRecentChats();
     });
 
-    newSocket.on("connect_error", (error) => {
-
+    newSocket.on("connect_error", () => {
+      // Connection error handled
     });
 
-    newSocket.on("newUserMessage", (data: any) => {
+    newSocket.on("newUserMessage", (data: { sessionId?: string; userName?: string }) => {
 
       const roomId = data.sessionId
       if (roomId) {
@@ -197,8 +191,8 @@ export default function ChatAdminList() {
           false
         );
       });
-    } catch (error) {
-
+    } catch {
+      // Error handled silently
     }
   };
 
@@ -241,7 +235,7 @@ export default function ChatAdminList() {
         }/api/messages/${sessionId}`
       );
       if (response.ok) {
-        const messages: any[] = await response.json();
+        const messages: { userName: string; text: string; time: string }[] = await response.json();
         const uiMessages = messages.map(msg => ({
           name: msg.userName, // Backend stores as userName, frontend expects name
           text: msg.text,
@@ -257,8 +251,8 @@ export default function ChatAdminList() {
           return newRooms;
         });
       }
-    } catch (error) {
-
+    } catch {
+      // Error handled silently
     }
   };
 

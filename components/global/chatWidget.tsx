@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 export default function Chat() {
   const [socket, setSocket] = useState<ChatSocket | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [, setIsConnected] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   // this is for the data of the chat i mean the messages you can set message by this
   const [messages, setMessages] = useState<Message[]>([]);
@@ -16,7 +16,7 @@ export default function Chat() {
   const [currentRoom, setCurrentRoom] = useState<string>("");
   const [hasNewMessages, setHasNewMessages] = useState<boolean>(false);
   const [shouldShowWidget, setShouldShowWidget] = useState<boolean>(true);
-  const [sessionCreated, setSessionCreated] = useState<boolean>(false);
+  const [, setSessionCreated] = useState<boolean>(false);
   const [lastAuthState, setLastAuthState] = useState<string | null>(null);
 
   // Form states
@@ -70,9 +70,8 @@ export default function Chat() {
           } else {
             setShouldShowWidget(false);
           }
-        } catch (error) {
+        } catch {
           setShouldShowWidget(true);
-
           setToken("");
         }
       } else {
@@ -99,8 +98,7 @@ export default function Chat() {
         } else {
           setShouldShowWidget(false);
         }
-      } catch (error) {
-
+      } catch {
         setShouldShowWidget(true);
         setToken("");
       }
@@ -151,7 +149,7 @@ export default function Chat() {
 
         const payload: JWTPayload = JSON.parse(jsonPayload);
         return payload.name || "User";
-      } catch (error) {
+      } catch {
         return "User";
       }
     }
@@ -169,12 +167,12 @@ export default function Chat() {
 
       };
 
-      const handleMessage = (data: any) => {
+      const handleMessage = (data: { userName?: string; name?: string; text: string; time: string }) => {
         setActivity("");
 
         
         const uiMessage = {
-          name: data.userName || data.name,
+          name: data.userName || data.name || "Unknown",
           text: data.text,
           time: data.time
         };
@@ -265,7 +263,7 @@ export default function Chat() {
         }
       );
       if (response.ok) {
-        const history: any[] = await response.json();
+        const history: { userName: string; text: string; time: string }[] = await response.json();
         const uiMessages = history.map(msg => ({
           name: msg.userName,
           text: msg.text,
@@ -274,8 +272,8 @@ export default function Chat() {
         setMessages(uiMessages);
 
       }
-    } catch (error) {
-
+    } catch {
+      // Error handled silently
     }
   };
 
