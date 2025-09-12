@@ -18,9 +18,7 @@ interface NewUserMessageData {
   userName?: string;
 }
 
-interface RemoveGuestRoomData {
-  room: string;
-}
+
 
 export default function ChatAdminList() {
   const { hasAccess } = useAdminAuth();
@@ -34,34 +32,46 @@ export default function ChatAdminList() {
   const [hasMoreHistory, setHasMoreHistory] = useState(true);
 
   useEffect(() => {
+    const adminToken = localStorage.getItem('token');
     const newSocket = io(
       process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500",
-      { auth: { token: null } }
+      { 
+        auth: { 
+          token: adminToken,
+          userType: 'admin'
+        },
+        forceNew: true,
+        transports: ['websocket', 'polling']
+      }
     ) as AdminSocket;
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log("Admin connected, loading recent chats");
+
       loadRecentChats();
     });
 
-    newSocket.on("newUserMessage", (data: NewUserMessageData) => {
-      console.log("New user message notification:", data);
-      if (!activeRooms.has(data.room)) {
-        // Create room for new message (even if older than 24h)
-        createRoomCard(data.room, data.userName || "Unknown User", true);
-        // Also reload room history to get full conversation
-        setTimeout(() => loadRoomHistory(data.room), 100);
-      } else {
-        // Mark room as having new messages
-        setActiveRooms((prev) => {
-          const newRooms = new Map(prev);
-          if (newRooms.has(data.room)) {
-            const roomData = newRooms.get(data.room)!;
-            newRooms.set(data.room, { ...roomData, hasNewMessage: true });
-          }
-          return newRooms;
-        });
+    newSocket.on("connect_error", (error) => {
+
+    });
+
+    newSocket.on("newUserMessage", (data: any) => {
+
+      const roomId = data.sessionId
+      if (roomId) {
+        if (!activeRooms.has(roomId)) {
+          createRoomCard(roomId, data.userName || "Unknown User", true);
+          newSocket.emit("adminJoinRoom", { room: roomId });
+        } else {
+          setActiveRooms((prev) => {
+            const newRooms = new Map(prev);
+            if (newRooms.has(roomId)) {
+              const roomData = newRooms.get(roomId)!;
+              newRooms.set(roomId, { ...roomData, hasNewMessage: true });
+            }
+            return newRooms;
+          });
+        }
       }
     });
 
@@ -79,7 +89,62 @@ export default function ChatAdminList() {
       });
     });
 
-    newSocket.on("message", (data: Message & { room?: string }) => {
+    newSocket.on("message", (data: Message & { room?: string; sessionId?: string; userName?: string }) => {
+
+      const roomId = data.room || data.sessionId;
+      if (roomId) {
+        setActiveRooms((prev) => {
+          const newRooms = new Map(prev);
+          if (newRooms.has(roomId)) {
+            const roomData = newRooms.get(roomId)!;
+            // Check if message already exists to prevent duplicates
+            const messageExists = roomData.messages.some(
+              (msg) =>
+                msg.text === data.text &&
+                msg.time === data.time &&
+                msg.name === data.name
+            );
+            if (!messageExists) {
+              const senderName = data.name || data.userName || "Unknown";
+              newRooms.set(roomId, {
+                ...roomData,
+                messages: [...roomData.messages, {
+                  name: senderName,
+                  text: data.text,
+                  time: data.time
+                }],
+                hasNewMessage: senderName !== "Admin",
+              });
+            }
+          } else {
+            // Create room if it doesn't exist and add the message
+            const senderName = data.name || data.userName || "Unknown";
+            createRoomCard(roomId, senderName, true);
+            setTimeout(() => {
+              setActiveRooms((prev) => {
+                const newRooms = new Map(prev);
+                if (newRooms.has(roomId)) {
+                  const roomData = newRooms.get(roomId)!;
+                  newRooms.set(roomId, {
+                    ...roomData,
+                    messages: [...roomData.messages, {
+                      name: senderName,
+                      text: data.text,
+                      time: data.time
+                    }],
+                    hasNewMessage: senderName !== "Admin",
+                  });
+                }
+                return newRooms;
+              });
+            }, 100);
+          }
+          return newRooms;
+        });
+      }
+    });
+
+    newSocket.on("adminMessageUpdate", (data: Message & { room?: string; userName?: string; sessionId?: string }) => {
       if (data.room) {
         setActiveRooms((prev) => {
           const newRooms = new Map(prev);
@@ -105,42 +170,7 @@ export default function ChatAdminList() {
       }
     });
 
-    newSocket.on("adminMessageUpdate", (data: Message & { room?: string }) => {
-      if (data.room) {
-        setActiveRooms((prev) => {
-          const newRooms = new Map(prev);
-          if (newRooms.has(data.room!)) {
-            const roomData = newRooms.get(data.room!)!;
-            // Check if message already exists to prevent duplicates
-            const messageExists = roomData.messages.some(
-              (msg) =>
-                msg.text === data.text &&
-                msg.time === data.time &&
-                msg.name === data.name
-            );
-            if (!messageExists) {
-              newRooms.set(data.room!, {
-                ...roomData,
-                messages: [...roomData.messages, data],
-                hasNewMessage: data.name !== "Admin",
-              });
-            }
-          } else if (data.name === "Guest") {
-            // Create room for guest if it doesn't exist
-            createRoomCard(data.room!, "Guest", true);
-          }
-          return newRooms;
-        });
-      }
-    });
 
-    newSocket.on("removeGuestRoom", (data: RemoveGuestRoomData) => {
-      setActiveRooms((prev) => {
-        const newRooms = new Map(prev);
-        newRooms.delete(data.room);
-        return newRooms;
-      });
-    });
 
     return () => {
       newSocket.disconnect();
@@ -151,45 +181,30 @@ export default function ChatAdminList() {
     try {
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
-        }/chat-sessions/recent?limit=5`
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3500"
+        }/api/admin/sessions`
       );
       const sessions: ChatSession[] = await response.json();
-      sessions.forEach((session) => {
+      // Filter out admin sessions
+      const userSessions = sessions.filter(session => 
+        session.userId !== localStorage.getItem('userId') &&
+        !session.userName?.toLowerCase().includes('admin')
+      );
+      userSessions.forEach((session) => {
         createRoomCard(
           session.sessionId,
           session.userName,
-          session.hasUnreadMessages
+          false
         );
       });
     } catch (error) {
-      console.error("Error loading recent chats:", error);
+
     }
   };
 
   const loadMoreHistory = async (): Promise<void> => {
-    setLoadingMore(true);
-    try {
-      const skip = activeRooms.size;
-      const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
-        }/chat-sessions/history?skip=${skip}&limit=5`
-      );
-      const sessions: ChatSession[] = await response.json();
-
-      if (sessions.length === 0) {
-        setHasMoreHistory(false);
-      } else {
-        sessions.forEach((session) => {
-          createRoomCard(session.sessionId, session.userName, false);
-        });
-      }
-    } catch (error) {
-      console.error("Error loading more history:", error);
-    } finally {
-      setLoadingMore(false);
-    }
+    // Disabled - all sessions loaded from admin/sessions endpoint
+    setHasMoreHistory(false);
   };
 
   const createRoomCard = (
@@ -209,31 +224,41 @@ export default function ChatAdminList() {
           userName: userName,
           isOnline: onlineUsers.has(sessionId),
         });
+
         socket?.emit("adminJoinRoom", { room: sessionId });
-        loadRoomHistory(sessionId);
+        setTimeout(() => loadRoomHistory(sessionId), 200);
       }
       return newRooms;
     });
   };
 
-  const loadRoomHistory = async (roomName: string): Promise<void> => {
+  const loadRoomHistory = async (sessionId: string): Promise<void> => {
     try {
+
       const response = await fetch(
         `${
-          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3000/api/chat"
-        }/messages/${roomName}`
+          process.env.NEXT_PUBLIC_CHAT_API_URL || "http://localhost:3500"
+        }/api/messages/${sessionId}`
       );
-      const messages: Message[] = await response.json();
-      setActiveRooms((prev) => {
-        const newRooms = new Map(prev);
-        if (newRooms.has(roomName)) {
-          const roomData = newRooms.get(roomName)!;
-          newRooms.set(roomName, { ...roomData, messages });
-        }
-        return newRooms;
-      });
+      if (response.ok) {
+        const messages: any[] = await response.json();
+        const uiMessages = messages.map(msg => ({
+          name: msg.userName, // Backend stores as userName, frontend expects name
+          text: msg.text,
+          time: msg.time
+        }));
+
+        setActiveRooms((prev) => {
+          const newRooms = new Map(prev);
+          if (newRooms.has(sessionId)) {
+            const roomData = newRooms.get(sessionId)!;
+            newRooms.set(sessionId, { ...roomData, messages: uiMessages });
+          }
+          return newRooms;
+        });
+      }
     } catch (error) {
-      console.error("Error loading room history:", error);
+
     }
   };
 
@@ -277,9 +302,10 @@ export default function ChatAdminList() {
         return newRooms;
       });
 
+
       socket?.emit("adminMessage", {
         room: roomName,
-        text: messageText,
+        text: messageText
       });
     }
   };
@@ -326,10 +352,12 @@ export default function ChatAdminList() {
   return (
     <>
       <Head>
-        <title>Admin Chat Panel</title>
+        <title>چت ادمین</title>
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col md:flex-row">
+        <div className="h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-900 flex flex-col md:flex-row">
+
+
         {/* Chat List Sidebar */}
         <div
           className={`w-full md:w-80 bg-gray-800/50 border-b md:border-b-0 md:border-r border-gray-700 flex flex-col transition-all ${
@@ -345,7 +373,7 @@ export default function ChatAdminList() {
             </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto max-h-[calc(100vh-120px)]">
+          <div className="flex-1 overflow-y-auto">
             {activeRooms.size === 0 ? (
               <div className="p-4 sm:p-6 text-center">
                 <p className="text-gray-400 text-sm sm:text-base">

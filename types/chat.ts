@@ -51,11 +51,11 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   enterRoom: (data: RoomData) => void;
-  message: (data: { text: string }) => void;
+  message: (data: { text: string; userName?: string }) => void;
   activity: () => void;
   stopActivity: () => void;
   adminJoinRoom: (data: { room: string }) => void;
-  adminMessage: (data: { room: string; text: string }) => void;
+  adminMessage: (data: { room: string; text: string; userName?: string }) => void;
 }
 
 export type ChatSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
