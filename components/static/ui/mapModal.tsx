@@ -170,7 +170,7 @@ const MapModal: React.FC<MapModalProps> = ({ isOpen, onClose, triggerRef }) => {
                         آدرس:
                       </p>
                       <p className="text-sm text-gray-600 leading-relaxed">
-                        تهران، میدان نارمک،کوچه سجاد پلاک6 واحد 1
+                        تهران، میدان هفت حوض ،کوچه سجاد پلاک6 واحد 1
                       </p>
                     </div>
                   </div>

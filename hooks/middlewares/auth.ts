@@ -89,7 +89,7 @@ export const login = async (request: NextRequest) => {
   } catch (error) {
     console.log("Login error:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: "خطای سرور" },
       { status: 500 }
     );
   }
@@ -331,7 +331,7 @@ export const getUserByToken = async (request: NextRequest) => {
   } catch (error) {
     console.log("Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "خطای سرور" },
       { status: 500 }
     );
   }
@@ -383,7 +383,7 @@ export const updateUserByToken = async (request: NextRequest) => {
   } catch (error) {
     console.log("Error:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "خطای سرور" },
       { status: 500 }
     );
   }

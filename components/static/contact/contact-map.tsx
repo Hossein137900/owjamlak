@@ -5,7 +5,7 @@ import { FiMapPin, FiPhone } from "react-icons/fi";
 
 const branch = {
   name: "دفتر مرکزی",
-  address: "تهران، میدان حفت حوض، کوچه سجاد، پلاک 6 واحد1",
+  address: "تهران، میدان هفت حوض، کوچه سجاد، پلاک 6 واحد1",
   phone: "021-77222007",
   lat: 35.7575,
   lng: 51.4106,

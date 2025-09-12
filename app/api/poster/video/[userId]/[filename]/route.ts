@@ -63,7 +63,7 @@ export async function GET(
   } catch (error) {
     console.error("Error serving video:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "خطای سرور" },
       { status: 500 }
     );
   }

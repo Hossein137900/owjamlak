@@ -9,6 +9,7 @@ import {
   RiInstagramLine,
 } from "react-icons/ri";
 import MapModal from "../ui/mapModal";
+import { usePathname } from "next/navigation";
 
 interface TopBarProps {
   scrolled: boolean;
@@ -17,6 +18,7 @@ interface TopBarProps {
 const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
   const mapButtonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
 
   const handleMapClick = () => {
     setIsMapModalOpen(true);
@@ -25,6 +27,9 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
   const closeMapModal = () => {
     setIsMapModalOpen(false);
   };
+  if (pathname !== "/") {
+    return null;
+  }
 
   return (
     <>
@@ -49,7 +54,7 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
                 aria-label="نشان"
               >
                 <FiMapPin className="w-4 h-4" />
-                <span>تهران، میدان نارمک،کوچه سجاد پلاک6 واحد 1</span>
+                <span>تهران، میدان هفت حوض ،کوچه سجاد پلاک6 واحد1</span>
               </button>
             </div>
 

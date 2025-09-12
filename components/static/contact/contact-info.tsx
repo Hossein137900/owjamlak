@@ -13,7 +13,7 @@ const contactDetails = [
   {
     icon: FiMapPin,
     title: "آدرس دفتر مرکزی",
-    details: "تهران، میدان حفت حوض، کوچه سجاد، پلاک 6 واحد1",
+    details: "تهران، میدان هفت حوض، کوچه سجاد، پلاک 6 واحد1",
   },
   {
     icon: FiPhone,

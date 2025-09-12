@@ -243,7 +243,9 @@ const Navbar = () => {
           duration: 0.3,
           ease: [0.25, 0.46, 0.45, 0.94],
         }}
-        className={`fixed top-0 w-full z-50 transition-all duration-500 ease-out ${
+        className={`fixed ${
+          pathname === "/" ? "top-0" : "-top-10"
+        }  w-full z-50 transition-all duration-500 ease-out ${
           scrolled
             ? "bg-white/50 backdrop-blur-sm shadow-lg border-b border-gray-100"
             : "bg-white/50 backdrop-blur-sm"
