@@ -43,7 +43,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const blog = await getBlog(id);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.ir";
 
   if (!blog) {
     return {
@@ -102,7 +102,7 @@ export default async function BlogPage({
     notFound();
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.ir";
   const imageUrl = getImageUrl(blog.coverImage, baseUrl);
 
   return (

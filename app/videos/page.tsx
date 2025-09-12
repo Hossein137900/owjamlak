@@ -17,12 +17,12 @@ export const metadata: Metadata = {
     title: "ویدیوهای املاک | اوج املاک",
     description:
       "ویدیوهای آموزشی و معرفی املاک شامل خرید، فروش، اجاره و سرمایه‌گذاری در بازار املاک ایران با اوج املاک.",
-    url: "https://oujamlak.com/videos",
+    url: "https://oujamlak.ir/videos",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی برای ویدیوها
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی برای ویدیوها
         width: 1200,
         height: 630,
         alt: "ویدیوهای املاک اوج",
@@ -35,12 +35,12 @@ export const metadata: Metadata = {
     title: "ویدیوهای املاک | اوج املاک",
     description:
       "مشاهده ویدیوهای آموزشی و معرفی املاک شامل خرید، فروش، اجاره و سرمایه‌گذاری با اوج املاک.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/videos",
+    canonical: "https://oujamlak.ir/videos",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 export default function Video() {

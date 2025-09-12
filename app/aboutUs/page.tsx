@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     title: "درباره ما | اوج املاک",
     description:
       "با تیم اوج املاک آشنا شوید؛ همراه مطمئن شما در خرید، فروش و اجاره ملک در تهران و سراسر ایران.",
-    url: "https://oujamlak.com/aboutUs",
+    url: "https://oujamlak.ir/aboutUs",
     siteName: "Ouj Amlak",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: یه عکس اختصاصی برای صفحه درباره ما بسازید (1200x630)
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: یه عکس اختصاصی برای صفحه درباره ما بسازید (1200x630)
         width: 1200,
         height: 630,
         alt: "تیم اوج املاک",
@@ -44,14 +44,14 @@ export const metadata: Metadata = {
     title: "درباره ما | اوج املاک",
     description:
       "با تیم اوج املاک آشنا شوید؛ مشاوران حرفه‌ای شما در مسیر خرید، فروش و اجاره ملک.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
 
   alternates: {
-    canonical: "https://oujamlak.com/aboutUs",
+    canonical: "https://oujamlak.ir/aboutUs",
   },
 
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 export default function AboutPage() {

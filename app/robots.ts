@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/admin/", "/addBlog/", "/auth/"],
+        disallow: ["/api/", "/admin/", "/addBlog/", "/auth/", "/addBlog"],
       },
     ],
-    sitemap: "https://oujamlak.com/sitemap.xml",
+    sitemap: "https://oujamlak.ir/sitemap.xml",
   };
 }

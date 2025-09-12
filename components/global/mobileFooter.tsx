@@ -63,6 +63,7 @@ const FooterMobile = () => {
   const [currentAdminSection, setCurrentAdminSection] = useState<string | null>(
     null
   );
+  console.log(currentAdminSection)
   const [showServicesMenu, setShowServicesMenu] = useState(false);
   const servicesRef = useRef<HTMLDivElement | null>(null);
 
@@ -149,7 +150,7 @@ const FooterMobile = () => {
                             className="flex flex-col cursor-pointer items-center gap-1 text-[#66308d] hover:text-gray-500 transition"
                           >
                             {service.icon}
-                            <span className="text-xs">{service.label}</span>
+                            <span className="text-[10px]">{service.label}</span>
                           </button>
                         ))}
                       </motion.div>

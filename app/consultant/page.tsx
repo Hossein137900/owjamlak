@@ -22,12 +22,12 @@ export const metadata: Metadata = {
     title: "لیست بهترین مشاوران املاک تهران | اوج املاک",
     description:
       "لیست کامل مشاوران حرفه‌ای املاک در تهران برای خرید، فروش و اجاره ملک. مشاوران مورد اعتماد در مناطق مختلف تهران در اوج املاک.",
-    url: "https://oujamlak.com/consultants",
+    url: "https://oujamlak.ir/consultants",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // بهتره یه تصویر اختصاصی برای کاور مشاوران بسازی
+        url: "https://oujamlak.ir/og-image.jpg", // بهتره یه تصویر اختصاصی برای کاور مشاوران بسازی
         width: 1200,
         height: 630,
         alt: "مشاوران املاک تهران",
@@ -40,12 +40,12 @@ export const metadata: Metadata = {
     title: "مشاوران املاک تهران | اوج املاک",
     description:
       "لیست مشاوران املاک حرفه‌ای تهران برای خرید، فروش و اجاره ملک. انتخابی مطمئن در اوج املاک.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/consultant",
+    canonical: "https://oujamlak.ir/consultant",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 const ConsultantsPage = () => {

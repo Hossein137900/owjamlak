@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     title: "آگهی‌های سرمایه گذاری | اوج املاک ایران",
     description:
       "مشاهده آخرین آگهی‌های خرید، فروش و اجاره ملک در ایران با اوج املاک. فرصت‌های سرمایه گذاری را از دست ندهید.",
-    url: "https://oujamlak.com/offers",
+    url: "https://oujamlak.ir/offers",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی کاور آگهی‌ها
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی کاور آگهی‌ها
         width: 1200,
         height: 630,
         alt: "آگهی‌های سرمایه گذاری املاک ایران",
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     title: "آگهی‌های سرمایه گذاری | اوج املاک ایران",
     description:
       "مشاهده آخرین آگهی‌های خرید، فروش و اجاره ملک در ایران با اوج املاک.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/offers",
+    canonical: "https://oujamlak.ir/offers",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 export default function Offers() {

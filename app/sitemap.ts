@@ -1,7 +1,7 @@
 import { Blog, Consultant, Poster } from "@/types/type";
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://oujamlak.com";
+const BASE_URL = "https://oujamlak.ir";
 
 // Static pages configuration
 const staticPages = [

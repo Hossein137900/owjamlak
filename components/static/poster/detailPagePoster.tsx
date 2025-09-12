@@ -259,7 +259,7 @@ export default function PosterDetailClient({
       House: "خانه",
       Villa: "ویلا",
       Old: "کلنگی",
-      Office: "دفتر کار",
+      Office: "اداری",
       Shop: "مغازه",
       industrial: "صنعتی",
       partnerShip: "مشارکت",
@@ -429,7 +429,10 @@ export default function PosterDetailClient({
               return breadcrumbItems.map((item, index) => {
                 const isLast = index === breadcrumbItems.length - 1;
                 return (
-                  <li key={item.href} className="flex mt-5 md:mt-0 items-center">
+                  <li
+                    key={item.href}
+                    className="flex mt-5 md:mt-0 items-center"
+                  >
                     {isLast ? (
                       <span className="flex items-center font-medium text-gray-600 cursor-default">
                         <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-[160px] lg:max-w-[200px]">
@@ -929,58 +932,6 @@ export default function PosterDetailClient({
                       className="px-2 sm:px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
                     >
                       Google Maps
-                    </button>
-                    <button
-                      onClick={() => {
-                        try {
-                          let neshanUrl = "";
-                          if (
-                            posterData.coordinates?.lat &&
-                            posterData.coordinates?.lng
-                          ) {
-                            const lat = Number(posterData.coordinates.lat);
-                            const lng = Number(posterData.coordinates.lng);
-                            if (
-                              !isNaN(lat) &&
-                              !isNaN(lng) &&
-                              lat >= -90 &&
-                              lat <= 90 &&
-                              lng >= -180 &&
-                              lng <= 180
-                            ) {
-                              neshanUrl = `https://neshan.org/maps/search#c${lat}-${lng}-17z-0p`;
-                            }
-                          }
-                          if (!neshanUrl && posterData.location) {
-                            const searchQuery = encodeURIComponent(
-                              posterData.location
-                            );
-                            neshanUrl = `https://neshan.org/maps/search?q=${searchQuery}`;
-                          }
-                          if (!neshanUrl && posterData.title) {
-                            const searchQuery = encodeURIComponent(
-                              posterData.title
-                            );
-                            neshanUrl = `https://neshan.org/maps/search?q=${searchQuery}`;
-                          }
-                          if (neshanUrl) {
-                            window.open(neshanUrl, "_blank");
-                          } else {
-                            console.warn(
-                              "No location data available for Neshan map"
-                            );
-                            toast.error(
-                              "اطلاعات موقعیت برای نمایش در نقشه موجود نیست"
-                            );
-                          }
-                        } catch (error) {
-                          console.log("Error opening Neshan map:", error);
-                          toast.error("خطا در باز کردن نقشه نشان");
-                        }
-                      }}
-                      className="px-2 sm:px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
-                    >
-                      نشان
                     </button>
                   </div>
                 </div>

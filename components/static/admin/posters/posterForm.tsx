@@ -795,7 +795,7 @@ const PosterForm = ({}) => {
               <option value="House">خانه</option>
               <option value="Villa">ویلا</option>
               <option value="Old">کلنگی</option>
-              <option value="Office">دفتر کار</option>
+              <option value="Office">اداری</option>
               <option value="Shop">مغازه</option>
               <option value="industrial">صنعتی</option>
               <option value="partnerShip">مشارکت</option>

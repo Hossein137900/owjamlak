@@ -49,7 +49,7 @@ export default function RealEstateSearch() {
                 transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
                 className="text-right text-white sm:text-gray-600 text-sm leading-relaxed"
               >
-                با اوج، خرید و فروش ملک را آسانتر از همیشه تجربه کنید. ما به شما
+                با املاک اوج، خرید و فروش ملک را آسانتر از همیشه تجربه کنید. ما به شما
                 کمک میکنیم تا بهترین انتخاب را داشته باشید.
               </motion.p>
 

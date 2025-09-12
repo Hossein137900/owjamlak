@@ -145,10 +145,7 @@ const TermsAndConditions = () => {
   };
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12"
-      dir="rtl"
-    >
+    <div className="min-h-screen   py-30" dir="rtl">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <motion.div {...fadeIn} className="text-center mb-12">
@@ -157,10 +154,10 @@ const TermsAndConditions = () => {
               <FiFileText className="w-8 h-8 text-[#01ae9b]" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          <h1 className="md:text-4xl text-2xl font-bold text-gray-800 mb-4">
             قوانین و مقررات املاک اوج
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="md:text-lg text-sm text-gray-600 max-w-2xl mx-auto">
             لطفاً قوانین و مقررات استفاده از خدمات املاک اوج را با دقت مطالعه
             فرمایید
           </p>
@@ -316,37 +313,6 @@ const TermsAndConditions = () => {
           )}
         </motion.div>
 
-        {/* Contact Information */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.2 }}
-          className="bg-white rounded-xl shadow-md p-6"
-        >
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <FiUsers className="text-[#01ae9b]" />
-            تماس با ما
-          </h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold text-gray-700 mb-2">اطلاعات تماس</h4>
-              <div className="space-y-2 text-gray-600">
-                <p>تلفن: ۰۲۱-۱۲۳۴۵۶۷۸</p>
-                <p>ایمیل: info@amalak-iran.com</p>
-                <p>آدرس: تهران، خیابان ولیعصر، پلاک ۱۲۳</p>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-700 mb-2">ساعات کاری</h4>
-              <div className="space-y-2 text-gray-600">
-                <p>شنبه تا چهارشنبه: ۸:۰۰ - ۱۸:۰۰</p>
-                <p>پنج‌شنبه: ۸:۰۰ - ۱۴:۰۰</p>
-                <p>جمعه: تعطیل</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Navigation Links */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -362,7 +328,7 @@ const TermsAndConditions = () => {
               بازگشت به صفحه اصلی
             </Link>
             <Link
-              href="/contact"
+              href="/contactUs"
               className="px-6 py-3 border-2 border-[#01ae9b] text-[#01ae9b] rounded-lg hover:bg-[#01ae9b] hover:text-white transition-colors duration-200 font-medium"
             >
               تماس با ما

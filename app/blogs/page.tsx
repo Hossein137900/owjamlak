@@ -22,11 +22,11 @@ export const metadata: Metadata = {
     title: "وبلاگ اوج | مقالات و راهنمای خرید و فروش ملک",
     description:
       "جدیدترین مقالات و راهنمای خرید، فروش و سرمایه‌گذاری در املاک ایران را در وبلاگ اوج بخوانید.",
-    url: "https://oujamlak.com/blogs",
+    url: "https://oujamlak.ir/blogs",
     siteName: "Ouj Amlak",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg",
+        url: "https://oujamlak.ir/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "وبلاگ اوج املاک",
@@ -40,12 +40,12 @@ export const metadata: Metadata = {
     title: "وبلاگ اوج | مقالات و راهنمای خرید و فروش ملک",
     description:
       "مقالات تخصصی درباره خرید، فروش، اجاره و سرمایه‌گذاری در املاک ایران با مشاوران اوج.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/blogs",
+    canonical: "https://oujamlak.ir/blogs",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 const BlogsPage = () => {

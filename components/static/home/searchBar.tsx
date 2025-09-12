@@ -240,7 +240,7 @@ export default function SearchBar({
 
   return (
     <motion.div
-      className={`bg-white/10 backdrop-blur-[2px] mt-2 md:mt-0 rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 relative ${className}`}
+      className={`bg-white/10 mb-3 backdrop-blur-[2px] mt-2 md:mt-0 rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 relative ${className}`}
       variants={itemVariants}
       initial="hidden"
       animate="visible"

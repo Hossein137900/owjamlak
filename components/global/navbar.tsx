@@ -282,8 +282,8 @@ const Navbar = () => {
             </motion.div>
 
             {/* Desktop Menu */}
-            <nav className="hidden lg:flex items-center">
-              <div className="flex items-center gap-2 ml-12">
+            <nav className="hidden lg:flex  items-center">
+              <div className="flex items-center  gap-2 ml-12">
                 {navItems.map((item, index) => (
                   <motion.div
                     key={item.href}

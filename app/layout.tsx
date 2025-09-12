@@ -94,8 +94,8 @@ export default function RootLayout({
           "@context": "https://schema.org",
           "@type": "RealEstateAgent",
           name: "املاک اوج",
-          url: "https://oujamlak.com/",
-          logo: "https://oujamlak.com/logo.png",
+          url: "https://oujamlak.ir/",
+          logo: "https://oujamlak.ir/logo.png",
           description: "مرجع خرید و فروش ملک در تهران و کرج",
           address: {
             "@type": "PostalAddress",

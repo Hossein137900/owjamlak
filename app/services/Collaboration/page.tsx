@@ -16,12 +16,12 @@ export const metadata: Metadata = {
     title: "همکاری با اوج املاک | فرصت‌های مشارکت در بازار ملک",
     description:
       "همکاری و مشارکت با اوج املاک برای مشاوران، سرمایه‌گذاران و شرکت‌های فعال در حوزه ملک. فرصت‌های طلایی برای همکاری.",
-    url: "https://oujamlak.com/services/Collaboration",
+    url: "https://oujamlak.ir/services/Collaboration",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی همکاری
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی همکاری
         width: 1200,
         height: 630,
         alt: "همکاری با اوج املاک",
@@ -34,12 +34,12 @@ export const metadata: Metadata = {
     title: "همکاری با اوج املاک | فرصت‌های مشارکت در بازار ملک",
     description:
       "همکاری و مشارکت با اوج املاک برای مشاوران، سرمایه‌گذاران و شرکت‌های فعال در حوزه ملک.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/services/Collaboration",
+    canonical: "https://oujamlak.ir/services/Collaboration",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 const Collaboration = () => {

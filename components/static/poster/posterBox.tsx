@@ -91,7 +91,7 @@ const ReportageBox: React.FC<ReportageBoxProps> = ({
       House: "خانه",
       Villa: "ویلا",
       Old: "کلنگی",
-      Office: "دفتر",
+      Office: "اداری",
       Shop: "مغازه",
       industrial: "صنعتی",
       partnerShip: "مشارکت",

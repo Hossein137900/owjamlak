@@ -461,7 +461,7 @@ function PosterListContent() {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-gray-800">
-                  آگهی‌های املاک
+                  آگهی‌های املاک اوج
                 </h1>
                 {cameFromSearch && filters.search && (
                   <motion.div

@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     title: "آگهی‌های املاک | اوج املاک ایران",
     description:
       "تمام آگهی‌های خرید، فروش و اجاره ملک را در اوج املاک ایران مشاهده کنید. فرصت‌های سرمایه گذاری را از دست ندهید.",
-    url: "https://oujamlak.com/poster",
+    url: "https://oujamlak.ir/poster",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی پوستر
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی پوستر
         width: 1200,
         height: 630,
         alt: "آگهی‌های املاک اوج",
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     title: "آگهی‌های املاک | اوج املاک ایران",
     description:
       "مشاهده آخرین آگهی‌های خرید، فروش و اجاره ملک در ایران با اوج املاک.",
-    images: ["https://oujamlak.com/assets/images/poster-cover.jpg"],
+    images: ["https://oujamlak.ir/assets/images/poster-cover.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/poster",
+    canonical: "https://oujamlak.ir/poster",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 export default function PosterPage() {

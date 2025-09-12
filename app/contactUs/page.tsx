@@ -21,12 +21,12 @@ export const metadata: Metadata = {
     title: "تماس با ما | اوج املاک",
     description:
       "با تیم اوج املاک در تماس باشید و سوالات یا درخواست‌های خود را مطرح کنید. مشاوران ما آماده پاسخگویی هستند.",
-    url: "https://oujamlak.com/contactUs",
+    url: "https://oujamlak.ir/contactUs",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی صفحه تماس
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی صفحه تماس
         width: 1200,
         height: 630,
         alt: "تماس با اوج املاک",
@@ -39,12 +39,12 @@ export const metadata: Metadata = {
     title: "تماس با ما | اوج املاک",
     description:
       "با تیم اوج املاک در تماس باشید و درخواست مشاوره یا سوالات خود را مطرح کنید. پشتیبانی حرفه‌ای برای معاملات ملکی شما.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/contactUs",
+    canonical: "https://oujamlak.ir/contactUs",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 export default function ContactPage() {

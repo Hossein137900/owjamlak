@@ -87,8 +87,8 @@ const footerLinks = [
     title: "دسترسی سریع",
     links: [
       { name: "صفحه اصلی", href: "/" },
-      { name: "درباره ما", href: "/about" },
-      { name: "تماس با ما", href: "/contact" },
+      { name: "درباره ما", href: "/aboutUs" },
+      { name: "تماس با ما", href: "/contactUs" },
       { name: "املاک ویژه", href: "/offers" },
       { name: "وبلاگ", href: "/blogs" },
       { name: "فیلم آموزشی", href: "/videos" },
@@ -170,7 +170,7 @@ const Footer = () => {
     },
     {
       icon: FiMapPin,
-      text: "تهران، میدان نارمک کوچه سجاد پلاک 6 واحد1",
+      text: "تهران، میدان هفت حوض کوچه سجاد پلاک 6 واحد1",
       href: "#",
       isClickable: true,
       onClick: handleMapClick,
@@ -331,7 +331,7 @@ const Footer = () => {
               </div>
 
               <p className="text-sm text-gray-600 leading-relaxed">
-                املاک، پیشرو در ارائه خدمات مشاوره املاک با بیش از ۱۰ سال تجربه
+                املاک اوج، پیشرو در ارائه خدمات مشاوره املاک با بیش از ۱۰ سال تجربه
                 در زمینه خرید، فروش و اجاره املاک مسکونی، تجاری و اداری در سراسر
                 کشور.
               </p>

@@ -18,12 +18,12 @@ export const metadata: Metadata = {
     title: "خدمات اوج | مشاوره و خدمات املاک حرفه‌ای",
     description:
       "خدمات حرفه‌ای اوج املاک شامل مشاوره خرید، فروش، اجاره و سرمایه‌گذاری. تجربه‌ای امن و مطمئن برای معاملات ملکی شما.",
-    url: "https://oujamlak.com/services",
+    url: "https://oujamlak.ir/services",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی برای صفحه خدمات
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی برای صفحه خدمات
         width: 1200,
         height: 630,
         alt: "خدمات اوج املاک",
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     title: "خدمات اوج | مشاوره و خدمات املاک حرفه‌ای",
     description:
       "خدمات حرفه‌ای اوج املاک شامل مشاوره خرید، فروش، اجاره و سرمایه‌گذاری در بازار املاک ایران.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/services",
+    canonical: "https://oujamlak.ir/services",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 const Services = () => {

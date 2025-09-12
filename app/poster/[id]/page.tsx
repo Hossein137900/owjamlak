@@ -18,7 +18,7 @@ function getImageUrl(
   if (!imagePath) return `${baseUrl}/assets/images/hero.jpg`;
   if (imagePath.startsWith("http")) return imagePath; // اگر URL خارجی باشه
   const cleanPath = imagePath.startsWith("/") ? imagePath : "/" + imagePath;
-  return `${baseUrl}${cleanPath}`; // مثلاً https://oujamlak.com/api/images/...
+  return `${baseUrl}${cleanPath}`; // مثلاً https://oujamlak.ir/api/images/...
 }
 
 export async function generateMetadata({
@@ -27,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.com";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.ir";
 
   try {
     const response = await fetch(`${baseUrl}/api/poster/${id}`, {
@@ -69,7 +69,7 @@ export async function generateMetadata({
       House: "خانه",
       Villa: "ویلا",
       Old: "کلنگی",
-      Office: "دفتر کار",
+      Office: "اداری",
       Shop: "مغازه",
       industrial: "صنعتی",
       partnerShip: "مشارکت",
@@ -155,7 +155,7 @@ export async function generateMetadata({
         locale: "fa_IR",
         images: [
           {
-            url: imageUrl, // حالا مستقیم https://oujamlak.com/api/images/...
+            url: imageUrl, // حالا مستقیم https://oujamlak.ir/api/images/...
             width: 1200,
             height: 630,
             alt: poster.title,

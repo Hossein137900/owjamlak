@@ -17,12 +17,12 @@ export const metadata: Metadata = {
     title: "مشاوره حقوقی املاک | اوج املاک",
     description:
       "خدمات مشاوره حقوقی برای خرید، فروش، اجاره و سرمایه‌گذاری در بازار املاک ایران. راهنمای حقوقی معاملات ملکی با اوج املاک.",
-    url: "https://oujamlak.com/services/legalConsultation",
+    url: "https://oujamlak.ir/services/legalConsultation",
     siteName: "Ouj Amlak",
     type: "website",
     images: [
       {
-        url: "https://oujamlak.com/og-image.jpg", // پیشنهاد: تصویر اختصاصی برای مشاوره حقوقی
+        url: "https://oujamlak.ir/og-image.jpg", // پیشنهاد: تصویر اختصاصی برای مشاوره حقوقی
         width: 1200,
         height: 630,
         alt: "مشاوره حقوقی املاک اوج",
@@ -35,12 +35,12 @@ export const metadata: Metadata = {
     title: "مشاوره حقوقی املاک | اوج املاک",
     description:
       "خدمات مشاوره حقوقی برای خرید، فروش، اجاره و سرمایه‌گذاری در بازار املاک ایران.",
-    images: ["https://oujamlak.com/og-image.jpg"],
+    images: ["https://oujamlak.ir/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://oujamlak.com/services/legalConsultation",
+    canonical: "https://oujamlak.ir/services/legalConsultation",
   },
-  metadataBase: new URL("https://oujamlak.com"),
+  metadataBase: new URL("https://oujamlak.ir"),
 };
 
 const LegalConsultation = () => {
