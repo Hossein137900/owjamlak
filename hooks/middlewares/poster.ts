@@ -508,13 +508,29 @@ export const updatePoster = async (req: Request) => {
 //   }
 // };
 
-export const deletePoster = async (req: Request) => {
+export const deletePoster = async (request: NextRequest) => {
   try {
-    const { id } = await req.json();
-    const poster = await Poster.findByIdAndDelete(id);
-    return NextResponse.json(poster);
+    const { id } = await request.json();
+
+    if (!id) {
+      return NextResponse.json({ message: "ID is required" }, { status: 400 });
+    }
+
+    const deletedPoster = await Poster.findByIdAndDelete(id);
+
+    if (!deletedPoster) {
+      return NextResponse.json(
+        { message: "Poster not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "Poster deleted successfully", poster: deletedPoster },
+      { status: 200 }
+    );
   } catch (error) {
-    console.log("Error deleting poster:", error);
+    console.error("Error deleting poster:", error);
     return NextResponse.json(
       { message: "Error deleting poster" },
       { status: 500 }

@@ -6,7 +6,11 @@ import { jwtDecode } from "jwt-decode";
 import connect from "@/lib/data";
 import Poster from "@/models/poster";
 import { validateImageFile } from "@/lib/validation";
-import { getAllPosters, updatePoster } from "@/hooks/middlewares/poster";
+import {
+  getAllPosters,
+  updatePoster,
+  deletePoster,
+} from "@/hooks/middlewares/poster";
 
 type TokenPayload = {
   id?: string;
@@ -161,4 +165,8 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   await connect();
   return await updatePoster(request);
+}
+export async function DELETE(request: NextRequest) {
+  await connect();
+  return await deletePoster(request);
 }

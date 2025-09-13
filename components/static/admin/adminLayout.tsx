@@ -139,7 +139,7 @@ const AdminLayout = () => {
       id: "dashboard",
       icon: <FiHome />,
       label: "داشبورد",
-      roles: ["admin", "superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "chat",
