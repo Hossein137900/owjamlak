@@ -27,8 +27,10 @@ export default function ChatAdminList() {
 
   useEffect(() => {
     const adminToken = localStorage.getItem('token');
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500";
+    console.log('Admin connecting to:', socketUrl);
     const newSocket = io(
-      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500",
+      socketUrl,
       { 
         auth: { 
           token: adminToken,

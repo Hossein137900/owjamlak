@@ -15,12 +15,12 @@ services:
 
   chat:
     build:
-      context: ../chat-project
+      context: ../chat-app
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
     env_file:
-      - ../chat-project/.env
+      - ../chat-app/.env
     restart: unless-stopped
     networks:
       - app-network

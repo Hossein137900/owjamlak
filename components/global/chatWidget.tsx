@@ -233,8 +233,10 @@ export default function Chat() {
     }
 
     const currentToken = token || localStorage.getItem("token");
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500";
+    console.log('Chat widget connecting to:', socketUrl);
     const newSocket = io(
-      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500",
+      socketUrl,
       {
         auth: {
           token: currentToken,
