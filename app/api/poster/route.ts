@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
       data: savedPoster,
     });
   } catch (error) {
-    console.error("Error creating poster:", error);
+    console.log("Error creating poster:", error);
     return NextResponse.json(
       { success: false, message: "خطا در ایجاد آگهی" },
       { status: 500 }

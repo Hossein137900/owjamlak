@@ -37,7 +37,7 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Error deleting image:", error);
+    console.log("Error deleting image:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف تصویر" },
       { status: 500 }

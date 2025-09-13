@@ -35,7 +35,7 @@ const BlogManagement = () => {
       const data = await response.json();
       setBlogs(data || []);
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      console.log("Error fetching blogs:", error);
       setBlogs([]);
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ const BlogManagement = () => {
         toast.error("خطا در حذف بلاگ");
       }
     } catch (error) {
-      console.error("Error deleting blog:", error);
+      console.log("Error deleting blog:", error);
       toast.error("خطا در حذف بلاگ");
     }
   };

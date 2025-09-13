@@ -39,7 +39,7 @@ const Testimonials = () => {
           setError(data.message || "خطا در دریافت نظرات");
         }
       } catch (err) {
-        console.error(err);
+        console.log(err);
         setError("مشکلی در بارگیری نظرات رخ داد.");
       } finally {
         setLoading(false);

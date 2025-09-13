@@ -45,7 +45,7 @@ const VideoManagement: React.FC = () => {
       const data = await response.json();
       setVideos(data.videos || []);
     } catch (error) {
-      console.error("Error fetching videos:", error);
+      console.log("Error fetching videos:", error);
     }
   };
 

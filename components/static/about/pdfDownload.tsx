@@ -34,7 +34,7 @@ export default function PdfDownload({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Download failed:", error);
+      console.log("Download failed:", error);
     } finally {
       setIsDownloading(false);
     }
@@ -101,7 +101,7 @@ export default function PdfDownload({
               boxShadow: "0 8px 25px rgba(0,0,0,0.2)",
             }}
             whileTap={{ scale: 0.95 }}
-            className="w-full lg:w-auto bg-gradient-to-r from-[#01ae9b] to-[#66308d] text-white py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-3 hover:shadow-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full lg:w-auto cursor-pointer bg-gradient-to-r from-[#01ae9b] to-[#66308d] text-white py-3 px-6 rounded-xl font-semibold flex items-center justify-center gap-3 hover:shadow-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isDownloading ? (
               <>

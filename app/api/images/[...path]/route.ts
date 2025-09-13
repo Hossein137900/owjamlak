@@ -83,7 +83,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Error serving image:', error);
+    console.log('Error serving image:', error);
     return new NextResponse('', { status: 500 });
   }
 }
@@ -123,7 +123,7 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Error deleting image:", error);
+    console.log("Error deleting image:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف تصویر" },
       { status: 500 }

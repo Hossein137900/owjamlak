@@ -36,7 +36,7 @@ export async function PUT(
       blog: blogs[blogIndex],
     });
   } catch (error) {
-    console.error("Error updating blog:", error);
+    console.log("Error updating blog:", error);
     return NextResponse.json(
       { error: "Failed to update blog" },
       { status: 500 }
@@ -110,7 +110,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Blog deleted successfully" });
   } catch (error) {
-    console.error("Error deleting blog:", error);
+    console.log("Error deleting blog:", error);
     return NextResponse.json(
       { error: "Failed to delete blog" },
       { status: 500 }

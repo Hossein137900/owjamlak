@@ -130,7 +130,7 @@ export const getAllPosters = async (req: NextRequest) => {
       },
     });
   } catch (error: any) {
-    console.error("❌ Error fetching posters:", error);
+    console.log("❌ Error fetching posters:", error);
     return NextResponse.json(
       { message: "Error fetching posters", error: error.message },
       { status: 500 }
@@ -169,7 +169,7 @@ export const getPosterById = async (req: NextRequest, id: string) => {
 
     return NextResponse.json(poster, { status: 200 });
   } catch (error) {
-    console.error("Error fetching poster:", error);
+    console.log("Error fetching poster:", error);
     return NextResponse.json(
       { message: "خطا در دریافت اطلاعات آگهی" },
       { status: 500 }
@@ -212,7 +212,7 @@ export const incrementPosterView = async (req: Request) => {
 
     return NextResponse.json({ success: true, views: updated.views });
   } catch (error) {
-    console.error("Error incrementing poster view:", error);
+    console.log("Error incrementing poster view:", error);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 };

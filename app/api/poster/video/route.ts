@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       filename,
     });
   } catch (error) {
-    console.error("Error uploading video:", error);
+    console.log("Error uploading video:", error);
     return NextResponse.json(
       { success: false, message: "خطا در آپلود ویدیو" },
       { status: 500 }
@@ -149,7 +149,7 @@ export async function DELETE(request: NextRequest) {
       message: "ویدیو با موفقیت حذف شد",
     });
   } catch (error) {
-    console.error("Error deleting video:", error);
+    console.log("Error deleting video:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف ویدیو" },
       { status: 500 }

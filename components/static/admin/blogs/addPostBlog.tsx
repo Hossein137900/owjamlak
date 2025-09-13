@@ -234,7 +234,7 @@ export default function AddPostBlog() {
         toast.error(result.error || "خطا در آپلود");
       }
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.log("Upload failed:", error);
       toast.error("خطا در آپلود تصویر");
     } finally {
       setUploading(false);

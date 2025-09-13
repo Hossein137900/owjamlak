@@ -26,18 +26,18 @@ export default function AboutUsStats() {
         transition={{ duration: 1, ease: "easeOut" }}
         className="md:w-1/2 space-y-8 text-right relative z-10"
       >
-        <h2 className="text-2xl md:text-5xl font-medium text-gray-700 leading-tight">
+        <h2 className="text-2xl md:text-4xl font-medium text-gray-700 leading-tight">
           آینده‌ی سرمایه‌گذاری شما، امروز در{" "}
-          <span className="bg-gradient-to-r from-[#01ae9b] to-purple-600 bg-clip-text text-transparent text-4xl md:text-6xl font-extrabold">
-            اوج
+          <span className="bg-gradient-to-r from-[#01ae9b] to-purple-600 bg-clip-text text-transparent text-4xl md:text-5xl font-extrabold">
+            املاک اوج
           </span>{" "}
           رقم میخورد
         </h2>
         <p className="text-gray-600 leading-relaxed text-lg md:text-xl">
           در اوج، ما بیش از یک مشاور املاک هستیم. ما شریک شما در مسیر یافتن
-          بهترین فرصتهای سرمایه گذاری و خانه های هستیم که واقعاً شایسته شماست. با
-          تجربهای بیش از ۱۰ سال و تیمی از متخصصان حرفهای، هر روز به هزاران نفر
-          کمک میکنیم تا رویای خانهدار شدن را محقق کنند.
+          بهترین فرصت های سرمایه گذاری و خانه هایی هستیم که واقعاً شایسته شماست.
+          با تجربه های بیش از ۱۰ سال و تیمی از متخصصان حرفهای، هر روز به هزاران
+          نفر کمک میکنیم تا رویای خانه دار شدن را محقق کنند.
         </p>
 
         {/* Key Features */}
@@ -64,11 +64,9 @@ export default function AboutUsStats() {
           </div>
         </motion.div>
 
-       
-
         <Link href="/contactUs" className="mt-10">
           <motion.button
-             whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.95 }}
             className="group bg-gradient-to-r cursor-pointer from-[#01ae9b] to-teal-600 text-white px-10 py-4 rounded-full font-bold transition-all duration-500 shadow-xl hover:shadow-2xl flex items-center gap-3 justify-center"
           >
             <span>تماس با ما</span>

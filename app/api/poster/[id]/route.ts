@@ -119,7 +119,7 @@ export async function DELETE(
       message: "آگهی و تصاویر با موفقیت حذف شد",
     });
   } catch (error) {
-    console.error("Error deleting poster:", error);
+    console.log("Error deleting poster:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف آگهی" },
       { status: 500 }

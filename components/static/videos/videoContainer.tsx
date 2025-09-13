@@ -50,7 +50,6 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
   const [apiVideos, setApiVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
@@ -70,7 +69,7 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
           setError("خطا در دریافت ویدیوها");
         }
       } catch (err) {
-        console.error("Error fetching videos:", err);
+        console.log("Error fetching videos:", err);
         setError("خطا در بارگذاری ویدیوها");
       } finally {
         setLoading(false);
@@ -84,11 +83,7 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
   const displayVideos = videos.length > 0 ? videos : apiVideos;
 
   // Filter videos based on search
-  const filteredVideos = displayVideos.filter(
-    (video) =>
-      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      video.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredVideos = displayVideos;
 
   const handleVideoClick = (video: Video) => {
     setSelectedVideo(video);
@@ -110,7 +105,9 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#66308d] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">در حال بارگذاری ویدیوها...</p>
+          <p className="text-gray-600">
+          ...  در حال بارگذاری
+          </p>
         </div>
       </div>
     );
@@ -159,11 +156,7 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
           className="flex flex-col items-center justify-center h-64 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
         >
           <FiPlay className="text-6xl text-gray-400 mb-4" />
-          <p className="text-gray-500 text-lg">
-            {searchTerm
-              ? "ویدیویی با این جستجو یافت نشد"
-              : "هیچ ویدیویی موجود نیست"}
-          </p>
+          <p className="text-gray-500 text-lg">هیچ ویدیویی موجود نیست</p>
         </motion.div>
       </div>
     );

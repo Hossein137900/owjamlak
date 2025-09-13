@@ -264,7 +264,7 @@ function PosterListContent() {
           }
         }
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.log("Fetch error:", err);
       } finally {
         setLoading(false);
         setIsFetchingMore(false);
@@ -352,7 +352,7 @@ function PosterListContent() {
           const data = await res.json();
           setSuggestions(data.suggestions || []);
         } catch (e) {
-          console.error("Suggestion fetch error", e);
+          console.log("Suggestion fetch error", e);
         }
       }, 500);
     } else {

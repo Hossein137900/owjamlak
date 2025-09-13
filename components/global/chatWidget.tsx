@@ -434,7 +434,7 @@ export default function Chat() {
                 {!token && messages.length === 0 && (
                   <div className="flex justify-center mb-4">
                     <div className="max-w-[80%] p-3 rounded-2xl backdrop-blur-sm border border-blue-400/20 shadow-lg bg-gradient-to-r from-gray-700 to-gray-600 text-blue-300">
-                      <p className="text-sm text-center">لطفا ابتدا ثبت نام کنید در سایت</p>
+                      <p className="text-xl text-center">لطفا ابتدا ثبت نام کنید در سایت</p>
                     </div>
                   </div>
                 )}

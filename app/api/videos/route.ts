@@ -35,7 +35,7 @@ export async function GET() {
 
     return NextResponse.json({ videos });
   } catch (error) {
-    console.error("Error listing videos:", error);
+    console.log("Error listing videos:", error);
     return NextResponse.json(
       { success: false, message: "خطا در دریافت لیست ویدیوها" },
       { status: 500 }
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       video,
     });
   } catch (error) {
-    console.error("Error uploading video:", error);
+    console.log("Error uploading video:", error);
     return NextResponse.json(
       { success: false, message: "خطا در آپلود ویدیو" },
       { status: 500 }
@@ -212,7 +212,7 @@ export async function DELETE(request: NextRequest) {
       message: "ویدیو با موفقیت حذف شد",
     });
   } catch (error) {
-    console.error("Error deleting video:", error);
+    console.log("Error deleting video:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف ویدیو" },
       { status: 500 }
@@ -276,7 +276,7 @@ export async function PATCH(request: NextRequest) {
       video,
     });
   } catch (error) {
-    console.error("Error updating video:", error);
+    console.log("Error updating video:", error);
     return NextResponse.json(
       { success: false, message: "خطا در به‌روزرسانی ویدیو" },
       { status: 500 }

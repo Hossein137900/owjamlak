@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest) {
     const message = action === "approve" ? "آگهی تایید شد" : "آگهی رد شد";
     return NextResponse.json({ message, poster });
   } catch (error) {
-    console.error("Error updating poster approval:", error);
+    console.log("Error updating poster approval:", error);
     return NextResponse.json(
       { message: "خطا در بروزرسانی وضعیت آگهی" },
       { status: 500 }

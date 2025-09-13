@@ -29,7 +29,7 @@ export default function VideoUpload() {
       const data = await response.json();
       setVideos(data.videos || []);
     } catch (error) {
-      console.error("Error loading videos:", error);
+      console.log("Error loading videos:", error);
     } finally {
       setLoading(false);
     }
@@ -63,7 +63,7 @@ export default function VideoUpload() {
         alert(data.message || "خطا در آپلود ویدیو");
       }
     } catch (error) {
-      console.error("Upload error:", error);
+      console.log("Upload error:", error);
       alert("خطا در آپلود ویدیو");
     } finally {
       setUploading(false);
@@ -93,7 +93,7 @@ export default function VideoUpload() {
         alert(data.message || "خطا در حذف ویدیو");
       }
     } catch (error) {
-      console.error("Delete error:", error);
+      console.log("Delete error:", error);
       alert("خطا در حذف ویدیو");
     }
   };

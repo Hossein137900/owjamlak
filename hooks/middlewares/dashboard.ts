@@ -122,7 +122,7 @@ export const getDashboardData = async (request: NextRequest) => {
       { status: 403 }
     );
   } catch (error) {
-    console.error("خطا در دریافت اطلاعات داشبورد:", error);
+    console.log("خطا در دریافت اطلاعات داشبورد:", error);
     return NextResponse.json(
       { success: false, message: "خطا در دریافت اطلاعات داشبورد" },
       { status: 500 }

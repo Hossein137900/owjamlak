@@ -159,7 +159,7 @@ const ContactForm = () => {
                       rows={4}
                       required={field.required}
                       onChange={handleInputChange}
-                      className="w-full pr-10 py-2 px-4 text-right text-gray-600 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent transition-colors resize-none"
+                      className="w-full pr-10 py-2 px-4 text-right text-gray-600 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent transition-colors resize-none"
                     />
                   ) : field.type === "select" ? (
                     <select
@@ -167,7 +167,7 @@ const ContactForm = () => {
                       name={field.id}
                       required={field.required}
                       onChange={handleInputChange}
-                      className="w-full pr-10 py-2 px-4 text-right text-gray-600 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent transition-colors appearance-none bg-white"
+                      className="w-full pr-10 py-2 px-4 text-right text-gray-600 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent transition-colors appearance-none bg-white"
                     >
                       <option value="">{field.placeholder}</option>
                       {field.id === "propertyType" &&
@@ -185,7 +185,7 @@ const ContactForm = () => {
                       placeholder={field.placeholder}
                       required={field.required}
                       onChange={handleInputChange}
-                      className="w-full pr-10 py-2 px-4 text-right text-gray-600 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent transition-colors"
+                      className="w-full pr-10 py-2 px-4 text-right text-gray-600 placeholder:text-gray-400 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b] focus:border-transparent transition-colors"
                     />
                   )}
                 </div>

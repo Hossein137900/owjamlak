@@ -130,7 +130,7 @@ export default function PosterDetailClient({
           localStorage.setItem(storageKey, "true");
         }
       } catch (error) {
-        console.error("Error incrementing view:", error);
+        console.log("Error incrementing view:", error);
       }
     };
 

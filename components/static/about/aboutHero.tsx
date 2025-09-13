@@ -34,7 +34,7 @@ export default function OwjAdComponent() {
           className="text-2xl sm:text-4xl md:text-5xl mb-3 font-extrabold text-white leading-snug"
         >
           <span className="bg-gradient-to-r from-purple-700 to-teal-600 bg-clip-text text-transparent">
-            اوج
+            املاک اوج
           </span>
           ، جایی که رویای خانه‌دار شدن محقق می‌شود
         </motion.h1>

@@ -642,7 +642,7 @@ const ConsultantManager = () => {
                               });
                               setFormData(prev => ({ ...prev, image: '' }));
                             } catch (error) {
-                              console.error('Error deleting image:', error);
+                              console.log('Error deleting image:', error);
                             }
                           }}
                           className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
@@ -678,7 +678,7 @@ const ConsultantManager = () => {
                               toast.error(result.message || 'خطا در آپلود تصویر');
                             }
                           } catch (error) {
-                            console.error('Error uploading image:', error);
+                            console.log('Error uploading image:', error);
                             toast.error('خطا در آپلود تصویر');
                           } finally {
                             setImageUploading(false);

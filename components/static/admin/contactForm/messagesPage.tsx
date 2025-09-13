@@ -407,7 +407,7 @@ export default function MessagesPage() {
       setMessages(messagesData);
       setFilteredMessages(messagesData);
     } catch (err) {
-      console.error("خطا در دریافت پیام‌ها:", err);
+      console.log("خطا در دریافت پیام‌ها:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -488,10 +488,10 @@ export default function MessagesPage() {
 
         console.log(result.message);
       } else {
-        console.error(result.message);
+        console.log(result.message);
       }
     } catch (error) {
-      console.error("Error updating message status:", error);
+      console.log("Error updating message status:", error);
     } finally {
       setUpdatingStatus(null);
     }
@@ -515,10 +515,10 @@ export default function MessagesPage() {
         setMessages((prev) => prev.filter((msg) => msg._id !== messageId));
         console.log("پیام با موفقیت حذف شد");
       } else {
-        console.error(result.message);
+        console.log(result.message);
       }
     } catch (error) {
-      console.error("Error deleting message:", error);
+      console.log("Error deleting message:", error);
     }
   };
 
