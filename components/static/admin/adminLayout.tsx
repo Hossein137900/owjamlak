@@ -151,7 +151,7 @@ const AdminLayout = () => {
       id: "properties",
       icon: <FiLayers />,
       label: "آگهی های ملک",
-      roles: ["admin", "superadmin", "consultant", "user"],
+      roles: ["admin", "superadmin"],
     },
     {
       id: "Myproperties",
@@ -211,13 +211,13 @@ const AdminLayout = () => {
       id: "ConsultantChampion",
       icon: <FiStar />,
       label: "مشاور برتر",
-      roles: ["superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     {
       id: "Consultant",
       icon: <FiUserCheck />,
       label: "مشاورین",
-      roles: ["superadmin"],
+      roles: ["admin", "superadmin", "consultant", "user"],
     },
     { id: "users", icon: <FiUsers />, label: "کاربران", roles: ["superadmin"] },
     {
@@ -248,43 +248,43 @@ const AdminLayout = () => {
       case "dashboard":
         return <Dashboard onNavigate={setActiveSection} />;
       case "properties":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <PropertyListings />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "real-estate-requests":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <RealStateRequests />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "legal-requests":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <LegalRequests />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "employment-requests":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <EmployRequests />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "users":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <UsersManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "chat":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <ChatAdminList />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "newsletter":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <NewsletterManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
@@ -292,7 +292,7 @@ const AdminLayout = () => {
       case "Myproperties":
         return <PosterById />;
       case "Consultant":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <ConsultantManager />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
@@ -300,13 +300,13 @@ const AdminLayout = () => {
       case "favorite":
         return <AdminFavoritesPage />;
       case "contact":
-        return hasAccess(["admin", "superadmin", "user"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <MessagesPage />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "video":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <VideoManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
@@ -314,13 +314,13 @@ const AdminLayout = () => {
       case "Addposter":
         return <PosterForm />;
       case "ConsultantChampion":
-        return hasAccess(["superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <CreateConsultantForm />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
       case "blogs":
-        return hasAccess(["admin", "superadmin"]) ? (
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <BlogManagement />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
@@ -362,8 +362,8 @@ const AdminLayout = () => {
   const textClass = isDarkMode ? "text-gray-200" : "text-gray-600";
   const borderClass = isDarkMode ? "border-gray-700/50" : "border-gray-200/70";
   const headerBgClass = isDarkMode
-    ? "bg-gray-900/10 backdrop-blur-md"
-    : "bg-white/10 backdrop-blur-md";
+    ? "bg-gray-900/60 backdrop-blur-xl"
+    : "bg-white/60 backdrop-blur-xl";
   const sidebarBgClass = isDarkMode
     ? "bg-gray-900/95 backdrop-blur-md"
     : "bg-white/95 backdrop-blur-md";

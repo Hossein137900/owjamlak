@@ -64,7 +64,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Error serving video:', error);
+    console.log('Error serving video:', error);
     return new NextResponse('خطای سرور', { status: 500 });
   }
 }

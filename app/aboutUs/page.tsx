@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <section className="w-full bg-white " dir="rtl">
+    <section className="w-full bg-white" dir="rtl">
       <OwjAdComponent />
       <div className="px-4 md:px-20">
         <AboutUsHero />
@@ -72,8 +72,6 @@ export default function AboutPage() {
             "/assets/images/madarek/madrak6.jpg",
             "/assets/images/madarek/madrak7.jpg",
           ]}
-          speed={10} // هر چی عدد کمتر باشه سریع‌تر میشه
-          pauseOnHover={false}
           imageHeight={250}
         />
 

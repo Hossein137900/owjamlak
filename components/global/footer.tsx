@@ -74,7 +74,7 @@ const smallWindowPositions = [
 
 const footerLinks = [
   {
-    title: "خدمات املاک",
+    title: "خدمات املاک اوج",
     links: [
       { name: "خرید ملک", href: "/poster" },
       { name: "فروش ملک", href: "/poster" },
@@ -304,22 +304,26 @@ const Footer = () => {
             <motion.div variants={itemVariants} className="space-y-6">
               <div className="flex items-center gap-2 rounded-full px-3 py-2 w-fit">
                 <div className="relative h-20 w-20 overflow-hidden">
-                  <Image
-                    src="/assets/images/logo (2).png"
-                    alt="املاک لوگو"
-                    width={70}
-                    height={70}
-                    className="object-contain"
-                  />
+                  <Link href={"/"}>
+                    <Image
+                      src="/assets/images/logo (2).png"
+                      alt="املاک لوگو"
+                      width={70}
+                      height={70}
+                      className="object-contain"
+                    />
+                  </Link>
                 </div>
                 <div className="relative h-20 w-20 overflow-hidden">
-                  <Image
-                    src="/assets/etehadiye.png"
-                    alt="اتحادیه"
-                    width={70}
-                    height={70}
-                    className="object-contain"
-                  />
+                  <Link target="_blank" href={"https://amlaktehran.org/"}>
+                    <Image
+                      src="/assets/etehadiye.png"
+                      alt="اتحادیه"
+                      width={70}
+                      height={70}
+                      className="object-contain"
+                    />
+                  </Link>
                 </div>
                 {/* <motion.div
                   whileHover={{ scale: 1.1 }}
@@ -331,9 +335,9 @@ const Footer = () => {
               </div>
 
               <p className="text-sm text-gray-600 leading-relaxed">
-                املاک اوج، پیشرو در ارائه خدمات مشاوره املاک با بیش از ۱۰ سال تجربه
-                در زمینه خرید، فروش و اجاره املاک مسکونی، تجاری و اداری در سراسر
-                کشور.
+                املاک اوج، پیشرو در ارائه خدمات مشاوره املاک با بیش از ۱۰ سال
+                تجربه در زمینه خرید، فروش و اجاره املاک مسکونی، تجاری و اداری در
+                سراسر کشور.
               </p>
 
               <div className="flex items-center gap-4">

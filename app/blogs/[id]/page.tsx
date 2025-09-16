@@ -22,7 +22,7 @@ async function getBlog(id: string) {
 
     return blogs.find((blog: Blog) => blog.id === id) || null;
   } catch (error) {
-    console.error("Error reading blog data:", error);
+    console.log("Error reading blog data:", error);
     return null;
   }
 }

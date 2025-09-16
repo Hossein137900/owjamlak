@@ -203,7 +203,7 @@ export async function DELETE(
           try {
             await unlink(filePath);
           } catch (error) {
-            console.error('Error deleting consultant image:', error);
+            console.log('Error deleting consultant image:', error);
           }
         }
       }

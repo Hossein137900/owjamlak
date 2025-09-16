@@ -119,7 +119,7 @@ const PropertyListings: React.FC = () => {
         setPosters((prev) => uniqueById([...prev, ...data.posters]));
       }
     } catch (err) {
-      console.error("❌ Fetch error:", err);
+      console.log("❌ Fetch error:", err);
     } finally {
       setLoading(false);
       setIsFetchingMore(false);
@@ -283,7 +283,7 @@ const PropertyListings: React.FC = () => {
         toast.error("خطا در بروزرسانی وضعیت");
       }
     } catch (error) {
-      console.error("Error updating approval status:", error);
+      console.log("Error updating approval status:", error);
       toast.error("خطا در بروزرسانی وضعیت");
     } finally {
       setIsProcessingApproval(false);
@@ -344,7 +344,7 @@ const PropertyListings: React.FC = () => {
 
         setImageProgress(Math.round(((i + 1) / files.length) * 100));
       } catch (err) {
-        console.error("خطا در فشرده‌سازی تصویر:", err);
+        console.log("خطا در فشرده‌سازی تصویر:", err);
         toast.error("مشکلی در پردازش تصویر پیش آمد");
       }
     }
@@ -385,7 +385,7 @@ const PropertyListings: React.FC = () => {
       setEditFormData((prev) => ({ ...prev, images: updatedImages }));
       toast("تصویر حذف شد");
     } catch (error) {
-      console.error("Error deleting image:", error);
+      console.log("Error deleting image:", error);
       toast.error("خطا در حذف تصویر");
     }
   };
@@ -454,7 +454,7 @@ const PropertyListings: React.FC = () => {
         toast.error(result.message || "خطا در آپلود ویدیو");
       }
     } catch (error) {
-      console.error("Video upload failed:", error);
+      console.log("Video upload failed:", error);
       toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);
@@ -491,7 +491,7 @@ const PropertyListings: React.FC = () => {
         toast.error("خطا در حذف ویدیو");
       }
     } catch (error) {
-      console.error("Error deleting video:", error);
+      console.log("Error deleting video:", error);
       toast.error("خطا در حذف ویدیو");
     }
   };

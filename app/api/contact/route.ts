@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       data: messages,
     });
   } catch (error) {
-    console.error("Error fetching messages:", error);
+    console.log("Error fetching messages:", error);
     return NextResponse.json(
       {
         success: false,
@@ -126,7 +126,7 @@ export async function PATCH(request: NextRequest) {
       data: contact,
     });
   } catch (error) {
-    console.error("Error updating message status:", error);
+    console.log("Error updating message status:", error);
     return NextResponse.json(
       {
         success: false,
@@ -172,7 +172,7 @@ export async function DELETE(request: NextRequest) {
       message: "پیام با موفقیت حذف شد",
     });
   } catch (error) {
-    console.error("Error deleting message:", error);
+    console.log("Error deleting message:", error);
     return NextResponse.json(
       {
         success: false,
@@ -207,7 +207,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: doc }, { status: 201 });
   } catch (error) {
-    console.error("API error:", error as Error);
+    console.log("API error:", error as Error);
     return NextResponse.json({ error: "خطا در ذخیره پیام" }, { status: 500 });
   }
 }

@@ -248,7 +248,7 @@ const PosterForm = ({}) => {
 
         setProgress(Math.round(((i + 1) / files.length) * 100));
       } catch (err) {
-        console.error("خطا در فشرده‌سازی تصویر:", err);
+        console.log("خطا در فشرده‌سازی تصویر:", err);
       }
     }
 
@@ -333,7 +333,7 @@ const PosterForm = ({}) => {
         toast.error(result.error || "خطا در آپلود ویدیو");
       }
     } catch (error) {
-      console.error("Video upload failed:", error);
+      console.log("Video upload failed:", error);
       toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);

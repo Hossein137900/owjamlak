@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Image from "next/image";
- 
+
 const ContactHero = () => {
   return (
     <div className="relative h-screen  pt-20  bg-gradient-to-t from-[#01ae9b]/5 to-white">
@@ -12,12 +12,18 @@ const ContactHero = () => {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-right"
+            className="text-right max-w-3xl mx-auto px-4"
           >
-            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-6 leading-tight">
+            {/* Title */}
+            <h2 className="text-lg md:text-xl font-extrabold text-gray-400 leading-tight mb-4">
+              <span className="text-[#01ae9b] text-3xl md:text-5xl mx-1">املاک اوج</span> منتظر شماست ...
+            </h2>
+
+            <h1 className="text-xl md:text-4xl font-extrabold text-gray-800 mb-6 leading-tight">
               <span className="text-[#01ae9b]">تماس</span> با ما
             </h1>
-            <p className="text-gray-600 text-lg leading-relaxed max-w-md mb-10">
+
+            <p className="text-gray-600 text-lg leading-relaxed mb-10">
               ما همیشه آماده شنیدن نظرات، پیشنهادات و سوالات شما هستیم. کافیست
               با ما در تماس باشید تا بهترین تجربه مشاوره املاک را داشته باشید.
             </p>
@@ -27,17 +33,17 @@ const ContactHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-5 justify-end"
+              className="flex flex-col sm:flex-row gap-6 justify-center sm:justify-end"
             >
               {/* Phone */}
               <a
                 href="tel:02177222007"
-                className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
+                className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
+                <div className="w-14 h-14 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
+                    className="h-7 w-7"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -45,8 +51,8 @@ const ContactHero = () => {
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-500">تماس مستقیم</div>
-                  <div className="text-base font-bold text-gray-800">
+                  <div className="text-sm text-gray-500">تماس مستقیم</div>
+                  <div className="text-lg font-bold text-gray-800">
                     021-77222007
                   </div>
                 </div>
@@ -55,12 +61,12 @@ const ContactHero = () => {
               {/* Email */}
               <a
                 href="mailto:amlakoujj@gmail.com"
-                className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-md hover:shadow-lg transition cursor-pointer"
+                className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
+                <div className="w-14 h-14 rounded-full bg-[#01ae9b]/10 flex items-center justify-center text-[#01ae9b]">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
+                    className="h-7 w-7"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
@@ -69,8 +75,8 @@ const ContactHero = () => {
                   </svg>
                 </div>
                 <div>
-                  <div className="text-xs text-gray-500">ایمیل</div>
-                  <div className="text-base font-bold text-gray-800">
+                  <div className="text-sm text-gray-500">ایمیل</div>
+                  <div className="text-lg font-bold text-gray-800">
                     amlakoujj@gmail.com
                   </div>
                 </div>

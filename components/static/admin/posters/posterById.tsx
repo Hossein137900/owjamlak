@@ -523,7 +523,7 @@ const PosterById: React.FC = () => {
       setEditFormData((prev) => ({ ...prev, images: updatedImages }));
       toast("تصویر حذف شد");
     } catch (error) {
-      console.error("Error deleting image:", error);
+      console.log("Error deleting image:", error);
       toast.error("خطا در حذف تصویر");
     }
   };
@@ -589,7 +589,7 @@ const PosterById: React.FC = () => {
         toast.error(result.message || "خطا در آپلود ویدیو");
       }
     } catch (error) {
-      console.error("Video upload failed:", error);
+      console.log("Video upload failed:", error);
       toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);
@@ -626,7 +626,7 @@ const PosterById: React.FC = () => {
         toast.error("خطا در حذف ویدیو");
       }
     } catch (error) {
-      console.error("Error deleting video:", error);
+      console.log("Error deleting video:", error);
       toast.error("خطا در حذف ویدیو");
     }
   };

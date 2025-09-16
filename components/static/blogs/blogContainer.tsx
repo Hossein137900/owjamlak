@@ -19,7 +19,7 @@ const BlogContainer = () => {
     })
       .then((res) => res.json())
       .then((data) => setBlogs(data))
-      .catch((err) => console.error("Failed to load blogs:", err));
+      .catch((err) => console.log("Failed to load blogs:", err));
   }, []);
   // const toggleDropdown = () => setIsOpen(!isOpen);
 

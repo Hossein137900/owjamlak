@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       imageUrl,
     });
   } catch (error) {
-    console.error("Error uploading consultant image:", error);
+    console.log("Error uploading consultant image:", error);
     return NextResponse.json(
       { success: false, message: "خطا در آپلود تصویر" },
       { status: 500 }
@@ -116,7 +116,7 @@ export async function DELETE(request: NextRequest) {
       message: "تصویر با موفقیت حذف شد",
     });
   } catch (error) {
-    console.error("Error deleting consultant image:", error);
+    console.log("Error deleting consultant image:", error);
     return NextResponse.json(
       { success: false, message: "خطا در حذف تصویر" },
       { status: 500 }

@@ -150,6 +150,11 @@ const posterSchema = new mongoose.Schema(
       default: false,
       required: true,
     },
+    expireAt: {
+      type: Date,
+      default: () => new Date(Date.now() + 31 * 24 * 60 * 60 * 1000), // 31 روز بعد
+      index: { expires: 0 }, // TTL index
+    },
     meta: {
       type: Map,
       of: mongoose.Schema.Types.Mixed,
