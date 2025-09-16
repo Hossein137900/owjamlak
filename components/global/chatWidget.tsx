@@ -93,8 +93,10 @@ export default function Chat() {
 
         if (payload.role && payload.role === "user") {
           setShouldShowWidget(true);
-          // Load chat history immediately for authenticated users
-          loadChatHistoryWithToken(savedToken);
+          // Load chat history and initialize socket for authenticated users
+          loadChatHistoryWithToken(savedToken).then(() => {
+            initializeChat();
+          });
         } else {
           setShouldShowWidget(false);
         }
@@ -351,20 +353,9 @@ export default function Chat() {
         onClick={() => {
           setIsModalOpen(true);
           setHasNewMessages(false);
-          // Only initialize chat for authenticated users
+          // Initialize chat if not already connected and user is authenticated
           if (!socket && token) {
             initializeChat();
-          } else if (!token) {
-            // Show signup message for non-authenticated users
-            setMessages([{
-              name: "WhatsApp",
-              text: "لطفا ابتدا ثبت نام کنید در سایت",
-              time: new Intl.DateTimeFormat("default", {
-                hour: "numeric",
-                minute: "numeric",
-                second: "numeric",
-              }).format(new Date())
-            }]);
           }
         }}
         className="fixed bottom-16 right-3 z-50 w-16 h-16 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group border border-blue-400/30"

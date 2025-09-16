@@ -86,7 +86,6 @@ export default function ChatAdminList() {
     });
 
     newSocket.on("message", (data: Message & { room?: string; sessionId?: string; userName?: string }) => {
-
       const roomId = data.room || data.sessionId;
       if (roomId) {
         setActiveRooms((prev) => {
@@ -140,31 +139,7 @@ export default function ChatAdminList() {
       }
     });
 
-    newSocket.on("adminMessageUpdate", (data: Message & { room?: string; userName?: string; sessionId?: string }) => {
-      if (data.room) {
-        setActiveRooms((prev) => {
-          const newRooms = new Map(prev);
-          if (newRooms.has(data.room!)) {
-            const roomData = newRooms.get(data.room!)!;
-            // Check if message already exists to prevent duplicates
-            const messageExists = roomData.messages.some(
-              (msg) =>
-                msg.text === data.text &&
-                msg.time === data.time &&
-                msg.name === data.name
-            );
-            if (!messageExists) {
-              newRooms.set(data.room!, {
-                ...roomData,
-                messages: [...roomData.messages, data],
-                hasNewMessage: data.name !== "Admin",
-              });
-            }
-          }
-          return newRooms;
-        });
-      }
-    });
+
 
 
 
@@ -276,29 +251,18 @@ export default function ChatAdminList() {
     if (roomData && roomData.inputValue.trim()) {
       const messageText = roomData.inputValue.trim();
 
-      // Add message immediately to UI
-      const adminMessage = {
-        name: "Admin",
-        text: messageText,
-        time: new Intl.DateTimeFormat("default", {
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-        }).format(new Date()),
-      };
-
+      // Clear input immediately
       setActiveRooms((prev) => {
         const newRooms = new Map(prev);
         const updatedRoom = newRooms.get(roomName)!;
         newRooms.set(roomName, {
           ...updatedRoom,
           inputValue: "",
-          messages: [...updatedRoom.messages, adminMessage],
         });
         return newRooms;
       });
 
-
+      // Send message - let socket event handle UI update
       socket?.emit("adminMessage", {
         room: roomName,
         text: messageText
