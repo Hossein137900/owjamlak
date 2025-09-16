@@ -350,12 +350,15 @@ export default function Chat() {
     <>
       {/* Chat Icon Button */}
       <button
-        onClick={() => {
+        onClick={async () => {
           setIsModalOpen(true);
           setHasNewMessages(false);
-          // Initialize chat if not already connected and user is authenticated
-          if (!socket && token) {
-            initializeChat();
+          // Load chat history and initialize if needed
+          if (token) {
+            await loadChatHistoryWithToken(token);
+            if (!socket) {
+              initializeChat();
+            }
           }
         }}
         className="fixed bottom-16 right-3 z-50 w-16 h-16 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group border border-blue-400/30"

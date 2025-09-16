@@ -43,7 +43,6 @@ export default function ChatAdminList() {
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-
       loadRecentChats();
     });
 
@@ -233,8 +232,10 @@ export default function ChatAdminList() {
     }
   };
 
-  const openChat = (roomName: string) => {
+  const openChat = async (roomName: string) => {
     setSelectedRoom(roomName);
+    // Load fresh messages from database when opening chat
+    await loadRoomHistory(roomName);
     // Clear new message indicator
     setActiveRooms((prev) => {
       const newRooms = new Map(prev);
