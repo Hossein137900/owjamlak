@@ -63,7 +63,7 @@ const FooterMobile = () => {
   const [currentAdminSection, setCurrentAdminSection] = useState<string | null>(
     null
   );
-  console.log(currentAdminSection)
+  console.log(currentAdminSection);
   const [showServicesMenu, setShowServicesMenu] = useState(false);
   const servicesRef = useRef<HTMLDivElement | null>(null);
 
@@ -84,7 +84,16 @@ const FooterMobile = () => {
     else if (item.adminSection && isClient) {
       sessionStorage.setItem("activeAdminSection", item.adminSection);
       setCurrentAdminSection(item.adminSection);
-      if (pathname !== "/admin") router.push("/admin");
+      if (pathname !== "/admin") {
+        router.push("/admin");
+      } else {
+        // Dispatch event to notify admin layout of section change
+        window.dispatchEvent(
+          new CustomEvent("adminSectionChange", {
+            detail: { section: item.adminSection },
+          })
+        );
+      }
     }
   };
 
@@ -113,25 +122,56 @@ const FooterMobile = () => {
         >
           {menuItems.map((item, idx) => {
             const isServices = item.label === "خدمات اوج";
+            const isActive =
+              (isServices && showServicesMenu) ||
+              (item.adminSection &&
+                pathname === "/admin" &&
+                currentAdminSection === item.adminSection) ||
+              (item.href && pathname === item.href);
+
             return (
               <div
                 key={idx}
                 ref={isServices ? servicesRef : null}
                 className="flex-1 flex flex-col items-center relative"
               >
-                <button
+                <motion.button
                   onClick={() => handleNavigation(item)}
-                  className={`flex flex-col items-center text-xs cursor-pointer py-1 ${
-                    isServices && showServicesMenu
-                      ? "text-[#66308d]"
-                      : "text-gray-500"
+                  whileTap={{ scale: 0.9 }}
+                  className={`flex flex-col items-center text-xs cursor-pointer py-1 px-3 rounded-xl transition-all duration-200 relative ${
+                    isActive
+                      ? "text-white"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  <div className="w-6 h-6 flex items-center justify-center">
+                  {/* Active Background */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0   bg-[#01ae9b]   rounded-xl shadow-lg"
+                      initial={false}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
+                    />
+                  )}
+
+                  {/* Icon Container */}
+                  <motion.div
+                    className="w-6 h-6 flex items-center justify-center relative z-10"
+                    animate={{ scale: isActive ? 1.1 : 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     {item.icon}
-                  </div>
-                  <span>{item.label}</span>
-                </button>
+                  </motion.div>
+
+                  {/* Label */}
+                  <span className="relative z-10 mt-1 font-medium">
+                    {item.label}
+                  </span>
+                </motion.button>
 
                 {/* کرکره خدمات */}
                 {isServices && (

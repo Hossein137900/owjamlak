@@ -530,7 +530,7 @@ function PosterListContent() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="lg:w-80 bg-white rounded-xl shadow-lg border border-gray-100 h-fit hidden md:block sticky top-6 overflow-hidden"
+                className="lg:w-72 bg-white rounded-xl shadow-lg border border-gray-100 h-fit hidden md:block sticky top-6 overflow-hidden"
               >
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#01ae9b] to-[#66308d] p-6">

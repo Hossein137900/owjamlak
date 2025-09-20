@@ -1,5 +1,5 @@
 "use client";
-import  { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -110,9 +110,9 @@ const BusinessServices = () => {
     },
     {
       id: "consultation",
-      title: "مشاوره سرمایهگذاری",
+      title: "مشاوره سرمایه گذاری",
       description:
-        "تحلیل بازار و ارائه مشاوره تخصصی برای سرمایهگذاری مطمئن در بازار املاک",
+        "تحلیل بازار و ارائه مشاوره تخصصی برای سرمایه گذاری مطمئن در بازار املاک",
       icon: FaChartLine,
       color: "#01ae9b",
       gradient: "from-green-500 to-purple-700",
@@ -139,7 +139,7 @@ const BusinessServices = () => {
       id: "valuation",
       title: "ارزیابی و کارشناسی",
       description:
-        "ارزیابی تخصصی و کارشناسی قیمت املاک با استفاده از روشهای علمی و دقیق",
+        "ارزیابی تخصصی و کارشناسی قیمت املاک با استفاده از روش های علمی و دقیق",
       icon: FaCalculator,
       color: "#66308d",
       gradient: "from-purple-500 to-green-700",
@@ -229,7 +229,7 @@ const BusinessServices = () => {
           {[
             { number: "500+", label: "پروژه موفق", icon: FaBuilding },
             { number: "1000+", label: "مشتری راضی", icon: FaHandshake },
-            { number: "15+", label: "سال تجربه", icon: FaChartLine },
+            { number: "5+", label: "سال تجربه", icon: FaChartLine },
             { number: "24/7", label: "پشتیبانی", icon: FaKey },
           ].map((stat, index) => (
             <motion.div

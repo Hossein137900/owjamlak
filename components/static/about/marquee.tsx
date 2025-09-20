@@ -52,7 +52,7 @@ export default function CertificatesGallery({
             <button
               key={i}
               onClick={() => setSelectedIndex(i)}
-              className="flex-shrink-0 rounded-2xl overflow-hidden bg-white p-1 shadow hover:shadow-lg transition"
+              className="flex-shrink-0 cursor-pointer rounded-2xl overflow-hidden bg-white p-1 shadow hover:shadow-lg transition"
               style={{
                 height: imageHeight,
                 width: Math.round(imageHeight * 0.7),

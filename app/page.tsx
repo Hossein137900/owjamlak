@@ -33,10 +33,18 @@ export const metadata: Metadata = {
     siteName: "Ouj Amlak",
     images: [
       {
-        url: "https://oujamlak.ir/og-image.jpg", // بهتره یه تصویر 1200x630 مخصوص OG بسازی
+        url: "https://oujamlak.ir/og-image.jpg", // تصویر اصلی
         width: 1200,
         height: 630,
         alt: "اوج املاک - خرید و فروش ملک",
+        type: "image/jpeg",
+      },
+      {
+        url: "https://oujamlak.ir/assets/images/hero4.jpg", // فال‌بک
+        width: 1200,
+        height: 630,
+        alt: "اوج املاک - صفحه اصلی",
+        type: "image/jpeg",
       },
     ],
     locale: "fa_IR",
@@ -48,7 +56,10 @@ export const metadata: Metadata = {
     title: "اوج املاک | خرید و فروش ملک در تهران و ایران",
     description:
       "سامانه خرید و فروش ملک در تهران و ایران با مشاوران حرفه‌ای و خدمات حقوقی مطمئن.",
-    images: ["https://oujamlak.ir/og-image.jpg"],
+    images: [
+      "https://oujamlak.ir/og-image.jpg",
+      "https://oujamlak.ir/assets/images/hero4.jpg",
+    ],
   },
 
   alternates: {
@@ -56,6 +67,17 @@ export const metadata: Metadata = {
   },
 
   metadataBase: new URL("https://oujamlak.ir"),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function Home() {

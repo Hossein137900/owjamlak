@@ -931,7 +931,7 @@ const PosterForm = ({}) => {
           ) : (
             <>
               {/* Deposit for Rent */}
-              <div>
+              <div className="col-span-2 md:col-span-1">
                 <label
                   htmlFor="depositRent"
                   className="block text-sm font-medium text-gray-700 mb-1"

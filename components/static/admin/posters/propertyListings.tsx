@@ -940,30 +940,14 @@ const PropertyListings: React.FC = () => {
               >
                 ملک
               </th>
-              <th
-                scope="col"
-                className=" py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                موقعیت
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                نوع / دسته
-              </th>
+
               <th
                 scope="col"
                 className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 قیمت
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                وضعیت
-              </th>
+
               <th
                 scope="col"
                 className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -989,9 +973,11 @@ const PropertyListings: React.FC = () => {
               posters.map((property: Poster, index) => (
                 <motion.tr
                   key={property._id}
+                  onClick={() => handleViewProperty(property)}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
+                  className="hover:bg-gray-100 cursor-pointer transition-colors duration-150"
                 >
                   <td className="px-6 text-black py-4 whitespace-nowrap">
                     {index + 1}
@@ -1020,22 +1006,7 @@ const PropertyListings: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td className=" py-4  pl-6">
-                    <div className="text-sm text-gray-500 max-w-xs  ">
-                      {property.location.slice(0, 30) || "موقعیت نامشخص"}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">
-                      {getTypeLabel(property.type || "normal")} /{" "}
-                      {getParentTypeLabel(
-                        property.parentType || "residentialSale"
-                      )}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      {getTradeTypeLabel(property.tradeType || "House")}
-                    </div>
-                  </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {property.parentType?.includes("Rent") ||
@@ -1051,20 +1022,7 @@ const PropertyListings: React.FC = () => {
                         </div>
                       )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                        property.status || "pending"
-                      )}`}
-                    >
-                      {getStatusLabel(property.status || "pending")}
-                    </span>
-                    {property.type === "investment" && (
-                      <span className="mr-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                        سرمایه‌گذاری
-                      </span>
-                    )}
-                  </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span
@@ -1079,9 +1037,10 @@ const PropertyListings: React.FC = () => {
                       <div className="flex gap-1">
                         {!property.isApproved && (
                           <button
-                            onClick={() =>
-                              handleApprovalClick(property, "approve")
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation(); // اینجا مانع از اجرای onClick ردیف میشه
+                              handleApprovalClick(property, "approve");
+                            }}
                             className="text-green-600 hover:text-green-900 transition-colors p-1 rounded"
                             title="تایید"
                           >
@@ -1090,9 +1049,10 @@ const PropertyListings: React.FC = () => {
                         )}
                         {property.isApproved && (
                           <button
-                            onClick={() =>
-                              handleApprovalClick(property, "decline")
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation(); // اینجا مانع از اجرای onClick ردیف میشه
+                              handleApprovalClick(property, "decline");
+                            }}
                             className="text-red-600 hover:text-red-900 transition-colors p-1 rounded"
                             title="رد"
                           >
@@ -1123,12 +1083,18 @@ const PropertyListings: React.FC = () => {
                       <button
                         className="text-blue-600 hover:text-blue-900 transition-colors"
                         title="ویرایش"
-                        onClick={() => handleEditProperty(property)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // اینجا مانع از اجرای onClick ردیف میشه
+                          handleEditProperty(property);
+                        }}
                       >
                         <FiEdit className="w-5 h-5" />
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(property)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // اینجا مانع از اجرای onClick ردیف میشه
+                          handleDeleteClick(property);
+                        }}
                         className="text-red-600 hover:text-red-900 transition-colors"
                         title="حذف"
                       >
@@ -1158,7 +1124,10 @@ const PropertyListings: React.FC = () => {
             className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-              <h3 className="text-lg font-medium text-gray-900">ویرایش آگهی</h3>
+              <h3 className="text-base font-medium text-gray-900">
+                ویرایش آگهی <strong>{editFormData.title}</strong>
+              </h3>
+
               <button
                 onClick={() => {
                   setIsEditModalOpen(false);
@@ -2020,17 +1989,6 @@ const PropertyListings: React.FC = () => {
                         className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
                       >
                         Google Maps
-                      </button>
-                      <button
-                        onClick={() => {
-                          const neshanUrl = `https://neshan.org/maps/search#c${
-                            selectedProperty.coordinates!.lat
-                          }-${selectedProperty.coordinates!.lng}-17z-0p`;
-                          window.open(neshanUrl, "_blank");
-                        }}
-                        className="px-3 py-1 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors"
-                      >
-                        نشان
                       </button>
                     </div>
                   </div>

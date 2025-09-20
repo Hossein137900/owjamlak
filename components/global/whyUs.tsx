@@ -206,8 +206,8 @@ export default function WhyUs() {
             className="text-gray-600 mb-6 text-sm md:text-base"
             variants={descriptionVariants}
           >
-            لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با
-            استفاده از طراحان گرافیک است.
+            مشاور املاک اوج با سال‌ها تجربه در زمینه خرید، فروش و اجاره انواع ملک، 
+            بهترین خدمات مشاوره املاک را با قیمت‌های منصفانه و شرایط ویژه ارائه می‌دهد.
           </motion.p>
 
           {/* Animated List */}

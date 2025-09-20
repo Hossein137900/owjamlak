@@ -226,12 +226,12 @@ export default function OurApproachPage() {
               margin: "0px 0px -50px 0px",
             }}
           >
-            <motion.h1
+            <motion.h2
               variants={heroTitleVariants}
               className="text-4xl md:text-5xl font-bold mb-6"
             >
-              خدمات حرفهای املاک با رویکردی متفاوت
-            </motion.h1>
+              خدمات حرفه ای املاک با رویکردی متفاوت
+            </motion.h2>
 
             <motion.p
               variants={heroDescriptionVariants}

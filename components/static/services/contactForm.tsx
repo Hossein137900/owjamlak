@@ -326,7 +326,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
                             isFieldFocused ? { scale: [1, 1.02, 1] } : {}
                           }
                           transition={{ duration: 0.3 }}
-                          className={`block w-full rounded-md border-gray-300 text-black shadow-sm focus:ring-2 sm:text-sm p-3 placeholder-gray-400 
+                          className={`block w-full rounded-md border-gray-300 placeholder:text-xs pr-10 md:placeholder:text-base text-black shadow-sm focus:ring-2 sm:text-sm p-3 placeholder-gray-400 
                             ${
                               errors[field.name]
                                 ? "border-red-300 focus:border-red-500 focus:ring-red-500"
@@ -342,7 +342,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
                         />
                         {field.icon && (
                           <div
-                            className={`absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none ${
+                            className={`absolute   top-3 right-0 flex items-center pr-3 pointer-events-none ${
                               isFieldFocused
                                 ? getColorClasses("secondary")
                                 : "text-gray-400"

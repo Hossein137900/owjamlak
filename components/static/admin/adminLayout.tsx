@@ -354,11 +354,6 @@ const AdminLayout = () => {
     },
   };
 
-  const tooltipVariants = {
-    hidden: { opacity: 0, x: -5 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.2 } },
-  };
-
   const textClass = isDarkMode ? "text-gray-200" : "text-gray-600";
   const borderClass = isDarkMode ? "border-gray-700/50" : "border-gray-200/70";
   const headerBgClass = isDarkMode
@@ -418,7 +413,7 @@ const AdminLayout = () => {
 
               <button
                 onClick={toggleSidebar}
-                className="hidden md:inline-flex items-center justify-center p-1.5 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                className="hidden md:inline-flex -mr-3 items-center justify-center p-1.5 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
                 aria-label="Toggle sidebar"
               >
                 <motion.div
@@ -453,7 +448,7 @@ const AdminLayout = () => {
                 aria-label="Navigate to home"
               >
                 <Link href="/">
-                  <FiHome className={`w-4 h-4 ${textClass}`} />
+                  <FiHome title="خانه" className={`w-5 h-5 ${textClass}`} />
                 </Link>
               </button>
               <button
@@ -522,7 +517,9 @@ const AdminLayout = () => {
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className={`fixed inset-y-0 right-0 flex flex-col w-64 ${sidebarBgClass} shadow-lg z-50 md:hidden rounded-l-lg`}
               >
-                <div className="flex flex-row-reverse items-center justify-between h-14 px-3 border-b ${borderClass}">
+                <div
+                  className={`flex flex-row-reverse items-center justify-between h-14 px-3 border-b ${borderClass}`}
+                >
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -531,7 +528,7 @@ const AdminLayout = () => {
                   >
                     <FiX className="h-5 w-5" />
                   </motion.button>
-                  <span className="text-sm font-semibold ${textClass}">
+                  <span className={`text-sm font-semibold ${textClass}`}>
                     املاک اوج
                   </span>
                 </div>
@@ -576,7 +573,9 @@ const AdminLayout = () => {
                       </motion.button>
                     ))}
                   </nav>
-                  <div className="flex-shrink-0 flex mt-3 border-t pt-3 px-2 ${borderClass}">
+                  <div
+                    className={`flex-shrink-0 flex mt-3 border-t pt-3 px-2 ${borderClass}`}
+                  >
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -599,16 +598,16 @@ const AdminLayout = () => {
           animate={isSidebarOpen ? "open" : "closed"}
           className={`hidden md:flex md:flex-col ${sidebarBgClass} border-l ${borderClass} transition-all duration-300 shadow-md`}
         >
-          <div className="flex-1 flex flex-col pt-4 pb-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+          <div className="flex-1 relative flex flex-col ov pt-4 pb-3 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
             <nav className="flex-1 px-2 mt-10 space-y-1">
               {menuItems.map((item) => (
-                <div key={item.id} className="relative group">
+                <div key={item.id} className=" group">
                   <motion.button
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`group flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                    className={`flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
                       activeSection === item.id
                         ? `${activeBgClass} ${activeTextClass}`
                         : `${textClass} ${hoverBgClass}`
@@ -646,6 +645,27 @@ const AdminLayout = () => {
                         </motion.span>
                       )}
                     </AnimatePresence>
+                    {/* Tooltip for menu items when sidebar is closed */}
+                    {!isSidebarOpen && (
+                      <div className="absolute right-full mr-2  top-1/2 transform -translate-y-1/2 z-9999 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div
+                          className={`px-2.5 py-1 text-sm font-medium rounded-md shadow-lg border ${
+                            isDarkMode
+                              ? "bg-gray-800 backdrop-blur-lg text-gray-200 border-gray-700"
+                              : "bg-white backdrop-blur-lg text-gray-700 border-gray-200"
+                          } whitespace-nowrap`}
+                        >
+                          {item.label}
+                          <div
+                            className={`absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 ${
+                              isDarkMode
+                                ? "bg-gray-800 border-r border-b border-gray-700"
+                                : "bg-white border-r border-b border-gray-200"
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {activeSection === item.id && isSidebarOpen && (
                       <motion.div
@@ -656,37 +676,11 @@ const AdminLayout = () => {
                       />
                     )}
                   </motion.button>
-
-                  {!isSidebarOpen && (
-                    <motion.div
-                      variants={tooltipVariants}
-                      initial="hidden"
-                      whileHover="visible"
-                      className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-30 pointer-events-none"
-                    >
-                      <div
-                        className={`px-2.5 py-1 text-sm font-medium rounded-md shadow-md border ${
-                          isDarkMode
-                            ? "bg-gray-800/90 text-gray-200 border-gray-700/40"
-                            : "bg-white/90 text-gray-600 border-gray-200/40"
-                        } whitespace-nowrap`}
-                      >
-                        {item.label}
-                        <div
-                          className={`absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-1.5 h-1.5 border-r border-b ${
-                            isDarkMode
-                              ? "bg-gray-800/90 border-gray-700/40"
-                              : "bg-white/90 border-gray-200/40"
-                          }`}
-                        />
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
               ))}
             </nav>
           </div>
-          <div className="flex-shrink-0 border-t ${borderClass} p-2">
+          <div className={`flex-shrink-0 border-t ${borderClass} p-2`}>
             <div className="relative group">
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -712,24 +706,19 @@ const AdminLayout = () => {
                 </AnimatePresence>
               </motion.button>
               {!isSidebarOpen && (
-                <motion.div
-                  variants={tooltipVariants}
-                  initial="hidden"
-                  whileHover="visible"
-                  className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-30 pointer-events-none"
-                >
-                  <div className="px-2.5 py-1 text-sm font-medium rounded-md shadow-md bg-red-500/90 text-white border-red-400/40">
+                <div className="absolute right-full mr-2 top-1/2 transform -translate-y-1/2 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="px-2.5 py-1 text-sm font-medium rounded-md shadow-lg bg-red-500 text-white border border-red-400 whitespace-nowrap">
                     خروج
-                    <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-1.5 h-1.5 bg-red-500 border-r border-b border-red-400/40" />
+                    <div className="absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2 rotate-45 w-2 h-2 bg-red-500 border-r border-b border-red-400" />
                   </div>
-                </motion.div>
+                </div>
               )}
             </div>
           </div>
         </motion.div>
 
         <main
-          className={`flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 mt-14 md:mt-14 lg:p-6 ${mainBgClass} transition-colors duration-300`}
+          className={`flex-1 overflow-y-auto   p-4 sm:p-6 mt-14 md:mt-14 lg:p-6 ${mainBgClass} transition-colors duration-300`}
         >
           <motion.div
             key={activeSection}

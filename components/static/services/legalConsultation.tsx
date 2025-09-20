@@ -5,6 +5,7 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 
 import { AnimatePresence, motion } from "framer-motion";
+
 import {
   FaBalanceScale,
   FaArrowLeft,
@@ -230,9 +231,7 @@ export default function LegalConsultationPage() {
         body: JSON.stringify(apiData),
       });
 
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-
+ 
       const result = await response.json();
       console.log("Response data:", result);
 
@@ -798,65 +797,13 @@ export default function LegalConsultationPage() {
             <p className="text-gray-600">
               سوال دیگری دارید؟{" "}
               <a
-              href="tel:02177222007"
-              className="text-[#01ae9b] font-medium hover:underline"
-            >
+                href="tel:02177222007"
+                className="text-[#01ae9b] font-medium hover:underline"
+              >
                 با کارشناسان حقوقی ما تماس بگیرید
               </a>
             </p>
           </motion.div>
-        </motion.div>
-
-        {/* Contact Information */}
-        <motion.div
-          variants={fadeIn}
-          className="mt-16 bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl"
-        >
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-            اطلاعات تماس
-          </h2>
-          <div className="grid md:grid-cols-3 gap-6 text-center">
-            <div className="flex flex-col items-center">
-              <div className="bg-green-100 text-green-600 p-3 rounded-full mb-3">
-                <FaPhone size={24} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">تماس تلفنی</h3>
-              <p className="text-gray-600">021-12345678</p>
-              <p className="text-gray-600">09120000000</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-green-100 text-green-600 p-3 rounded-full mb-3">
-                <FaEnvelope size={24} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">ایمیل</h3>
-              <p className="text-gray-600">legal@amalak.com</p>
-              <p className="text-gray-600">info@amalak.com</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="bg-green-100 text-green-600 p-3 rounded-full mb-3">
-                <FaInfoCircle size={24} />
-              </div>
-              <h3 className="font-semibold text-gray-800 mb-2">ساعات کاری</h3>
-              <p className="text-gray-600">شنبه تا چهارشنبه: 8-17</p>
-              <p className="text-gray-600">پنج‌شنبه: 8-13</p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Emergency Contact */}
-        <motion.div
-          variants={fadeIn}
-          className="mt-8 bg-red-50 border border-red-200 p-4 rounded-lg"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-red-100 text-red-600 p-2 rounded-full">
-              <FaPhone size={16} />
-            </div>
-            <h3 className="font-semibold text-red-800">تماس اضطراری</h3>
-          </div>
-          <p className="text-red-700 text-sm">
-            برای موارد فوری و خارج از ساعات اداری: 09120000000
-          </p>
         </motion.div>
       </motion.div>
     </main>
