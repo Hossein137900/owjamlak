@@ -37,8 +37,8 @@ export default function InvestmentBanner() {
           فرصت های طلایی <span className="text-[#66308d]">سرمایه گذاری</span>
         </h2>
         <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-          با ما در بهترین و آینده دارترین پروژههای سرمایه گذاری همراه شوید. تیم ما
-          بهترین فرصتها را گلچین کرده و در اختیار شما قرار میدهد.
+          با ما در بهترین و آینده دارترین پروژه های سرمایه گذاری همراه شوید. تیم ما
+          بهترین فرصت ها را گلچین کرده و در اختیار شما قرار میدهد.
         </p>
         <Link href={"/offers"} className="cursor-pointer">
           <motion.button

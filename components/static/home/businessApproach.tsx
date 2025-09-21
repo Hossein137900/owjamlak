@@ -178,7 +178,7 @@ const BusinessServices = () => {
 
           <p className="text-gray-600 max-w-3xl mx-auto text-lg leading-relaxed">
             ما مجموعهای از خدمات تخصصی املاک را با بالاترین استانداردها و
-            تکنولوژیهای روز دنیا ارائه میدهیم
+            تکنولوژی های روز دنیا ارائه میدهیم
           </p>
         </motion.div>
 
