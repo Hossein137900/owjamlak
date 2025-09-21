@@ -21,6 +21,7 @@ import {
   isValidPhoneNumber,
   persianToLatinDigits,
 } from "@/utils/digitConvertor";
+import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
 
 type TokenPayload = {
   id?: string;
@@ -69,6 +70,7 @@ const PropertyListings: React.FC = () => {
   console.log(video);
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [videoUploading, setVideoUploading] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
   const [posters, setPosters] = useState<Poster[]>([]);
   const [page, setPage] = useState(1);
@@ -420,44 +422,34 @@ const PropertyListings: React.FC = () => {
       return;
     }
 
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 20 مگابایت باشد");
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
       return;
     }
 
     setVideoUploading(true);
+    setVideoProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append("video", file);
-      formData.append("posterId", selectedProperty?._id || "");
-
-      const response = await fetch("/api/poster/video", {
-        method: "POST",
-        headers: {
-          token: localStorage.getItem("token") || "",
-        },
-        body: formData,
+      const filename = await ChunkedVideoUploader.uploadVideo({
+        file,
+        onProgress: (progress) => setVideoProgress(progress),
+        onError: (error) => toast.error(error),
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setVideo(file);
-        setVideoPreview(URL.createObjectURL(file));
-        setEditFormData((prev) => ({
-          ...prev,
-          video: result.filename,
-        }));
-        toast.success("ویدیو با موفقیت آپلود شد");
-      } else {
-        toast.error(result.message || "خطا در آپلود ویدیو");
-      }
+      
+      setVideo(file);
+      setVideoPreview(URL.createObjectURL(file));
+      setEditFormData((prev) => ({
+        ...prev,
+        video: filename,
+      }));
+      toast.success("ویدیو با موفقیت آپلود شد");
     } catch (error) {
       console.log("Video upload failed:", error);
       toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);
+      setVideoProgress(0);
     }
   };
 
@@ -1624,6 +1616,15 @@ const PropertyListings: React.FC = () => {
                             <p className="text-sm text-gray-500 mt-2">
                               در حال آپلود ویدیو...
                             </p>
+                            {videoProgress > 0 && (
+                              <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                                <div
+                                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                                  style={{ width: `${videoProgress}%` }}
+                                ></div>
+                                <p className="text-xs text-center mt-1">{videoProgress}%</p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

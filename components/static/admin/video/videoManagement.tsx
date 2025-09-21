@@ -12,6 +12,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
 
 interface Video {
   _id: string;
@@ -309,6 +310,7 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
   onSuccess,
 }) => {
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [alt, setAlt] = useState("");
@@ -322,24 +324,41 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
       return;
     }
 
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+      return;
+    }
+
     setUploading(true);
-    const formData = new FormData();
-    formData.append("video", file);
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("alt", alt);
+    setProgress(0);
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("/api/videos", {
-        method: "POST",
-        headers: { token: token || "" },
-        body: formData,
+      const filename = await ChunkedVideoUploader.uploadVideo({
+        file,
+        onProgress: (progress) => setProgress(progress),
+        onError: (error) => toast.error(error),
       });
-
-      const data = await response.json();
-
-      if (data.success) {
+      
+      // Create video record in database
+      const response = await fetch("/api/videos/metadata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          token: localStorage.getItem("token") || "",
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          alt,
+          filename,
+          originalName: file.name,
+          size: file.size,
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
         toast.success("ویدیو با موفقیت آپلود شد");
         onSuccess();
         onClose();
@@ -347,13 +366,14 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
         setDescription("");
         setAlt("");
       } else {
-        toast("خطا در آپلود ویدیو");
+        toast.error(result.message || "خطا در ثبت ویدیو");
       }
     } catch (error) {
       console.log(error);
       toast.error("خطا در آپلود ویدیو");
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
@@ -424,6 +444,15 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
             <p className="text-gray-600 dark:text-gray-400 mb-2">
               {uploading ? "در حال آپلود..." : "فایل ویدیو را انتخاب کنید"}
             </p>
+            {uploading && progress > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                <div
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                ></div>
+                <p className="text-xs text-center mt-1">{progress}%</p>
+              </div>
+            )}
             <input
               type="file"
               accept="video/*"

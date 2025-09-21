@@ -19,6 +19,7 @@ import {
   isValidPhoneNumber,
   persianToLatinDigits,
 } from "@/utils/digitConvertor";
+import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
 interface ImageItem {
   alt: string;
   url: string;
@@ -308,35 +309,25 @@ const PosterForm = ({}) => {
     }
 
     setVideoUploading(true);
+    setProgress(0);
 
     try {
-      const formData = new FormData();
-      formData.append("video", file);
-      formData.append("userId", userId);
-
-      const response = await fetch("/api/poster/video", {
-        method: "POST",
-        headers: {
-          token: localStorage.getItem("token") || "",
-        },
-        body: formData,
+      const filename = await ChunkedVideoUploader.uploadVideo({
+        file,
+        onProgress: (progress) => setProgress(progress),
+        onError: (error) => toast.error(error),
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setVideo(file);
-        setVideoPreview(URL.createObjectURL(file));
-        setFormData((prev) => ({ ...prev, video: result.filename }));
-        toast.success("ویدیو با موفقیت آپلود شد");
-      } else {
-        toast.error(result.error || "خطا در آپلود ویدیو");
-      }
+      
+      setVideo(file);
+      setVideoPreview(URL.createObjectURL(file));
+      setFormData((prev) => ({ ...prev, video: filename }));
+      toast.success("ویدیو با موفقیت آپلود شد");
     } catch (error) {
       console.log("Video upload failed:", error);
       toast.error("خطا در آپلود ویدیو");
     } finally {
       setVideoUploading(false);
+      setProgress(0);
     }
   };
 
@@ -714,7 +705,7 @@ const PosterForm = ({}) => {
               >
                 <FiUpload className="w-10 h-10 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">
-                  برای آپلود ویدیو کلیک کنید (حداکثر 10)
+                  برای آپلود ویدیو کلیک کنید (حداکثر 50 مگابایت)
                 </span>
                 <span className="text-xs text-gray-400 mt-1">
                   فرمت‌های مجاز: MP4, WebM, OGG, AVI, MOV , Hevc
@@ -727,6 +718,15 @@ const PosterForm = ({}) => {
                   <p className="text-sm text-gray-500 mt-2">
                     در حال آپلود ویدیو...
                   </p>
+                  {progress > 0 && (
+                    <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                      <div
+                        className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                      <p className="text-xs text-center mt-1">{progress}%</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

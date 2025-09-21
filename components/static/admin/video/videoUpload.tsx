@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { FiUpload, FiTrash2, FiPlay, FiDownload } from "react-icons/fi";
+import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
+import toast from "react-hot-toast";
 
 interface Video {
   filename: string;
@@ -15,6 +17,7 @@ export default function VideoUpload() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   // Load videos on component mount
   useEffect(() => {
@@ -40,33 +43,32 @@ export default function VideoUpload() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+      return;
+    }
+
     setUploading(true);
-    const formData = new FormData();
-    formData.append("video", file);
+    setProgress(0);
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("/api/videos", {
-        method: "POST",
-        headers: {
-          token: token || "",
-        },
-        body: formData,
+      const filename = await ChunkedVideoUploader.uploadVideo({
+        file,
+        onProgress: (progress) => setProgress(progress),
+        onError: (error) => toast.error(error),
       });
 
-      const data = await response.json();
+      console.log("Uploaded filename:", filename);
       
-      if (data.success) {
-        await loadVideos(); // Reload videos list
-        event.target.value = ""; // Clear input
-      } else {
-        alert(data.message || "خطا در آپلود ویدیو");
-      }
+      await loadVideos(); // Reload videos list
+      event.target.value = ""; // Clear input
+      toast.success("ویدیو با موفقیت آپلود شد");
     } catch (error) {
       console.log("Upload error:", error);
-      alert("خطا در آپلود ویدیو");
+      toast.error("خطا در آپلود ویدیو");
     } finally {
       setUploading(false);
+      setProgress(0);
     }
   };
 
@@ -126,6 +128,15 @@ export default function VideoUpload() {
             <span className="mt-2 block text-sm font-medium text-gray-900">
               {uploading ? "در حال آپلود..." : "انتخاب ویدیو برای آپلود"}
             </span>
+            {uploading && progress > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                <div
+                  className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                ></div>
+                <p className="text-xs text-center mt-1">{progress}%</p>
+              </div>
+            )}
             <input
               type="file"
               className="hidden"
