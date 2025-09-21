@@ -422,8 +422,8 @@ const PropertyListings: React.FC = () => {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 5 مگابایت باشد");
       return;
     }
 
@@ -1113,7 +1113,7 @@ const PropertyListings: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-base font-medium text-gray-900">
@@ -1741,7 +1741,7 @@ const PropertyListings: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-lg text-black shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-lg text-black shadow-xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
           >
             <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">جزئیات آگهی</h3>

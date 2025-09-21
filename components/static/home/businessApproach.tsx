@@ -171,13 +171,13 @@ const BusinessServices = () => {
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
             <span className="text-[#66308d] relative">خدمات</span>
-            <span className="text-gray-800"> حرفهای ما</span>
+            <span className="text-gray-800"> حرفه ای ما</span>
           </h2>
 
           <div className="h-1 bg-gradient-to-r from-[#66308d] to-[#01ae9b] mx-auto mb-6 rounded-full w-20" />
 
           <p className="text-gray-600 max-w-3xl mx-auto text-lg leading-relaxed">
-            ما مجموعهای از خدمات تخصصی املاک را با بالاترین استانداردها و
+            ما مجموعه های از خدمات تخصصی املاک را با بالاترین استانداردها و
             تکنولوژی های روز دنیا ارائه میدهیم
           </p>
         </motion.div>
