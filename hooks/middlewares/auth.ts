@@ -38,12 +38,11 @@ export const login = async (request: NextRequest) => {
     const { phone, password } = await request.json();
 
     // Add validation logging
-    console.log("Login attempt for:", phone);
 
     if (!phone || !password) {
       console.log("Missing credentials");
       return NextResponse.json(
-        { message: "Phone number and password are required" },
+        { message: "شماره تلفن و رمز عبور الزامی است" },
         { status: 400 }
       );
     }
@@ -66,7 +65,6 @@ export const login = async (request: NextRequest) => {
     const tokenSecret = process.env.JWT_SECRET;
 
     if (!tokenSecret) {
-      console.log("JWT_SECRET missing");
       return NextResponse.json(
         { message: "Server configuration error" },
         { status: 500 }
@@ -88,10 +86,7 @@ export const login = async (request: NextRequest) => {
     return NextResponse.json({ token });
   } catch (error) {
     console.log("Login error:", error);
-    return NextResponse.json(
-      { message: "خطای سرور" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "خطای سرور" }, { status: 500 });
   }
 };
 
@@ -330,10 +325,7 @@ export const getUserByToken = async (request: NextRequest) => {
     });
   } catch (error) {
     console.log("Error:", error);
-    return NextResponse.json(
-      { error: "خطای سرور" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "خطای سرور" }, { status: 500 });
   }
 };
 
@@ -382,10 +374,7 @@ export const updateUserByToken = async (request: NextRequest) => {
     return NextResponse.json({ user });
   } catch (error) {
     console.log("Error:", error);
-    return NextResponse.json(
-      { error: "خطای سرور" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "خطای سرور" }, { status: 500 });
   }
 };
 

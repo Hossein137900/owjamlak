@@ -43,8 +43,8 @@ export default function VideoUpload() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 10 مگابایت باشد");
       return;
     }
 

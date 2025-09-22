@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,16 +11,6 @@ const SliderMobile = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const { posters, loading, error } = usePosters();
-
-  useEffect(() => {
-    if (posters.length > 1) {
-      const interval = setInterval(() => {
-        setDirection(1);
-        setCurrentIndex((prev) => (prev + 1) % posters.length);
-      }, 6000);
-      return () => clearInterval(interval);
-    }
-  }, [posters.length]);
 
   const handleDragEnd = (event: TouchEvent | MouseEvent, info: PanInfo) => {
     const threshold = 50;
@@ -69,7 +59,7 @@ const SliderMobile = () => {
     );
   }
 
-   if (!posters.length) {
+  if (!posters.length) {
     return (
       <div className="py-6" dir="rtl">
         <div className="relative h-80  overflow-hidden shadow-xl">

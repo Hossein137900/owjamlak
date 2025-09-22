@@ -33,10 +33,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check file size (5MB limit)
-    const maxSize = 8 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024;
     if (imageFile.size > maxSize) {
       return NextResponse.json(
-        { success: false, message: "حجم فایل نباید بیشتر از 8 مگابایت باشد" },
+        { success: false, message: "حجم فایل نباید بیشتر از 5 مگابایت باشد" },
         { status: 400 }
       );
     }

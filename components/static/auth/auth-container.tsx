@@ -249,26 +249,18 @@ export default function AuthPageContainer() {
       });
 
       const data: ApiResponse = await response.json();
-      console.log(data);
 
-      if (data.token) {
+      if (response.ok && data.token) {
         setSuccessMessage(data.message || "ورود با موفقیت انجام شد");
+        localStorage.setItem("token", data.token);
+        window.dispatchEvent(new Event("authChange"));
 
-        // Store user data if needed
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          // Dispatch custom event to update navbar
-          window.dispatchEvent(new Event("authChange"));
-        }
-
-        // Check redirect flags
         const shouldRedirectToAdmin =
           localStorage.getItem("adminRedirect") === "true";
         const shouldRedirectToContact =
           localStorage.getItem("contactRedirect") === "true";
         const contactRedirectUrl = localStorage.getItem("contactRedirectUrl");
 
-        // Redirect after successful login
         setTimeout(() => {
           if (shouldRedirectToAdmin) {
             localStorage.removeItem("adminRedirect");
@@ -285,10 +277,10 @@ export default function AuthPageContainer() {
           }
         }, 1000);
       } else {
-        setErrorMessage(data.message || "خطا در ورود");
+        setErrorMessage(data.message || "خطا در ورود. لطفاً دوباره تلاش کنید.");
       }
     } catch (error) {
-      console.log("Login error:", error);
+      console.error("Login error:", error);
       setErrorMessage("خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsLoading(false);
@@ -401,7 +393,7 @@ export default function AuthPageContainer() {
             <div className="text-white">
               <h1 className="text-4xl font-bold mb-4">مشاور املاک اوج</h1>
               <p className="text-white/90 text-lg">
-                همراه شما در مسیر خانهدار شدن
+                همراه شما در مسیر خانه دار شدن
               </p>
             </div>
           </div>
@@ -410,7 +402,7 @@ export default function AuthPageContainer() {
             <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20">
               <p className="text-white text-lg leading-relaxed">
                 با عضویت در سایت مشاور املاک اوج، به راحتی میتوانید به هزاران
-                آگهی ملک دسترسی داشته باشید و از مشاورههای تخصصی ما بهرهمند
+                آگهی ملک دسترسی داشته باشید و از مشاوره های تخصصی ما بهره مند
                 شوید.
               </p>
             </div>

@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
       "video/webm", // VP8/VP9
       "video/avi", // AVI با کدک‌های مختلف
       "video/mpeg", // MPEG-2
+      "video/MOV", // MPEG-2
     ];
     if (!allowedTypes.includes(videoFile.type)) {
       return NextResponse.json(

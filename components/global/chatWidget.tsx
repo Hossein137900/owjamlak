@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { Message, User, ChatSocket } from "../../types/chat";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function Chat() {
   const [socket, setSocket] = useState<ChatSocket | null>(null);
@@ -16,6 +18,7 @@ export default function Chat() {
   const [currentRoom, setCurrentRoom] = useState<string>("");
   const [hasNewMessages, setHasNewMessages] = useState<boolean>(false);
   const [shouldShowWidget, setShouldShowWidget] = useState<boolean>(true);
+  console.log(shouldShowWidget, "shouldShowWidget");
   const [, setSessionCreated] = useState<boolean>(false);
   const [lastAuthState, setLastAuthState] = useState<string | null>(null);
 
@@ -42,7 +45,6 @@ export default function Chat() {
     setCurrentRoom("");
     setSessionCreated(false);
     setIsConnected(false);
-
   };
 
   const checkAuthState = () => {
@@ -50,7 +52,6 @@ export default function Chat() {
     const currentAuthState = savedToken || "no-token";
 
     if (lastAuthState !== currentAuthState) {
-
       resetChatSession();
       setLastAuthState(currentAuthState);
 
@@ -161,25 +162,27 @@ export default function Chat() {
     if (socket) {
       const handleConnect = () => {
         setIsConnected(true);
-
       };
 
       const handleDisconnect = () => {
         setIsConnected(false);
-
       };
 
-      const handleMessage = (data: { userName?: string; name?: string; text: string; time: string }) => {
+      const handleMessage = (data: {
+        userName?: string;
+        name?: string;
+        text: string;
+        time: string;
+      }) => {
         setActivity("");
 
-        
         const uiMessage = {
           name: data.userName || data.name || "Unknown",
           text: data.text,
-          time: data.time
+          time: data.time,
         };
         setMessages((prev) => [...prev, uiMessage]);
-        
+
         const currentUser = getCurrentUserName();
 
         const senderName = data.userName || data.name;
@@ -189,7 +192,7 @@ export default function Chat() {
       };
 
       const handleActivity = (name: string) => {
-        setActivity(`${name} is typing...`);
+        setActivity(`${name} در حال تایپ است`);
         setTimeout(() => setActivity(""), 3000);
       };
 
@@ -235,18 +238,16 @@ export default function Chat() {
     }
 
     const currentToken = token || localStorage.getItem("token");
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500";
-    console.log('Chat widget connecting to:', socketUrl);
-    const newSocket = io(
-      socketUrl,
-      {
-        auth: {
-          token: currentToken,
-        },
-        forceNew: true,
-        transports: ['websocket', 'polling']
-      }
-    ) as ChatSocket;
+    const socketUrl =
+      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500";
+    console.log("Chat widget connecting to:", socketUrl);
+    const newSocket = io(socketUrl, {
+      auth: {
+        token: currentToken,
+      },
+      forceNew: true,
+      transports: ["websocket", "polling"],
+    }) as ChatSocket;
 
     setSocket(newSocket);
     socketRef.current = newSocket;
@@ -254,7 +255,7 @@ export default function Chat() {
 
   const loadChatHistoryWithToken = async (authToken: string): Promise<void> => {
     if (!authToken) return;
-    
+
     try {
       const response = await fetch(
         `${
@@ -267,14 +268,14 @@ export default function Chat() {
         }
       );
       if (response.ok) {
-        const history: { userName: string; text: string; time: string }[] = await response.json();
-        const uiMessages = history.map(msg => ({
+        const history: { userName: string; text: string; time: string }[] =
+          await response.json();
+        const uiMessages = history.map((msg) => ({
           name: msg.userName,
           text: msg.text,
-          time: msg.time
+          time: msg.time,
         }));
         setMessages(uiMessages);
-
       }
     } catch {
       // Error handled silently
@@ -292,9 +293,9 @@ export default function Chat() {
       if (socket) {
         const userName = getCurrentUserName();
 
-        socket.emit("message", { 
+        socket.emit("message", {
           text: message.trim(),
-          userName: userName
+          userName: userName,
         });
         setMessage("");
       }
@@ -340,9 +341,9 @@ export default function Chat() {
   };
 
   // Don't render widget for admin roles
-  if (!shouldShowWidget) {
-    return null;
-  }
+  // if (!shouldShowWidget) {
+  //   return null;
+  // }
   if (pathname === "/auth") {
     return null;
   }
@@ -421,17 +422,39 @@ export default function Chat() {
                       ? `${users.length} participant${
                           users.length > 1 ? "s" : ""
                         }`
-                      : "بدون شرکت کننده"}
+                      : ""}
                   </p>
                 </div>
               </div>
 
               <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-blue-500/50 scrollbar-track-transparent bg-black/50">
                 {!token && messages.length === 0 && (
-                  <div className="flex justify-center mb-4">
-                    <div className="max-w-[80%] p-3 rounded-2xl backdrop-blur-sm border border-blue-400/20 shadow-lg bg-gradient-to-r from-gray-700 to-gray-600 text-blue-300">
-                      <p className="text-xl text-center">لطفا ابتدا ثبت نام کنید در سایت</p>
-                    </div>
+                  <div className="flex justify-center items-center mb-6 px-4">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                      className="p-6 rounded-3xl flex flex-col justify-center items-center backdrop-blur-md border border-blue-300/30 shadow-xl bg-gradient-to-br from-gray-800/90 to-gray-700/90 text-blue-100 max-w-md w-full"
+                      role="region"
+                      aria-labelledby="welcome-title"
+                    >
+                      <h2
+                        id="welcome-title"
+                        className="text-2xl font-semibold text-center mb-2"
+                      >
+                        خوش آمدید
+                      </h2>
+                      <p className="text-base text-center text-blue-200 mb-4">
+                        لطفا برای ادامه، ثبت نام کنید یا وارد شوید
+                      </p>
+                      <Link
+                        href="/auth"
+                        className="bg-blue-500 text-white text-center rounded-xl px-4 py-2 font-medium hover:bg-blue-600 focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-800 transition-colors duration-200"
+                        aria-label="ورود یا ثبت نام در سایت"
+                      >
+                        ورود/ثبت نام
+                      </Link>
+                    </motion.div>
                   </div>
                 )}
                 {messages.map((msg, index) => (
@@ -509,7 +532,9 @@ export default function Chat() {
                 </div>
               ) : (
                 <div className="p-4 border-t border-blue-400/20 bg-white/10 text-center">
-                  <p className="text-blue-200/70 text-sm">برای ارسال پیام ابتدا وارد شوید</p>
+                  <p className="text-blue-200/70 text-sm">
+                    برای ارسال پیام ابتدا وارد شوید
+                  </p>
                 </div>
               )}
             </div>

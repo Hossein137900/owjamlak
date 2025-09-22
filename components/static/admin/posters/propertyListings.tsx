@@ -415,6 +415,7 @@ const PropertyListings: React.FC = () => {
       "video/webm", // VP8/VP9
       "video/avi", // AVI با کدک‌های مختلف
       "video/mpeg", // MPEG-2
+      "video/MOV", // MPEG-2
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -422,8 +423,8 @@ const PropertyListings: React.FC = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 5 مگابایت باشد");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از10 مگابایت باشد");
       return;
     }
 
@@ -436,7 +437,7 @@ const PropertyListings: React.FC = () => {
         onProgress: (progress) => setVideoProgress(progress),
         onError: (error) => toast.error(error),
       });
-      
+
       setVideo(file);
       setVideoPreview(URL.createObjectURL(file));
       setEditFormData((prev) => ({
@@ -1606,7 +1607,7 @@ const PropertyListings: React.FC = () => {
                         >
                           <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
                           <span className="text-sm text-gray-500">
-                            برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
+                            برای آپلود ویدیو کلیک کنید (حداکثر 10)
                           </span>
                         </label>
 
@@ -1622,7 +1623,9 @@ const PropertyListings: React.FC = () => {
                                   className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                                   style={{ width: `${videoProgress}%` }}
                                 ></div>
-                                <p className="text-xs text-center mt-1">{videoProgress}%</p>
+                                <p className="text-xs text-center mt-1">
+                                  {videoProgress}%
+                                </p>
                               </div>
                             )}
                           </div>

@@ -3,7 +3,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
 const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
-const MAX_SIZE = 30 * 1024 * 1024; // 30MB
+const MAX_SIZE = 10 * 1024 * 1024; // 30MB
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
 
     // Security validations
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type' }, { status: 400 });
+      return NextResponse.json({ error: 'فایل با پسوند غیرمجاز' }, { status: 400 });
     }
 
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File too large' }, { status: 400 });
+      return NextResponse.json({ error: 'فایل سنگین' }, { status: 400 });
     }
 
     if (!['main', 'second', 'additional'].includes(imageType)) {

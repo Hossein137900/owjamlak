@@ -554,6 +554,7 @@ const PosterById: React.FC = () => {
       "video/HEVC",
       "video/x-matroska",
       "video/mpeg",
+      "video/MOV",
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -561,8 +562,8 @@ const PosterById: React.FC = () => {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 10 مگابایت باشد");
       return;
     }
 
@@ -1176,7 +1177,7 @@ const PosterById: React.FC = () => {
                         >
                           <FiUpload className="w-8 h-8 text-gray-400 mb-2" />
                           <span className="text-sm text-gray-500">
-                            برای آپلود ویدیو کلیک کنید (حداکثر 50MB)
+                            برای آپلود ویدیو کلیک کنید (حداکثر 10)
                           </span>
                         </label>
 

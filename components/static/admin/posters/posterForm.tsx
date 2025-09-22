@@ -294,6 +294,7 @@ const PosterForm = ({}) => {
       "video/webm", // VP8/VP9
       "video/avi", // AVI با کدک‌های مختلف
       "video/mpeg", // MPEG-2
+      "video/MOV", // MPEG-2
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -303,8 +304,8 @@ const PosterForm = ({}) => {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 10 مگابایت باشد");
       return;
     }
 
@@ -705,7 +706,7 @@ const PosterForm = ({}) => {
               >
                 <FiUpload className="w-10 h-10 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">
-                  برای آپلود ویدیو کلیک کنید (حداکثر 50 مگابایت)
+                  برای آپلود ویدیو کلیک کنید (حداکثر 10 مگابایت)
                 </span>
                 <span className="text-xs text-gray-400 mt-1">
                   فرمت‌های مجاز: MP4, WebM, OGG, AVI, MOV , Hevc
