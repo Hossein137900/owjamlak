@@ -371,8 +371,8 @@ export default function PosterDetailClient({
     posterData.video !== "undefined" &&
     posterData.video.trim() !== ""
   ) {
-    // Extract userId from poster data or use current user
-    const videoUserId = posterData.user?._id || posterData.consultant || userId;
+    // Extract userId from poster data
+    const videoUserId = posterData.user?._id || posterData.consultant;
     mediaItems.push({
       type: "video",
       src: `/api/poster/video/${videoUserId}/${posterData.video}`,

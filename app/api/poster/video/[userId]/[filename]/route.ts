@@ -53,7 +53,7 @@ export async function GET(
         break;
     }
 
-    return new NextResponse(videoBuffer, {
+    return new NextResponse(new Uint8Array(videoBuffer), {
       headers: {
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=31536000",
