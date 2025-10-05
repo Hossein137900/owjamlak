@@ -21,6 +21,19 @@ export interface Offer {
   parking?: boolean;
   createdAt?: string;
 }
+export interface Admin {
+  _id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  image: string;
+  position: string;
+  description?: string;
+  isActive: boolean;
+  user: { _id: string; name?: string; phone?: string };
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export interface Poster {
   _id: string;
@@ -152,6 +165,11 @@ export interface Consultant {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  user: {
+    name: string;
+    _id: string;
+    phone: string;
+  };
 }
 
 export interface RealStateRequest {

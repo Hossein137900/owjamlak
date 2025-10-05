@@ -90,7 +90,7 @@ const footerLinks = [
       { name: "درباره ما", href: "/aboutUs" },
       { name: "تماس با ما", href: "/contactUs" },
       { name: "املاک ویژه", href: "/offers" },
-      { name: "وبلاگ", href: "/blogs" },
+      { name: "مجله اوج", href: "/blogs" },
       { name: "فیلم آموزشی", href: "/videos" },
     ],
   },

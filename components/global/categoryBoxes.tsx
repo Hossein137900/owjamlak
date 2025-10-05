@@ -129,7 +129,7 @@ export default function CategoryBoxes() {
   };
 
   return (
-    <div className="py-12 px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="py-12 px-4 md:px-20 container  mx-auto">
       {/* Animated Header */}
       <motion.div
         className="text-center mb-10"
@@ -139,11 +139,11 @@ export default function CategoryBoxes() {
         viewport={{ once: true, amount: 0.3 }}
       >
         <h2 className="text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
-          خدمات املاک  <span style={{ color: primaryColor }}>اوج</span>
+          خدمات املاک <span style={{ color: primaryColor }}>اوج</span>
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          ما در املاک اوج، خدمات متنوعی در زمینه املاک ارائه می‌دهیم تا شما بتوانید با
-          خیال راحت معاملات ملکی خود را انجام دهید
+          ما در املاک اوج، خدمات متنوعی در زمینه املاک ارائه می‌دهیم تا شما
+          بتوانید با خیال راحت معاملات ملکی خود را انجام دهید
         </p>
       </motion.div>
 

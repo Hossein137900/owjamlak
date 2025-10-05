@@ -163,7 +163,7 @@ const handleVideoUpload = async (file: File) => {
     // Update form data with filename
     setFormData(prev => ({ ...prev, video: filename }));
   } catch (error) {
-    console.error('Upload failed:', error);
+    console.log('Upload failed:', error);
   }
 };
 ```

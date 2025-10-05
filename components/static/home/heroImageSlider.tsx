@@ -83,7 +83,7 @@ const HeroImageSlider = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
         <div className="absolute bottom-0 right-0 p-6 text-white w-full">
-          <h2 className="text-xl font-bold mb-2">به اوج خوش آمدید</h2>
+          <h2 className="text-xl font-bold mb-2">به املاک اوج خوش آمدید</h2>
           <p className="text-sm text-gray-200">منتظر آگهی‌های جدید باشید ✨</p>
         </div>
       </div>

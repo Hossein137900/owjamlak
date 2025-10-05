@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connect from "@/lib/data";
 import Consultant from "@/models/consultant";
+import User from "@/models/user";
 import mongoose from "mongoose";
 
 interface ConsultantData {
@@ -87,7 +88,16 @@ export async function POST(req: NextRequest) {
       description,
       rating,
       isActive = true,
+      userId,
     } = await req.json();
+
+    const user = await User.findById(userId);
+    if (!user || user.role !== "consultant") {
+      return NextResponse.json(
+        { message: "کاربر معتبر نیست یا نقش مشاور ندارد" },
+        { status: 400 }
+      );
+    }
 
     // Validation
     if (
@@ -123,8 +133,8 @@ export async function POST(req: NextRequest) {
     }
 
     const consultantData: ConsultantData = {
-      name,
-      phone,
+      name: user.name, // از User بگیر
+      phone: user.phone, // از User بگیر
       whatsapp,
       experienceYears,
       workAreas: workAreas.filter((area: string) => area.trim()),
@@ -132,7 +142,7 @@ export async function POST(req: NextRequest) {
         specialties?.filter((specialty: string) => specialty.trim()) || [],
       isActive,
       posterCount: 0,
-      user: new mongoose.Types.ObjectId(), // Temporary user ID
+      user: userId,
     };
 
     // Add optional fields only if they have values

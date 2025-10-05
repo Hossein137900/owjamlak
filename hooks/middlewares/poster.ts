@@ -64,16 +64,28 @@ export const getAllPosters = async (req: NextRequest) => {
     const parentType = searchParams.get("parentType") || "";
     const tradeType = searchParams.get("tradeType") || "";
     const type = searchParams.get("type") || "";
+    const userRole = searchParams.get("userRole") || "";
     const searchQuery = searchParams.get("query") || "";
     const isSuggestionMode = searchParams.get("suggestionsOnly") === "true";
 
     const skip = (page - 1) * limit;
 
     // 🔍 ساخت query
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (parentType) query.parentType = parentType;
     if (tradeType) query.tradeType = tradeType;
     if (type) query.type = type;
+
+    // Filter by user role if specified
+    const populateOptions: {
+      path: string;
+      model: typeof User;
+      select: string;
+      match?: { role: string };
+    } = { path: "user", model: User, select: userSelect };
+    if (userRole) {
+      populateOptions.match = { role: userRole };
+    }
 
     // Only show approved posters for public view
     const isAdminRequest = req.headers.get("x-admin-request") === "true";
@@ -107,12 +119,19 @@ export const getAllPosters = async (req: NextRequest) => {
 
     // ✅ حالت عادی با paginate
     const totalPosters = await Poster.countDocuments(query);
-    const posters = await Poster.find(query)
+    let posters = await Poster.find(query)
       .select(posterSelect)
-      .populate({ path: "user", model: User, select: userSelect })
+      .populate(populateOptions)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
+
+    // Filter out posters where user doesn't match role (when role filter is applied)
+    if (userRole) {
+      posters = posters.filter(
+        (poster) => poster.user && poster.user.role === userRole
+      );
+    }
 
     const totalPages = Math.ceil(totalPosters / limit);
     const hasNextPage = page < totalPages;
@@ -129,10 +148,10 @@ export const getAllPosters = async (req: NextRequest) => {
         limit,
       },
     });
-  } catch (error: any) {
-    console.log("❌ Error fetching posters:", error);
+  } catch {
+    console.log("❌ Error fetching posters:");
     return NextResponse.json(
-      { message: "Error fetching posters", error: error.message },
+      { message: "Error fetching posters" },
       { status: 500 }
     );
   }
@@ -193,8 +212,8 @@ export const incrementPosterView = async (req: Request) => {
         { $inc: { views: 1 } },
         { new: true }
       );
-    } catch (dbError: any) {
-      if (dbError.name === "CastError") {
+    } catch (dbError: unknown) {
+      if (dbError instanceof Error && dbError.name === "CastError") {
         return NextResponse.json(
           { success: false, message: "Invalid poster ID" },
           { status: 400 }
@@ -342,7 +361,7 @@ export const updatePoster = async (req: Request) => {
       }
 
       // Prepare update data from FormData
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
 
       if (formData.get("title")) updateData.title = formData.get("title");
       if (formData.get("description"))
@@ -530,7 +549,7 @@ export const deletePoster = async (request: NextRequest) => {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting poster:", error);
+    console.log("Error deleting poster:", error);
     return NextResponse.json(
       { message: "Error deleting poster" },
       { status: 500 }

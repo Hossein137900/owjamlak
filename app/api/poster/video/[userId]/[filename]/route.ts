@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile } from "fs/promises";
+import { statSync, createReadStream, existsSync } from "fs";
 import { join } from "path";
-import { existsSync } from "fs";
+import { Readable } from "stream";
 
-// GET - Serve poster video
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ userId: string; filename: string }> }
@@ -28,16 +27,16 @@ export async function GET(
     );
 
     if (!existsSync(filepath)) {
-      return NextResponse.json(
-        { error: "Video not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Video not found" }, { status: 404 });
     }
 
-    const videoBuffer = await readFile(filepath);
-    const extension = filename.split('.').pop()?.toLowerCase();
-    
+    const stat = statSync(filepath);
+    const fileSize = stat.size;
+
+    const range = request.headers.get("range");
+
     let contentType = "video/mp4";
+    const extension = filename.split(".").pop()?.toLowerCase();
     switch (extension) {
       case "webm":
         contentType = "video/webm";
@@ -53,18 +52,106 @@ export async function GET(
         break;
     }
 
-    return new NextResponse(new Uint8Array(videoBuffer), {
-      headers: {
-        "Content-Type": contentType,
-        "Cache-Control": "public, max-age=31536000",
-      },
-    });
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
+      const chunkSize = end - start + 1;
+      const file = createReadStream(filepath, { start, end });
+
+      return new NextResponse(Readable.toWeb(file) as ReadableStream, {
+        status: 206,
+        headers: {
+          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Accept-Ranges": "bytes",
+          "Content-Length": chunkSize.toString(),
+          "Content-Type": contentType,
+        },
+      });
+    } else {
+      // fallback if no range requested
+      const file = createReadStream(filepath);
+      return new NextResponse(Readable.toWeb(file) as ReadableStream, {
+        headers: {
+          "Content-Length": fileSize.toString(),
+          "Content-Type": contentType,
+        },
+      });
+    }
   } catch (error) {
     console.log("Error serving video:", error);
-    return NextResponse.json(
-      { error: "خطای سرور" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "خطای سرور" }, { status: 500 });
   }
 }
+
+// import { NextRequest, NextResponse } from "next/server";
+// import { readFile } from "fs/promises";
+// import { join } from "path";
+// import { existsSync } from "fs";
+
+// // GET - Serve poster video
+// export async function GET(
+//   request: NextRequest,
+//   { params }: { params: Promise<{ userId: string; filename: string }> }
+// ) {
+//   try {
+//     const { userId, filename } = await params;
+
+//     if (!userId || !filename) {
+//       return NextResponse.json(
+//         { error: "User ID and filename required" },
+//         { status: 400 }
+//       );
+//     }
+
+//     const filepath = join(
+//       process.cwd(),
+//       "public",
+//       "uploads",
+//       "posters",
+//       userId,
+//       filename
+//     );
+
+//     if (!existsSync(filepath)) {
+//       return NextResponse.json(
+//         { error: "Video not found" },
+//         { status: 404 }
+//       );
+//     }
+
+//     const videoBuffer = await readFile(filepath);
+//     const extension = filename.split('.').pop()?.toLowerCase();
+
+//     let contentType = "video/mp4";
+//     switch (extension) {
+//       case "webm":
+//         contentType = "video/webm";
+//         break;
+//       case "ogg":
+//         contentType = "video/ogg";
+//         break;
+//       case "avi":
+//         contentType = "video/x-msvideo";
+//         break;
+//       case "mov":
+//         contentType = "video/quicktime";
+//         break;
+//     }
+
+//     return new NextResponse(new Uint8Array(videoBuffer), {
+//       headers: {
+//         "Content-Type": contentType,
+//         "Cache-Control": "public, max-age=31536000",
+//       },
+//     });
+
+//   } catch (error) {
+//     console.log("Error serving video:", error);
+//     return NextResponse.json(
+//       { error: "خطای سرور" },
+//       { status: 500 }
+//     );
+//   }
+// }

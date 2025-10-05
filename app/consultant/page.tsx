@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import ConsultantsList from "@/components/static/consultants/consultantsList";
-import TopConsultant from "@/components/static/home/topConsultant";
 
 export const metadata: Metadata = {
   title: "مشاوران املاک تهران | لیست بهترین مشاوران اوج املاک",
@@ -50,9 +49,8 @@ export const metadata: Metadata = {
 
 const ConsultantsPage = () => {
   return (
-    <main className="">
+    <main>
       <ConsultantsList />
-      <TopConsultant />
     </main>
   );
 };

@@ -498,6 +498,11 @@ export default function PosterDetailClient({
                 <FaEye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>{formatViews(posterData.views || 0)} بازدید</span>
               </div>
+              {posterData.user?.role && posterData.user.role !== "user" && (
+                <span className="bg-[#01ae9b] text-white px-2 py-0.5 rounded-full text-xs font-medium mr-2">
+                  آگهی املاک اوج
+                </span>
+              )}
             </div>
           </div>
           <div className="flex gap-2 sm:gap-3 mt-2 md:mt-0">
@@ -547,8 +552,10 @@ export default function PosterDetailClient({
                   <video
                     src={mediaItems[displayImageIndex].src}
                     controls
+                    playsInline
                     preload="metadata"
                     className="w-full h-full object-cover"
+                    poster={mediaItems[displayImageIndex].poster || images[0]}
                     onLoadedMetadata={() => {
                       console.log("Video loaded");
                     }}
@@ -622,6 +629,12 @@ export default function PosterDetailClient({
                           className="w-full h-full object-cover rounded-md"
                           preload="metadata"
                           aria-label={posterData.title || "ویدیو از ملک"}
+                          playsInline
+                          poster={
+                            typeof posterData.images[0] === "string"
+                              ? posterData.images[0]
+                              : posterData.images[0]?.url || ""
+                          }
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-md">
                           <div className="text-white text-lg">

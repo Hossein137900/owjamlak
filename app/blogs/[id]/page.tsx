@@ -108,7 +108,7 @@ export default async function BlogPage({
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Hero Section */}
-      <div className="relative h-64 md:h-80 mb-8">
+      <div className="relative h-screen md:h-screen mb-8">
         <Image
           src={imageUrl}
           alt={blog.title}

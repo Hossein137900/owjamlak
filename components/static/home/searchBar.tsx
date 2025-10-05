@@ -223,8 +223,7 @@ export default function SearchBar({
     ],
   };
 
-  // ✅ تابع جستجو
-  const handleSearch = () => {
+   const handleSearch = () => {
     const params = new URLSearchParams();
 
     if (selectedNeighborhood) {
@@ -420,7 +419,7 @@ export default function SearchBar({
               {/* Main search button for expanded state */}
               {(!compact || expanded) && (
                 <motion.button
-                  className="flex-1 bg-gradient-to-r from-[#00BC9B] to-[#00a589] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold flex items-center justify-center hover:from-[#00a589] hover:to-[#008f7a] transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="flex-1 cursor-pointer bg-gradient-to-r from-[#00BC9B] to-[#00a589] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold flex items-center justify-center hover:from-[#00a589] hover:to-[#008f7a] transition-all duration-300 shadow-lg hover:shadow-xl"
                   onClick={handleSearch}
                   whileTap={{ scale: 0.98 }}
                 >

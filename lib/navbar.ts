@@ -26,12 +26,14 @@ export const navItems = [
       },
     ],
   },
-  { name: "وبلاگ", href: "/blogs" },
-  { name: "فیلم آموزشی", href: "/videos" },
+  { name: "مجله اوج", href: "/blogs" },
+
   { name: "تماس با ما", href: "/contactUs" },
   { name: "اوج من", href: "/aboutUs" },
-  { name: "سرمایه گذاری", href: "/offers" },
   { name: "مشاوران اوج", href: "/consultant" },
+  { name: "مدیران اوج", href: "/admins" },
+  { name: "فیلم آموزشی", href: "/videos" },
+  { name: "سرمایه گذاری", href: "/offers" },
 ];
 
 export const mobileMenuVariants = {

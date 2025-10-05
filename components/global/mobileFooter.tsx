@@ -115,7 +115,7 @@ const FooterMobile = () => {
         )}
       </AnimatePresence>
 
-      <footer className="fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-md border-t border-gray-200 z-50 shadow-md">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-md border-t border-gray-200 z-9999 shadow-md">
         <nav
           className="flex justify-between items-center px-2 py-1 relative"
           dir="rtl"
@@ -186,7 +186,10 @@ const FooterMobile = () => {
                         {serviceItems.map((service, sIdx) => (
                           <button
                             key={sIdx}
-                            onClick={() => router.push(service.href)}
+                            onClick={() => {
+                              router.push(service.href);
+                              setShowServicesMenu(false);
+                            }}
                             className="flex flex-col cursor-pointer items-center gap-1 text-[#66308d] hover:text-gray-500 transition"
                           >
                             {service.icon}

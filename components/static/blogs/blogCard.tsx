@@ -33,7 +33,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
       transition={{ duration: 0.5 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="group h-full flex flex-col bg-white rounded-lg overflow-hidden"
+      className="group relative h-full flex flex-col bg-white rounded-lg overflow-hidden"
       style={{
         boxShadow: "0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04)",
         transition: "box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
@@ -42,16 +42,17 @@ const BlogCard: React.FC<BlogCardProps> = ({
         boxShadow: "0 10px 30px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.03)",
       }}
     >
-      {/* Image Container */}
-      <div className="relative aspect-[16/9] overflow-hidden">
-        {/* Category Indicator - Minimal Line */}
-        <div
-          className="absolute top-0 left-0 h-1 z-10 transition-all duration-700 ease-out"
+       <div
+          className="absolute bottom-0 left-10 h-1 z-10 transition-all duration-[1500ms] ease-out"
           style={{
-            width: isHovered ? "100%" : "30%",
+            width: isHovered ? "78%" : "0%",
             background: `linear-gradient(to right, #01ae9b, #66308d)`,
           }}
         />
+      {/* Image Container */}
+      <div className="relative aspect-[16/9] overflow-hidden">
+        {/* Category Indicator - Minimal Line */}
+       
 
         {/* Image with Zoom Effect */}
         <motion.div
@@ -117,7 +118,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           {/* Read More Link - Minimal Design */}
           <Link
             href={`/blogs/${id}`}
-            className="group/link flex items-center text-xs font-medium text-[#66308d] hover:text-[#01ae9b] transition-colors duration-300"
+            className="group/link flex   items-center text-xs font-medium text-[#66308d] hover:text-[#01ae9b] transition-colors duration-300"
           >
             <span>ادامه مطلب</span>
             <motion.div

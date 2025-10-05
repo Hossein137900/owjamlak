@@ -254,7 +254,7 @@ const Navbar = () => {
           marginTop: scrolled ? "0" : "40px",
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="  mx-auto px-4 md:px-20 container ">
           <div className="flex justify-between items-center h-16 lg:h-20">
             {/* Logo */}
             <motion.div
@@ -282,8 +282,8 @@ const Navbar = () => {
             </motion.div>
 
             {/* Desktop Menu */}
-            <nav className="hidden lg:flex  items-center">
-              <div className="flex items-center  gap-2 ml-12">
+            <nav className="hidden lg:flex lg:justify-center  items-center">
+              <div className="flex items-center   gap-2 ml-28">
                 {navItems.map((item, index) => (
                   <motion.div
                     key={item.href}
@@ -536,7 +536,7 @@ const Navbar = () => {
                         boxShadow: "0 10px 25px rgba(1, 174, 155, 0.3)",
                       }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-3 bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300"
+                      className="flex cursor-pointer items-center gap-3 bg-gradient-to-r from-[#01ae9b] to-[#66308d] hover:from-[#66308d] hover:to-[#01ae9b] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all duration-300"
                     >
                       <div className="bg-white/20 p-1.5 rounded-lg">
                         <FiUser size={16} className="text-white" />

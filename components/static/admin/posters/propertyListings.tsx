@@ -81,6 +81,7 @@ const PropertyListings: React.FC = () => {
   // filters
   const [parentType, setParentType] = useState<string>("");
   const [tradeType, setTradeType] = useState<string>("");
+  const [userRole, setUserRole] = useState<string>("");
 
   // helper: remove duplicate posters by _id
   const uniqueById = (items: Poster[]) => {
@@ -101,6 +102,7 @@ const PropertyListings: React.FC = () => {
         limit: String(limit),
         ...(parentType ? { parentType } : {}),
         ...(tradeType ? { tradeType } : {}),
+        ...(userRole ? { userRole } : {}),
         ...(searchTerm ? { query: searchTerm } : {}),
       });
       const token = localStorage.getItem("token");
@@ -129,7 +131,7 @@ const PropertyListings: React.FC = () => {
   };
   useEffect(() => {
     fetchData();
-  }, [page, parentType, tradeType]);
+  }, [page, parentType, tradeType, userRole]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -911,6 +913,22 @@ const PropertyListings: React.FC = () => {
               <option value="industrial">صنعتی</option>
               <option value="partnerShip">مشارکت</option>
               <option value="preSale">پیش‌فروش</option>
+            </select>
+          </div>
+          <div className="relative">
+            <select
+              className="border w-full border-gray-400 text-black rounded-lg px-3 py-2"
+              value={userRole}
+              onChange={(e) => {
+                setUserRole(e.target.value);
+                setPage(1);
+              }}
+            >
+              <option value="">همه نقشها</option>
+              <option value="user">کاربر عادی</option>
+              <option value="consultant">مشاور</option>
+              <option value="admin">مدیر</option>
+              <option value="superadmin">مدیر کل</option>
             </select>
           </div>
         </div>

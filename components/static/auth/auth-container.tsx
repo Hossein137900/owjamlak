@@ -280,7 +280,7 @@ export default function AuthPageContainer() {
         setErrorMessage(data.message || "خطا در ورود. لطفاً دوباره تلاش کنید.");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.log("Login error:", error);
       setErrorMessage("خطا در اتصال به سرور. لطفاً دوباره تلاش کنید.");
     } finally {
       setIsLoading(false);
@@ -560,7 +560,7 @@ export default function AuthPageContainer() {
                 {isLoading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    در حال ورود...
+                    در حال ورود
                   </>
                 ) : (
                   "ورود"
@@ -730,7 +730,7 @@ export default function AuthPageContainer() {
                 {isLoading ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    در حال ثبت نام...
+                    در حال ثبت نام
                   </>
                 ) : (
                   "ثبت نام"

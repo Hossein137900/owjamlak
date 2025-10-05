@@ -111,7 +111,7 @@ export default function AdminFavoritesPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {favorites.map((poster) => {
             const mainImage =
               poster.images?.find((img) => img.mainImage) || poster.images?.[0];
@@ -126,7 +126,7 @@ export default function AdminFavoritesPage() {
                 className="bg-white/90 rounded-md shadow-sm   hover:shadow-2xl transition-all duration-300 hover:-translate-y-1  overflow-hidden"
               >
                 {/* Image */}
-                <div className="relative aspect-square">
+                <div className="relative aspect-video">
                   <Image
                     src={imageUrl}
                     alt={poster.title}
@@ -137,18 +137,18 @@ export default function AdminFavoritesPage() {
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1 text-xs md:text-base">
                     {poster.title}
                   </h3>
 
                   {poster.location && (
-                    <p className="text-sm text-gray-600 mb-2">
+                    <p className="text-[10px] text-gray-600 mb-2 line-clamp-1">
                       {poster.location.slice(0, 30)}...
                     </p>
                   )}
 
                   <div className=" flex gap-2 justify-between items-center mt-2">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-[10px] md:text-sm text-gray-500">
                       {poster.createdAt
                         ? new Date(poster.createdAt).toLocaleDateString("fa-IR")
                         : "نامشخص"}

@@ -39,6 +39,8 @@ import MessagesPage from "./contactForm/messagesPage";
 import PosterById from "./posters/posterById";
 import ChatAdminList from "./chat/adminChatList";
 import Link from "next/link";
+import AdminManager from "./admins/adminManager";
+import { FaUserTie } from "react-icons/fa";
 
 const AdminLayout = () => {
   const { hasAccess, logout } = useAdminAuth();
@@ -219,6 +221,12 @@ const AdminLayout = () => {
       label: "مشاورین",
       roles: ["admin", "superadmin", "consultant", "user"],
     },
+    {
+      id: "Admins",
+      icon: <FaUserTie />,
+      label: "مدیران",
+      roles: ["admin", "superadmin", "consultant", "user"],
+    },
     { id: "users", icon: <FiUsers />, label: "کاربران", roles: ["superadmin"] },
     {
       id: "video",
@@ -268,6 +276,12 @@ const AdminLayout = () => {
       case "employment-requests":
         return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
           <EmployRequests />
+        ) : (
+          <div className="p-8 text-center text-red-500">دسترسی محدود</div>
+        );
+      case "Admins":
+        return hasAccess(["admin", "superadmin", "user", "consultant"]) ? (
+          <AdminManager />
         ) : (
           <div className="p-8 text-center text-red-500">دسترسی محدود</div>
         );
@@ -413,7 +427,7 @@ const AdminLayout = () => {
 
               <button
                 onClick={toggleSidebar}
-                className="hidden md:inline-flex -mr-3 items-center justify-center p-1.5 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+                className="hidden md:inline-flex -mr-3 items-center justify-center p-1.5 rounded-md text-gray-400 hover:text-gray-500  bg-gray-100 focus:outline-none"
                 aria-label="Toggle sidebar"
               >
                 <motion.div

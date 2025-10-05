@@ -1,0 +1,221 @@
+// components/static/admin/detailPageAdmin.tsx
+"use client";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  FaPhone,
+  FaEnvelope,
+   FaCheckCircle,
+  FaTimesCircle,
+  FaArrowRight,
+} from "react-icons/fa";
+import { Admin } from "@/types/type";
+
+interface AdminDetailClientProps {
+  adminId: string;
+}
+
+const AdminDetailClient: React.FC<AdminDetailClientProps> = ({ adminId }) => {
+  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchAdmin(adminId);
+  }, [adminId]);
+
+  const fetchAdmin = async (adminId: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`/api/admins/${adminId}`);
+      if (!res.ok) {
+        throw new Error("مدیر یافت نشد");
+      }
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.message || "خطا در دریافت اطلاعات مدیر");
+      }
+      setAdmin(data.admin);
+    } catch (err) {
+      console.log("Error fetching admin:", err);
+      setError(err instanceof Error ? err.message : "خطا در بارگذاری");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePhoneClick = (phone: string) => {
+    window.open(`tel:${phone}`, "_self");
+  };
+
+  const handleEmailClick = (email: string) => {
+    window.open(`mailto:${email}`, "_self");
+  };
+
+  if (loading) {
+    return (
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01ae9b] mx-auto mb-4"></div>
+          <p className="text-gray-600">در حال بارگذاری...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !admin) {
+    return (
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        dir="rtl"
+      >
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            مدیر یافت نشد
+          </h1>
+          <p className="text-gray-600 mb-6">
+            {error || "مدیر مورد نظر یافت نشد"}
+          </p>
+          <Link
+            href="/admins"
+            className="inline-flex items-center gap-2 bg-[#01ae9b] hover:bg-[#019688] text-white px-6 py-3 rounded-lg transition-colors"
+          >
+            <FaArrowRight />
+            <span>بازگشت به لیست مدیران</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50" dir="rtl">
+      <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="mb-6"
+        >
+          <Link
+            href="/admins"
+            className="inline-flex items-center gap-2 text-[#01ae9b] hover:text-[#019688] transition-colors"
+          >
+            <FaArrowRight />
+            <span>بازگشت به لیست مدیران</span>
+          </Link>
+        </motion.div>
+
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl shadow-lg overflow-hidden mb-8"
+        >
+          <div className="md:flex">
+            {/* Image Section */}
+            <div className="md:w-1/3">
+              <div className="relative h-64 md:h-full">
+                <Image
+                  src={admin.image || "/assets/images/default-admin.jpg"}
+                  alt={admin.name}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute bottom-4 left-4 bg-[#01ae9b] text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  {admin.position}
+                </div>
+              </div>
+            </div>
+
+            {/* Info Section */}
+            <div className="md:w-2/3 p-8">
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                  {admin.name}
+                </h1>
+                <p className="text-xl text-[#01ae9b] font-semibold mb-4">
+                  {admin.position}
+                </p>
+              </div>
+
+              {admin.description && (
+                <div className="mb-6">
+                  <p className="text-gray-600 leading-relaxed">
+                    {admin.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Status */}
+              <div className="flex items-center gap-2 mb-6">
+                {admin.isActive ? (
+                  <>
+                    <FaCheckCircle className="text-green-500" />
+                    <span className="text-green-600 font-semibold">فعال</span>
+                  </>
+                ) : (
+                  <>
+                    <FaTimesCircle className="text-red-500" />
+                    <span className="text-red-600 font-semibold">غیرفعال</span>
+                  </>
+                )}
+              </div>
+
+              {/* Contact Buttons */}
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => handlePhoneClick(admin.user?.phone || "")}
+                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors"
+                >
+                  <FaPhone className="text-lg" />
+                  <span>تماس تلفنی</span>
+                </button>
+
+                {admin.email && (
+                  <button
+                    onClick={() => handleEmailClick(admin.email!)}
+                    className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors"
+                  >
+                    <FaEnvelope className="text-lg" />
+                    <span>ایمیل</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Contact Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-gradient-to-r from-[#01ae9b] to-[#019688] rounded-xl shadow-lg p-8 mt-8 text-white text-center"
+        >
+          <h3 className="text-2xl font-bold mb-4">اطلاعات تماس</h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <FaPhone />
+              <span>{admin.user?.phone || "-"}</span>
+            </div>
+            {admin.email && (
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+                <FaEnvelope />
+                <span>{admin.email}</span>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDetailClient;

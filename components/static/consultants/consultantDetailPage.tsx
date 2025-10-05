@@ -1,5 +1,5 @@
 "use client";
-import   { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -9,12 +9,12 @@ import {
   FaStar,
   FaEnvelope,
   FaArrowRight,
+  FaTag, // 👈 برای قیمت
 } from "react-icons/fa";
 import { HiOutlineLocationMarker, HiOutlineBriefcase } from "react-icons/hi";
 import { BiTime } from "react-icons/bi";
 // import { MdRealEstateAgent } from "react-icons/md";
-import { Consultant } from "@/types/type";
-
+import { Consultant, Poster } from "@/types/type";
 interface ConsultantDetailPageProps {
   consultantId?: string;
   consultant?: Consultant;
@@ -27,6 +27,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
   const [consultant, setConsultant] = useState<Consultant | null>(
     initialConsultant || null
   );
+  const [posters, setPosters] = useState<Poster[]>([]); // 👈 state جدید برای آگهی‌ها
   const [loading, setLoading] = useState(!initialConsultant);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +55,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
       }
 
       setConsultant(data.consultant);
+      setPosters(data.posters || []); // 👈 جدید: posters رو set کن
     } catch (error) {
       console.log("Error fetching consultant:", error);
       // setError(error.message);
@@ -72,6 +74,13 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
 
   const handleEmailClick = (email: string) => {
     window.open(`mailto:${email}`, "_self");
+  };
+  const getMainImage = (poster: Poster) => {
+    return (
+      poster.images.find(
+        (image: { mainImage?: boolean; url: string }) => image.mainImage
+      ) || poster.images[0]
+    );
   };
 
   if (loading) {
@@ -186,7 +195,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
                   </div>
                   <div className="text-sm text-gray-600">سال تجربه</div>
                 </div>
-{/* 
+                {/* 
                 <div className=" p-4 rounded-lg text-center shadow-md">
                   <MdRealEstateAgent className="text-2xl text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">
@@ -245,6 +254,92 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
             </div>
           </div>
         </motion.div>
+        {/* Contact Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-gradient-to-r from-[#01ae9b] to-[#019688] rounded-xl mb-8 shadow-lg p-8 mt-8 text-white text-center"
+        >
+          <h3 className="text-2xl font-bold mb-4">آماده همکاری با شما هستیم</h3>
+          <p className="text-lg mb-6 opacity-90">
+            برای مشاوره رایگان و بازدید ملک با ما در تماس باشید
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <FaPhone />
+              <span>{consultant.phone}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <FaWhatsapp />
+              <span>{consultant.whatsapp}</span>
+            </div>
+            {consultant.email && (
+              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+                <FaEnvelope />
+                <span>{consultant.email}</span>
+              </div>
+            )}
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-8"
+          >
+            <h2 className="text-2xl font-bold text-gray-50 mb-6 flex items-center gap-2">
+              <HiOutlineBriefcase className="text-[#fff]" />
+              آگهی‌های {consultant.name}
+            </h2>
+            {posters.length === 0 ? (
+              <div className="bg-white rounded-xl p-8 text-center text-gray-500">
+                این مشاور هنوز آگهی‌ فعالی نکرده است
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {posters.map((poster) => (
+                  <Link
+                    key={poster._id}
+                    href={`/posters/${poster._id}`} // 👈 لینک به صفحه جزئیات آگهی
+                    className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
+                  >
+                    <div className="relative h-48">
+                      <Image
+                        src={
+                          getMainImage(poster)?.url ||
+                          "/assets/images/default-poster.jpg"
+                        }
+                        alt={poster.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                        {poster.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-2 line-clamp-1">
+                        {poster.description.slice(0, 60)}...
+                      </p>
+                      <div className="flex items-center justify-center mb-3">
+                        <span className="text-sm text-gray-500">
+                          <HiOutlineLocationMarker className="inline mr-1" />
+                          {poster.location.slice(0, 30)}...
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <div className="flex items-center gap-1 text-[#01ae9b]">
+                          <FaTag className="text-sm" />
+                          <span className="text-sm">مشاهده</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </motion.div>
 
         {/* Details Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -296,35 +391,6 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
             </motion.div>
           )}
         </div>
-
-        {/* Contact Info Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-r from-[#01ae9b] to-[#019688] rounded-xl shadow-lg p-8 mt-8 text-white text-center"
-        >
-          <h3 className="text-2xl font-bold mb-4">آماده همکاری با شما هستیم</h3>
-          <p className="text-lg mb-6 opacity-90">
-            برای مشاوره رایگان و بازدید ملک با ما در تماس باشید
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <FaPhone />
-              <span>{consultant.phone}</span>
-            </div>
-            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <FaWhatsapp />
-              <span>{consultant.whatsapp}</span>
-            </div>
-            {consultant.email && (
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-                <FaEnvelope />
-                <span>{consultant.email}</span>
-              </div>
-            )}
-          </div>
-        </motion.div>
       </div>
     </div>
   );

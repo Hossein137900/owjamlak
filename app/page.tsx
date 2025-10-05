@@ -6,6 +6,10 @@ import InvestmentBanner from "@/components/static/home/investmentBanner";
 import OurApproachPage from "@/components/static/home/works";
 import SEODescription from "@/components/static/ui/seoDesc";
 import type { Metadata } from "next";
+import LatestBlogs from "@/components/global/latestBlogs";
+import AdminListSection from "@/components/static/home/adminListSection";
+import ConsultantListSection from "@/components/static/home/consultantListSection";
+import TopConsultants from "@/components/static/home/topConsultant";
 
 export const metadata: Metadata = {
   title: "اوج املاک",
@@ -92,6 +96,10 @@ export default function Home() {
       <WhyChooseUs />
       <InvestmentBanner />
       <OurApproachPage />
+      <AdminListSection />
+      <ConsultantListSection />
+      <TopConsultants />
+      <LatestBlogs />
 
       <SEODescription />
     </div>

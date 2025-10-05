@@ -33,7 +33,7 @@ const SEODescription: React.FC = () => {
   if (pathname === "/admin" || pathname === "/auth") return null;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-8" dir="rtl">
+    <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-8 mt-20" dir="rtl">
       <div className="relative bg-white text-black overflow-hidden p-4">
         {/* Invisible measuring block */}
         <div

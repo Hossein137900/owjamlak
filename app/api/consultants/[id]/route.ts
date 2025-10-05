@@ -5,6 +5,28 @@ import mongoose from "mongoose";
 import { unlink } from "fs/promises";
 import { join } from "path";
 import { existsSync } from "fs";
+import Poster from "@/models/poster";
+
+interface ConsultantWithUser {
+  _id: string;
+  name: string;
+  phone: string;
+  whatsapp: string;
+  email?: string;
+  image: string;
+  experienceYears: number;
+  posterCount: number;
+  workAreas: string[];
+  specialties: string[];
+  rating?: number;
+  description?: string;
+  isActive: boolean;
+  user: {
+    _id: string;
+    name: string;
+    phone: string;
+  };
+}
 
 export async function GET(
   req: NextRequest,
@@ -13,13 +35,12 @@ export async function GET(
   try {
     await connect();
 
-    // Await params in Next.js 15+
     const { id } = await params;
 
-    console.log("Fetching consultant with ID:", id); // Debug log
+    console.log("Fetching consultant with ID:", id);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      console.log("Invalid ObjectId:", id); // Debug log
+      console.log("Invalid ObjectId:", id);
       return NextResponse.json(
         {
           success: false,
@@ -29,8 +50,12 @@ export async function GET(
       );
     }
 
-    const consultant = await Consultant.findById(id).lean();
-    console.log("Found consultant:", consultant ? "Yes" : "No"); // Debug log
+    // 👈 fetch Consultant با populate user (اگر لازم)
+    const consultant = await Consultant.findById(id)
+      .populate("user", "name phone") // 👈 populate user اگر فیلدهای اضافی می‌خوای
+      .lean();
+
+    console.log("Found consultant:", consultant ? "Yes" : "No");
 
     if (!consultant) {
       return NextResponse.json(
@@ -42,12 +67,23 @@ export async function GET(
       );
     }
 
+    // 👈 جدید: fetch posters این مشاور (بر اساس user._id)
+    const consultantWithUser = consultant as unknown as ConsultantWithUser;
+    const posters = await Poster.find({ user: consultantWithUser.user._id })
+      .populate("user", "name") // 👈 optional: populate برای نمایش owner
+      .sort({ createdAt: -1 }) // 👈 جدیدترین اول
+      .lean();
+
+    // 👈 optional: posterCount اضافه کن
+    consultantWithUser.posterCount = posters.length;
+
     return NextResponse.json({
       success: true,
       consultant,
+      posters, // 👈 جدید: لیست آگهی‌ها
     });
   } catch (error) {
-    console.log("API Error:", error); // Debug log
+    console.log("API Error:", error);
     return NextResponse.json(
       {
         success: false,
@@ -195,15 +231,24 @@ export async function DELETE(
     }
 
     // Delete image file if exists
-    if (consultant.image && consultant.image.startsWith('/uploads/consultants/')) {
-      const filename = consultant.image.split('/').pop();
+    if (
+      consultant.image &&
+      consultant.image.startsWith("/uploads/consultants/")
+    ) {
+      const filename = consultant.image.split("/").pop();
       if (filename) {
-        const filePath = join(process.cwd(), "public", "uploads", "consultants", filename);
+        const filePath = join(
+          process.cwd(),
+          "public",
+          "uploads",
+          "consultants",
+          filename
+        );
         if (existsSync(filePath)) {
           try {
             await unlink(filePath);
           } catch (error) {
-            console.log('Error deleting consultant image:', error);
+            console.log("Error deleting consultant image:", error);
           }
         }
       }

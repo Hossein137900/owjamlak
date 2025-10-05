@@ -1,365 +1,307 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FiAward,
   FiTrendingUp,
   FiStar,
   FiPhone,
-  FiMail,
-  FiMapPin,
+  FiUsers,
 } from "react-icons/fi";
-import { ConsultantChampion } from "@/types/type";
-import useConsultants from "@/hooks/useConsultants";
+import Link from "next/link";
 
-const TopConsultant: React.FC = () => {
-  const [isHovered, setIsHovered] = useState(false);
-  const { consultants, isLoading, error } = useConsultants();
+interface TopConsultant {
+  _id: string;
+  name: string;
+  phone: string;
+  title: string;
+  description: string;
+  rating: number;
+  totalSales: number;
+  experience: number;
+  rank: number;
+  image?: string;
+}
 
-  // Get the top consultant (first one with isTopConsultant: true)
-  const topConsultant =
-    consultants && consultants.length > 0
-      ? consultants.find(
-          (consultant: ConsultantChampion) => consultant.isTopConsultant
-        ) || consultants[0]
-      : null;
+const TopConsultants: React.FC = () => {
+  const [consultants, setConsultants] = useState<TopConsultant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (isLoading) {
+  useEffect(() => {
+    fetchTopConsultants();
+  }, []);
+
+  const fetchTopConsultants = async () => {
+    try {
+      const res = await fetch("/api/consultant-champion");
+      if (res.ok) {
+        const data = await res.json();
+        setConsultants(data.consultants || []);
+      }
+    } catch {
+      setError("خطا در بارگذاری");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <section className="py-16 px-4 mt-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">درحال بارگذاری</p>
-          </div>
+      <section className="py-16 px-4 overflow-hidden">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01ae9b] mx-auto mb-4"></div>
+          <p className="text-gray-600">درحال بارگذاری مشاوران برتر...</p>
         </div>
       </section>
     );
   }
 
-  if (error || !topConsultant) {
-    return (
-      <section className="py-16 px-4 mt-20 overflow-hidden">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center"></div>
-        </div>
-      </section>
-    );
+  if (error || consultants.length === 0) {
+    return null;
   }
+
+  const getRankStyle = (rank: number) => {
+    const styles = {
+      1: {
+        badge: "from-yellow-400 via-yellow-500 to-yellow-600",
+        ring: "ring-yellow-400/50",
+        bg: "from-yellow-50 to-amber-50",
+        shadow: "shadow-2xl shadow-yellow-400/20",
+        text: "رتبه اول",
+        height: "md:scale-110",
+        order: "md:order-2",
+        crown: true,
+      },
+      2: {
+        badge: "from-gray-300 via-gray-400 to-gray-500",
+        ring: "ring-gray-300/50",
+        bg: "from-gray-50 to-slate-50",
+        shadow: "shadow-xl shadow-gray-300/20",
+        text: "رتبه دوم",
+        height: "md:scale-100 md:mt-8",
+        order: "md:order-1",
+        crown: false,
+      },
+      3: {
+        badge: "from-orange-400 via-orange-500 to-orange-600",
+        ring: "ring-orange-300/50",
+        bg: "from-orange-50 to-red-50",
+        shadow: "shadow-xl shadow-orange-300/20",
+        text: "رتبه سوم",
+        height: "md:scale-100 md:mt-8",
+        order: "md:order-3",
+        crown: false,
+      },
+    };
+    return styles[rank as keyof typeof styles] || styles[3];
+  };
 
   return (
-    <section className="py-16 px-4 mt-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <div className="relative">
-            {/* Background decoration */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-purple-300 to-transparent"></div>
-            </div>
+    <section
+      className="py-20 px-4 md:px-20 mx-auto container bg-gradient-to-b from-gray-50 to-white"
+      dir="rtl"
+    >
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        className="text-center mb-16"
+      >
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#01ae9b] via-[#019688] to-[#01ae9b] bg-clip-text text-transparent">
+            مشاورین برتر ماه
+          </h2>
+        </div>
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          مشاوران برتر با بالاترین عملکرد و رضایت مشتریان
+        </p>
+      </motion.div>
 
-            {/* Main title with enhanced styling */}
-            <div className="relative bg-white px-8 py-4">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <motion.div
-                  animate={{
-                    rotate: 360,
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{
-                    rotate: { duration: 4, repeat: Infinity, ease: "linear" },
-                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-                  }}
-                  className="p-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"
-                >
-                  <FiAward className="text-white text-xl" />
-                </motion.div>
-
-                <h2 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  مشاور برتر ماه
-                </h2>
-
-                <motion.div
-                  animate={{
-                    rotate: -360,
-                    scale: [1, 1.1, 1],
-                  }}
-                  transition={{
-                    rotate: { duration: 4, repeat: Infinity, ease: "linear" },
-                    scale: {
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: 1,
-                    },
-                  }}
-                  className="p-2 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"
-                >
-                  <FiStar className="text-white text-xl" />
-                </motion.div>
-              </div>
-
-              {/* Enhanced subtitle */}
-              <div className="space-y-3">
-                <p className="text-xl text-gray-700 font-medium">
-                  بهترین مشاور املاک ماه جاری با عملکرد استثنایی
-                </p>
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span>آماده ارائه خدمات تخصصی املاک</span>
-                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Main Banner */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="relative bg-white rounded-3xl shadow-2xl overflow-hidden cursor-pointer"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <svg className="w-full h-full" viewBox="0 0 100 100">
-              <defs>
-                <pattern
-                  id="consultant-pattern"
-                  x="0"
-                  y="0"
-                  width="20"
-                  height="20"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <circle cx="10" cy="10" r="1" fill="currentColor" />
-                </pattern>
-              </defs>
-              <rect
-                width="100"
-                height="100"
-                fill="url(#consultant-pattern)"
-                className="text-purple-600"
-              />
-            </svg>
-          </div>
-
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-transparent to-blue-600/10" />
-
-          {/* Floating Elements */}
-          <motion.div
-            animate={{
-              y: [0, -10, 0],
-              rotate: [0, 5, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-8 right-8 text-yellow-400"
-          >
-            <FiAward size={32} />
-          </motion.div>
-
-          <motion.div
-            animate={{
-              y: [0, 10, 0],
-              rotate: [0, -5, 0],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 1,
-            }}
-            className="absolute bottom-8 left-8 text-green-400"
-          >
-            <FiTrendingUp size={28} />
-          </motion.div>
-
-          <div className="relative p-8 md:p-12">
-            {/* Consultant Info - Full Width */}
-            <div className="text-center space-y-8">
+      {/* Podium Style Grid */}
+      <div className="max-w-6xl mx-auto mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4 items-end">
+          {consultants.map((consultant, index) => {
+            const style = getRankStyle(consultant.rank);
+            return (
               <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                key={consultant._id}
+                initial={{ opacity: 0, y: 100 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="relative"
+                transition={{ delay: index * 0.2, duration: 0.6 }}
+                className={`relative ${style.order} ${style.height} transition-all duration-500`}
               >
-                {/* Achievement Badge */}
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-4 py-2 rounded-full mb-6">
-                  <FiAward className="text-yellow-600" />
-                  <span className="text-yellow-800 font-semibold text-sm">
-                    مشاور برتر این ماه
-                  </span>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <FiStar
-                        key={i}
-                        className="text-yellow-500 fill-current text-xs"
-                      />
-                    ))}
+                {/* Crown for First Place */}
+                {style.crown && (
+                  <motion.div
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                    className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-30 text-5xl"
+                  >
+                    👑
+                  </motion.div>
+                )}
+
+                {/* Rank Number - Big and Prominent */}
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-30">
+                  <div
+                    className={`w-16 h-16 rounded-full bg-gradient-to-br ${style.badge} flex items-center justify-center shadow-lg border-4 border-white`}
+                  >
+                    <span className="text-white font-black text-2xl">
+                      {consultant.rank}
+                    </span>
                   </div>
                 </div>
 
-                <h3 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3">
-                  {topConsultant.name}
-                </h3>
-                <p className="text-2xl text-purple-600 font-semibold mb-6">
-                  {topConsultant.title}
-                </p>
-                <p className="text-gray-600 leading-relaxed text-lg max-w-3xl mx-auto">
-                  {topConsultant.description}
-                </p>
-              </motion.div>
-
-              {/* Enhanced Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative p-6 bg-gradient-to-br from-blue-50 via-blue-100 to-blue-200 rounded-2xl shadow-lg border border-blue-200 overflow-hidden"
+                <div
+                  className={`relative bg-gradient-to-br ${style.bg} rounded-3xl ${style.shadow} overflow-hidden border-2 ${style.ring} hover:scale-105 transition-all duration-300`}
                 >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-300 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
-                  <FiTrendingUp className="text-blue-600 text-2xl mb-3 mx-auto" />
-                  <div className="text-3xl font-bold text-blue-700 mb-1">
-                    {topConsultant.totalSales}
-                  </div>
-                  <div className="text-blue-600 font-medium">فروش این ماه</div>
-                </motion.div>
+                  {/* Decorative Elements */}
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-white/40 to-transparent rounded-full blur-3xl"></div>
+                  <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-white/40 to-transparent rounded-full blur-3xl"></div>
 
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative p-6 bg-gradient-to-br from-green-50 via-green-100 to-green-200 rounded-2xl shadow-lg border border-green-200 overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-green-300 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
-                  <FiAward className="text-green-600 text-2xl mb-3 mx-auto" />
-                  <div className="text-3xl font-bold text-green-700 mb-1">
-                    {topConsultant.experience}
-                  </div>
-                  <div className="text-green-600 font-medium">سال تجربه</div>
-                </motion.div>
+                  <div className="relative p-8 pt-16">
+                    {/* Avatar */}
+                    <div className="text-center mb-6">
+                      <motion.div
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        className={`w-24 h-24 rounded-full mx-auto mb-4 shadow-xl border-4 border-white overflow-hidden`}
+                      >
+                        {consultant.image ? (
+                          <img
+                            src={consultant.image}
+                            alt={consultant.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className={`w-full h-full bg-gradient-to-br ${style.badge} flex items-center justify-center`}
+                          >
+                            <FiUsers className="text-white text-3xl" />
+                          </div>
+                        )}
+                      </motion.div>
 
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative p-6 bg-gradient-to-br from-purple-50 via-purple-100 to-purple-200 rounded-2xl shadow-lg border border-purple-200 overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-purple-300 rounded-full -translate-y-10 translate-x-10 opacity-20"></div>
-                  <FiStar className="text-purple-600 text-2xl mb-3 mx-auto" />
-                  <div className="text-3xl font-bold text-purple-700 mb-1">
-                    {topConsultant.rating}
-                  </div>
-                  <div className="text-purple-600 font-medium">
-                    امتیاز کیفیت
-                  </div>
-                </motion.div>
-              </motion.div>
-
-              {/* Contact Info */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="bg-gray-50 rounded-2xl p-6 max-w-2xl mx-auto"
-              >
-                <h4 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-                  اطلاعات تماس
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center justify-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                    <div className="p-2 bg-green-100 rounded-full">
-                      <FiPhone className="text-green-600" />
+                      <h3 className="text-2xl font-black text-gray-800 mb-2">
+                        {consultant.name}
+                      </h3>
+                      <p className="text-[#01ae9b] font-bold mb-3 text-lg">
+                        {consultant.title}
+                      </p>
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                        {consultant.description}
+                      </p>
                     </div>
-                    <span className="text-gray-700 font-medium">
-                      {topConsultant.phone}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                    <div className="p-2 bg-blue-100 rounded-full">
-                      <FiMail className="text-blue-600" />
+
+                    {/* Stats - Enhanced */}
+                    <div className="grid grid-cols-3 gap-2 mb-6">
+                      <motion.div
+                        whileHover={{ y: -5 }}
+                        className="text-center p-4 bg-white/80 backdrop-blur rounded-xl shadow-md border border-blue-100"
+                      >
+                        <FiTrendingUp className="text-blue-600 text-2xl mx-auto mb-2" />
+                        <div className="text-xl font-black text-blue-700">
+                          {consultant.totalSales}
+                        </div>
+                        <div className="text-xs text-blue-600 font-semibold">
+                          فروش
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        whileHover={{ y: -5 }}
+                        className="text-center p-4 bg-white/80 backdrop-blur rounded-xl shadow-md border border-green-100"
+                      >
+                        <FiAward className="text-green-600 text-2xl mx-auto mb-2" />
+                        <div className="text-xl font-black text-green-700">
+                          {consultant.experience}
+                        </div>
+                        <div className="text-xs text-green-600 font-semibold">
+                          سال
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        whileHover={{ y: -5 }}
+                        className="text-center p-4 bg-white/80 backdrop-blur rounded-xl shadow-md border border-yellow-100"
+                      >
+                        <FiStar className="text-yellow-600 text-2xl mx-auto mb-2" />
+                        <div className="text-xl font-black text-yellow-700">
+                          {consultant.rating}
+                        </div>
+                        <div className="text-xs text-yellow-600 font-semibold">
+                          امتیاز
+                        </div>
+                      </motion.div>
                     </div>
-                    <span className="text-gray-700 font-medium text-sm">
-                      {topConsultant.email}
-                    </span>
-                  </div>
-                  {topConsultant.location && (
-                    <div className="flex items-center justify-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-                      <div className="p-2 bg-red-100 rounded-full">
-                        <FiMapPin className="text-red-600" />
+
+                    {/* Contact */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center gap-2 p-3 bg-white/80 backdrop-blur rounded-xl border border-gray-200">
+                        <FiPhone className="text-[#01ae9b]" />
+                        <span className="text-sm font-semibold text-gray-700">
+                          {consultant.phone}
+                        </span>
                       </div>
-                      <span className="text-gray-700 font-medium">
-                        {topConsultant.location}
-                      </span>
+
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() =>
+                          window.open(`tel:${consultant.phone}`, "_self")
+                        }
+                        className="w-full py-3 bg-gradient-to-r from-[#01ae9b] to-[#019688] text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <FiPhone className="text-lg" />
+                        تماس با مشاور
+                      </motion.button>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Shimmer Effect */}
+                  <motion.div
+                    initial={{ x: "-100%" }}
+                    animate={{ x: "200%" }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 3,
+                      ease: "linear",
+                      delay: index * 0.3,
+                    }}
+                    className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                  />
                 </div>
               </motion.div>
-
-              {/* CTA Buttons */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.8 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              >
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl font-bold shadow-xl overflow-hidden min-w-[200px]"
-                  onClick={() => {
-                    window.open(`tel:${topConsultant.phone}`, "_self");
-                  }}
-                >
-                  <motion.div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <span className="relative flex items-center justify-center gap-3">
-                    <FiPhone className="text-lg" />
-                    تماس فوری
-                  </span>
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative px-8 py-4 bg-white border-2 border-purple-600 text-purple-600 rounded-2xl font-bold shadow-lg hover:bg-purple-50 transition-colors duration-300 min-w-[200px]"
-                  onClick={() => {
-                    window.open(`mailto:${topConsultant.email}`, "_self");
-                  }}
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <FiMail className="text-lg" />
-                    ارسال ایمیل
-                  </span>
-                </motion.button>
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Hover Effect Overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute inset-0 bg-gradient-to-r from-purple-600/5 to-blue-600/5 pointer-events-none"
-          />
-        </motion.div>
+            );
+          })}
+        </div>
       </div>
+
+      {/* View All Button */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-center"
+      >
+        <Link
+          href={"/consultant"}
+          className="inline-flex items-center gap-3 bg-gradient-to-r from-[#01ae9b] to-[#019688] text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+        >
+          <FiUsers className="text-xl" />
+          <span>مشاهده تمام مشاوران</span>
+          <motion.span
+            animate={{ x: [0, 5, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+          >
+            ←
+          </motion.span>
+        </Link>
+      </motion.div>
     </section>
   );
 };
 
-export default TopConsultant;
+export default TopConsultants;

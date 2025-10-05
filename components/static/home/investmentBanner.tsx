@@ -6,91 +6,131 @@ import Link from "next/link";
 
 export default function InvestmentBanner() {
   return (
-    <section className="relative w-full overflow-hidden bg-white py-16 px-6 md:px-16 flex flex-col md:flex-row items-center justify-between gap-10 rounded-2xl">
-      {/* ====== تصویر ====== */}
-      <motion.div
-        initial={{ x: -100, opacity: 0 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1 }}
-        className="flex-1 flex justify-center z-10"
-      >
-        <Image
-          src="/assets/images/hero4.jpg"
-          alt="Investment"
-          width={600}
-          height={400}
-          className="rounded-2xl shadow-xl object-cover w-full max-w-[600px] h-auto"
-        />
-      </motion.div>
-
-      {/* ====== متن ====== */}
-      <motion.div
-        initial={{ x: 100, opacity: 0 }}
-        whileInView={{ x: 0, opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.2 }}
-        className="flex-1 z-10"
-        dir="rtl"
-      >
-        <h2 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2 leading-tight">
-          فرصت های طلایی <span className="text-[#66308d]">سرمایه گذاری</span>
-        </h2>
-        <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-          با ما در بهترین و آینده دارترین پروژه های سرمایه گذاری همراه شوید. تیم ما
-          بهترین فرصت ها را گلچین کرده و در اختیار شما قرار میدهد.
-        </p>
-        <Link href={"/offers"} className="cursor-pointer">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="mt-8 px-8 py-4 bg-[#7D3AC1] text-white cursor-pointer font-semibold rounded-xl shadow-lg hover:bg-[#2DD4BF] transition-all duration-300"
+    <section className="relative w-full overflow-hidden bg-gradient-to-br from-slate-50 via-white to-gray-50 py-20 px-6 md:px-20">
+      <div className="  mx-auto">
+        <div className="grid md:grid-cols-2 gap-16 items-center">
+          {/* Image */}
+          <motion.div
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative"
           >
-            مشاهده آگهی ها
-          </motion.button>
-        </Link>
-      </motion.div>
+            <div className="relative group">
+              <motion.div
+                whileHover={{ scale: 1.02, rotate: 1 }}
+                className="relative overflow-hidden rounded-3xl shadow-2xl"
+              >
+                <Image
+                  src="/assets/images/hero4.jpg"
+                  alt="Investment"
+                  width={600}
+                  height={400}
+                  className="object-cover w-full h-[400px] group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </motion.div>
 
-      {/* ====== بلابهای نرم ====== */}
-      <motion.svg
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute -right-40 -top-40 w-[40rem] h-[40rem] opacity-50"
-        viewBox="0 0 200 200"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#7D3AC1" />
-            <stop offset="100%" stopColor="#2DD4BF" />
-          </linearGradient>
-        </defs>
-        <path
-          fill="url(#grad1)"
-          d="M46.1,-78.5C59.8,-72.4,71.6,-61.4,78.5,-48.3C85.3,-35.2,87.2,-20.1,85.5,-5.9C83.8,8.4,78.6,16.8,71.1,27.2C63.7,37.6,53.9,50,41.1,58.3C28.3,66.6,12.6,70.9,-1.4,73C-15.4,75.1,-30.8,75,-44.8,68.3C-58.8,61.6,-71.4,48.2,-77.4,32.3C-83.3,16.3,-82.6,-2.2,-77.3,-18.9C-72,-35.6,-62,-50.4,-48.6,-57.3C-35.3,-64.3,-17.6,-63.4,-1.3,-61.7C15,-60,30,-57.6,46.1,-78.5Z"
-          transform="translate(100 100)"
-        />
-      </motion.svg>
+              {/* Floating Elements */}
+              <motion.div
+                animate={{ y: [-10, 10, -10] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute -top-6 -right-6 bg-white/40 backdrop-blur-md rounded-2xl p-4 shadow-xl"
+              >
+                <div className="text-2xl font-bold text-[#01ae9b]">+25%</div>
+                <div className="text-xs text-gray-600">بازدهی سالانه</div>
+              </motion.div>
 
-      <motion.svg
-        animate={{ rotate: -360 }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute -left-32 top-72 w-[30rem] h-[30rem] opacity-40"
-        viewBox="0 0 200 200"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2DD4BF" />
-            <stop offset="100%" stopColor="#7D3AC1" />
-          </linearGradient>
-        </defs>
-        <path
-          fill="url(#grad2)"
-          d="M36.4,-61.7C46.8,-57.4,54.8,-47.2,61.3,-36.3C67.8,-25.4,72.8,-13.7,73.4,-1.3C74,11.1,70.2,22.3,64.8,32.9C59.5,43.5,52.7,53.6,42.6,61.5C32.6,69.3,19.3,75,5.5,69.3C-8.3,63.6,-16.6,46.4,-27.1,36.9C-37.6,27.5,-50.2,25.9,-61.3,18.3C-72.4,10.8,-81.8,-2.8,-79.5,-15.7C-77.3,-28.6,-63.3,-40.8,-49.2,-46.8C-35,-52.7,-21.1,-52.4,-7.9,-51.8C5.3,-51.3,10.6,-50.6,36.4,-61.7Z"
-          transform="translate(100 100)"
-        />
-      </motion.svg>
+              <motion.div
+                animate={{ y: [10, -10, 10] }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1,
+                }}
+                className="absolute -bottom-4 -left-4 bg-[#01ae9b]/80 backdrop-blur-md text-white rounded-2xl p-4 shadow-xl"
+              >
+                <div className="text-lg font-bold">1000+</div>
+                <div className="text-xs opacity-90">پروژه موفق</div>
+              </motion.div>
+            </div>
+          </motion.div>
+          {/* Content */}
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="space-y-8"
+            dir="rtl"
+          >
+            <div className="space-y-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+                className="inline-flex items-center gap-2 bg-[#01ae9b]/10 text-[#01ae9b] px-4 py-2 rounded-full text-sm font-medium"
+              >
+                <span className="w-2 h-2 bg-[#01ae9b] rounded-full animate-pulse"></span>
+                فرصت های ویژه سرمایه گذاری
+              </motion.div>
+
+              <h2 className="text-4xl md:text-6xl font-black text-gray-900 leading-tight">
+                سرمایه گذاری
+                <span className="block text-[#01ae9b] relative">
+                  هوشمندانه
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-[#01ae9b] to-transparent"
+                  />
+                </span>
+              </h2>
+            </div>
+
+            <p className="text-xl text-gray-600 leading-relaxed">
+              با تیم متخصص املاک اوج، در پروژه های پربازده و آینده دار سرمایه
+              گذاری کنید و از بازدهی مطمئن برخوردار شوید.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/offers">
+                <motion.button
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="group cursor-pointer  relative px-8 py-4 bg-[#01ae9b] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden"
+                >
+                  <span className="relative z-10">مشاهده فرصت ها</span>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-[#01ae9b] to-[#019b8a]"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.button>
+              </Link>
+              <Link href="/contactUs">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  className="px-8 py-4 cursor-pointer  border-2 border-gray-200 text-gray-700 font-semibold rounded-2xl hover:border-[#01ae9b] hover:text-[#01ae9b] transition-all duration-300"
+                >
+                  مشاوره رایگان
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Background Elements */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-[#01ae9b]/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#01ae9b]/3 rounded-full blur-3xl" />
     </section>
   );
 }

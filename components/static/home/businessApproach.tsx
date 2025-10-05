@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -33,18 +34,17 @@ const ServiceCard: React.FC<{
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 60, scale: 0.8 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: index * 0.15, ease: "backOut" }}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: "easeOut" }}
       onMouseEnter={() => onMouseEnter(service.id)}
       onMouseLeave={onMouseLeave}
       className="group relative h-full"
-      style={{ perspective: 1000 }}
     >
       <motion.div
         whileHover={{ scale: 1.02 }}
-        className="relative h-full p-6 lg:p-8 rounded-2xl lg:rounded-3xl text-right overflow-hidden cursor-pointer bg-white/80 shadow-lg hover:shadow-2xl transition-all duration-300"
+        className="relative h-full p-6 lg:p-8 rounded-2xl lg:rounded-3xl text-right overflow-hidden cursor-pointer bg-white/80 shadow-lg hover:shadow-xl transition-all duration-300"
       >
         <div className="relative z-10 flex items-start gap-4 lg:gap-6 h-full">
           <div className="flex-1 min-h-0">
@@ -64,7 +64,7 @@ const ServiceCard: React.FC<{
           </div>
 
           <motion.div
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileHover={{ scale: 1.05 }}
             className="flex-shrink-0 relative"
           >
             <div
@@ -149,24 +149,40 @@ const BusinessServices = () => {
   return (
     <section className="py-16 lg:py-24 bg-gradient-to-br md:px-20 from-gray-50 via-white to-gray-100 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        <div
           className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/20 to-teal-200/20 rounded-full blur-3xl"
+          style={{ animation: "rotate 20s linear infinite" }}
         />
-        <motion.div
-          animate={{ rotate: -360, scale: [1, 0.8, 1] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+        <div
           className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-teal-200/20 to-purple-200/20 rounded-full blur-3xl"
+          style={{ animation: "rotate-reverse 25s linear infinite" }}
         />
+        <style jsx>{`
+          @keyframes rotate {
+            from {
+              transform: rotate(0deg);
+            }
+            to {
+              transform: rotate(360deg);
+            }
+          }
+          @keyframes rotate-reverse {
+            from {
+              transform: rotate(360deg);
+            }
+            to {
+              transform: rotate(0deg);
+            }
+          }
+        `}</style>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className=" relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "backOut" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="text-center mb-16 lg:mb-20"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
@@ -196,34 +212,34 @@ const BusinessServices = () => {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5, ease: "backOut" }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           className="mt-16 lg:mt-20 text-center"
         >
           <Link href="/services">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="group relative px-8 py-4 lg:px-10 lg:py-5 rounded-xl lg:rounded-2xl font-medium text-white overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="group relative px-8 py-4 lg:px-10 lg:py-5 rounded-xl lg:rounded-2xl font-medium text-white overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
               style={{
                 background: "linear-gradient(135deg, #66308d 0%, #01ae9b 100%)",
               }}
             >
               <span className="relative cursor-pointer z-10 flex items-center gap-3 text-lg">
                 مشاهده همه خدمات
-                <FaArrowLeft className="group-hover:rotate-12 transition-transform duration-300" />
+                <FaArrowLeft className="group-hover:translate-x-1 transition-transform duration-300" />
               </span>
             </motion.button>
           </Link>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "backOut" }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           className="mt-20 lg:mt-24 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
         >
           {[
@@ -234,12 +250,12 @@ const BusinessServices = () => {
           ].map((stat, index) => (
             <motion.div
               key={index}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.02 }}
               className="text-center p-6 rounded-xl bg-white/50 backdrop-blur-sm border border-white/20 hover:bg-white/80 transition-all duration-300"
             >
               <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
                 className="w-12 h-12 mx-auto mb-4 flex items-center justify-center rounded-full bg-gradient-to-br from-[#66308d] to-[#01ae9b] text-white"
               >
                 <stat.icon className="text-xl" />

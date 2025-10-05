@@ -1,9 +1,9 @@
 "use client";
-import   { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { FaPlus, FaSave, FaTimes, FaExclamationTriangle } from "react-icons/fa";
-import { Consultant } from "@/types/type";
+import { Consultant, User } from "@/types/type";
 import toast from "react-hot-toast";
 import { FiEdit2, FiEye, FiLoader, FiTrash2 } from "react-icons/fi";
 
@@ -18,12 +18,12 @@ const ConsultantManager = () => {
   const [consultantToDelete, setConsultantToDelete] =
     useState<Consultant | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [totalPoster] = useState<number | null>(null);
-  const [imageUploading, setImageUploading] = useState(false);
-
+   const [imageUploading, setImageUploading] = useState(false);
+  const [consultantUsers, setConsultantUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState({
+    userId: "", // 👈 جدید: ID یوزر انتخابی
     name: "",
-    phone: "",
+    phone: "", // این رو می‌تونی read-only کنی بر اساس user انتخابی
     whatsapp: "",
     email: "",
     image: "",
@@ -36,9 +36,19 @@ const ConsultantManager = () => {
   });
 
   useEffect(() => {
-    // fetchUserPosters();
+    fetchConsultantUsers();
     fetchConsultants();
   }, []);
+
+  const fetchConsultantUsers = async () => {
+    try {
+      const res = await fetch("/api/consultants/consultantsRole");
+      const data = await res.json();
+      setConsultantUsers(data.users);
+    } catch (error) {
+      console.log("Error fetching consultant users:", error);
+    }
+  };
 
   const fetchConsultants = async () => {
     try {
@@ -51,42 +61,6 @@ const ConsultantManager = () => {
       setLoading(false);
     }
   };
-  // const fetchUserPosters = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const token = localStorage.getItem("token"); // ✅ توکن که بعد از لاگین ذخیره کردی
-
-  //     if (!token) {
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     const res = await fetch("/api/posters-by-user", {
-  //       method: "GET",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`, // 👈 توکن در هدر
-  //       },
-  //     });
-
-  //     if (!res.ok) {
-  //       const errData = await res.json();
-  //       throw new Error(errData.message || "مشکلی پیش آمد");
-  //     }
-
-  //     const data = await res.json();
-  //     // 👇 ریسپانس سرور
-  //     console.log("✅ ریسپانس API:", data);
-
-  //     setTotalPoster(data.total); // تعداد کل آگهی‌ها
-  //     // اگر لیست هم برگردونی می‌تونی بگذاری تو state دیگه
-  //     // setPosters(data.posters);
-  //   } catch (err) {
-  //     console.log("❌ خطا در گرفتن آگهی‌ها:", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,6 +79,7 @@ const ConsultantManager = () => {
         },
         body: JSON.stringify({
           ...formData,
+          userId: formData.userId, // 👈 بفرست userId
           workAreas: formData.workAreas.filter((area) => area.trim()),
           specialties: formData.specialties.filter((specialty) =>
             specialty.trim()
@@ -185,6 +160,7 @@ const ConsultantManager = () => {
       description: consultant.description || "",
       rating: consultant.rating || 0,
       isActive: consultant.isActive,
+      userId: consultant?.user?._id,
     });
     setShowForm(true);
   };
@@ -202,8 +178,21 @@ const ConsultantManager = () => {
       description: "",
       rating: 0,
       isActive: true,
+      userId: "",
     });
     setEditingConsultant(null);
+  };
+
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = consultantUsers.find((u) => u._id === userId);
+    if (selectedUser) {
+      setFormData((prev) => ({
+        ...prev,
+        userId,
+        name: selectedUser.name,
+        phone: selectedUser.phone, // auto-fill از User
+      }));
+    }
   };
 
   const addWorkArea = () => {
@@ -300,9 +289,7 @@ const ConsultantManager = () => {
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   تجربه
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  آگهی‌ها
-                </th>
+
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   امتیاز
                 </th>
@@ -353,9 +340,7 @@ const ConsultantManager = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {consultant.experienceYears} سال
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {totalPoster ? totalPoster : "-"}
-                  </td>
+
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <span className="text-sm text-gray-900">
@@ -503,6 +488,24 @@ const ConsultantManager = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                      کاربر مشاور *
+                    </label>
+                    <select
+                      required
+                      value={formData.userId}
+                      onChange={(e) => handleUserSelect(e.target.value)}
+                      className="w-full p-3 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b]"
+                    >
+                      <option value="">انتخاب مشاور...</option>
+                      {consultantUsers.map((user) => (
+                        <option key={user._id} value={user._id}>
+                          {user.name} - {user.phone}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       نام مشاور *
                     </label>
                     <input
@@ -510,13 +513,8 @@ const ConsultantManager = () => {
                       required
                       placeholder="نام و نام خانوادگی مشاور"
                       value={formData.name}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      className="w-full p-3 border text-black placeholder:text-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b]"
+                      readOnly // 👈 read-only، چون از user می‌آد
+                      className="w-full p-3 border text-black bg-gray-100 border-gray-300 rounded-lg"
                     />
                   </div>
 
@@ -525,16 +523,11 @@ const ConsultantManager = () => {
                       شماره تلفن *
                     </label>
                     <input
-                      type="number"
+                      type="tel"
                       required
                       value={formData.phone}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                      className="w-full p-3 border text-black placeholder:text-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#01ae9b]"
+                      readOnly
+                      className="w-full p-3 border text-black bg-gray-100 border-gray-300 rounded-lg"
                       placeholder="09123456789"
                     />
                   </div>
@@ -583,7 +576,11 @@ const ConsultantManager = () => {
                       type="number"
                       required
                       min="0"
-                      value={formData.experienceYears === 0 ? '' : formData.experienceYears}
+                      value={
+                        formData.experienceYears === 0
+                          ? ""
+                          : formData.experienceYears
+                      }
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -604,7 +601,7 @@ const ConsultantManager = () => {
                       min="1"
                       max="5"
                       step="0.1"
-                      value={formData.rating === 0 ? '' : formData.rating}
+                      value={formData.rating === 0 ? "" : formData.rating}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -635,14 +632,16 @@ const ConsultantManager = () => {
                           type="button"
                           onClick={async () => {
                             try {
-                              await fetch('/api/consultants/image', {
-                                method: 'DELETE',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ imageUrl: formData.image })
+                              await fetch("/api/consultants/image", {
+                                method: "DELETE",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  imageUrl: formData.image,
+                                }),
                               });
-                              setFormData(prev => ({ ...prev, image: '' }));
+                              setFormData((prev) => ({ ...prev, image: "" }));
                             } catch (error) {
-                              console.log('Error deleting image:', error);
+                              console.log("Error deleting image:", error);
                             }
                           }}
                           className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
@@ -659,27 +658,35 @@ const ConsultantManager = () => {
                         onChange={async (e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          
+
                           setImageUploading(true);
                           try {
                             const formDataUpload = new FormData();
-                            formDataUpload.append('image', file);
-                            
-                            const response = await fetch('/api/consultants/image', {
-                              method: 'POST',
-                              body: formDataUpload
-                            });
-                            
+                            formDataUpload.append("image", file);
+
+                            const response = await fetch(
+                              "/api/consultants/image",
+                              {
+                                method: "POST",
+                                body: formDataUpload,
+                              }
+                            );
+
                             const result = await response.json();
                             if (response.ok) {
-                              setFormData(prev => ({ ...prev, image: result.imageUrl }));
-                              toast.success('تصویر با موفقیت آپلود شد');
+                              setFormData((prev) => ({
+                                ...prev,
+                                image: result.imageUrl,
+                              }));
+                              toast.success("تصویر با موفقیت آپلود شد");
                             } else {
-                              toast.error(result.message || 'خطا در آپلود تصویر');
+                              toast.error(
+                                result.message || "خطا در آپلود تصویر"
+                              );
                             }
                           } catch (error) {
-                            console.log('Error uploading image:', error);
-                            toast.error('خطا در آپلود تصویر');
+                            console.log("Error uploading image:", error);
+                            toast.error("خطا در آپلود تصویر");
                           } finally {
                             setImageUploading(false);
                           }
@@ -696,7 +703,7 @@ const ConsultantManager = () => {
                           <FaPlus className="w-8 h-8 text-gray-400 mb-2" />
                         )}
                         <span className="text-sm text-gray-500">
-                          {imageUploading ? 'در حال آپلود...' : 'انتخاب تصویر'}
+                          {imageUploading ? "در حال آپلود..." : "انتخاب تصویر"}
                         </span>
                       </label>
                     </div>

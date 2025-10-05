@@ -276,7 +276,7 @@ export default function OurApproachPage() {
       <Testimonials />
 
       {/* Call to Action */}
-      <section className="py-20 bg-white">
+      <section className="pt-20 bg-white">
         <div className="  ">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
