@@ -120,7 +120,7 @@ const TopConsultants: React.FC = () => {
       </motion.div>
 
       {/* Podium Style Grid */}
-      <div className="max-w-6xl mx-auto mb-12">
+      <div className="  mx-auto mb-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4 items-end">
           {consultants.map((consultant, index) => {
             const style = getRankStyle(consultant.rank);

@@ -76,7 +76,7 @@ const ConsultantListSection = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6 }}
-      className="py-16 relative overflow-hidden bg-gradient-to-b from-[#66308d] via-[#66308d]/70 to-white container mx-auto px-4 md:px-20"
+      className="py-16 relative overflow-hidden bg-[#66308d]   container mx-auto px-4 md:px-20"
       dir="rtl"
     >
       {/* Dotted blurred background */}
@@ -215,7 +215,7 @@ const ConsultantListSection = () => {
         >
           <Link
             href="/consultants"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#019688] text-white px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300 font-semibold"
+            className="inline-flex items-center gap-2 border border-[#fff]   text-white px-8 py-4 rounded-lg hover:shadow-lg hover:bg-gray-400/20 transition-all duration-300 font-semibold"
           >
             <FaUsers />
             <span>مشاهده همه مشاوران</span>

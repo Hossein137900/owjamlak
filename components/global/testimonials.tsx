@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useDragControls } from "framer-motion";
-import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { FaUserCircle, FaStar } from "react-icons/fa";
 
 interface Testimonial {
@@ -212,26 +211,6 @@ const Testimonials = () => {
               </div>
             </motion.div>
           </AnimatePresence>
-
-          {/* Navigation */}
-          {testimonials.length > 1 && (
-            <>
-              <button
-                aria-label="prev"
-                onClick={handlePrev}
-                className="absolute top-1/3 right-3 -translate-y-1/2 bg-white/70  backdrop-blur-sm text-[#66308d] hover:bg-[#66308d] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
-              >
-                <MdChevronRight size={28} />
-              </button>
-              <button
-                aria-label="next"
-                onClick={handleNext}
-                className="absolute top-1/3 left-3 -translate-y-1/2 bg-white/20 backdrop-blur-sm text-[#66308d] hover:bg-[#66308d] hover:text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
-              >
-                <MdChevronLeft size={28} />
-              </button>
-            </>
-          )}
         </div>
 
         {/* Indicators */}

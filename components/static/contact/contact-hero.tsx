@@ -5,14 +5,14 @@ import Image from "next/image";
 const ContactHero = () => {
   return (
     <div className="relative h-screen  pt-20  bg-gradient-to-t from-[#01ae9b]/5 to-white">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="  mx-auto px-4 md:px-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Text Section */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-right max-w-3xl mx-auto px-4"
+            className="text-right  "
           >
             {/* Title */}
             <h2 className="text-lg md:text-xl font-extrabold text-gray-400 leading-tight mb-4">
@@ -33,7 +33,7 @@ const ContactHero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center sm:justify-end"
+              className="flex flex-col sm:flex-row gap-6 justify-center sm:justify-start"
             >
               {/* Phone */}
               <a

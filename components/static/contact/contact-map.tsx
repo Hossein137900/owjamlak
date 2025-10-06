@@ -14,7 +14,7 @@ const branch = {
 const ContactMap = () => {
   return (
     <div className="py-16 bg-gray-50">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="md:px-20 container mx-auto w-full px-4">
         {/* عنوان */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ const ContactMap = () => {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden"
+            className="  rounded-xl   overflow-hidden"
           >
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1646861.4452956964!2d50.6304932!3d36.2752788!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f8e031ab7cbbfef%3A0xc25c1d12d9dcb025!2z2YXYtNin2YjYsduM2YYg2KfZhdmE2KfaqSDYp9mI2Kw!5e0!3m2!1sen!2s!4v1756149707039!5m2!1sen!2s"

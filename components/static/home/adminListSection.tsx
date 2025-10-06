@@ -77,7 +77,7 @@ const AdminListSection = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6 }}
-      className="py-16 relative overflow-hidden bg-gradient-to-b from-white to-[#01ae9b] container mx-auto px-4 md:px-20  "
+      className="py-16 relative overflow-hidden   container mx-auto px-4 md:px-20  "
       dir="rtl"
     >
       {/* Dotted blurred background */}
@@ -129,7 +129,7 @@ const AdminListSection = () => {
                         className="object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-                      <span className="absolute top-4 right-4 bg-[#01ae9b]/90 text-white px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
+                      <span className="absolute top-4 right-4 bg-[#66308d]/50   text-white px-3 py-1 rounded-full text-sm font-semibold backdrop-blur-sm">
                         {admin.position}
                       </span>
                     </div>
@@ -147,7 +147,13 @@ const AdminListSection = () => {
                           <span>{admin.user?.phone || "-"}</span>
                         </div>
                       </div>
-                      <FaArrowLeft className="text-[#01ae9b] w-4 h-4" />
+                      <div className="flex justify-between items-center">
+                        {" "}
+                        <span className="text-[#01ae9b] text-xs">
+                          مشاهده پروفایل
+                        </span>
+                        <FaArrowLeft className="text-[#01ae9b] w-4 h-4" />
+                      </div>
                     </div>
                   </Link>
                 </motion.div>
@@ -164,7 +170,7 @@ const AdminListSection = () => {
         >
           <Link
             href="/admins"
-            className="inline-flex items-center gap-2 bg-[#66308d] text-white px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300  font-semibold"
+            className="inline-flex items-center gap-2 bg-[#01ae9b] text-white px-8 py-4 rounded-lg hover:shadow-lg transition-all duration-300  font-semibold"
           >
             <FaUsers />
             <span>مشاهده همه مدیران</span>

@@ -292,7 +292,7 @@ const Footer = () => {
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#01ae9b]/20 to-white/5 z-0"></div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4">
+        <div className="relative z-10   mx-auto container px-4 md:px-20">
           <motion.div
             variants={containerVariants}
             initial="hidden"

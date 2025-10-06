@@ -29,7 +29,7 @@ export default function RealEstateSearch() {
       </div>
 
       <div className="relative z-10 h-full flex items-center">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 w-full">
+        <div className="  mx-auto px-6 md:px-20 w-full">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
             {/* Text Section */}
             <div className="md:w-2/5">
@@ -47,10 +47,10 @@ export default function RealEstateSearch() {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
-                className="text-right text-white sm:text-gray-600 text-sm leading-relaxed"
+                className="text-right text-white sm:text-gray-600 text-sm  "
               >
-                با املاک اوج، خرید و فروش ملک را آسانتر از همیشه تجربه کنید. ما
-                به شما کمک میکنیم تا بهترین انتخاب را داشته باشید.
+                با املاک اوج، خرید و فروش ملک را آسان تر از همیشه تجربه کنید. ما
+                به شما کمک می کنیم تا بهترین انتخاب را داشته باشید.
               </motion.p>
 
               <motion.div
