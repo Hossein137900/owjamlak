@@ -18,7 +18,7 @@ export default function Chat() {
   const [currentRoom, setCurrentRoom] = useState<string>("");
   const [hasNewMessages, setHasNewMessages] = useState<boolean>(false);
   const [shouldShowWidget, setShouldShowWidget] = useState<boolean>(true);
-  console.log(shouldShowWidget, "shouldShowWidget");
+
   const [, setSessionCreated] = useState<boolean>(false);
   const [lastAuthState, setLastAuthState] = useState<string | null>(null);
 
@@ -61,6 +61,8 @@ export default function Chat() {
           const payload: JWTPayload = JSON.parse(
             atob(savedToken.split(".")[1])
           );
+          
+
 
           if (payload.role && payload.role === "user") {
             setShouldShowWidget(true);
@@ -68,8 +70,11 @@ export default function Chat() {
               initializeChat();
               setSessionCreated(true);
             });
-          } else {
+          } else if (payload.role && (payload.role === "admin" || payload.role === "superadmin" || payload.role === "consultant")) {
+
             setShouldShowWidget(false);
+          } else {
+            setShouldShowWidget(true);
           }
         } catch {
           setShouldShowWidget(true);
@@ -91,6 +96,8 @@ export default function Chat() {
       setToken(savedToken);
       try {
         const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
+        
+
 
         if (payload.role && payload.role === "user") {
           setShouldShowWidget(true);
@@ -98,8 +105,11 @@ export default function Chat() {
           loadChatHistoryWithToken(savedToken).then(() => {
             initializeChat();
           });
-        } else {
+        } else if (payload.role && (payload.role === "admin" || payload.role === "superadmin" || payload.role === "consultant")) {
+
           setShouldShowWidget(false);
+        } else {
+          setShouldShowWidget(true);
         }
       } catch {
         setShouldShowWidget(true);
@@ -240,7 +250,7 @@ export default function Chat() {
     const currentToken = token || localStorage.getItem("token");
     const socketUrl =
       process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500";
-    console.log("Chat widget connecting to:", socketUrl);
+
     const newSocket = io(socketUrl, {
       auth: {
         token: currentToken,
@@ -341,9 +351,9 @@ export default function Chat() {
   };
 
   // Don't render widget for admin roles
-  // if (!shouldShowWidget) {
-  //   return null;
-  // }
+  if (!shouldShowWidget) {
+    return null;
+  }
   if (pathname === "/auth") {
     return null;
   }
