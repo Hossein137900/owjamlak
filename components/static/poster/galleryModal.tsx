@@ -1,12 +1,7 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaTimes,
-  FaExpand,
-} from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import { useEffect } from "react";
 
 interface GalleryModalProps {
@@ -48,7 +43,7 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm z-500 flex flex-col justify-center items-center"
+      className="fixed inset-0 bg-black/30 backdrop-blur-sm z-999999 flex flex-col justify-center items-center"
     >
       {/* Header with close button and counter */}
       <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4 bg-gradient-to-b from-black/70 to-transparent z-10">
@@ -179,8 +174,7 @@ const GalleryModal: React.FC<GalleryModalProps> = ({
           }
         }}
       >
-        <FaExpand size={18} />
-      </motion.button>
+       </motion.button>
     </motion.div>
   );
 };

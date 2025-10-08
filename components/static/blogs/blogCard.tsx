@@ -1,5 +1,5 @@
 "use client";
-import   { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -42,17 +42,16 @@ const BlogCard: React.FC<BlogCardProps> = ({
         boxShadow: "0 10px 30px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.03)",
       }}
     >
-       <div
-          className="absolute bottom-0 left-10 h-1 z-10 transition-all duration-[1500ms] ease-out"
-          style={{
-            width: isHovered ? "78%" : "0%",
-            background: `linear-gradient(to right, #01ae9b, #66308d)`,
-          }}
-        />
+      <div
+        className="absolute bottom-0 left-10 h-1 z-10 transition-all duration-[1500ms] ease-out"
+        style={{
+          width: isHovered ? "78%" : "0%",
+          background: `linear-gradient(to right, #01ae9b, #66308d)`,
+        }}
+      />
       {/* Image Container */}
       <div className="relative aspect-[16/9] overflow-hidden">
         {/* Category Indicator - Minimal Line */}
-       
 
         {/* Image with Zoom Effect */}
         <motion.div
@@ -63,7 +62,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <Image
-            src={coverImage}
+            src={coverImage || "/assets/images/hero2.png"}
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

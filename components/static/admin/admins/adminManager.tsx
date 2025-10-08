@@ -264,7 +264,7 @@ const AdminManager = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() =>
-                          window.open(`/admin/${admin._id}`, "_blank")
+                          window.open(`/admins/${admin._id}`, "_blank")
                         }
                         className="text-blue-600 hover:text-blue-900"
                         title="مشاهده"

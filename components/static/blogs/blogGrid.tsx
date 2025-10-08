@@ -1,4 +1,4 @@
- import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import BlogCard from "./blogCard";
 
 // Animation variants
@@ -48,7 +48,7 @@ const BlogGrid: React.FC<BlogGridProps> = ({ blogs }) => {
             id={blog.id}
             title={blog.title}
             excerpt={blog.excerpt}
-            coverImage={blog.coverImage}
+            coverImage={blog.coverImage || "/assets/images/hero2.png"}
             author={blog.author}
             date={blog.date}
             readTime={blog.readTime}

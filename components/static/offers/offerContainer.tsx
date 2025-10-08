@@ -129,7 +129,7 @@ const OffersPage = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">در حال بارگذاری آگهیها...</p>
+          <p className="text-gray-600">در حال بارگذاری آگهی ها...</p>
         </div>
       </div>
     );
@@ -173,7 +173,7 @@ const OffersPage = () => {
             <span className="text-gray-800">سرمایه گذاری</span>
           </h1>
           <p className="text-gray-600 text-sm px-4 md:text-base max-w-3xl mx-auto leading-relaxed">
-            بهترین فرصتهای سرمایهگذاری در بازار املاک را کشف کنید و آینده مالی
+            بهترین فرصت های سرمایه گذاری در بازار املاک را کشف کنید و آینده مالی
             خود را تضمین کنید
           </p>
         </motion.div>
@@ -204,7 +204,7 @@ const OffersPage = () => {
           </div>
 
           <p className="text-gray-700 text-lg leading-relaxed mb-4">
-            سرمایه گذاری در بخش املاک یکی از مطمئنترین و پرسودترین روشهای سرمایه
+            سرمایه گذاری در بخش املاک یکی از مطمئن ترین و پرسودترین روش های سرمایه
             گذاری محسوب میشود. با رشد مداوم جمعیت و توسعه شهری، تقاضا برای املاک
             همواره در حال افزایش است.
           </p>
@@ -220,7 +220,7 @@ const OffersPage = () => {
           >
             <div className="space-y-4">
               <p className="text-gray-700 leading-relaxed">
-                در پلتفرم اوج، ما بهترین فرصتهای سرمایه گذاری را برای شما انتخاب
+                در پلتفرم اوج، ما بهترین فرصت های سرمایه گذاری را برای شما انتخاب
                 کرده ایم. هر ملک با دقت بررسی شده و پتانسیل رشد قیمت و درآمدزایی
                 آن تحلیل شده است.
               </p>
@@ -336,7 +336,7 @@ const OffersPage = () => {
         ) : (
           <div className="text-center py-16">
             <div className="text-gray-500 text-lg mb-4">
-              هیچ فرصت سرمایه گذاریای یافت نشد
+              هیچ فرصت سرمایه گذاری ای یافت نشد
             </div>
             <p className="text-gray-400">
               لطفاً فیلترهای خود را تغییر دهید یا بعداً دوباره تلاش کنید
@@ -375,7 +375,7 @@ const OffersPage = () => {
             آماده شروع سرمایه گذاری هستید؟
           </h2>
           <p className="text-sm md:text-base mb-8 opacity-90 max-w-3xl mx-auto">
-            با مشاوران متخصص ما در تماس باشید و بهترین فرصتهای سرمایه گذاری را
+            با مشاوران متخصص ما در تماس باشید و بهترین فرصت های سرمایه گذاری را
             کشف کنید. ما در هر مرحله از سرمایه گذاری کنار شما هستیم.
           </p>
 

@@ -7,11 +7,12 @@ import { motion } from "framer-motion";
 import {
   FaPhone,
   FaEnvelope,
-   FaCheckCircle,
+  FaCheckCircle,
   FaTimesCircle,
   FaArrowRight,
 } from "react-icons/fa";
 import { Admin } from "@/types/type";
+import { FiLoader } from "react-icons/fi";
 
 interface AdminDetailClientProps {
   adminId: string;
@@ -57,13 +58,10 @@ const AdminDetailClient: React.FC<AdminDetailClientProps> = ({ adminId }) => {
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        dir="rtl"
-      >
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01ae9b] mx-auto mb-4"></div>
-          <p className="text-gray-600">در حال بارگذاری...</p>
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری</p>
         </div>
       </div>
     );

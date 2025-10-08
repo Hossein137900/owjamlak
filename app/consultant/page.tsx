@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import ConsultantsList from "@/components/static/consultants/consultantsList";
 
 export const metadata: Metadata = {
-  title: "مشاوران املاک تهران | لیست بهترین مشاوران اوج املاک",
+  title: "مشاوران املاک اوج | لیست بهترین مشاوران اوج املاک",
   description:
     "بهترین مشاوران املاک تهران با تجربه و تخصص در خرید، فروش و اجاره انواع ملک. اوج املاک شما را به مشاور مطمئن در مناطق مختلف تهران وصل می‌کند.",
   keywords: [

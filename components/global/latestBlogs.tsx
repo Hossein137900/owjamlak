@@ -10,10 +10,11 @@ interface Blog {
   _id: string;
   id: string;
   title: string;
-  content: string;
+  content?: string;
+  excerpt?: string;
   author: string;
   date: string;
-  image?: string;
+  coverImage?: string;
   slug?: string;
 }
 
@@ -95,7 +96,7 @@ const LatestBlogs = () => {
           >
             <div className="relative h-48">
               <Image
-                src={blog.image || "/assets/images/hero.jpg"}
+                src={blog.coverImage || "/assets/images/hero.jpg"}
                 alt={blog.title}
                 fill
                 className="object-cover"
@@ -106,7 +107,7 @@ const LatestBlogs = () => {
                 {blog.title}
               </h3>
               <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                {truncateText(blog.content?.replace(/<[^>]*>/g, "") || "", 120)}
+                {truncateText(blog.excerpt || blog.content?.replace(/<[^>]*>/g, "") || "", 120)}
               </p>
               <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                 <div className="flex items-center gap-1">
@@ -147,7 +148,7 @@ const LatestBlogs = () => {
             >
               <div className="relative h-40">
                 <Image
-                  src={blog.image || "/assets/images/hero.jpg"}
+                  src={blog.coverImage || "/assets/images/hero.jpg"}
                   alt={blog.title}
                   fill
                   className="object-cover"
@@ -159,7 +160,7 @@ const LatestBlogs = () => {
                 </h3>
                 <p className="text-gray-600 text-xs mb-3 line-clamp-2">
                   {truncateText(
-                    blog.content?.replace(/<[^>]*>/g, "") || "",
+                    blog.excerpt || blog.content?.replace(/<[^>]*>/g, "") || "",
                     80
                   )}
                 </p>

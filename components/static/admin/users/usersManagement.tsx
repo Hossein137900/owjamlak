@@ -375,7 +375,7 @@ const UsersManagement: React.FC = () => {
       <div className="h-64 bg-transparent flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">در حال بارگذاری آگهی‌ها...</p>
+          <p className="text-gray-600">در حال بارگذاری کاربران...</p>
         </div>
       </div>
     );
