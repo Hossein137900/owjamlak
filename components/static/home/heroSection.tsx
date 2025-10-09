@@ -7,7 +7,7 @@ import HeroImageSlider from "./heroImageSlider";
 export default function RealEstateSearch() {
   return (
     <div
-      className="relative lg:-mt-6 h-screen overflow-hidden bg-white"
+      className="relative  h-screen overflow-hidden bg-white"
       dir="rtl"
       style={{
         backgroundImage: `url("/assets/images/bg.png")`,
