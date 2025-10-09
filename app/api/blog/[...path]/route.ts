@@ -45,24 +45,25 @@ export async function GET(
     const ext = filename.split('.').pop()?.toLowerCase();
     
     // Determine content type based on file extension
-    let contentType = 'image/jpeg';
-    if (ext) {
-      contentType = {
-        'jpg': 'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'png': 'image/png',
-        'gif': 'image/gif',
-        'webp': 'image/webp'
-      }[ext] || 'image/jpeg';
-    }
+    const contentTypeMap = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp'
+    };
+    const contentType = ext && ext in contentTypeMap ? contentTypeMap[ext as keyof typeof contentTypeMap] : 'image/jpeg';
 
-    return new NextResponse(new Uint8Array(imageBuffer), {
+    const response = new NextResponse(imageBuffer, {
+      status: 200,
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000',
         'Content-Length': imageBuffer.length.toString(),
       },
     });
+    
+    return response;
 
   } catch (error) {
     console.log('Error serving blog image:', error);
