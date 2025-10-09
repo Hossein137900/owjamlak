@@ -16,7 +16,7 @@ export async function GET(
     }
 
     // Security: Validate filename
-    if (!/^[a-zA-Z0-9._-]+$/i.test(filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, ''))) {
+    if (!/^[a-zA-Z0-9._-]+\.(jpg|jpeg|png|gif|webp)$/i.test(filename)) {
       return new NextResponse('Invalid filename', { status: 400 });
     }
 
@@ -60,6 +60,7 @@ export async function GET(
       headers: {
         'Content-Type': contentType,
         'Cache-Control': 'public, max-age=31536000',
+        'Content-Length': imageBuffer.length.toString(),
       },
     });
 
