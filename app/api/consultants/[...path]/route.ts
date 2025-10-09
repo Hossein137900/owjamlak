@@ -15,8 +15,8 @@ export async function GET(
       return new NextResponse('Invalid path', { status: 400 });
     }
 
-    // Security: Validate filename
-    if (!/^[a-zA-Z0-9._-]+$/i.test(filename.replace(/\.(jpg|jpeg|png|gif|webp)$/i, ''))) {
+    // Security: Validate filename - allow more characters for generated filenames
+    if (!/^[a-zA-Z0-9._-]+$/i.test(filename)) {
       return new NextResponse('Invalid filename', { status: 400 });
     }
 
