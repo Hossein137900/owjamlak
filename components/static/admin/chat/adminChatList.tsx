@@ -27,7 +27,6 @@ export default function ChatAdminList() {
     const adminToken = localStorage.getItem("token");
     const socketUrl =
       process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3500";
-    console.log("Admin connecting to:", socketUrl);
     const newSocket = io(socketUrl, {
       auth: {
         token: adminToken,
@@ -158,12 +157,7 @@ export default function ChatAdminList() {
         }/api/admin/sessions`
       );
       const sessions: ChatSession[] = await response.json();
-      const userSessions = sessions.filter(
-        (session) =>
-          session.userId !== localStorage.getItem("userId") &&
-          !session.userName?.toLowerCase().includes("admin")
-      );
-      userSessions.forEach((session) => {
+      sessions.forEach((session) => {
         createRoomCard(session.sessionId, session.userName, false);
       });
     } catch {

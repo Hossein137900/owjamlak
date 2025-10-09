@@ -70,9 +70,6 @@ export default function Chat() {
               initializeChat();
               setSessionCreated(true);
             });
-          } else if (payload.role && (payload.role === "admin" || payload.role === "superadmin" || payload.role === "consultant")) {
-
-            setShouldShowWidget(false);
           } else {
             setShouldShowWidget(true);
           }
@@ -105,9 +102,6 @@ export default function Chat() {
           loadChatHistoryWithToken(savedToken).then(() => {
             initializeChat();
           });
-        } else if (payload.role && (payload.role === "admin" || payload.role === "superadmin" || payload.role === "consultant")) {
-
-          setShouldShowWidget(false);
         } else {
           setShouldShowWidget(true);
         }
@@ -351,9 +345,9 @@ export default function Chat() {
   };
 
   // Don't render widget for admin roles
-  if (!shouldShowWidget) {
-    return null;
-  }
+  // if (!shouldShowWidget) {
+  //   return null;
+  // }
   if (pathname === "/auth") {
     return null;
   }
