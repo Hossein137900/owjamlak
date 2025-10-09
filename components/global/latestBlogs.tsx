@@ -28,7 +28,6 @@ const LatestBlogs = () => {
         const response = await fetch("/api/blog");
         if (response.ok) {
           const data = await response.json();
-          console.log(data);
           setBlogs(data || []);
         }
       } catch (error) {
@@ -107,7 +106,10 @@ const LatestBlogs = () => {
                 {blog.title}
               </h3>
               <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                {truncateText(blog.excerpt || blog.content?.replace(/<[^>]*>/g, "") || "", 120)}
+                {truncateText(
+                  blog.excerpt || blog.content?.replace(/<[^>]*>/g, "") || "",
+                  120
+                )}
               </p>
               <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
                 <div className="flex items-center gap-1">
