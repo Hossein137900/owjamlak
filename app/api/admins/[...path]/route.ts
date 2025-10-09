@@ -54,7 +54,7 @@ export async function GET(
     };
     const contentType = ext && ext in contentTypeMap ? contentTypeMap[ext as keyof typeof contentTypeMap] : 'image/jpeg';
 
-    const response = new NextResponse(imageBuffer, {
+    const response = new NextResponse(new Uint8Array(imageBuffer), {
       status: 200,
       headers: {
         'Content-Type': contentType,
