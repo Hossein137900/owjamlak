@@ -360,9 +360,9 @@ export default function PosterDetailClient({
   const images =
     posterData?.images && posterData?.images.length > 0
       ? posterData?.images.map((img) =>
-          typeof img === "string" ? img : img.url || "/assets/images/hero.jpg"
+          typeof img === "string" ? img : img.url || "/assets/images/hero2.png"
         )
-      : ["/assets/images/hero.jpg"];
+      : ["/assets/images/hero2.png"];
 
   // Create media array with video first (if exists) then images
   const mediaItems = [];
@@ -416,7 +416,7 @@ export default function PosterDetailClient({
       <div className="relative" dir="rtl">
         <nav
           aria-label="Breadcrumb"
-          className="w-full absolute -top-4 sm:-top-5 md:-top-6 lg:-top-8 right-0 px-2 sm:px-3 md:px-0"
+          className="w-full absolute -top-4 sm:-top-5 md:-top-6 lg:-top-4 right-0 px-2 sm:px-3 md:px-0"
         >
           <ol className="flex items-center flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm px-1 sm:px-0">
             {(() => {
@@ -566,7 +566,7 @@ export default function PosterDetailClient({
                   <Image
                     src={
                       mediaItems[displayImageIndex]?.src ||
-                      "/assets/images/hero.jpg"
+                      "/assets/images/hero2.png"
                     }
                     alt={`تصویر ${displayImageIndex + 1}`}
                     fill
@@ -575,7 +575,7 @@ export default function PosterDetailClient({
                     priority
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = "/assets/images/hero.jpg";
+                      target.src = "/assets/images/hero2.png";
                     }}
                   />
                 )}
@@ -644,14 +644,14 @@ export default function PosterDetailClient({
                       </div>
                     ) : (
                       <Image
-                        src={item.src || "/assets/images/hero.jpg"}
+                        src={item.src || "/assets/images/hero2.png"}
                         alt={`تصویر ${posterData.title || "ملک"} ${index + 1}`}
                         fill
                         className="object-cover rounded-md"
                         sizes="80px"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = "/assets/images/hero.jpg";
+                          target.src = "/assets/images/hero2.png";
                         }}
                       />
                     )}

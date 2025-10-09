@@ -264,7 +264,7 @@ export default function AuthPageContainer() {
         setTimeout(() => {
           if (shouldRedirectToAdmin) {
             localStorage.removeItem("adminRedirect");
-            toast.success("در حال انتقال به پنل مدیریت...");
+            toast.success("...در حال انتقال به پنل مدیریت");
             router.replace("/admin");
           } else if (shouldRedirectToContact && contactRedirectUrl) {
             localStorage.removeItem("contactRedirect");

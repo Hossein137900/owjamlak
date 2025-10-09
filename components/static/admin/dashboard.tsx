@@ -24,7 +24,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       <div className="h-64 bg-transparent flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600"> ... در حال بارگذاری </p>
+          <p className="text-gray-600">   در حال بارگذاری </p>
         </div>
       </div>
     );
@@ -143,11 +143,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           >
             <div className="p-5">
               <div className="flex items-center">
-                <div className={`flex-shrink-0 rounded-md p-2 md:p-3 ${stat.color}`}>
+                <div
+                  className={`flex-shrink-0 rounded-md p-2 md:p-3 ${stat.color}`}
+                >
                   <div className="text-white">{stat.icon}</div>
                 </div>
                 <div className="mr-5">
-                  <p className="text-xs md:text-sm font-medium text-gray-500">
+                  <p className="text-[10px] text-nowrap md:text-sm font-medium text-gray-500">
                     {stat.name}
                   </p>
                   <p className="text-2xl font-semibold text-gray-900">

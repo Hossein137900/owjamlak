@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FiPlus, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiEye, FiLoader } from "react-icons/fi";
 import toast from "react-hot-toast";
 
 interface Blog {
@@ -78,9 +78,11 @@ const BlogManagement = () => {
 
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">درحال بارگذاری</p>
+      <div className="h-64 bg-transparent flex items-center justify-center">
+        <div className="text-center">
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری وبلاگ ها...</p>
+        </div>
       </div>
     );
   }

@@ -15,6 +15,7 @@ import { HiOutlineLocationMarker, HiOutlineBriefcase } from "react-icons/hi";
 import { BiTime } from "react-icons/bi";
 // import { MdRealEstateAgent } from "react-icons/md";
 import { Consultant, Poster } from "@/types/type";
+import { FiLoader } from "react-icons/fi";
 interface ConsultantDetailPageProps {
   consultantId?: string;
   consultant?: Consultant;
@@ -85,13 +86,10 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
 
   if (loading) {
     return (
-      <div
-        className="min-h-screen bg-gray-50 flex items-center justify-center"
-        dir="rtl"
-      >
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01ae9b] mx-auto mb-4"></div>
-          <p className="text-gray-600">درحال بارگذاری</p>
+          <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری</p>
         </div>
       </div>
     );
@@ -293,7 +291,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
             </h2>
             {posters.length === 0 ? (
               <div className="bg-white rounded-xl p-8 text-center text-gray-500">
-                این مشاور هنوز آگهی‌ فعالی نکرده است
+                این مشاور درحال حاضر آگهی‌ ندارد
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

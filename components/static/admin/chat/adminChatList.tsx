@@ -470,7 +470,7 @@ export default function ChatAdminList() {
 
         {/* Chat Window */}
         <div
-          className={`flex-1 flex flex-col ${
+          className={`flex-1 flex flex-col h-screen md:h-auto ${
             selectedRoom ? "flex" : "hidden md:flex"
           }`}
         >
