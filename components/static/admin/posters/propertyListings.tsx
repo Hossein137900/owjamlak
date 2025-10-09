@@ -997,7 +997,7 @@ const PropertyListings: React.FC = () => {
                     <div className="flex items-center">
                       <div className="h-14 w-14 flex-shrink-0 rounded-md overflow-hidden relative">
                         <Image
-                          src={getFirstImageUrl(property.images)}
+                          src={getFirstImageUrl(property.images).startsWith('/uploads/') ? `/api/images/${getFirstImageUrl(property.images).split('/').slice(-2).join('/')}` : getFirstImageUrl(property.images)}
                           alt={property.title || "تصویر ملک"}
                           fill
                           className="object-cover"

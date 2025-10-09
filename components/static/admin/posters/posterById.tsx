@@ -686,7 +686,7 @@ const PosterById: React.FC = () => {
               {mainImage && (
                 <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200">
                   <Image
-                    src={mainImage.url}
+                    src={mainImage.url.startsWith('/uploads/') ? `/api/images/${mainImage.url.split('/').slice(-2).join('/')}` : mainImage.url}
                     alt={mainImage.alt || poster.title}
                     fill
                     className="object-cover"
