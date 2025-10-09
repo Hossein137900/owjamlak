@@ -62,7 +62,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <Image
-            src={coverImage || "/assets/images/hero2.png"}
+            src={coverImage ? (coverImage.startsWith('/uploads/blog/') ? `/api/blog/${coverImage.split('/').pop()}` : coverImage) : "/assets/images/hero2.png"}
             alt={title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

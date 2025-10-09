@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const bytes = await imageFile.arrayBuffer();
     await writeFile(filepath, Buffer.from(bytes));
 
-    const imageUrl = `/uploads/topConsultants/${filename}`;
+    const imageUrl = `/api/consultant-champion/${filename}`;
 
     return NextResponse.json({
       success: true,

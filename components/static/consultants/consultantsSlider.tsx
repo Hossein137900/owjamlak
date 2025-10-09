@@ -134,7 +134,7 @@ const ConsultantsSlider = () => {
               <div className="w-2/5 relative">
                 <Image
                   src={
-                    currentConsultant.image ||
+                    currentConsultant.image ? `/api/consultants/${currentConsultant.image.split('/').pop()}` :
                     "/assets/images/default-consultant.jpg"
                   }
                   alt={currentConsultant.name}

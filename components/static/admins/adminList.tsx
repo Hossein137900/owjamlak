@@ -115,7 +115,7 @@ const AdminList = () => {
                   <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
                     <div className="relative h-64">
                       <Image
-                        src={admin.image || "/assets/images/default-admin.jpg"}
+                        src={admin.image ? `/api/admins/${admin.image.split('/').pop()}` : "/assets/images/default-admin.jpg"}
                         alt={admin.name}
                         fill
                         className="object-cover"

@@ -150,7 +150,7 @@ const ConsultantDetailPage: React.FC<ConsultantDetailPageProps> = ({
               <div className="relative h-64 md:h-full">
                 <Image
                   src={
-                    consultant.image || "/assets/images/default-consultant.jpg"
+                    consultant.image ? `/api/consultants/${consultant.image.split('/').pop()}` : "/assets/images/default-consultant.jpg"
                   }
                   alt={consultant.name}
                   fill

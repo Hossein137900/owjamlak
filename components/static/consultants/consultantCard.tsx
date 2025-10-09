@@ -42,7 +42,7 @@ const ConsultantCard: React.FC<ConsultantCardProps> = ({
         {/* Consultant Image */}
         <div className="relative h-48">
           <Image
-            src={consultant.image || "/assets/images/default-consultant.jpg"}
+            src={consultant.image ? `/api/consultants/${consultant.image.split('/').pop()}` : "/assets/images/default-consultant.jpg"}
             alt={consultant.name}
             fill
             className="object-cover transition-transform duration-300 hover:scale-105"
