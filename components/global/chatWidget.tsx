@@ -17,7 +17,7 @@ export default function Chat() {
   const [activity, setActivity] = useState<string>("");
   const [currentRoom, setCurrentRoom] = useState<string>("");
   const [hasNewMessages, setHasNewMessages] = useState<boolean>(false);
-  const [shouldShowWidget, setShouldShowWidget] = useState<boolean>(true);
+  const [, setShouldShowWidget] = useState<boolean>(true);
 
   const [, setSessionCreated] = useState<boolean>(false);
   const [lastAuthState, setLastAuthState] = useState<string | null>(null);
