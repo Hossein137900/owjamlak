@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { jwtDecode } from "jwt-decode";
 import { join } from "path";
 import { existsSync } from "fs";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, writeFile, unlink } from "fs/promises";
 
 interface TokenPayload {
   id?: string;
@@ -434,17 +434,9 @@ export const updatePoster = async (req: Request) => {
       if (formData.get("type")) updateData.type = formData.get("type");
       if (formData.get("status")) updateData.status = formData.get("status");
 
-      // Add new images to existing ones
+      // Handle images - only add new uploaded images if any
       if (uploadedImages.length > 0) {
-        const existingPoster = await Poster.findById(posterId);
-        if (existingPoster) {
-          updateData.images = [
-            ...(existingPoster.images || []),
-            ...uploadedImages,
-          ];
-        } else {
-          updateData.images = uploadedImages;
-        }
+        updateData.images = uploadedImages;
       }
 
       const poster = await Poster.findByIdAndUpdate(posterId, updateData, {
@@ -535,14 +527,64 @@ export const deletePoster = async (request: NextRequest) => {
       return NextResponse.json({ message: "ID is required" }, { status: 400 });
     }
 
-    const deletedPoster = await Poster.findByIdAndDelete(id);
-
-    if (!deletedPoster) {
+    // First get the poster to access its files
+    const poster = await Poster.findById(id);
+    if (!poster) {
       return NextResponse.json(
         { message: "Poster not found" },
         { status: 404 }
       );
     }
+
+    // Delete associated files
+    try {
+      // Delete images
+      if (poster.images && poster.images.length > 0) {
+        for (const image of poster.images) {
+          const imageUrl = typeof image === 'string' ? image : image.url;
+          if (imageUrl && imageUrl.startsWith('/api/images/')) {
+            // Extract userId and filename from URL
+            const urlParts = imageUrl.split('/');
+            const userId = urlParts[urlParts.length - 2];
+            const filename = urlParts[urlParts.length - 1];
+            
+            if (userId && filename) {
+              const filePath = join(process.cwd(), "public", "uploads", "posters", userId, filename);
+              if (existsSync(filePath)) {
+                await unlink(filePath);
+              }
+            }
+          }
+        }
+      }
+
+      // Delete video if exists
+      if (poster.video) {
+        // Extract userId from poster.user or from image paths
+        let userId = '';
+        if (poster.images && poster.images.length > 0) {
+          const firstImage = poster.images[0];
+          const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage.url;
+          if (imageUrl && imageUrl.startsWith('/api/images/')) {
+            const urlParts = imageUrl.split('/');
+            userId = urlParts[urlParts.length - 2];
+          }
+        }
+        
+        if (userId) {
+          const videoPath = join(process.cwd(), "public", "uploads", "posters", userId, poster.video);
+          if (existsSync(videoPath)) {
+            await unlink(videoPath);
+          }
+        }
+      }
+    } catch (fileError) {
+      console.log("Error deleting files:", fileError);
+      // Continue with database deletion even if file deletion fails
+    }
+
+    // Delete from database
+    const deletedPoster = await Poster.findByIdAndDelete(id);
 
     return NextResponse.json(
       { message: "Poster deleted successfully", poster: deletedPoster },

@@ -60,7 +60,14 @@ export async function GET(
       const chunkSize = end - start + 1;
       const file = createReadStream(filepath, { start, end });
 
-      return new NextResponse(Readable.toWeb(file) as ReadableStream, {
+      // Handle stream errors to prevent uncaught exceptions
+      file.on('error', (err) => {
+        console.log('Stream error (handled):', err.message);
+      });
+
+      const stream = Readable.toWeb(file) as ReadableStream;
+      
+      return new NextResponse(stream, {
         status: 206,
         headers: {
           "Content-Range": `bytes ${start}-${end}/${fileSize}`,
@@ -72,7 +79,15 @@ export async function GET(
     } else {
       // fallback if no range requested
       const file = createReadStream(filepath);
-      return new NextResponse(Readable.toWeb(file) as ReadableStream, {
+      
+      // Handle stream errors to prevent uncaught exceptions
+      file.on('error', (err) => {
+        console.log('Stream error (handled):', err.message);
+      });
+
+      const stream = Readable.toWeb(file) as ReadableStream;
+      
+      return new NextResponse(stream, {
         headers: {
           "Content-Length": fileSize.toString(),
           "Content-Type": contentType,

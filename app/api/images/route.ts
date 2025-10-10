@@ -14,17 +14,21 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Extract filename from URL
-    const filename = imageUrl.split('/').pop();
-    if (!filename) {
+    // Extract userId and filename from URL
+    // URL format: /api/images/userId/filename
+    const urlParts = imageUrl.split('/');
+    const userId = urlParts[urlParts.length - 2];
+    const filename = urlParts[urlParts.length - 1];
+    
+    if (!userId || !filename) {
       return NextResponse.json(
-        { success: false, message: "نام فایل نامعتبر است" },
+        { success: false, message: "نام فایل یا شناسه کاربر نامعتبر است" },
         { status: 400 }
       );
     }
 
-    // Construct file path
-    const filePath = join(process.cwd(), "public", "uploads", filename);
+    // Construct file path for poster images
+    const filePath = join(process.cwd(), "public", "uploads", "posters", userId, filename);
 
     // Delete file if it exists
     if (existsSync(filePath)) {

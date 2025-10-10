@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     await writeFile(filepath, Buffer.from(bytes));
 
-    const imageUrl = `/api/blog/${filename}`;
+    const imageUrl = `/api/blog/images/${filename}`;
     
     return NextResponse.json({ 
       success: true, 

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { FiUpload, FiTrash2, FiPlay, FiDownload } from "react-icons/fi";
-import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
+import { ChunkedVideoUpload } from "@/utils/chunkedVideoUpload";
 import toast from "react-hot-toast";
 
 interface Video {
   filename: string;
   url: string;
+  src?: string;
   originalName?: string;
   size?: number;
   uploadedAt: string;
@@ -38,7 +39,7 @@ export default function VideoUpload() {
     }
   };
 
-  // Upload video
+  // Upload video with chunked upload for video system
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -52,7 +53,7 @@ export default function VideoUpload() {
     setProgress(0);
 
     try {
-      const filename = await ChunkedVideoUploader.uploadVideo({
+      const filename = await ChunkedVideoUpload.uploadVideo({
         file,
         onProgress: (progress) => setProgress(progress),
         onError: (error) => toast.error(error),
@@ -146,7 +147,7 @@ export default function VideoUpload() {
             />
           </label>
           <p className="mt-1 text-xs text-gray-500">
-            فرمت‌های پشتیبانی شده: MP4, WebM, OGG, AVI, MOV (حداکثر 50MB)
+            فرمت‌های پشتیبانی شده: MP4, WebM, OGG, AVI, MOV (حداکثر 10MB)
           </p>
         </div>
       </div>
@@ -180,7 +181,7 @@ export default function VideoUpload() {
               <div className="flex items-center space-x-2 space-x-reverse">
                 {/* Preview Button */}
                 <button
-                  onClick={() => window.open(video.url, '_blank')}
+                  onClick={() => window.open(video.src || video.url, '_blank')}
                   className="p-2 text-blue-600 hover:bg-blue-100 rounded"
                   title="پیش‌نمایش"
                 >
@@ -190,7 +191,7 @@ export default function VideoUpload() {
                 {/* Copy URL Button */}
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(video.url);
+                    navigator.clipboard.writeText(video.src || video.url);
                     alert("لینک کپی شد");
                   }}
                   className="p-2 text-green-600 hover:bg-green-100 rounded"

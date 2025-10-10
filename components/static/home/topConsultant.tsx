@@ -171,7 +171,7 @@ const TopConsultants: React.FC = () => {
                       >
                         {consultant.image ? (
                           <img
-                            src={consultant.image.startsWith('/uploads/topConsultants/') ? `/api/consultant-champion/${consultant.image.split('/').pop()}` : consultant.image}
+                            src={consultant.image.startsWith('/api/') ? consultant.image : `/api/consultant-champion/images/${consultant.image.split('/').pop()}`}
                             alt={consultant.name}
                             className="w-full h-full object-cover"
                           />

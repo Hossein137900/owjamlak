@@ -12,7 +12,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import toast from "react-hot-toast";
-import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
+import { ChunkedVideoUpload } from "@/utils/chunkedVideoUpload";
 
 interface Video {
   _id: string;
@@ -324,8 +324,8 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("حجم ویدیو نباید بیشتر از 50 مگابایت باشد");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم ویدیو نباید بیشتر از 10 مگابایت باشد");
       return;
     }
 
@@ -333,41 +333,22 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
     setProgress(0);
 
     try {
-      const filename = await ChunkedVideoUploader.uploadVideo({
+      const filename = await ChunkedVideoUpload.uploadVideo({
         file,
+        title,
+        description,
+        alt,
         onProgress: (progress) => setProgress(progress),
         onError: (error) => toast.error(error),
       });
       
-      // Create video record in database
-      const response = await fetch("/api/videos/metadata", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          token: localStorage.getItem("token") || "",
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          alt,
-          filename,
-          originalName: file.name,
-          size: file.size,
-        }),
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        toast.success("ویدیو با موفقیت آپلود شد");
-        onSuccess();
-        onClose();
-        setTitle("");
-        setDescription("");
-        setAlt("");
-      } else {
-        toast.error(result.message || "خطا در ثبت ویدیو");
-      }
+      // Video record is already created by finalize endpoint
+      toast.success("ویدیو با موفقیت آپلود شد");
+      onSuccess();
+      onClose();
+      setTitle("");
+      setDescription("");
+      setAlt("");
     } catch (error) {
       console.log(error);
       toast.error("خطا در آپلود ویدیو");
@@ -468,7 +449,7 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
               انتخاب فایل
             </label>
             <p className="text-xs text-gray-500 mt-2">
-              فرمتهای پشتیبانی شده: MP4, WebM, OGG, AVI, MOV (حداکثر 50MB)
+              فرمتهای پشتیبانی شده: MP4, WebM, OGG, AVI, MOV (حداکثر 10MB)
             </p>
           </div>
         </div>

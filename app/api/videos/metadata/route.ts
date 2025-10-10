@@ -56,15 +56,11 @@ export async function POST(request: NextRequest) {
     // Save to database
     await connectDB();
     
-    // Extract userId from token to build correct path
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
-    const userId = decoded.id || decoded._id;
-    
     const video = new Video({
       title,
       description,
       alt,
-      src: `/uploads/posters/${userId}/${filename}`,
+      src: `/api/videos/files/${filename}`,
       filename,
       originalName: originalName || filename,
       size: size || 0,

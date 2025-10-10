@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       title,
       description,
       alt,
-      src: `/api/videos/${filename}`,
+      src: `/api/videos/files/${filename}`,
       filename,
       originalName: videoFile.name,
       size: videoFile.size,
