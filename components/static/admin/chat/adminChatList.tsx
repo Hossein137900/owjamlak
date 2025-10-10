@@ -223,6 +223,20 @@ export default function ChatAdminList() {
       // Error handled silently
     }
   };
+  const formatPersianTime = (isoTime: string): string => {
+    if (!isoTime) return "";
+    try {
+      const date = new Date(isoTime);
+      return date.toLocaleTimeString("fa-IR", {
+        timeZone: "Asia/Tehran",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: false, // فرمت 24 ساعته
+      });
+    } catch {
+      return isoTime; // fallback اگر خطا باشه
+    }
+  };
 
   const openChat = async (roomName: string) => {
     setSelectedRoom(roomName);
@@ -571,7 +585,7 @@ export default function ChatAdminList() {
                           {msg.name}
                         </span>
                         <span className="text-xs opacity-75 whitespace-nowrap">
-                          {msg.time}
+                          {formatPersianTime(msg.time)}{" "}
                         </span>
                       </div>
                       <p className="text-sm sm:text-base leading-relaxed break-words">

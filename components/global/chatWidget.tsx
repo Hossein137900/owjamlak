@@ -61,8 +61,6 @@ export default function Chat() {
           const payload: JWTPayload = JSON.parse(
             atob(savedToken.split(".")[1])
           );
-          
-
 
           if (payload.role && payload.role === "user") {
             setShouldShowWidget(true);
@@ -93,8 +91,6 @@ export default function Chat() {
       setToken(savedToken);
       try {
         const payload: JWTPayload = JSON.parse(atob(savedToken.split(".")[1]));
-        
-
 
         if (payload.role && payload.role === "user") {
           setShouldShowWidget(true);
@@ -234,6 +230,21 @@ export default function Chat() {
       document.body.style.overflow = "unset";
     };
   }, [isModalOpen]);
+
+  const formatPersianTime = (isoTime: string): string => {
+    if (!isoTime) return "";
+    try {
+      const date = new Date(isoTime);
+      return date.toLocaleTimeString("fa-IR", {
+        timeZone: "Asia/Tehran",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: false, // فرمت 24 ساعته
+      });
+    } catch {
+      return isoTime; // fallback اگر خطا باشه
+    }
+  };
 
   const connectSocket = (): void => {
     // Disconnect existing socket if any
@@ -390,13 +401,22 @@ export default function Chat() {
 
       {/* Modal Overlay */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-99999 flex items-center justify-center p-4">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-md"
             onClick={() => setIsModalOpen(false)}
           />
 
-          <div className="relative w-full max-w-md h-[600px] bg-gradient-to-b from-[#66308d]/80   to-[#01ae9b]/80 rounded-2xl shadow-2xl border border-gray-400 overflow-y-auto">
+          <div
+            style={{
+              backgroundImage:
+                'linear-gradient(to bottom, rgba(102,48,141,0.8), rgba(1,174,155,0.8)), url("/assets/images/logo (2).png")',
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+            className="relative w-full max-w-md h-[600px] rounded-2xl shadow-2xl border border-gray-400 overflow-y-auto"
+          >
             <div className="flex flex-col h-full">
               <div className="p-4 border-b border-blue-400/20 flex justify-between items-center bg-white">
                 <button
@@ -475,7 +495,7 @@ export default function Chat() {
                               {msg.name}
                             </span>
                             <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
-                              {msg.time}
+                              {formatPersianTime(msg.time)}{" "}
                             </span>
                           </div>
                           <p className="text-sm leading-relaxed mt-1">
