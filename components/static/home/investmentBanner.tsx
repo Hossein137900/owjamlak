@@ -100,7 +100,7 @@ export default function InvestmentBanner() {
               گذاری کنید و از بازدهی مطمئن برخوردار شوید.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex  flex-row gap-4">
               <Link href="/offers">
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
