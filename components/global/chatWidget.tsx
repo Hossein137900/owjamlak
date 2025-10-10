@@ -231,20 +231,7 @@ export default function Chat() {
     };
   }, [isModalOpen]);
 
-  const formatPersianTime = (isoTime: string): string => {
-    if (!isoTime) return "";
-    try {
-      const date = new Date(isoTime);
-      return date.toLocaleTimeString("fa-IR", {
-        timeZone: "Asia/Tehran",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: false, // فرمت 24 ساعته
-      });
-    } catch {
-      return isoTime; // fallback اگر خطا باشه
-    }
-  };
+
 
   const connectSocket = (): void => {
     // Disconnect existing socket if any
@@ -300,6 +287,20 @@ export default function Chat() {
   const loadChatHistory = async (): Promise<void> => {
     const currentToken = token || localStorage.getItem("token");
     await loadChatHistoryWithToken(currentToken || "");
+  };
+
+  const formatTime = (timeString: string): string => {
+    try {
+      const date = new Date(timeString);
+      if (isNaN(date.getTime())) return timeString;
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch {
+      return timeString;
+    }
   };
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>): void => {
@@ -495,7 +496,7 @@ export default function Chat() {
                               {msg.name}
                             </span>
                             <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
-                              {formatPersianTime(msg.time)}{" "}
+                              {formatTime(msg.time)}{" "}
                             </span>
                           </div>
                           <p className="text-sm leading-relaxed mt-1">

@@ -223,20 +223,21 @@ export default function ChatAdminList() {
       // Error handled silently
     }
   };
-  const formatPersianTime = (isoTime: string): string => {
-    if (!isoTime) return "";
+
+  const formatTime = (timeString: string): string => {
     try {
-      const date = new Date(isoTime);
-      return date.toLocaleTimeString("fa-IR", {
-        timeZone: "Asia/Tehran",
+      const date = new Date(timeString);
+      if (isNaN(date.getTime())) return timeString;
+      return date.toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "2-digit",
-        hour12: false, // فرمت 24 ساعته
+        hour12: true,
       });
     } catch {
-      return isoTime; // fallback اگر خطا باشه
+      return timeString;
     }
   };
+
 
   const openChat = async (roomName: string) => {
     setSelectedRoom(roomName);
@@ -424,11 +425,11 @@ export default function ChatAdminList() {
                             </h3>
                             {roomData.messages.length > 0 && (
                               <span className="text-xs text-gray-400">
-                                {
+                                {formatTime(
                                   roomData.messages[
                                     roomData.messages.length - 1
                                   ].time
-                                }
+                                )}
                               </span>
                             )}
                           </div>
@@ -585,7 +586,7 @@ export default function ChatAdminList() {
                           {msg.name}
                         </span>
                         <span className="text-xs opacity-75 whitespace-nowrap">
-                          {formatPersianTime(msg.time)}{" "}
+                          {formatTime(msg.time)}{" "}
                         </span>
                       </div>
                       <p className="text-sm sm:text-base leading-relaxed break-words">
