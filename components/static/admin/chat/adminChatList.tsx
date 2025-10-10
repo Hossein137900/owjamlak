@@ -228,10 +228,11 @@ export default function ChatAdminList() {
     try {
       const date = new Date(timeString);
       if (isNaN(date.getTime())) return timeString;
-      return date.toLocaleTimeString("en-US", {
-        hour: "numeric",
+      return date.toLocaleTimeString("fa-IR", {
+        timeZone: "Asia/Tehran",
+        hour: "2-digit",
         minute: "2-digit",
-        hour12: true,
+        hour12: false,
       });
     } catch {
       return timeString;
