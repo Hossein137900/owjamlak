@@ -3,8 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/global/navbar";
 import Footer from "@/components/global/footer";
 import { ray } from "@/next-persian-fonts/ray";
-import Script from "next/script";
-import { Toaster } from "react-hot-toast";
+ import { Toaster } from "react-hot-toast";
 import FooterMobile from "@/components/global/mobileFooter";
 import Head from "next/head";
 import ChatWidget from "@/components/global/chatWidget";
@@ -22,7 +21,7 @@ export const metadata: Metadata = {
     title: "املاک اوج | خرید و فروش ملک در تهران",
     description:
       "املاک اوج، مرجع خرید و فروش ملک در تهران. بهترین فایل‌های آپارتمان، ویلا و زمین.",
-    url: "https://example.com",
+    url: "https://oujamlak.ir/",
     siteName: "املاک اوج",
     images: [
       {
@@ -43,7 +42,7 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://example.com",
+    canonical: "https://oujamlak.ir/",
   },
 };
 
@@ -89,26 +88,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      <Script id="structured-data" type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "RealEstateAgent",
-          name: "املاک اوج",
-          url: "https://oujamlak.ir/",
-          logo: "https://oujamlak.ir/logo.png",
-          description: "مرجع خرید و فروش ملک در تهران و کرج",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: "تهران",
-            addressCountry: "IR",
-          },
-          contactPoint: {
-            "@type": "ContactPoint",
-            telephone: "+989122266681",
-            contactType: "مشاوره فروش",
-          },
-        })}
-      </Script>
+     
       <body className={ray.className}>
         <Navbar />
         <CanonicalUrl />
