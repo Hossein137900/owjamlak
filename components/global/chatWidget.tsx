@@ -289,20 +289,20 @@ export default function Chat() {
     await loadChatHistoryWithToken(currentToken || "");
   };
 
-  const formatTime = (timeString: string): string => {
-    try {
-      const date = new Date(timeString);
-      if (isNaN(date.getTime())) return timeString;
-      return date.toLocaleTimeString("fa-IR", {
-        timeZone: "Asia/Tehran",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-    } catch {
-      return timeString;
-    }
-  };
+  // const formatTime = (timeString: string): string => {
+  //   try {
+  //     const date = new Date(timeString);
+  //     if (isNaN(date.getTime())) return timeString;
+  //     return date.toLocaleTimeString("fa-IR", {
+  //       timeZone: "Asia/Tehran",
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //       hour12: false,
+  //     });
+  //   } catch {
+  //     return timeString;
+  //   }
+  // };
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -496,9 +496,9 @@ export default function Chat() {
                             <span className="font-semibold text-sm opacity-90 mr-3">
                               {msg.name}
                             </span>
-                            <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
+                            {/* <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
                               {formatTime(msg.time)}{" "}
-                            </span>
+                            </span> */}
                           </div>
                           <p className="text-sm leading-relaxed mt-1">
                             {msg.text}

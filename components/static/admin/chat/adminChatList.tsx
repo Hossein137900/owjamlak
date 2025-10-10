@@ -224,20 +224,20 @@ export default function ChatAdminList() {
     }
   };
 
-  const formatTime = (timeString: string): string => {
-    try {
-      const date = new Date(timeString);
-      if (isNaN(date.getTime())) return timeString;
-      return date.toLocaleTimeString("fa-IR", {
-        timeZone: "Asia/Tehran",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-    } catch {
-      return timeString;
-    }
-  };
+  // const formatTime = (timeString: string): string => {
+  //   try {
+  //     const date = new Date(timeString);
+  //     if (isNaN(date.getTime())) return timeString;
+  //     return date.toLocaleTimeString("fa-IR", {
+  //       timeZone: "Asia/Tehran",
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //       hour12: false,
+  //     });
+  //   } catch {
+  //     return timeString;
+  //   }
+  // };
 
 
   const openChat = async (roomName: string) => {
@@ -424,15 +424,15 @@ export default function ChatAdminList() {
                             <h3 className="text-white font-semibold truncate text-base">
                               {roomData.userName}
                             </h3>
-                            {roomData.messages.length > 0 && (
-                              <span className="text-xs text-gray-400">
-                                {formatTime(
-                                  roomData.messages[
-                                    roomData.messages.length - 1
-                                  ].time
-                                )}
-                              </span>
-                            )}
+                            {/* {roomData.messages.length > 0 && (
+                              // <span className="text-xs text-gray-400">
+                              //   {formatTime(
+                              //     roomData.messages[
+                              //       roomData.messages.length - 1
+                              //     ].time
+                              //   )}
+                              // </span>
+                            )} */}
                           </div>
                           {roomData.messages.length > 0 && (
                             <p className="text-gray-400 text-sm truncate leading-relaxed">
@@ -586,9 +586,9 @@ export default function ChatAdminList() {
                         <span className="text-xs font-semibold opacity-90">
                           {msg.name}
                         </span>
-                        <span className="text-xs opacity-75 whitespace-nowrap">
+                        {/* <span className="text-xs opacity-75 whitespace-nowrap">
                           {formatTime(msg.time)}{" "}
-                        </span>
+                        </span> */}
                       </div>
                       <p className="text-sm sm:text-base leading-relaxed break-words">
                         {msg.text}

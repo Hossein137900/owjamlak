@@ -173,8 +173,8 @@ const AdminManager = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-500">مدیریت مدیران</h1>
-          <p className="text-gray-600">{admins.length} عدد در لیست مدیران</p>
+          <h1 className="md:text-2xl text-base font-bold text-gray-500">مدیریت مدیران</h1>
+          <p className="text-gray-600 text-xs md:text-base">{admins.length} عدد در لیست مدیران</p>
         </div>
 
         <button
@@ -182,7 +182,7 @@ const AdminManager = () => {
             resetForm();
             setShowForm(true);
           }}
-          className="flex items-center gap-2 bg-[#01ae9b] text-white px-4 py-2 rounded-lg hover:bg-[#019688] transition-colors"
+          className="flex items-center gap-2 text-xs md:text-base bg-[#01ae9b] text-white px-4 py-2 rounded-lg hover:bg-[#019688] transition-colors"
         >
           <FaPlus />
           <span>افزودن مدیر جدید</span>

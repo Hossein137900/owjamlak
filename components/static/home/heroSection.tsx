@@ -104,7 +104,7 @@ export default function RealEstateSearch() {
                 </div>
 
                 <a
-                  href="/posters"
+                  href="/poster"
                   className="col-span-4 row-span-3 relative group cursor-pointer block"
                 >
                   <div className="absolute inset-0 rounded-bl-3xl rounded-tl-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#01ae9b] via-[#00c4a7] to-[#019b8a] flex items-center justify-center transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-3xl">

@@ -137,7 +137,7 @@ const ConsultantListSection = () => {
                   )}
                 </div>
                 <Link
-                  href={`/consultants/${consultant._id}`}
+                  href={`/consultant/${consultant._id}`}
                   className="inline-flex items-center gap-2 text-[#01ae9b] hover:text-[#019688] transition-colors text-sm font-medium"
                 >
                   مشاهده پروفایل
@@ -195,7 +195,7 @@ const ConsultantListSection = () => {
                     )}
                   </div>
                   <Link
-                    href={`/consultants/${consultant._id}`}
+                    href={`/consultant/${consultant._id}`}
                     className="inline-flex items-center gap-1 text-[#01ae9b] hover:text-[#019688] transition-colors text-xs font-medium"
                   >
                     مشاهده پروفایل
@@ -214,7 +214,7 @@ const ConsultantListSection = () => {
           className="text-center mt-12"
         >
           <Link
-            href="/consultants"
+            href="/consultant"
             className="inline-flex items-center gap-2 border border-[#fff]   text-white px-8 py-4 rounded-lg hover:shadow-lg hover:bg-gray-400/20 transition-all duration-300 font-semibold"
           >
             <FaUsers />

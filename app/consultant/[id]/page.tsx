@@ -61,7 +61,7 @@ export async function generateMetadata({
       type: "profile",
     },
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/consultants/${consultant._id}`,
+      canonical: `${process.env.NEXT_PUBLIC_BASE_URL}/consultant/${consultant._id}`,
     },
   };
 }

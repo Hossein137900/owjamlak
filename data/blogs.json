@@ -1,22 +1,3 @@
 [
-  {
-    "id": "blog_1760095003227",
-    "title": "mamad",
-    "excerpt": "mamad",
-    "coverImage": "/api/blog/images/blog_main_1760094972067_mamad.webp",
-    "author": "مدیر سایت",
-    "date": "۱۴۰۴/۷/۱۸",
-    "readTime": "1 دقیقه",
-    "category": "عمومی",
-    "contentHtml": "<p dir=\"auto\" style=\"text-align: left\">mamad</p><img class=\"w-full h-64 object-cover rounded-lg my-4\" src=\"/api/blog/images/blog_main_1760094972067_mamad.webp\" alt=\"تصویر 1\" style=\"width:300px; height:auto; max-width: 100%;\"><p dir=\"auto\" style=\"text-align: left\">mamad</p><img class=\"w-full h-64 object-cover rounded-lg my-4\" src=\"/api/blog/images/blog_additional_1760094978702_girl.webp\" alt=\"تصویر 2\" style=\"width:300px; height:auto; max-width: 100%;\"><p dir=\"auto\" style=\"text-align: left\">mamad231</p>",
-    "seoTitle": "mamad",
-    "images": [
-      "/api/blog/images/blog_main_1760094972067_mamad.webp",
-      "/api/blog/images/blog_additional_1760094978702_girl.webp"
-    ],
-    "tags": [
-      "mamad"
-    ],
-    "tableOfContents": []
-  }
+ 
 ]

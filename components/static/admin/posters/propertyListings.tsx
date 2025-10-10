@@ -924,7 +924,7 @@ const PropertyListings: React.FC = () => {
                 setPage(1);
               }}
             >
-              <option value="">همه نقشها</option>
+              <option value="">همه نقش ها</option>
               <option value="user">کاربر عادی</option>
               <option value="consultant">مشاور</option>
               <option value="admin">مدیر</option>

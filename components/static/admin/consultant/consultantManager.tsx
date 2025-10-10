@@ -18,7 +18,7 @@ const ConsultantManager = () => {
   const [consultantToDelete, setConsultantToDelete] =
     useState<Consultant | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-   const [imageUploading, setImageUploading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [consultantUsers, setConsultantUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState({
     userId: "", // 👈 جدید: ID یوزر انتخابی
@@ -256,8 +256,10 @@ const ConsultantManager = () => {
       <div className="flex justify-between items-center mb-6">
         <div>
           {" "}
-          <h1 className="text-2xl font-bold text-gray-500">مدیریت مشاوران</h1>
-          <p className="text-gray-600">
+          <h1 className="text-base md:text-2xl font-bold text-gray-500">
+            مدیریت مشاوران
+          </h1>
+          <p className="text-gray-600 text-xs md:text-base">
             {consultants.length} عدد در لیست مشاورین
           </p>
         </div>

@@ -121,7 +121,11 @@ const AdminDetailClient: React.FC<AdminDetailClientProps> = ({ adminId }) => {
             <div className="md:w-1/3">
               <div className="relative h-64 md:h-full">
                 <Image
-                  src={admin.image ? `/api/admins/${admin.image.split('/').pop()}` : "/assets/images/default-admin.jpg"}
+                  src={
+                    admin.image
+                      ? `/api/admins/images/${admin.image.split("/").pop()}`
+                      : "/assets/images/default-admin.jpg"
+                  }
                   alt={admin.name}
                   fill
                   className="object-cover"
