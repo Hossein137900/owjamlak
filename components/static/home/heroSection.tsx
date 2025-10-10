@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import SearchBar from "./searchBar";
 import HeroImageSlider from "./heroImageSlider";
@@ -103,7 +104,7 @@ export default function RealEstateSearch() {
                   </div>
                 </div>
 
-                <a
+                <Link
                   href="/poster"
                   className="col-span-4 row-span-3 relative group cursor-pointer block"
                 >
@@ -138,7 +139,7 @@ export default function RealEstateSearch() {
                       </div>
                     </div>
                   </div>
-                </a>
+                </Link>
               </div>
             </motion.div>
           </div>
