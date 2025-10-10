@@ -333,7 +333,7 @@ const VideoUploadModal: React.FC<VideoUploadModalProps> = ({
     setProgress(0);
 
     try {
-      const filename = await ChunkedVideoUpload.uploadVideo({
+      await ChunkedVideoUpload.uploadVideo({
         file,
         title,
         description,
