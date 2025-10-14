@@ -98,6 +98,7 @@ export default function InvestmentBanner() {
             <p className="text-xl text-gray-600 leading-relaxed">
               با تیم متخصص املاک اوج، در پروژه های پربازده و آینده دار سرمایه
               گذاری کنید و از بازدهی مطمئن برخوردار شوید.
+              mamad
             </p>
 
             <div className="flex  flex-row gap-4">
