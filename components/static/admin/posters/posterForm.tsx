@@ -33,12 +33,114 @@ type TokenPayload = {
   _id?: string;
   exp?: number;
   iat?: number;
+  role?: string;
 };
 
 // Dynamically import LocationPicker to avoid SSR issues
 const LocationPicker = dynamic(() => import("../../ui/locationPicker"), {
   ssr: false,
 });
+
+// Helper function to format number with commas
+const formatNumber = (num: string): string => {
+  if (!num) return "";
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to parse number (remove commas and convert)
+const parseNumber = (value: string): string => {
+  return persianToLatinDigits(value.replace(/,/g, ""));
+};
+
+// Improved Persian number to words (handles hundreds properly)
+const numberToPersianWords = (num: number): string => {
+  if (num === 0) return "صفر";
+
+  const units = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
+  const teens = [
+    "ده",
+    "یازده",
+    "دوازده",
+    "سیزده",
+    "چهارده",
+    "پانزده",
+    "شانزده",
+    "هفده",
+    "هجده",
+    "نوزده",
+  ];
+  const tens = [
+    "",
+    "",
+    "بیست",
+    "سی",
+    "چهل",
+    "پنجاه",
+    "شصت",
+    "هفتاد",
+    "هشتاد",
+    "نود",
+  ];
+  const hundredsWords = [
+    "",
+    "یکصد",
+    "دویست",
+    "سیصد",
+    "چهارصد",
+    "پانصد",
+    "ششصد",
+    "هفتصد",
+    "هشتصد",
+    "نهصد",
+  ];
+  const scales = ["", "هزار", "میلیون", "میلیارد"];
+
+  let result = "";
+  let scaleIndex = 0;
+
+  while (num > 0) {
+    const chunk = num % 1000;
+    if (chunk > 0) {
+      let chunkStr = "";
+
+      const hundreds = Math.floor(chunk / 100);
+      const remainder = chunk % 100;
+
+      if (hundreds > 0) {
+        chunkStr += hundredsWords[hundreds];
+        if (remainder > 0) {
+          chunkStr += " و ";
+        }
+      }
+
+      if (remainder > 0) {
+        if (remainder < 10) {
+          chunkStr += units[remainder];
+        } else if (remainder < 20) {
+          chunkStr += teens[remainder - 10];
+        } else {
+          const ten = Math.floor(remainder / 10);
+          const unit = remainder % 10;
+          chunkStr += tens[ten];
+          if (unit > 0) {
+            chunkStr += " و " + units[unit];
+          }
+        }
+      }
+
+      if (scales[scaleIndex] && chunkStr) {
+        chunkStr += " " + scales[scaleIndex];
+      }
+
+      result = chunkStr + " " + result;
+    }
+
+    num = Math.floor(num / 1000);
+    scaleIndex++;
+  }
+
+  return result.trim();
+};
 
 const PosterForm = ({}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,6 +156,7 @@ const PosterForm = ({}) => {
   const [progress, setProgress] = useState(0);
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isUser, setIsUser] = useState(false);
 
   // Form state - Updated to match new model structure
   const [formData, setFormData] = useState({
@@ -93,6 +196,21 @@ const PosterForm = ({}) => {
     video: "",
   });
 
+  // Get formatted value for display
+  const getFormattedValue = (field: string) => {
+    return formatNumber(formData[field as keyof typeof formData] as string);
+  };
+
+  // Get Persian words for price display
+  const getPersianPriceDisplay = (field: string) => {
+    const rawNum = parseNumber(
+      formData[field as keyof typeof formData] as string
+    );
+    const numValue = Number(rawNum);
+    if (!rawNum || isNaN(numValue)) return "";
+    return `${numberToPersianWords(numValue)} تومان`;
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -115,23 +233,39 @@ const PosterForm = ({}) => {
         "rentPrice",
         "contact",
       ];
-      // Validate contact
 
       if (numericFields.includes(name)) {
-        if (!isValidNumber(value)) {
+        let rawValue = value;
+
+        // For price fields, remove commas before validation
+        if (
+          ["totalPrice", "pricePerMeter", "depositRent", "rentPrice"].includes(
+            name
+          )
+        ) {
+          rawValue = value.replace(/,/g, "");
+        }
+
+        if (!isValidNumber(rawValue)) {
           toast.error("لطفاً فقط اعداد وارد کنید");
           return;
         }
-        const convertedValue = persianToLatinDigits(value);
-        setFormData((prev) => ({ ...prev, [name]: convertedValue }));
-      } else if (name === "contact") {
-        if (!isValidNumber(value)) {
-          toast.error("لطفاً فقط اعداد وارد کنید");
-          return;
-        }
-        const convertedValue = persianToLatinDigits(value);
-        // فقط اگر شماره معتبر است یا خالی است، state را به‌روزرسانی کنید
-        if (convertedValue === "" || isValidPhoneNumber(convertedValue)) {
+
+        const convertedValue = persianToLatinDigits(rawValue);
+
+        // For price fields, store raw digits (no commas in state)
+        if (
+          ["totalPrice", "pricePerMeter", "depositRent", "rentPrice"].includes(
+            name
+          )
+        ) {
+          setFormData((prev) => ({ ...prev, [name]: convertedValue }));
+        } else if (name === "contact") {
+          // فقط اگر شماره معتبر است یا خالی است، state را به‌روزرسانی کنید
+          if (convertedValue === "" || isValidPhoneNumber(convertedValue)) {
+            setFormData((prev) => ({ ...prev, [name]: convertedValue }));
+          }
+        } else {
           setFormData((prev) => ({ ...prev, [name]: convertedValue }));
         }
       } else {
@@ -318,7 +452,7 @@ const PosterForm = ({}) => {
         onProgress: (progress) => setProgress(progress),
         onError: (error) => toast.error(error),
       });
-      
+
       setVideo(file);
       setVideoPreview(URL.createObjectURL(file));
       setFormData((prev) => ({ ...prev, video: filename }));
@@ -345,11 +479,13 @@ const PosterForm = ({}) => {
     try {
       const decoded = jwtDecode<TokenPayload>(token); // ✅
       const idFromToken = decoded.id ?? decoded._id ?? null;
-      console.log(idFromToken);
+      const userValid = decoded.role === "user";
       setUserId(idFromToken);
+      setIsUser(userValid);
     } catch (err) {
       console.log("❌ توکن معتبر نیست:", err);
       setUserId(null);
+      setIsUser(false);
     }
   }, []);
 
@@ -901,12 +1037,17 @@ const PosterForm = ({}) => {
                   id="totalPrice"
                   name="totalPrice"
                   placeholder="مثال:500000000"
-                  value={formData.totalPrice}
+                  value={getFormattedValue("totalPrice")}
                   onChange={handleChange}
                   required={!isRentType}
                   min="0"
                   className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {formData.totalPrice && (
+                  <p className="text-xs text-gray-500 mt-1 dir='rtl'">
+                    {getPersianPriceDisplay("totalPrice")}
+                  </p>
+                )}
               </div>
 
               {/* Price Per Meter */}
@@ -922,11 +1063,16 @@ const PosterForm = ({}) => {
                   id="pricePerMeter"
                   name="pricePerMeter"
                   placeholder="مثال:7500000"
-                  value={formData.pricePerMeter}
+                  value={getFormattedValue("pricePerMeter")}
                   onChange={handleChange}
                   min="0"
                   className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {formData.pricePerMeter && (
+                  <p className="text-xs text-gray-500 mt-1 dir='rtl'">
+                    {getPersianPriceDisplay("pricePerMeter")}
+                  </p>
+                )}
               </div>
             </>
           ) : (
@@ -943,13 +1089,18 @@ const PosterForm = ({}) => {
                   type="text"
                   id="depositRent"
                   name="depositRent"
-                  value={formData.depositRent}
+                  value={getFormattedValue("depositRent")}
                   placeholder="مثال:200000000"
                   onChange={handleChange}
                   required={isRentType}
                   min="0"
                   className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {formData.depositRent && (
+                  <p className="text-xs text-gray-500 mt-1 dir='rtl'">
+                    {getPersianPriceDisplay("depositRent")}
+                  </p>
+                )}
               </div>
 
               {/* Monthly Rent */}
@@ -965,12 +1116,17 @@ const PosterForm = ({}) => {
                   id="rentPrice"
                   name="rentPrice"
                   placeholder="مثال:2000000"
-                  value={formData.rentPrice}
+                  value={getFormattedValue("rentPrice")}
                   onChange={handleChange}
                   required={isRentType}
                   min="0"
                   className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {formData.rentPrice && (
+                  <p className="text-xs text-gray-500 mt-1 dir='rtl'">
+                    {getPersianPriceDisplay("rentPrice")}
+                  </p>
+                )}
               </div>
 
               {/* Convertible Deposit */}
@@ -1249,8 +1405,9 @@ const PosterForm = ({}) => {
 
           {/* Tag */}
 
-          {/* Type */}
-          <div className="col-span-2">
+          {/* Type - Only show for non-users */}
+          {!isUser && (
+            <div className="col-span-2">
             <label
               htmlFor="type"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -1267,7 +1424,8 @@ const PosterForm = ({}) => {
               <option value="normal">عادی</option>
               <option value="investment">سرمایه‌گذاری</option>
             </select>
-          </div>
+            </div>
+          )}
 
           {/* Amenities Section */}
           <div className="col-span-2">
