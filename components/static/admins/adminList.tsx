@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { FaUserTie, FaPhone, FaArrowLeft } from "react-icons/fa";
+import { FaUserTie } from "react-icons/fa";
 import { Admin } from "@/types/type";
 
 const AdminList = () => {
@@ -102,7 +102,7 @@ const AdminList = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {admins.map((admin, index) => (
               <motion.div
@@ -135,13 +135,7 @@ const AdminList = () => {
                           "توضیحاتی در مورد این مدیر..."}
                         ...
                       </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-500">
-                          <FaPhone />
-                          <span>{admin.user?.phone || "-"}</span>
-                        </div>
-                        <FaArrowLeft className="text-[#01ae9b]" />
-                      </div>
+                    
                     </div>
                   </div>
                 </Link>
