@@ -17,7 +17,7 @@ export const getAllLegalRequests = async () => {
 export const getLegalRequestById = async (id: string) => {
   try {
     const request = await LegalRequest.findById(id);
-    console.log(request)
+    console.log(request);
     return NextResponse.json(request);
   } catch (error) {
     console.log("Error fetching legal request:", error);
@@ -39,7 +39,6 @@ export const createLegalRequest = async (req: Request) => {
       email,
       type,
     });
-    console.log(request)
     await request.save();
     return NextResponse.json(request);
   } catch (error) {
@@ -55,10 +54,7 @@ export const updateLegalRequest = async (req: Request) => {
   const { _id, name, lastName, phone, description, email, type } =
     await req.json();
   if (!_id) {
-    return NextResponse.json(
-      { message: "Id is required" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Id is required" }, { status: 500 });
   }
   try {
     const request = await LegalRequest.findByIdAndUpdate(

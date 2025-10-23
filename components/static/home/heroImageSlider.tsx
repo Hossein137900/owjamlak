@@ -208,6 +208,7 @@ const HeroImageSlider = () => {
 
                 {/* View button */}
                 <Link
+                
                   href={`/poster/${currentPoster._id}`}
                   className="
                     flex items-center gap-2 z-500
@@ -232,6 +233,7 @@ const HeroImageSlider = () => {
         {posters.length > 1 && (
           <>
             <button
+              aria-label="prev"
               onClick={prevSlide}
               className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition z-20"
               disabled={isAnimating}
@@ -240,6 +242,7 @@ const HeroImageSlider = () => {
             </button>
 
             <button
+              aria-label="next"
               onClick={nextSlide}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition z-20"
               disabled={isAnimating}
@@ -252,6 +255,7 @@ const HeroImageSlider = () => {
               {posters.map((_, index) => (
                 <button
                   key={index}
+                  aria-label={`slide ${index + 1}`}
                   onClick={() => goToSlide(index)}
                   disabled={isAnimating}
                   className={`w-3 h-3 rounded-full transition-all duration-300 ${

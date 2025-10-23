@@ -177,6 +177,7 @@ const TermsAndConditions = () => {
               className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
             >
               <button
+                aria-label="term"
                 onClick={() => toggleSection(section.id)}
                 className="w-full text-right p-6 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
               >

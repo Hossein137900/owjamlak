@@ -237,8 +237,6 @@ function PosterListContent() {
           ...(filters.location && { location: filters.location }),
         });
 
-        console.log("Fetching posters with query:", query.toString());
-
         const res = await fetch(`/api/poster?${query.toString()}`, {});
 
         if (!res.ok) {
@@ -246,7 +244,6 @@ function PosterListContent() {
         }
 
         const data = await res.json();
-        console.log("API response:", data);
 
         if (data.pagination) {
           setHasNextPage(data.pagination.hasNextPage);

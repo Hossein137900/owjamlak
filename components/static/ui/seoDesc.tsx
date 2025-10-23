@@ -1,6 +1,6 @@
 "use client";
 
-import  { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { FaArrowDown } from "react-icons/fa";
@@ -70,6 +70,7 @@ const SEODescription: React.FC = () => {
         {showToggle && (
           <div className="flex justify-start mt-4">
             <button
+              aria-label="toggle"
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex items-center gap-2 text-sm md:text-base cursor-pointer font-medium text-teal-600 hover:text-teal-800 transition-colors"
             >

@@ -818,9 +818,9 @@ const Navbar = () => {
 
                     {/* Compact Footer - Fixed at bottom */}
                     <div className="flex-shrink-0 py-3 mb-20  text-center border-t border-gray-100">
-                      <p className="text-xs text-gray-500">
-                        © 2024 املاک - تمامی حقوق محفوظ است
-                      </p>
+                     <p className="text-sm text-gray-600">
+              © {new Date().getFullYear()} املاک اوج - تمامی حقوق محفوظ است
+            </p>
                     </div>
                   </motion.div>
 

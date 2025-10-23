@@ -165,9 +165,9 @@ const TopBar: React.FC<TopBarProps> = ({ scrolled }) => {
                 <a href="tel:02177222007">021-77222007</a>{" "}
               </div>
               <button
+                aria-label="map"
                 onClick={handleMapClick}
                 className="flex items-center gap-2 p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
-                aria-label="نشان"
               >
                 <FiMapPin className="w-4 h-4" />
                 <span className="text-sm">تهران، نارمک</span>

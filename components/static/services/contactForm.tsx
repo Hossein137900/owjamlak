@@ -74,10 +74,9 @@ const ContactForm: React.FC<ContactFormProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [fileStates, setFileStates] = useState<FileState[]>([]);
   const [uploadedFileUrl, setUploadedFileUrl] = useState<string>("");
-
+console.log(fileStates)
   const formRef = useRef<HTMLFormElement>(null);
-  console.log(isSubmitting, focusedField, fileStates);
-
+ 
   // Sync external errors with local errors state
   useEffect(() => {
     if (externalErrors && Object.keys(externalErrors).length > 0) {

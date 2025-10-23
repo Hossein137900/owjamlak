@@ -105,9 +105,7 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <FiLoader className="w-12 h-12 text-[#66308d] animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">
-          ...  در حال بارگذاری
-          </p>
+          <p className="text-gray-600">... در حال بارگذاری</p>
         </div>
       </div>
     );
@@ -126,6 +124,7 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
           </h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
+            aria-label="retry"
             onClick={() => window.location.reload()}
             className="px-6 py-2 bg-[#66308d] text-white rounded-lg hover:bg-[#4a1f5f] transition-colors"
           >
@@ -180,6 +179,7 @@ const VideoContainer: React.FC<VideoContainerProps> = ({
             </h1>
           </div>
           <button
+            aria-label="toggle"
             onClick={toggleTextExpansion}
             className="flex items-center text-xs gap-2 text-nowrap bg-[#66308d] text-white px-4 py-2 rounded-full hover:bg-purple-600 transition-colors duration-300"
           >

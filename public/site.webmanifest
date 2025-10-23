@@ -1,1 +1,66 @@
-{"name":"","short_name":"","icons":[{"src":"/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"theme_color":"#ffffff","background_color":"#ffffff","display":"standalone"}
+{
+  "name": "اوج املاک | خرید، فروش و اجاره ملک در ایران",
+  "short_name": "اوج املاک",
+  "description": "مشاور املاک اوج، مرجع هوشمند خرید، فروش و اجاره آپارتمان، ویلا، زمین و ملک تجاری در سراسر ایران با مشاوره تخصصی و دقیق.",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#0066cc",
+  "dir": "rtl",
+  "lang": "fa-IR",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "خرید ملک",
+      "short_name": "خرید",
+      "description": "جستجو بین آگهی‌های خرید آپارتمان و ویلا",
+      "url": "/buy"
+    },
+    {
+      "name": "اجاره ملک",
+      "short_name": "اجاره",
+      "description": "بررسی آگهی‌های اجاره ملک در مناطق مختلف",
+      "url": "/rent"
+    },
+    {
+      "name": "ثبت آگهی جدید",
+      "short_name": "ثبت آگهی",
+      "description": "ثبت رایگان آگهی ملک در اوج املاک",
+      "url": "/add-property"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "صفحه اصلی اوج املاک"
+    },
+    {
+      "src": "/screenshots/listing.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "لیست آگهی‌ها"
+    }
+  ],
+  "categories": ["real estate", "business", "property", "housing"]
+}

@@ -4,15 +4,14 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { WorkItem, worksData } from "../../data/data";
 import { MdClose } from "react-icons/md";
-interface OurWorksProps {
-  works: WorkItem[];
-}
+// interface OurWorksProps {
+//   works: WorkItem[];
+// }
 
-export default function OurWorks({ works }: OurWorksProps) {
+export default function OurWorks( ) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [selectedWork, setSelectedWork] = useState<WorkItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  console.log(works);
   const categories = [
     { id: "all", label: "همه" },
     { id: "residential", label: "مسکونی" },

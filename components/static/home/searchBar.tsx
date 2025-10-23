@@ -360,6 +360,8 @@ export default function SearchBar({
                   {!selectedDistrict ? (
                     Object.keys(locationData).map((district) => (
                       <button
+                        type="button"
+                        aria-label={`انتخاب منطقه ${district}`}
                         key={district}
                         onClick={() => setSelectedDistrict(district)}
                         className="w-full text-right text-black px-4 py-3 hover:bg-gray-100 transition text-sm sm:text-base"
@@ -371,6 +373,8 @@ export default function SearchBar({
                     <>
                       {locationData[selectedDistrict].map((neighborhood) => (
                         <button
+                          type="button"
+                          aria-label={`انتخاب منطقه ${neighborhood}`}
                           key={neighborhood}
                           onClick={() => {
                             setSelectedNeighborhood(neighborhood);
@@ -384,6 +388,8 @@ export default function SearchBar({
                       ))}
                       <div className="border-t border-gray-200">
                         <button
+                          type="button"
+                          aria-label="back"
                           onClick={() => setSelectedDistrict(null)}
                           className="w-full text-right px-4 py-3 text-[#A14BE0] hover:bg-gray-100 transition text-sm sm:text-base"
                         >
@@ -398,6 +404,8 @@ export default function SearchBar({
               {/* Quick search button for compact mode */}
               {compact && (
                 <button
+                  type="button"
+                  aria-label="compact"
                   className="search-button text-gray-400 h-full px-4 sm:px-6 flex items-center justify-center transition-all duration-300"
                   onClick={handleSearch}
                 >
@@ -439,6 +447,8 @@ export default function SearchBar({
               >
                 {filterOptions.map((option, index) => (
                   <button
+                    type="button"
+                    aria-label="search"
                     key={option.id}
                     className={`filter-button filter-option ${
                       expanded ? "visible" : ""
@@ -475,6 +485,8 @@ export default function SearchBar({
                 {/* Main search button for expanded state */}
                 {(!compact || expanded) && (
                   <button
+                    type="button"
+                    aria-label="search"
                     className="main-search-button flex-1 cursor-pointer bg-gradient-to-r from-[#00BC9B] to-[#00a589] text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold flex items-center justify-center hover:from-[#00a589] hover:to-[#008f7a] transition-all duration-300 shadow-lg hover:shadow-xl"
                     onClick={handleSearch}
                   >
