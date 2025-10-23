@@ -231,8 +231,6 @@ export default function Chat() {
     };
   }, [isModalOpen]);
 
-
-
   const connectSocket = (): void => {
     // Disconnect existing socket if any
     if (socket && socket.connected) {
@@ -275,7 +273,7 @@ export default function Chat() {
         const uiMessages = history.map((msg) => ({
           name: msg.userName,
           text: msg.text,
-          time: msg.time,
+          time: String(Number(msg.time) * 1000), // اگر سرور timestamp ثانیه‌ای می‌فرسته
         }));
         setMessages(uiMessages);
       }
@@ -289,20 +287,35 @@ export default function Chat() {
     await loadChatHistoryWithToken(currentToken || "");
   };
 
-  // const formatTime = (timeString: string): string => {
-  //   try {
-  //     const date = new Date(timeString);
-  //     if (isNaN(date.getTime())) return timeString;
-  //     return date.toLocaleTimeString("fa-IR", {
-  //       timeZone: "Asia/Tehran",
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //       hour12: false,
-  //     });
-  //   } catch {
-  //     return timeString;
-  //   }
-  // };
+  const formatTime = (
+    timeInput: string | number | Date | null | undefined
+  ): string => {
+    if (timeInput == null) return "-";
+
+    let date: Date;
+
+    if (typeof timeInput === "number") {
+      // تشخیص timestamp ثانیه‌ای یا میلی‌ثانیه‌ای
+      date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
+    } else if (typeof timeInput === "string") {
+      const parsed = Date.parse(timeInput);
+      if (isNaN(parsed)) return "-";
+      date = new Date(parsed);
+    } else if (timeInput instanceof Date) {
+      date = timeInput;
+    } else {
+      return "-";
+    }
+
+    if (isNaN(date.getTime())) return "-";
+
+    return new Intl.DateTimeFormat("fa-IR", {
+      timeZone: "Asia/Tehran",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(date);
+  };
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -496,9 +509,9 @@ export default function Chat() {
                             <span className="font-semibold text-sm opacity-90 mr-3">
                               {msg.name}
                             </span>
-                            {/* <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
-                              {formatTime(msg.time)}{" "}
-                            </span> */}
+                            <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
+                              {formatTime(msg.time)}
+                            </span>
                           </div>
                           <p className="text-sm leading-relaxed mt-1">
                             {msg.text}

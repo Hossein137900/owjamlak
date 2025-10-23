@@ -1,6 +1,6 @@
 {
-  "name": "اوج املاک | خرید، فروش و اجاره ملک در ایران",
-  "short_name": "اوج املاک",
+  "name": "املاک اوج",
+  "short_name": "املاک اوج",
   "description": "مشاور املاک اوج، مرجع هوشمند خرید، فروش و اجاره آپارتمان، ویلا، زمین و ملک تجاری در سراسر ایران با مشاوره تخصصی و دقیق.",
   "start_url": "/?utm_source=pwa",
   "scope": "/",
@@ -33,30 +33,30 @@
       "name": "خرید ملک",
       "short_name": "خرید",
       "description": "جستجو بین آگهی‌های خرید آپارتمان و ویلا",
-      "url": "/buy"
+      "url": "/poster"
     },
     {
       "name": "اجاره ملک",
       "short_name": "اجاره",
       "description": "بررسی آگهی‌های اجاره ملک در مناطق مختلف",
-      "url": "/rent"
+      "url": "/poster"
     },
     {
       "name": "ثبت آگهی جدید",
       "short_name": "ثبت آگهی",
       "description": "ثبت رایگان آگهی ملک در اوج املاک",
-      "url": "/add-property"
+      "url": "/admin"
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshots/home.png",
+      "src": "/assets/images/hero4.jpg",
       "sizes": "1080x1920",
       "type": "image/png",
       "label": "صفحه اصلی اوج املاک"
     },
     {
-      "src": "/screenshots/listing.png",
+      "src": "/assets/images/hero4.jpg",
       "sizes": "1080x1920",
       "type": "image/png",
       "label": "لیست آگهی‌ها"
