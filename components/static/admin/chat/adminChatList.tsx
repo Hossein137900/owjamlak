@@ -227,24 +227,25 @@ export default function ChatAdminList() {
   const formatTime = (
     timeInput: string | number | Date | null | undefined
   ): string => {
+    console.log("DEBUG timeInput:", timeInput, typeof timeInput);
+
     if (timeInput == null) return "-";
 
     let date: Date;
 
     if (typeof timeInput === "number") {
-      // تشخیص timestamp ثانیه‌ای یا میلی‌ثانیه‌ای
       date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
     } else if (typeof timeInput === "string") {
       const parsed = Date.parse(timeInput);
-      if (isNaN(parsed)) return "-";
+      if (isNaN(parsed)) return `Invalid: ${timeInput}`;
       date = new Date(parsed);
     } else if (timeInput instanceof Date) {
       date = timeInput;
     } else {
-      return "-";
+      return `Unknown type: ${typeof timeInput}`;
     }
 
-    if (isNaN(date.getTime())) return "-";
+    if (isNaN(date.getTime())) return `Invalid date: ${timeInput}`;
 
     return new Intl.DateTimeFormat("fa-IR", {
       timeZone: "Asia/Tehran",
