@@ -287,36 +287,36 @@ export default function Chat() {
     await loadChatHistoryWithToken(currentToken || "");
   };
 
-  // const formatTime = (
-  //   timeInput: string | number | Date | null | undefined
-  // ): string => {
-  //   console.log("DEBUG timeInput:", timeInput, typeof timeInput);
+  const formatTime = (
+    timeInput: string | number | Date | null | undefined
+  ): string => {
+    console.log("DEBUG timeInput:", timeInput, typeof timeInput);
 
-  //   if (timeInput == null) return "-";
+    if (timeInput == null) return "-";
 
-  //   let date: Date;
+    let date: Date;
 
-  //   if (typeof timeInput === "number") {
-  //     date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
-  //   } else if (typeof timeInput === "string") {
-  //     const parsed = Date.parse(timeInput);
-  //     if (isNaN(parsed)) return `Invalid: ${timeInput}`;
-  //     date = new Date(parsed);
-  //   } else if (timeInput instanceof Date) {
-  //     date = timeInput;
-  //   } else {
-  //     return `Unknown type: ${typeof timeInput}`;
-  //   }
+    if (typeof timeInput === "number") {
+      date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
+    } else if (typeof timeInput === "string") {
+      const parsed = Date.parse(timeInput);
+      if (isNaN(parsed)) return `Invalid: ${timeInput}`;
+      date = new Date(parsed);
+    } else if (timeInput instanceof Date) {
+      date = timeInput;
+    } else {
+      return `Unknown type: ${typeof timeInput}`;
+    }
 
-  //   if (isNaN(date.getTime())) return `Invalid date: ${timeInput}`;
+    if (isNaN(date.getTime())) return `Invalid date: ${timeInput}`;
 
-  //   return new Intl.DateTimeFormat("fa-IR", {
-  //     timeZone: "Asia/Tehran",
-  //     hour: "2-digit",
-  //     minute: "2-digit",
-  //     hour12: false,
-  //   }).format(date);
-  // };
+    return new Intl.DateTimeFormat("fa-IR", {
+      timeZone: "Asia/Tehran",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(date);
+  };
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -510,9 +510,9 @@ export default function Chat() {
                             <span className="font-semibold text-sm opacity-90 mr-3">
                               {msg.name}
                             </span>
-                            {/* <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
+                             <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
                               {formatTime(msg.time)}
-                            </span> */}
+                            </span> 
                           </div>
                           <p className="text-sm leading-relaxed mt-1">
                             {msg.text}
