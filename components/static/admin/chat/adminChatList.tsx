@@ -224,36 +224,36 @@ export default function ChatAdminList() {
     }
   };
 
-  const formatTime = (
-    timeInput: string | number | Date | null | undefined
-  ): string => {
-    console.log("DEBUG timeInput:", timeInput, typeof timeInput);
+  // const formatTime = (
+  //   timeInput: string | number | Date | null | undefined
+  // ): string => {
+  //   console.log("DEBUG timeInput:", timeInput, typeof timeInput);
 
-    if (timeInput == null) return "-";
+  //   if (timeInput == null) return "-";
 
-    let date: Date;
+  //   let date: Date;
 
-    if (typeof timeInput === "number") {
-      date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
-    } else if (typeof timeInput === "string") {
-      const parsed = Date.parse(timeInput);
-      if (isNaN(parsed)) return `Invalid: ${timeInput}`;
-      date = new Date(parsed);
-    } else if (timeInput instanceof Date) {
-      date = timeInput;
-    } else {
-      return `Unknown type: ${typeof timeInput}`;
-    }
+  //   if (typeof timeInput === "number") {
+  //     date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
+  //   } else if (typeof timeInput === "string") {
+  //     const parsed = Date.parse(timeInput);
+  //     if (isNaN(parsed)) return `Invalid: ${timeInput}`;
+  //     date = new Date(parsed);
+  //   } else if (timeInput instanceof Date) {
+  //     date = timeInput;
+  //   } else {
+  //     return `Unknown type: ${typeof timeInput}`;
+  //   }
 
-    if (isNaN(date.getTime())) return `Invalid date: ${timeInput}`;
+  //   if (isNaN(date.getTime())) return `Invalid date: ${timeInput}`;
 
-    return new Intl.DateTimeFormat("fa-IR", {
-      timeZone: "Asia/Tehran",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(date);
-  };
+  //   return new Intl.DateTimeFormat("fa-IR", {
+  //     timeZone: "Asia/Tehran",
+  //     hour: "2-digit",
+  //     minute: "2-digit",
+  //     hour12: false,
+  //   }).format(date);
+  // };
 
   const openChat = async (roomName: string) => {
     setSelectedRoom(roomName);
@@ -439,7 +439,7 @@ export default function ChatAdminList() {
                             <h3 className="text-white font-semibold truncate text-base">
                               {roomData.userName}
                             </h3>
-                            {roomData.messages.length > 0 && (
+                            {/* {roomData.messages.length > 0 && (
                               <span className="text-xs text-gray-400">
                                 {formatTime(
                                   roomData.messages[
@@ -447,7 +447,7 @@ export default function ChatAdminList() {
                                   ].time
                                 )}
                               </span>
-                            )}
+                            )} */}
                           </div>
                           {roomData.messages.length > 0 && (
                             <p className="text-gray-400 text-sm truncate leading-relaxed">
@@ -601,9 +601,9 @@ export default function ChatAdminList() {
                         <span className="text-xs font-semibold opacity-90">
                           {msg.name}
                         </span>
-                        <span className="text-xs opacity-75 whitespace-nowrap">
+                        {/* <span className="text-xs opacity-75 whitespace-nowrap">
                           {formatTime(msg.time)}
-                        </span>
+                        </span> */}
                       </div>
                       <p className="text-sm sm:text-base leading-relaxed break-words">
                         {msg.text}
