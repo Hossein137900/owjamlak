@@ -20,6 +20,8 @@
 /.next/
 /out/
 
+*.md
+
 # production
 /build
 
