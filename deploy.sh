@@ -150,4 +150,4 @@ find "$BACKUP_DIR" -type f -name "env_*" -mtime +3 -exec rm -f {} \; 2>/dev/null
 find "$BACKUP_DIR" -type f -name "deploy_*.log" -mtime +7 -exec rm -f {} \; 2>/dev/null || true
 
 echo "================================================================== done by wolfix"
-echo "==================================================================a"
+echo "==================================================================aa"
