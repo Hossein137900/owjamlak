@@ -82,6 +82,10 @@ docker compose down
 
 # === UPDATE CODE ===
 echo "==> Pulling latest code..."
+# Fix Git dubious ownership warnings
+git config --global --add safe.directory "$APP_DIR"
+git config --global --add safe.directory "$CHAT_DIR"
+
 git -C "$APP_DIR" fetch --all
 git -C "$APP_DIR" reset --hard origin/main
 
