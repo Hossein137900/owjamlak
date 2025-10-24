@@ -78,6 +78,11 @@ if [ -f "$CHAT_DIR/.env" ]; then
   sudo cp "$CHAT_DIR/.env" "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup"
 fi
 
+# === FIX PERMISSIONS BEFORE STOPPING ===
+echo "==> Fixing permissions before update..."
+sudo chown -R $(whoami):$(whoami) "$APP_DIR" || echo "Permission fix failed"
+sudo chmod -R u+w "$APP_DIR" || echo "Chmod fix failed"
+
 # === STOP CONTAINERS ===
 echo "==> Stopping containers..."
 cd "$APP_DIR"
@@ -85,9 +90,6 @@ sudo docker compose down
 
 # === UPDATE CODE ===
 echo "==> Pulling latest code..."
-# Fix all permissions before git operations
-sudo chown -R $(whoami):$(whoami) "$APP_DIR" || echo "Permission fix failed"
-sudo chmod -R u+w "$APP_DIR" || echo "Chmod fix failed"
 git -C "$APP_DIR" fetch --all
 git -C "$APP_DIR" reset --hard origin/main
 
@@ -139,15 +141,17 @@ sudo docker exec -u root "$APP_CONTAINER" chown -R nextjs:nodejs /app/public/upl
 sudo docker exec -u root "$APP_CONTAINER" chown -R nextjs:nodejs /app/data || echo "⚠️ Permission fix failed"
 
 # === CLEANUP BACKUPS ===
-echo "==> Cleaning old backups, keeping only the latest log..."
+echo "==> Cleaning old backups..."
 sudo rm -rf "$BACKUP_DIR/public_${TIMESTAMP}"
 sudo rm -rf "$BACKUP_DIR/data_${TIMESTAMP}"
 sudo rm -f "$BACKUP_DIR/env_owjamlak_${TIMESTAMP}.backup"
 sudo rm -f "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup"
 
-# Keep only the latest log
-LATEST_LOG="$LOG_FILE"
-find "$BACKUP_DIR" -type f -name "deploy_*.log" ! -name "$(basename "$LATEST_LOG")" -exec sudo rm -f {} \;
+# Clean old backups (keep only last 3 days)
+find "$BACKUP_DIR" -type d -name "public_*" -mtime +3 -exec sudo rm -rf {} \; 2>/dev/null || true
+find "$BACKUP_DIR" -type d -name "data_*" -mtime +3 -exec sudo rm -rf {} \; 2>/dev/null || true
+find "$BACKUP_DIR" -type f -name "env_*" -mtime +3 -exec sudo rm -f {} \; 2>/dev/null || true
+find "$BACKUP_DIR" -type f -name "deploy_*.log" -mtime +7 -exec sudo rm -f {} \; 2>/dev/null || true
 
 echo "================================================================== done by wolfix"
 echo "=================================================================="
