@@ -78,9 +78,11 @@ if [ -f "$CHAT_DIR/.env" ]; then
   sudo cp "$CHAT_DIR/.env" "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup"
 fi
 
-# Fix backup permissions recursively
+# Fix all backup permissions recursively
 sudo chown -R $(whoami):$(whoami) "$BACKUP_DIR/public_${TIMESTAMP}" "$BACKUP_DIR/data_${TIMESTAMP}" || echo "Backup permission fix failed"
+sudo chown $(whoami):$(whoami) "$BACKUP_DIR/env_owjamlak_${TIMESTAMP}.backup" "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup" 2>/dev/null || echo "Env backup permission fix failed"
 sudo chmod -R u+w "$BACKUP_DIR/public_${TIMESTAMP}" "$BACKUP_DIR/data_${TIMESTAMP}" || echo "Backup chmod fix failed"
+sudo chmod u+w "$BACKUP_DIR/env_owjamlak_${TIMESTAMP}.backup" "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup" 2>/dev/null || echo "Env backup chmod fix failed"
 
 # === FIX PERMISSIONS BEFORE STOPPING ===
 echo "==> Fixing permissions before update..."
@@ -123,6 +125,10 @@ sudo mkdir -p "$APP_DIR/data"
 if [ -d "$BACKUP_DIR/data_${TIMESTAMP}/data" ]; then
   sudo cp -r "$BACKUP_DIR/data_${TIMESTAMP}/data/." "$APP_DIR/data/"
 fi
+
+# Fix permissions after restoring data
+echo "==> Fixing final permissions..."
+sudo chown -R $(whoami):$(whoami) "$APP_DIR/data" "$APP_DIR/public/uploads" || echo "Final permission fix failed"
 
 # === START CONTAINERS ===
 echo "==> Starting containers..."
