@@ -44,8 +44,9 @@ rollback() {
   fi
 
   echo "Reverting git changes..."
-  # Fix permissions before rollback git operations
-  sudo chown -R $(whoami):$(whoami) "$APP_DIR/data" || true
+  # Fix all permissions before rollback git operations
+  sudo chown -R $(whoami):$(whoami) "$APP_DIR" || true
+  sudo chmod -R u+w "$APP_DIR" || true
   git -C "$APP_DIR" reset --hard HEAD@{1} || true
   git -C "$CHAT_DIR" reset --hard HEAD@{1} || true
 
@@ -84,8 +85,9 @@ sudo docker compose down
 
 # === UPDATE CODE ===
 echo "==> Pulling latest code..."
-# Fix permissions before git operations
-sudo chown -R $(whoami):$(whoami) "$APP_DIR/data" || echo "No data folder to fix permissions"
+# Fix all permissions before git operations
+sudo chown -R $(whoami):$(whoami) "$APP_DIR" || echo "Permission fix failed"
+sudo chmod -R u+w "$APP_DIR" || echo "Chmod fix failed"
 git -C "$APP_DIR" fetch --all
 git -C "$APP_DIR" reset --hard origin/main
 
