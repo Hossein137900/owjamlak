@@ -78,8 +78,9 @@ if [ -f "$CHAT_DIR/.env" ]; then
   sudo cp "$CHAT_DIR/.env" "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup"
 fi
 
-# Fix backup permissions
-sudo chown -R $(whoami):$(whoami) "$BACKUP_DIR" || echo "Backup permission fix failed"
+# Fix backup permissions recursively
+sudo chown -R $(whoami):$(whoami) "$BACKUP_DIR/public_${TIMESTAMP}" "$BACKUP_DIR/data_${TIMESTAMP}" || echo "Backup permission fix failed"
+sudo chmod -R u+w "$BACKUP_DIR/public_${TIMESTAMP}" "$BACKUP_DIR/data_${TIMESTAMP}" || echo "Backup chmod fix failed"
 
 # === FIX PERMISSIONS BEFORE STOPPING ===
 echo "==> Fixing permissions before update..."
