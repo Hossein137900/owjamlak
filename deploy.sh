@@ -130,6 +130,7 @@ fi
 # === FIX PERMISSIONS ===
 echo "==> Fixing uploads permissions..."
 sudo docker exec -u root "$APP_CONTAINER" chown -R nextjs:nodejs /app/public/uploads || echo "⚠️ Permission fix failed"
+sudo docker exec -u root "$APP_CONTAINER" chown -R nextjs:nodejs /app/data || echo "⚠️ Permission fix failed"
 
 # === CLEANUP BACKUPS ===
 echo "==> Cleaning old backups, keeping only the latest log..."
