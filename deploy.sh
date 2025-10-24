@@ -158,4 +158,4 @@ find "$BACKUP_DIR" -type f -name "env_*" -mtime +3 -exec sudo rm -f {} \; 2>/dev
 find "$BACKUP_DIR" -type f -name "deploy_*.log" -mtime +7 -exec sudo rm -f {} \; 2>/dev/null || true
 
 echo "================================================================== done by wolfix"
-echo "=================================================================="
+echo "==================================================================a"
