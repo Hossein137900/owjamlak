@@ -14,7 +14,7 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           port: 8945
-          username: ${{ secrets.VPS_USER }}
+          username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd /home/naser/owjamlak
