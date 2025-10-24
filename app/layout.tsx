@@ -85,7 +85,7 @@ export default function RootLayout({
         />
 
         {/* Android / PWA */}
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href="/site.webmanifest"  />
         <meta name="theme-color" content="#ffffff" />
       </Head>
      

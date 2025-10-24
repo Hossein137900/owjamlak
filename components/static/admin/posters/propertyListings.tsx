@@ -23,15 +23,14 @@ import {
 } from "@/utils/digitConvertor";
 import { ChunkedVideoUploader } from "@/utils/chunkedUpload";
 
-type TokenPayload = {
-  id?: string;
-  _id?: string;
-};
-
 import Image from "next/image";
 import { Poster } from "@/types/type";
 import LocationPicker from "../../ui/locationPicker";
 
+type TokenPayload = {
+  id?: string;
+  _id?: string;
+};
 interface ImageItem {
   alt: string;
   url: string;
@@ -39,6 +38,107 @@ interface ImageItem {
   file?: File; // optional because existing images may not have `file`
   _id: string;
 }
+
+// Helper function to format number with commas
+const formatNumber = (num: string): string => {
+  if (!num) return "";
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to parse number (remove commas and convert)
+const parseNumber = (value: string): string => {
+  return persianToLatinDigits(value.replace(/,/g, ""));
+};
+
+// Improved Persian number to words (handles hundreds properly)
+const numberToPersianWords = (num: number): string => {
+  if (num === 0) return "صفر";
+
+  const units = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
+  const teens = [
+    "ده",
+    "یازده",
+    "دوازده",
+    "سیزده",
+    "چهارده",
+    "پانزده",
+    "شانزده",
+    "هفده",
+    "هجده",
+    "نوزده",
+  ];
+  const tens = [
+    "",
+    "",
+    "بیست",
+    "سی",
+    "چهل",
+    "پنجاه",
+    "شصت",
+    "هفتاد",
+    "هشتاد",
+    "نود",
+  ];
+  const hundredsWords = [
+    "",
+    "یکصد",
+    "دویست",
+    "سیصد",
+    "چهارصد",
+    "پانصد",
+    "ششصد",
+    "هفتصد",
+    "هشتصد",
+    "نهصد",
+  ];
+  const scales = ["", "هزار", "میلیون", "میلیارد"];
+
+  let result = "";
+  let scaleIndex = 0;
+
+  while (num > 0) {
+    const chunk = num % 1000;
+    if (chunk > 0) {
+      let chunkStr = "";
+
+      const hundreds = Math.floor(chunk / 100);
+      const remainder = chunk % 100;
+
+      if (hundreds > 0) {
+        chunkStr += hundredsWords[hundreds];
+        if (remainder > 0) {
+          chunkStr += " و ";
+        }
+      }
+
+      if (remainder > 0) {
+        if (remainder < 10) {
+          chunkStr += units[remainder];
+        } else if (remainder < 20) {
+          chunkStr += teens[remainder - 10];
+        } else {
+          const ten = Math.floor(remainder / 10);
+          const unit = remainder % 10;
+          chunkStr += tens[ten];
+          if (unit > 0) {
+            chunkStr += " و " + units[unit];
+          }
+        }
+      }
+
+      if (scales[scaleIndex] && chunkStr) {
+        chunkStr += " " + scales[scaleIndex];
+      }
+
+      result = chunkStr + " " + result;
+    }
+
+    num = Math.floor(num / 1000);
+    scaleIndex++;
+  }
+
+  return result.trim();
+};
 
 const PropertyListings: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -676,6 +776,20 @@ const PropertyListings: React.FC = () => {
     }
   };
 
+  // Get formatted value for display
+  const getFormattedValue = (field: keyof Partial<Poster>) => {
+    return formatNumber(String(editFormData[field] || ""));
+  };
+
+  // Get Persian words for price display
+  const getPersianPriceDisplay = (field: keyof Partial<Poster>) => {
+    const rawNum = parseNumber(String(editFormData[field] || ""));
+    const numValue = Number(rawNum);
+    if (!rawNum || isNaN(numValue)) return "";
+    return `${numberToPersianWords(numValue)} تومان`;
+  };
+
+  // Update the handleEditFormChange function
   const handleEditFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -702,33 +816,49 @@ const PropertyListings: React.FC = () => {
         [name]: checked,
       }));
     } else if (numericFields.includes(name)) {
-      if (!isValidNumber(value)) {
+      let rawValue = value;
+
+      // For price fields, remove commas before validation
+      if (
+        ["totalPrice", "pricePerMeter", "depositRent", "rentPrice"].includes(
+          name
+        )
+      ) {
+        rawValue = value.replace(/,/g, "");
+      }
+
+      if (!isValidNumber(rawValue)) {
         toast.error("لطفاً فقط اعداد وارد کنید");
         return;
       }
-      const convertedValue = persianToLatinDigits(value);
-      setEditFormData((prev) => ({
-        ...prev,
-        [name]: convertedValue,
-      }));
-    } else if (name === "contact") {
-      if (!isValidNumber(value)) {
-        toast.error("لطفاً فقط اعداد وارد کنید");
-        return;
+
+      const convertedValue = persianToLatinDigits(rawValue);
+
+      // For price fields, store raw digits (no commas in state)
+      if (
+        ["totalPrice", "pricePerMeter", "depositRent", "rentPrice"].includes(
+          name
+        )
+      ) {
+        setEditFormData((prev) => ({ ...prev, [name]: convertedValue }));
+      } else if (name === "contact") {
+        if (convertedValue && !isValidPhoneNumber(convertedValue)) {
+          toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+        }
+        setEditFormData((prev) => ({
+          ...prev,
+          [name]: convertedValue,
+        }));
+      } else {
+        setEditFormData((prev) => ({
+          ...prev,
+          [name]: convertedValue,
+        }));
       }
-      const convertedValue = persianToLatinDigits(value);
-      if (convertedValue && !isValidPhoneNumber(convertedValue)) {
-        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
-      }
-      setEditFormData((prev) => ({
-        ...prev,
-        [name]: convertedValue,
-      }));
     } else {
       setEditFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
   const formatPrice = (price: number) => {
     if (!price || price === 0) return "توافقی";
     return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
@@ -997,7 +1127,16 @@ const PropertyListings: React.FC = () => {
                     <div className="flex items-center">
                       <div className="h-14 w-14 flex-shrink-0 rounded-md overflow-hidden relative">
                         <Image
-                          src={getFirstImageUrl(property.images).startsWith('/uploads/') ? `/api/images/${getFirstImageUrl(property.images).split('/').slice(-2).join('/')}` : getFirstImageUrl(property.images)}
+                          src={
+                            getFirstImageUrl(property.images).startsWith(
+                              "/uploads/"
+                            )
+                              ? `/api/images/${getFirstImageUrl(property.images)
+                                  .split("/")
+                                  .slice(-2)
+                                  .join("/")}`
+                              : getFirstImageUrl(property.images)
+                          }
                           alt={property.title || "تصویر ملک"}
                           fill
                           className="object-cover"
@@ -1311,14 +1450,19 @@ const PropertyListings: React.FC = () => {
                           قیمت کل (تومان) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="totalPrice"
-                          value={editFormData.totalPrice || ""}
+                          value={getFormattedValue("totalPrice")}
                           onChange={handleEditFormChange}
                           required={!isRentType}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.totalPrice && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("totalPrice")}
+                          </p>
+                        )}
                       </div>
 
                       {/* Price Per Meter */}
@@ -1327,13 +1471,18 @@ const PropertyListings: React.FC = () => {
                           قیمت هر متر (تومان)
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="pricePerMeter"
-                          value={editFormData.pricePerMeter || ""}
+                          value={getFormattedValue("pricePerMeter")}
                           onChange={handleEditFormChange}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.pricePerMeter && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("pricePerMeter")}
+                          </p>
+                        )}
                       </div>
                     </>
                   ) : (
@@ -1345,14 +1494,19 @@ const PropertyListings: React.FC = () => {
                           مبلغ ودیعه (تومان) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="depositRent"
-                          value={editFormData.depositRent || ""}
+                          value={getFormattedValue("depositRent")}
                           onChange={handleEditFormChange}
                           required={isRentType}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.depositRent && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("depositRent")}
+                          </p>
+                        )}
                       </div>
 
                       {/* Monthly Rent */}
@@ -1362,14 +1516,19 @@ const PropertyListings: React.FC = () => {
                           اجاره ماهانه (تومان) *
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           name="rentPrice"
-                          value={editFormData.rentPrice || ""}
+                          value={getFormattedValue("rentPrice")}
                           onChange={handleEditFormChange}
                           required={isRentType}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.rentPrice && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("rentPrice")}
+                          </p>
+                        )}
                       </div>
 
                       {/* Convertible Deposit */}

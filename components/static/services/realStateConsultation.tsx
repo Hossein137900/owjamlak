@@ -248,7 +248,7 @@ export default function RealEstateConsultationPage() {
         {/* Header */}
         <motion.div
           variants={fadeIn}
-          className="flex flex-col md:flex-row gap-6 mb-12"
+          className="flex flex-col md:flex-row  lg:items-center gap-6 mb-12"
         >
           <div className="md:w-1/2">
             <div className="flex items-center gap-3 mb-4">
@@ -274,13 +274,12 @@ export default function RealEstateConsultationPage() {
               </motion.button>
             </Link>
           </div>
-          <div className="md:w-1/2 relative h-64 md:h-auto rounded-xl overflow-hidden">
+          <div className="md:w-1/2 relative h-64 md:h-96 rounded-xl overflow-hidden">
             <Image
               src="/assets/images/hero4.jpg"
               alt="مشاوره املاک"
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -523,10 +522,11 @@ export default function RealEstateConsultationPage() {
                 className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow duration-300"
               >
                 <button
+                  aria-label="faq"
                   onClick={() => toggleFaq(index)}
                   className="w-full text-right p-5 flex justify-between items-center hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <h3 className="text-lg font-medium text-gray-800 pr-2">
+                  <h3 className="md:text-lg text-sm font-bold text-gray-800 pr-2">
                     {faq.question}
                   </h3>
                   <div
@@ -571,9 +571,9 @@ export default function RealEstateConsultationPage() {
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -10, opacity: 0 }}
                         transition={{ duration: 0.2, delay: 0.1 }}
-                        className="p-5 pt-0 border-t border-gray-100"
+                        className="p-5 pt-4 border-t border-gray-100"
                       >
-                        <p className="text-gray-600 leading-relaxed">
+                        <p className="text-gray-600 leading-relaxed text-sm md:text-base">
                           {faq.answer}
                         </p>
                       </motion.div>

@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
@@ -11,6 +10,7 @@ import { usePosters } from "@/hooks/usePosters";
 const HeroImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { posters, loading, error } = usePosters();
 
   useEffect(() => {
@@ -24,49 +24,38 @@ const HeroImageSlider = () => {
   }, [posters.length]);
 
   const nextSlide = () => {
-    if (posters.length > 1) {
+    if (posters.length > 1 && !isAnimating) {
+      setIsAnimating(true);
       setDirection(1);
       setCurrentIndex((prev) => (prev + 1) % posters.length);
+      setTimeout(() => setIsAnimating(false), 400);
     }
   };
 
   const prevSlide = () => {
-    if (posters.length > 1) {
+    if (posters.length > 1 && !isAnimating) {
+      setIsAnimating(true);
       setDirection(-1);
       setCurrentIndex((prev) => (prev - 1 + posters.length) % posters.length);
+      setTimeout(() => setIsAnimating(false), 400);
     }
   };
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? "100%" : "-100%",
-      zIndex: 0,
-      opacity: 1,
-    }),
-    center: {
-      x: 0,
-      zIndex: 1,
-      opacity: 1,
-      transition: {
-        x: { type: "tween", duration: 0.4 },
-      },
-    },
-    exit: (direction: number) => ({
-      x: direction > 0 ? "-100%" : "100%",
-      zIndex: 0,
-      opacity: 1,
-      transition: {
-        x: { type: "tween", duration: 0.4 },
-      },
-    }),
+  const goToSlide = (index: number) => {
+    if (!isAnimating) {
+      setIsAnimating(true);
+      setDirection(index > currentIndex ? 1 : -1);
+      setCurrentIndex(index);
+      setTimeout(() => setIsAnimating(false), 400);
+    }
   };
 
   const currentPoster = posters[currentIndex];
 
   if (loading) {
     return (
-      <div className="col-span-8 row-span-6 flex items-center justify-center  rounded-tr-3xl rounded-br-3xl">
-        <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />{" "}
+      <div className="col-span-8 row-span-6 flex items-center justify-center rounded-tr-3xl rounded-br-3xl">
+        <FiLoader className="w-12 h-12 text-[#01ae9b] animate-spin mx-auto mb-4" />
       </div>
     );
   }
@@ -89,22 +78,100 @@ const HeroImageSlider = () => {
       </div>
     );
   }
-  return (
-    <motion.div className="col-span-8 row-span-6 relative " dir="rtl">
-      {/* Base background to prevent flashing */}
-      <div className="absolute inset-0 bg-transparent z-0" />
 
-      {/* Slide container */}
-      <div className="relative w-full rounded-r-2xl h-full overflow-hidden z-10">
-        <AnimatePresence initial={false} custom={direction} mode="sync">
-          <motion.div
+  return (
+    <>
+      <style jsx>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slideInLeft {
+          from {
+            transform: translateX(-100%);
+          }
+          to {
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes slideOutRight {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(100%);
+          }
+        }
+
+        @keyframes slideOutLeft {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-100%);
+          }
+        }
+
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .slide-enter-right {
+          animation: slideInRight 0.4s ease-out forwards;
+        }
+
+        .slide-enter-left {
+          animation: slideInLeft 0.4s ease-out forwards;
+        }
+
+        .slide-exit-right {
+          animation: slideOutRight 0.4s ease-out forwards;
+        }
+
+        .slide-exit-left {
+          animation: slideOutLeft 0.4s ease-out forwards;
+        }
+
+        .fade-in-up-1 {
+          animation: fadeInUp 0.5s ease-out 0.2s forwards;
+          opacity: 0;
+        }
+
+        .fade-in-up-2 {
+          animation: fadeInUp 0.5s ease-out 0.3s forwards;
+          opacity: 0;
+        }
+
+        .fade-in-up-3 {
+          animation: fadeInUp 0.5s ease-out 0.4s forwards;
+          opacity: 0;
+        }
+      `}</style>
+
+      <div className="col-span-8 row-span-6 relative" dir="rtl">
+        {/* Base background to prevent flashing */}
+        <div className="absolute inset-0 bg-transparent z-0" />
+
+        {/* Slide container */}
+        <div className="relative w-full rounded-r-2xl h-full overflow-hidden z-10">
+          <div
             key={currentIndex}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="absolute  inset-0 w-full h-full"
+            className={`absolute inset-0 w-full h-full ${
+              direction > 0 ? "slide-enter-right" : "slide-enter-left"
+            }`}
           >
             <Image
               src={
@@ -118,37 +185,21 @@ const HeroImageSlider = () => {
                 currentPoster.title
               }
               fill
-              className="object-cover  rounded-tr-3xl rounded-br-3xl"
+              className="object-cover rounded-tr-3xl rounded-br-3xl"
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+
             <div className="absolute bottom-0 right-0 p-6 text-white w-full z-20">
-              {/* Content as before */}
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
-            <div className="absolute bottom-0 right-0 p-6 text-white w-full">
-              <motion.h2
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                className="text-xl font-bold mb-2"
-              >
+              <h2 className="fade-in-up-1 text-xl font-bold mb-2">
                 {currentPoster.title}
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="text-sm text-gray-200 mb-4 line-clamp-2"
-              >
+              </h2>
+
+              <p className="fade-in-up-2 text-sm text-gray-200 mb-4 line-clamp-2">
                 {currentPoster.description.slice(0, 30)}...
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-                className="flex items-center justify-between gap-4 text-xs"
-              >
+              </p>
+
+              <div className="fade-in-up-3 flex items-center justify-between gap-4 text-xs">
                 {/* Location badge */}
                 <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md">
                   <HiOutlineLocationMarker className="text-white text-base" />
@@ -157,64 +208,68 @@ const HeroImageSlider = () => {
 
                 {/* View button */}
                 <Link
+                
                   href={`/poster/${currentPoster._id}`}
                   className="
-      flex items-center gap-2 z-500
-      bg-white/20 backdrop-blur-sm
-      text-white font-medium
-      px-3 py-1.5 rounded-md
-      shadow-md cursor-pointer
-      hover:from-[#02c2ad] hover:to-[#7c3aed]
-      transition-all duration-300
-      text-sm
-    "
+                    flex items-center gap-2 z-500
+                    bg-white/20 backdrop-blur-sm
+                    text-white font-medium
+                    px-3 py-1.5 rounded-md
+                    shadow-md cursor-pointer
+                    hover:from-[#02c2ad] hover:to-[#7c3aed]
+                    transition-all duration-300
+                    text-sm
+                  "
                 >
                   <HiOutlineEye className="text-lg" />
                   <span>مشاهده</span>
                 </Link>
-              </motion.div>
+              </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Navigation arrows */}
-      {posters.length > 1 && (
-        <>
-          <button
-            onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition z-20"
-          >
-            <FaChevronLeft className="text-sm" />
-          </button>
-
-          <button
-            onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition z-20"
-          >
-            <FaChevronRight className="text-sm" />
-          </button>
-
-          {/* Dots */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {posters.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setDirection(index > currentIndex ? 1 : -1);
-                  setCurrentIndex(index);
-                }}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? "bg-white scale-110 shadow"
-                    : "bg-white/40"
-                }`}
-              />
-            ))}
           </div>
-        </>
-      )}
-    </motion.div>
+        </div>
+
+        {/* Navigation arrows */}
+        {posters.length > 1 && (
+          <>
+            <button
+              aria-label="prev"
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition z-20"
+              disabled={isAnimating}
+            >
+              <FaChevronLeft className="text-sm" />
+            </button>
+
+            <button
+              aria-label="next"
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center text-white transition z-20"
+              disabled={isAnimating}
+            >
+              <FaChevronRight className="text-sm" />
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+              {posters.map((_, index) => (
+                <button
+                  key={index}
+                  aria-label={`slide ${index + 1}`}
+                  onClick={() => goToSlide(index)}
+                  disabled={isAnimating}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? "bg-white scale-110 shadow"
+                      : "bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 };
 

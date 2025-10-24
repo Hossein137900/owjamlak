@@ -231,8 +231,6 @@ export default function Chat() {
     };
   }, [isModalOpen]);
 
-
-
   const connectSocket = (): void => {
     // Disconnect existing socket if any
     if (socket && socket.connected) {
@@ -275,7 +273,7 @@ export default function Chat() {
         const uiMessages = history.map((msg) => ({
           name: msg.userName,
           text: msg.text,
-          time: msg.time,
+          time: String(Number(msg.time) * 1000), // اگر سرور timestamp ثانیه‌ای می‌فرسته
         }));
         setMessages(uiMessages);
       }
@@ -289,20 +287,65 @@ export default function Chat() {
     await loadChatHistoryWithToken(currentToken || "");
   };
 
-  // const formatTime = (timeString: string): string => {
-  //   try {
-  //     const date = new Date(timeString);
-  //     if (isNaN(date.getTime())) return timeString;
-  //     return date.toLocaleTimeString("fa-IR", {
-  //       timeZone: "Asia/Tehran",
-  //       hour: "2-digit",
-  //       minute: "2-digit",
-  //       hour12: false,
-  //     });
-  //   } catch {
-  //     return timeString;
-  //   }
-  // };
+ const formatTime = (timeInput: string | number | Date | null | undefined): string => {
+  console.log("DEBUG timeInput:", timeInput, typeof timeInput);
+
+  if (timeInput == null) return "-";
+
+  let date: Date;
+
+  if (typeof timeInput === "number") {
+    date = new Date(timeInput < 1e12 ? timeInput * 1000 : timeInput);
+  } else if (typeof timeInput === "string") {
+    // فقط ساعت (مثل "2:46:55 PM")
+    const timeRegex = /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s?(AM|PM)?$/i;
+    const match = timeInput.match(timeRegex);
+
+    if (match) {
+      const [, h, m, s = "0", ampm] = match;
+      let hours = parseInt(h, 10);
+      const minutes = parseInt(m, 10);
+      const seconds = parseInt(s, 10);
+
+      if (ampm?.toUpperCase() === "PM" && hours < 12) hours += 12;
+      if (ampm?.toUpperCase() === "AM" && hours === 12) hours = 0;
+
+      // تاریخ امروز تهران
+      const now = new Date();
+      const tehranDate = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Tehran",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(now);
+
+      // ساخت تاریخ کامل با تایم‌زون ایران
+      const dateString = `${tehranDate}T${hours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}+03:30`;
+
+      date = new Date(dateString);
+    } else {
+      const parsed = Date.parse(timeInput);
+      if (isNaN(parsed)) return `Invalid: ${timeInput}`;
+      date = new Date(parsed);
+    }
+  } else if (timeInput instanceof Date) {
+    date = timeInput;
+  } else {
+    return `Unknown type: ${typeof timeInput}`;
+  }
+
+  if (isNaN(date.getTime())) return `Invalid date: ${timeInput}`;
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    timeZone: "Asia/Tehran",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+};
+
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -496,9 +539,9 @@ export default function Chat() {
                             <span className="font-semibold text-sm opacity-90 mr-3">
                               {msg.name}
                             </span>
-                            {/* <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
-                              {formatTime(msg.time)}{" "}
-                            </span> */}
+                            <span className="text-xs opacity-70 whitespace-nowrap ml-auto">
+                              {formatTime(msg.time)}
+                            </span>
                           </div>
                           <p className="text-sm leading-relaxed mt-1">
                             {msg.text}

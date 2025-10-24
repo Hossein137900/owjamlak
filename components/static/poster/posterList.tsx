@@ -30,7 +30,7 @@ function PosterListContent() {
   const [page, setPage] = useState<number>(
     parseInt(searchParams.get("page") || "1")
   );
-  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "9"));
+  const [limit] = useState<number>(parseInt(searchParams.get("limit") || "12"));
   const [filters, setFilters] = useState<Filters>({
     search: searchParams.get("query") || "",
     parentType: searchParams.get("parentType") || "",
@@ -237,8 +237,6 @@ function PosterListContent() {
           ...(filters.location && { location: filters.location }),
         });
 
-        console.log("Fetching posters with query:", query.toString());
-
         const res = await fetch(`/api/poster?${query.toString()}`, {});
 
         if (!res.ok) {
@@ -246,7 +244,6 @@ function PosterListContent() {
         }
 
         const data = await res.json();
-        console.log("API response:", data);
 
         if (data.pagination) {
           setHasNextPage(data.pagination.hasNextPage);
@@ -368,7 +365,7 @@ function PosterListContent() {
   };
 
   const clearFilters = () => {
-    setFilters({
+    const resetFilters = {
       search: "",
       parentType: "",
       tradeType: "",
@@ -378,15 +375,29 @@ function PosterListContent() {
       maxArea: "",
       rooms: "",
       location: "",
-    });
+    };
+
+    setFilters(resetFilters);
+    setMobileFilters(resetFilters);
     setTempFilters({
       minPrice: "",
       maxPrice: "",
       minArea: "",
       maxArea: "",
     });
+    setTempMobileFilters({
+      minPrice: "",
+      maxPrice: "",
+      minArea: "",
+      maxArea: "",
+    });
+    setInputValue("");
+    setSuggestions([]);
+    setCameFromSearch(false);
     setPage(1);
-    updateURL(1, limit, "", "", "");
+    setPosters([]);
+    setHasNextPage(true);
+    router.replace("/poster?page=1&limit=9");
   };
 
   const formatPosterForReportageBox = (poster: Poster) => {

@@ -63,8 +63,7 @@ const FooterMobile = () => {
   const [currentAdminSection, setCurrentAdminSection] = useState<string | null>(
     null
   );
-  console.log(currentAdminSection);
-  const [showServicesMenu, setShowServicesMenu] = useState(false);
+   const [showServicesMenu, setShowServicesMenu] = useState(false);
   const servicesRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {

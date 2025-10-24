@@ -8,6 +8,13 @@ import TextAlign from '@tiptap/extension-text-align'
 import BulletList from '@tiptap/extension-bullet-list'
 import OrderedList from '@tiptap/extension-ordered-list'
 
+
+
+
+
+
+
+
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
       textStyle: {

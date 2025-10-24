@@ -494,10 +494,10 @@ const Footer = () => {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
             viewport={{ once: true }}
-            className="mt-12 pt-6 border-t border-gray-200 text-center"
+            className="my-12 pt-6 border-t border-gray-200 text-center"
           >
             <p className="text-sm text-gray-600">
-              © {new Date().getFullYear()} املاک - تمامی حقوق محفوظ است
+              © {new Date().getFullYear()} املاک اوج - تمامی حقوق محفوظ است
             </p>
           </motion.div>
         </div>

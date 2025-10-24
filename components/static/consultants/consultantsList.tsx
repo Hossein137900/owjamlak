@@ -23,7 +23,6 @@ const ConsultantsList = () => {
     try {
       const res = await fetch(`/api/consultants`);
       const data = await res.json();
-      console.log(data);
 
       if (data.success) {
         setAllConsultants(data.consultants); // Store all consultants

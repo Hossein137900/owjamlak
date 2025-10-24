@@ -184,6 +184,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
               انتخاب موقعیت جغرافیایی
             </h3>
             <button
+              aria-label="choose"
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             >
@@ -199,6 +200,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
                 <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-y-auto z-10 shadow-lg">
                   {searchResults.map((result, index) => (
                     <button
+                      aria-label="search"
                       key={index}
                       type="button"
                       onClick={() => handleSearchResultClick(result)}
@@ -265,12 +267,14 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
             </div>
             <div className="flex gap-2">
               <button
+                aria-label="cancell"
                 onClick={onClose}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 انصراف
               </button>
               <button
+                aria-label="submit"
                 onClick={handleConfirm}
                 disabled={!selectedLocation}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

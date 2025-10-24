@@ -29,6 +29,107 @@ type TokenPayload = {
   _id?: string;
 };
 
+// Helper function to format number with commas
+const formatNumber = (num: string): string => {
+  if (!num) return "";
+  return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to parse number (remove commas and convert)
+const parseNumber = (value: string): string => {
+  return persianToLatinDigits(value.replace(/,/g, ""));
+};
+
+// Improved Persian number to words (handles hundreds properly)
+const numberToPersianWords = (num: number): string => {
+  if (num === 0) return "صفر";
+
+  const units = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
+  const teens = [
+    "ده",
+    "یازده",
+    "دوازده",
+    "سیزده",
+    "چهارده",
+    "پانزده",
+    "شانزده",
+    "هفده",
+    "هجده",
+    "نوزده",
+  ];
+  const tens = [
+    "",
+    "",
+    "بیست",
+    "سی",
+    "چهل",
+    "پنجاه",
+    "شصت",
+    "هفتاد",
+    "هشتاد",
+    "نود",
+  ];
+  const hundredsWords = [
+    "",
+    "یکصد",
+    "دویست",
+    "سیصد",
+    "چهارصد",
+    "پانصد",
+    "ششصد",
+    "هفتصد",
+    "هشتصد",
+    "نهصد",
+  ];
+  const scales = ["", "هزار", "میلیون", "میلیارد"];
+
+  let result = "";
+  let scaleIndex = 0;
+
+  while (num > 0) {
+    const chunk = num % 1000;
+    if (chunk > 0) {
+      let chunkStr = "";
+
+      const hundreds = Math.floor(chunk / 100);
+      const remainder = chunk % 100;
+
+      if (hundreds > 0) {
+        chunkStr += hundredsWords[hundreds];
+        if (remainder > 0) {
+          chunkStr += " و ";
+        }
+      }
+
+      if (remainder > 0) {
+        if (remainder < 10) {
+          chunkStr += units[remainder];
+        } else if (remainder < 20) {
+          chunkStr += teens[remainder - 10];
+        } else {
+          const ten = Math.floor(remainder / 10);
+          const unit = remainder % 10;
+          chunkStr += tens[ten];
+          if (unit > 0) {
+            chunkStr += " و " + units[unit];
+          }
+        }
+      }
+
+      if (scales[scaleIndex] && chunkStr) {
+        chunkStr += " " + scales[scaleIndex];
+      }
+
+      result = chunkStr + " " + result;
+    }
+
+    num = Math.floor(num / 1000);
+    scaleIndex++;
+  }
+
+  return result.trim();
+};
+
 const PosterById: React.FC = () => {
   const [posters, setPosters] = useState<Poster[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,6 +265,20 @@ const PosterById: React.FC = () => {
     document.body.style.overflow = "hidden";
   };
 
+  // Get formatted value for display
+  const getFormattedValue = (field: keyof Partial<Poster>) => {
+    return formatNumber(String(editFormData[field] || ""));
+  };
+
+  // Get Persian words for price display
+  const getPersianPriceDisplay = (field: keyof Partial<Poster>) => {
+    const rawNum = parseNumber(String(editFormData[field] || ""));
+    const numValue = Number(rawNum);
+    if (!rawNum || isNaN(numValue)) return "";
+    return `${numberToPersianWords(numValue)} تومان`;
+  };
+
+  // Update the handleEditFormChange function
   const handleEditFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -190,28 +305,45 @@ const PosterById: React.FC = () => {
         [name]: checked,
       }));
     } else if (numericFields.includes(name)) {
-      if (!isValidNumber(value)) {
+      let rawValue = value;
+
+      // For price fields, remove commas before validation
+      if (
+        ["totalPrice", "pricePerMeter", "depositRent", "rentPrice"].includes(
+          name
+        )
+      ) {
+        rawValue = value.replace(/,/g, "");
+      }
+
+      if (!isValidNumber(rawValue)) {
         toast.error("لطفاً فقط اعداد وارد کنید");
         return;
       }
-      const convertedValue = persianToLatinDigits(value);
-      setEditFormData((prev) => ({
-        ...prev,
-        [name]: convertedValue,
-      }));
-    } else if (name === "contact") {
-      if (!isValidNumber(value)) {
-        toast.error("لطفاً فقط اعداد وارد کنید");
-        return;
+
+      const convertedValue = persianToLatinDigits(rawValue);
+
+      // For price fields, store raw digits (no commas in state)
+      if (
+        ["totalPrice", "pricePerMeter", "depositRent", "rentPrice"].includes(
+          name
+        )
+      ) {
+        setEditFormData((prev) => ({ ...prev, [name]: convertedValue }));
+      } else if (name === "contact") {
+        if (convertedValue && !isValidPhoneNumber(convertedValue)) {
+          toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
+        }
+        setEditFormData((prev) => ({
+          ...prev,
+          [name]: convertedValue,
+        }));
+      } else {
+        setEditFormData((prev) => ({
+          ...prev,
+          [name]: convertedValue,
+        }));
       }
-      const convertedValue = persianToLatinDigits(value);
-      if (convertedValue && !isValidPhoneNumber(convertedValue)) {
-        toast.error("شماره تماس باید ۱۱ رقم باشد و با ۰۹ شروع شود");
-      }
-      setEditFormData((prev) => ({
-        ...prev,
-        [name]: convertedValue,
-      }));
     } else {
       setEditFormData((prev) => ({
         ...prev,
@@ -576,7 +708,7 @@ const PosterById: React.FC = () => {
         onProgress: (progress) => setProgress(progress),
         onError: (error) => toast.error(error),
       });
-      
+
       setVideo(file);
       setVideoPreview(URL.createObjectURL(file));
       setEditFormData((prev) => ({
@@ -686,7 +818,14 @@ const PosterById: React.FC = () => {
               {mainImage && (
                 <div className="relative aspect-square bg-gradient-to-br from-gray-100 to-gray-200">
                   <Image
-                    src={mainImage.url.startsWith('/uploads/') ? `/api/images/${mainImage.url.split('/').slice(-2).join('/')}` : mainImage.url}
+                    src={
+                      mainImage.url.startsWith("/uploads/")
+                        ? `/api/images/${mainImage.url
+                            .split("/")
+                            .slice(-2)
+                            .join("/")}`
+                        : mainImage.url
+                    }
                     alt={mainImage.alt || poster.title}
                     fill
                     className="object-cover"
@@ -930,12 +1069,17 @@ const PosterById: React.FC = () => {
                         <input
                           type="text"
                           name="totalPrice"
-                          value={editFormData.totalPrice || ""}
+                          value={getFormattedValue("totalPrice")}
                           onChange={handleEditFormChange}
                           required={!isRentType}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.totalPrice && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("totalPrice")}
+                          </p>
+                        )}
                       </div>
                       <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -944,11 +1088,16 @@ const PosterById: React.FC = () => {
                         <input
                           type="text"
                           name="pricePerMeter"
-                          value={editFormData.pricePerMeter || ""}
+                          value={getFormattedValue("pricePerMeter")}
                           onChange={handleEditFormChange}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.pricePerMeter && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("pricePerMeter")}
+                          </p>
+                        )}
                       </div>
                     </>
                   ) : (
@@ -960,12 +1109,17 @@ const PosterById: React.FC = () => {
                         <input
                           type="text"
                           name="depositRent"
-                          value={editFormData.depositRent || ""}
+                          value={getFormattedValue("depositRent")}
                           onChange={handleEditFormChange}
                           required={isRentType}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.depositRent && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("depositRent")}
+                          </p>
+                        )}
                       </div>
                       <div className="col-span-2 lg:col-span-1">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -974,12 +1128,17 @@ const PosterById: React.FC = () => {
                         <input
                           type="text"
                           name="rentPrice"
-                          value={editFormData.rentPrice || ""}
+                          value={getFormattedValue("rentPrice")}
                           onChange={handleEditFormChange}
                           required={isRentType}
                           min="0"
                           className="w-full px-4 py-2 text-black rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
+                        {editFormData.rentPrice && (
+                          <p className="text-xs text-gray-500 mt-1 text-right">
+                            {getPersianPriceDisplay("rentPrice")}
+                          </p>
+                        )}
                       </div>
                     </>
                   )}
@@ -1193,7 +1352,9 @@ const PosterById: React.FC = () => {
                                   className="bg-blue-600 h-3 rounded-full transition-all duration-300"
                                   style={{ width: `${progress}%` }}
                                 ></div>
-                                <p className="text-xs text-center mt-1">{progress}%</p>
+                                <p className="text-xs text-center mt-1">
+                                  {progress}%
+                                </p>
                               </div>
                             )}
                           </div>
@@ -1259,7 +1420,7 @@ const PosterById: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-8 flex justify-end gap-3">
+                <div className="mt-8 flex justify-start gap-3">
                   <button
                     type="button"
                     onClick={() => {

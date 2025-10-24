@@ -266,7 +266,6 @@ export const createPoster = async (req: Request) => {
         { status: 400 }
       );
     }
-    console.log(posterData);
     const poster = new Poster(posterData);
     await poster.save();
     return NextResponse.json(poster);
@@ -541,15 +540,22 @@ export const deletePoster = async (request: NextRequest) => {
       // Delete images
       if (poster.images && poster.images.length > 0) {
         for (const image of poster.images) {
-          const imageUrl = typeof image === 'string' ? image : image.url;
-          if (imageUrl && imageUrl.startsWith('/api/images/')) {
+          const imageUrl = typeof image === "string" ? image : image.url;
+          if (imageUrl && imageUrl.startsWith("/api/images/")) {
             // Extract userId and filename from URL
-            const urlParts = imageUrl.split('/');
+            const urlParts = imageUrl.split("/");
             const userId = urlParts[urlParts.length - 2];
             const filename = urlParts[urlParts.length - 1];
-            
+
             if (userId && filename) {
-              const filePath = join(process.cwd(), "public", "uploads", "posters", userId, filename);
+              const filePath = join(
+                process.cwd(),
+                "public",
+                "uploads",
+                "posters",
+                userId,
+                filename
+              );
               if (existsSync(filePath)) {
                 await unlink(filePath);
               }
@@ -561,18 +567,26 @@ export const deletePoster = async (request: NextRequest) => {
       // Delete video if exists
       if (poster.video) {
         // Extract userId from poster.user or from image paths
-        let userId = '';
+        let userId = "";
         if (poster.images && poster.images.length > 0) {
           const firstImage = poster.images[0];
-          const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage.url;
-          if (imageUrl && imageUrl.startsWith('/api/images/')) {
-            const urlParts = imageUrl.split('/');
+          const imageUrl =
+            typeof firstImage === "string" ? firstImage : firstImage.url;
+          if (imageUrl && imageUrl.startsWith("/api/images/")) {
+            const urlParts = imageUrl.split("/");
             userId = urlParts[urlParts.length - 2];
           }
         }
-        
+
         if (userId) {
-          const videoPath = join(process.cwd(), "public", "uploads", "posters", userId, poster.video);
+          const videoPath = join(
+            process.cwd(),
+            "public",
+            "uploads",
+            "posters",
+            userId,
+            poster.video
+          );
           if (existsSync(videoPath)) {
             await unlink(videoPath);
           }

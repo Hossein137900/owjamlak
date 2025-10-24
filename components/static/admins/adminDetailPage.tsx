@@ -5,8 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  FaPhone,
-  FaEnvelope,
+   FaEnvelope,
   FaCheckCircle,
   FaTimesCircle,
   FaArrowRight,
@@ -48,9 +47,7 @@ const AdminDetailClient: React.FC<AdminDetailClientProps> = ({ adminId }) => {
     }
   };
 
-  const handlePhoneClick = (phone: string) => {
-    window.open(`tel:${phone}`, "_self");
-  };
+  
 
   const handleEmailClick = (email: string) => {
     window.open(`mailto:${email}`, "_self");
@@ -172,14 +169,6 @@ const AdminDetailClient: React.FC<AdminDetailClientProps> = ({ adminId }) => {
 
               {/* Contact Buttons */}
               <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => handlePhoneClick(admin.user?.phone || "")}
-                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors"
-                >
-                  <FaPhone className="text-lg" />
-                  <span>تماس تلفنی</span>
-                </button>
-
                 {admin.email && (
                   <button
                     onClick={() => handleEmailClick(admin.email!)}
@@ -203,10 +192,6 @@ const AdminDetailClient: React.FC<AdminDetailClientProps> = ({ adminId }) => {
         >
           <h3 className="text-2xl font-bold mb-4">اطلاعات تماس</h3>
           <div className="flex flex-wrap justify-center gap-4">
-            <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
-              <FaPhone />
-              <span>{admin.user?.phone || "-"}</span>
-            </div>
             {admin.email && (
               <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
                 <FaEnvelope />

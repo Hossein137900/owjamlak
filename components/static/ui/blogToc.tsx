@@ -29,9 +29,7 @@ export default function BlogTOC({ htmlContent }: { htmlContent: string }) {
     });
 
     // فقط هدینگ های H1 تا H4 را در نظر بگیر
-    const headingElements = Array.from(
-      doc.querySelectorAll("h1,h2,h3,h4")
-    );
+    const headingElements = Array.from(doc.querySelectorAll("h1,h2,h3,h4"));
     const items: HeadingItem[] = headingElements.map((el, index) => ({
       id: el.id || `heading-${index}`,
       text: el.textContent?.trim() || "",
@@ -48,19 +46,17 @@ export default function BlogTOC({ htmlContent }: { htmlContent: string }) {
       // اطمینان از وجود ID در DOM واقعی و اعمال استایل های سفارشی
       setTimeout(() => {
         // Add IDs to headings (H1-H4 only)
-        contentDiv
-          .querySelectorAll("h1,h2,h3,h4")
-          .forEach((el, index) => {
-            if (!el.id) {
-              const cleanText =
-                el.textContent
-                  ?.trim()
-                  .replace(/\s+/g, "-")
-                  .replace(/[^\u0600-\u06FF\w-]+/g, "")
-                  .toLowerCase() || `heading-${index}`;
-              el.id = cleanText || `heading-${index}`;
-            }
-          });
+        contentDiv.querySelectorAll("h1,h2,h3,h4").forEach((el, index) => {
+          if (!el.id) {
+            const cleanText =
+              el.textContent
+                ?.trim()
+                .replace(/\s+/g, "-")
+                .replace(/[^\u0600-\u06FF\w-]+/g, "")
+                .toLowerCase() || `heading-${index}`;
+            el.id = cleanText || `heading-${index}`;
+          }
+        });
 
         // Style images for responsive behavior
         contentDiv.querySelectorAll("img").forEach((img) => {
@@ -86,11 +82,12 @@ export default function BlogTOC({ htmlContent }: { htmlContent: string }) {
     if (el) {
       const headerOffset = 100; // فاصله از بالای صفحه
       const elementPosition = el.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      const offsetPosition =
+        elementPosition + window.pageYOffset - headerOffset;
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   };
@@ -115,6 +112,7 @@ export default function BlogTOC({ htmlContent }: { htmlContent: string }) {
               {headings.map((h, index) => (
                 <li key={`${h.id}-${index}`}>
                   <button
+                    aria-label="table of content"
                     onClick={() => handleClick(h.id)}
                     className={`
                       w-full text-right p-2 rounded-lg transition-all duration-200
