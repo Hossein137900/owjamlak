@@ -148,3 +148,4 @@ LATEST_LOG="$LOG_FILE"
 find "$BACKUP_DIR" -type f -name "deploy_*.log" ! -name "$(basename "$LATEST_LOG")" -exec sudo rm -f {} \;
 
 echo "================================================================== done by wolfix"
+echo "=================================================================="
