@@ -60,7 +60,7 @@ trap 'rollback' ERR
 
 # === BACKUP STEP ===
 echo "==> Backing up data and uploads..."
-mkdir -p "$BACKUP_DIR/public_${TIMESTAMP}" "$BACKUP_DIR/data_${TIMESTAMP}"
+sudo mkdir -p "$BACKUP_DIR/public_${TIMESTAMP}" "$BACKUP_DIR/data_${TIMESTAMP}"
 
 if [ -d "$APP_DIR/public/uploads" ]; then
   sudo cp -r "$APP_DIR/public/uploads" "$BACKUP_DIR/public_${TIMESTAMP}/" || echo "No uploads to backup."
@@ -78,10 +78,13 @@ if [ -f "$CHAT_DIR/.env" ]; then
   sudo cp "$CHAT_DIR/.env" "$BACKUP_DIR/env_chat_${TIMESTAMP}.backup"
 fi
 
+# Fix backup permissions
+sudo chown -R $(whoami):$(whoami) "$BACKUP_DIR" || echo "Backup permission fix failed"
+
 # === FIX PERMISSIONS BEFORE STOPPING ===
 echo "==> Fixing permissions before update..."
-sudo chown -R $(whoami):$(whoami) "$APP_DIR" || echo "Permission fix failed"
-sudo chmod -R u+w "$APP_DIR" || echo "Chmod fix failed"
+sudo chown -R $(whoami):$(whoami) "$APP_DIR" "$BACKUP_DIR" || echo "Permission fix failed"
+sudo chmod -R u+w "$APP_DIR" "$BACKUP_DIR" || echo "Chmod fix failed"
 
 # === STOP CONTAINERS ===
 echo "==> Stopping containers..."
