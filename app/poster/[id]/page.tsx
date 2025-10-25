@@ -8,7 +8,80 @@ interface PageProps {
 
 export default async function PosterDetail({ params }: PageProps) {
   const { id } = await params;
-  return <PosterDetailClient posterId={id} />;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://oujamlak.ir";
+  let schemas: Record<string, unknown>[] = [];
+
+  try {
+    const response = await fetch(`${baseUrl}/api/poster/${id}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const poster: Poster = data.poster || data.posters?.[0] || data;
+
+      if (poster) {
+        const imageUrl = getImageUrl(poster.images?.[0]?.url || null, baseUrl);
+        const isRentType = ["residentialRent", "commercialRent", "shortTermRent"].includes(poster.parentType || "");
+
+        schemas = [
+          {
+            "@context": "https://schema.org",
+            "@type": "RealEstateListing",
+            "@id": `${baseUrl}/poster/${poster._id}`,
+            name: poster.title,
+            description: poster.description?.replace(/\r\n/g, " ").replace(/•/g, "").trim() || poster.title,
+            url: `${baseUrl}/poster/${poster._id}`,
+            image: imageUrl,
+            datePosted: poster.createdAt || new Date().toISOString(),
+            address: {
+              "@type": "PostalAddress",
+              addressLocality: poster.locationDetails?.city || poster.location || "تهران",
+              addressRegion: poster.locationDetails?.province || "تهران",
+              addressCountry: "IR",
+            },
+            offers: {
+              "@type": "Offer",
+              price: isRentType ? (poster.rentPrice || 0) : (poster.totalPrice || 0),
+              priceCurrency: "IRR",
+              availability: "https://schema.org/InStock",
+              priceValidUntil: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              seller: { "@type": "Organization", name: "اوج املاک", url: baseUrl },
+            },
+            floorSize: { "@type": "QuantitativeValue", value: poster.area || 0, unitCode: "MTK" },
+            numberOfRooms: poster.rooms || 0,
+            yearBuilt: poster.buildingDate || undefined,
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "خانه", item: baseUrl },
+              { "@type": "ListItem", position: 2, name: "آگهیها", item: `${baseUrl}/poster` },
+              { "@type": "ListItem", position: 3, name: poster.title, item: `${baseUrl}/poster/${poster._id}` },
+            ],
+          },
+        ];
+      }
+    }
+  } catch (error) {
+    console.log("Error generating schema:", error);
+  }
+
+  return (
+    <>
+      {schemas.map((schema, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+      <PosterDetailClient posterId={id} />
+    </>
+  );
 }
 
 function getImageUrl(

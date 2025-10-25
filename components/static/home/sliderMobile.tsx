@@ -40,7 +40,7 @@ const SliderMobile = () => {
       <div className="  py-6" dir="rtl">
         <div className="h-80 flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl">
           <FiLoader className="w-10 h-10 text-[#01ae9b] animate-spin mb-4" />
-          <p className="text-gray-600 text-sm">در حال بارگیری آگهی‌ها...</p>
+          <p className="text-gray-600 text-sm">در حال بارگیری آگهی‌ها</p>
         </div>
       </div>
     );
@@ -74,7 +74,7 @@ const SliderMobile = () => {
           <div className="absolute bottom-0 p-6 text-white">
             <h3 className="text-lg font-bold">به زودی آگهی‌های جدید</h3>
             <p className="text-sm text-gray-200 mt-2">
-              آگهی‌ها در حال آماده‌سازی هستند...
+              آگهی‌ها در حال آماده‌سازی هستند
             </p>
           </div>
         </div>
@@ -158,23 +158,23 @@ const SliderMobile = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
               {/* Content overlay */}
-              <div className="absolute inset-0 flex flex-col justify-end p-6">
+              <div className="absolute inset-0 flex flex-col justify-end p-3">
                 <motion.div
                   initial={{ y: 30, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20"
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20"
                 >
-                  <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">
+                  <h3 className="text-lg font-bold text-white  line-clamp-1">
                     {posters[currentIndex]?.title}
                   </h3>
 
-                  <p className="text-white/90 text-sm mb-4 line-clamp-2 leading-relaxed">
+                  <p className="text-white/90 text-xs mb-2 line-clamp-2 leading-relaxed">
                     {posters[currentIndex]?.description.slice(0, 40)}...
                   </p>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-xl">
+                    <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-xl">
                       <HiOutlineLocationMarker className="text-white text-base" />
                       <span className="text-white text-xs font-medium">
                         {posters[currentIndex]?.location.slice(0, 20)}...
@@ -184,7 +184,7 @@ const SliderMobile = () => {
                     <Link
                       target="_blank"
                       href={`/poster/${posters[currentIndex]?._id}`}
-                      className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#02c2ad] px-4 py-2 rounded-xl text-white text-xs text-nowrap font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                      className="flex items-center gap-2 bg-gradient-to-r from-[#01ae9b] to-[#02c2ad] px-2 py-1 rounded-xl text-white text-xs text-nowrap font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                       <HiOutlineEye className="text-base" />
                       <span>مشاهده جزئیات</span>
