@@ -43,7 +43,7 @@ const ConsultantListSection = () => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,#01ae9b_0%,transparent_50%),radial-gradient(circle_at_75%_75%,#01ae9b_0%,transparent_50%),radial-gradient(circle_at_25%_75%,#01ae9b_0%,transparent_50%),radial-gradient(circle_at_75%_25%,#01ae9b_0%,transparent_50%)] bg-[length:20px_20px] opacity-20 blur-sm"></div>
         <div className="text-center relative z-10 py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#01ae9b] mx-auto mb-4"></div>
-          <p className="text-gray-600">در حال بارگذاری مشاوران...</p>
+          <p className="text-gray-600">در حال بارگذاری مشاوران</p>
         </div>
       </motion.div>
     );
@@ -96,8 +96,8 @@ const ConsultantListSection = () => {
         </motion.div>
 
         {/* Desktop Grid */}
-        <div className="hidden md:grid md:grid-cols-4 gap-6">
-          {consultants.slice(0, 3).map((consultant, index) => (
+        <div className="hidden md:grid md:grid-cols-5 gap-2">
+          {consultants.map((consultant, index) => (
             <motion.div
               key={consultant._id + index}
               initial={{ opacity: 0, y: 30 }}
@@ -138,7 +138,7 @@ const ConsultantListSection = () => {
                 </div>
                 <Link
                   href={`/consultant/${consultant._id}`}
-                  className="inline-flex items-center gap-2 text-[#01ae9b] hover:text-[#019688] transition-colors text-sm font-medium"
+                  className="flex justify-between items-center gap-2 text-[#01ae9b] hover:text-[#019688] transition-colors text-sm font-medium"
                 >
                   مشاهده پروفایل
                   <FaArrowLeft className="w-4 h-4" />
