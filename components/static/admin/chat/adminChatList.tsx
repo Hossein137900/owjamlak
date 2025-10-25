@@ -246,7 +246,7 @@ export default function ChatAdminList() {
       }).format(date);
 
       return tehranTime.replace(",", " -");
-    } catch (err) {
+    } catch   {
       return "-";
     }
   };

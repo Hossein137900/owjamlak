@@ -286,6 +286,9 @@ export default function Chat() {
     const currentToken = token || localStorage.getItem("token");
     await loadChatHistoryWithToken(currentToken || "");
   };
+
+
+
   const formatTime = (
     createdAt: string | number | Date | null | undefined
   ): string => {
@@ -308,7 +311,7 @@ export default function Chat() {
       }).format(date);
 
       return tehranTime.replace(",", " -");
-    } catch (err) {
+    } catch  {
       return "-";
     }
   };
@@ -370,9 +373,15 @@ export default function Chat() {
   // if (!shouldShowWidget) {
   //   return null;
   // }
+
+
+
   if (pathname === "/auth") {
     return null;
   }
+
+
+
   return (
     <>
       {/* Chat Icon Button */}
