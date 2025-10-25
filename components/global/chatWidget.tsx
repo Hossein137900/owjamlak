@@ -168,18 +168,14 @@ export default function Chat() {
         setIsConnected(false);
       };
 
-      const handleMessage = (data: {
-        userName?: string;
-        name?: string;
-        text: string;
-        time: string;
-      }) => {
+      const handleMessage = (data: Message & { userName?: string }) => {
         setActivity("");
 
-        const uiMessage = {
+        const uiMessage: Message = {
           name: data.userName || data.name || "Unknown",
           text: data.text,
           time: data.time,
+          createdAt: data.createdAt || new Date(),
         };
         setMessages((prev) => [...prev, uiMessage]);
 
@@ -268,12 +264,13 @@ export default function Chat() {
         }
       );
       if (response.ok) {
-        const history: { userName: string; text: string; time: string }[] =
+        const history: { userName: string; text: string; createdAt: string }[] =
           await response.json();
         const uiMessages = history.map((msg) => ({
           name: msg.userName,
           text: msg.text,
-          time: String(Number(msg.time) * 1000), // اگر سرور timestamp ثانیه‌ای می‌فرسته
+          time: msg.createdAt,
+          createdAt: new Date(msg.createdAt),
         }));
         setMessages(uiMessages);
       }
@@ -287,8 +284,6 @@ export default function Chat() {
     await loadChatHistoryWithToken(currentToken || "");
   };
 
-
-
   const formatTime = (
     createdAt: string | number | Date | null | undefined
   ): string => {
@@ -299,19 +294,14 @@ export default function Chat() {
 
       if (isNaN(date.getTime())) return "-";
 
-      // زمان و تاریخ به وقت تهران و فرمت فارسی
-      const tehranTime = new Intl.DateTimeFormat("fa-IR", {
+      return new Intl.DateTimeFormat("fa-IR", {
         timeZone: "Asia/Tehran",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
         hour12: false,
       }).format(date);
-
-      return tehranTime.replace(",", " -");
-    } catch  {
+    } catch {
       return "-";
     }
   };
@@ -374,13 +364,9 @@ export default function Chat() {
   //   return null;
   // }
 
-
-
   if (pathname === "/auth") {
     return null;
   }
-
-
 
   return (
     <>

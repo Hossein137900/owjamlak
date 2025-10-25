@@ -95,7 +95,7 @@ export default function ChatAdminList() {
               const messageExists = roomData.messages.some(
                 (msg) =>
                   msg.text === data.text &&
-                  msg.time === data.time &&
+                  msg.createdAt === data.createdAt &&
                   msg.name === data.name
               );
               if (!messageExists) {
@@ -108,6 +108,9 @@ export default function ChatAdminList() {
                       name: senderName,
                       text: data.text,
                       time: data.time,
+                      createdAt: data.createdAt
+                        ? new Date(data.createdAt)
+                        : new Date(),
                     },
                   ],
                   hasNewMessage: senderName !== "Admin",
@@ -129,6 +132,9 @@ export default function ChatAdminList() {
                           name: senderName,
                           text: data.text,
                           time: data.time,
+                          createdAt: data.createdAt
+                            ? new Date(data.createdAt)
+                            : undefined,
                         },
                       ],
                       hasNewMessage: senderName !== "Admin",
@@ -202,12 +208,16 @@ export default function ChatAdminList() {
         }/api/messages/${sessionId}`
       );
       if (response.ok) {
-        const messages: { userName: string; text: string; time: string }[] =
-          await response.json();
+        const messages: {
+          userName: string;
+          text: string;
+          createdAt: string;
+        }[] = await response.json();
         const uiMessages = messages.map((msg) => ({
           name: msg.userName,
           text: msg.text,
-          time: msg.time,
+          time: msg.createdAt,
+          createdAt: new Date(msg.createdAt),
         }));
 
         setActiveRooms((prev) => {
@@ -246,7 +256,7 @@ export default function ChatAdminList() {
       }).format(date);
 
       return tehranTime.replace(",", " -");
-    } catch   {
+    } catch {
       return "-";
     }
   };
