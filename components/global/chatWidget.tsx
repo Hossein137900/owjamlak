@@ -383,7 +383,7 @@ export default function Chat() {
             }
           }
         }}
-        className="fixed bottom-16 right-3 z-50 w-16 h-16 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group border border-blue-400/30"
+        className="fixed bottom-16 right-3 z-50 w-16 h-16 bg-gradient-to-r from-[#66308d] to-[#01ae9b] text-white rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group  "
       >
         <svg
           className="w-8 h-8 group-hover:scale-110 transition-transform duration-200"
