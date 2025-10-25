@@ -5,6 +5,7 @@ export interface Message {
   text: string;
   time: string;
   room?: string; // چون تو چندتا ایونت room می‌فرستی
+  createdAt?:Date;
 }
 
 export interface User {
